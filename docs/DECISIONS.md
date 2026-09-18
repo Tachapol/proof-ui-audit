@@ -243,3 +243,20 @@ This document records technical and architectural decisions for `proofui-audit-p
 * **Reason**: Satisfies Phase 6A requirements (`DATA-07`, `DATA-08`, `TEST-19`, `TEST-20`), ensuring secure, cross-format consistent, and leak-free report export for both machine consumption and human review.
 * **Affected Requirement IDs**: `DATA-07`, `DATA-08`, `TEST-19`, `TEST-20`, `UI-14`, `UI-15`
 
+---
+
+## DEC-019: Isolated Iteration Proof — Allowlisted Overrides, Browser Isolation, and Baseline Immutability
+
+* **Date**: 2026-09-19
+* **Decision**:
+  - **Allowlisted Override Registry**: Only predefined, structurally allowlisted CSS overrides (`AllowlistedOverride`) may be applied during iteration proofs. Arbitrary user-supplied CSS or JavaScript is rejected. Each override declares its applicable fixture ID, rule ID, target selector, exact CSS properties, and human-readable description.
+  - **Isolated Browser Execution**: The candidate preview launches a fresh, headless Chromium browser instance via `chromium.launch()` with `--no-sandbox`, navigates to the target fixture, injects only the approved CSS via `page.addStyleTag()`, re-measures the element, re-evaluates the deterministic rule, and captures a candidate screenshot. The original fixture source files are never modified.
+  - **Baseline Immutability**: The baseline measurement, status, bounding box, and screenshot recorded during the original audit remain immutable throughout the iteration proof. Candidate measurements are stored in separate fields (`candidateMeasurement`, `candidateStatus`, `candidateBoundingBox`, `candidateScreenshotPath`).
+  - **Regression Classification**: A deterministic `computeRegressionResult()` function classifies the comparison as `improved`, `unchanged`, `regressed`, or `unable_to_verify` based on status transitions and dimension deltas.
+  - **Approval Gate**: The iteration proof requires explicit designer approval before execution, recorded as an `IterationEvent` with timestamp and optional approval reason.
+  - **Final Decision**: After reviewing the comparison, the designer records a final decision (`accept`, `reject`, `edit`, `reprioritize`) with mandatory reason for non-accept actions, persisted to the audit run's append-only event history.
+  - **Fixture Integrity Verification**: The E2E test independently confirms that the original fixture element remains undersized in a fresh browser context after the isolated preview runs.
+  - **Webpack Externalization**: `playwright` and `playwright-core` are configured in `next.config.mjs` as `serverExternalPackages` to prevent webpack from bundling native Chromium binaries into server chunks, resolving the `./611.js` MODULE_NOT_FOUND build error.
+* **Reason**: Satisfies Phase 6B requirements (`ARCH-10`, `TEST-23`), ensuring safe, reversible, isolated CSS optimization previews with complete before/after evidence, designer approval gating, and zero fixture source modification.
+* **Affected Requirement IDs**: `ARCH-10`, `TEST-23`, `DATA-05`, `DATA-06`
+

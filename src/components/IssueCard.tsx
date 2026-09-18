@@ -5,6 +5,7 @@ import { GroupedUXIssue, DesignerDecision, Priority } from '@/lib/schema/ux-issu
 import { Icon } from './Icon';
 import { OccurrenceList } from './OccurrenceList';
 import { DecisionLog } from './DecisionLog';
+import { IterationProofView } from './IterationProofView';
 
 interface IssueCardProps {
   issue: GroupedUXIssue;
@@ -523,6 +524,26 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
           </details>
         )}
       </div>
+
+      {/* 5.5 Isolated Before/After Optimization Proof */}
+      <IterationProofView
+        runId={runId}
+        fingerprint={issue.fingerprint}
+        initialComparison={issue.iterationComparison}
+        isEligible={issue.representative.ruleId === 'target-size' && issue.status === 'candidateFail'}
+        onComparisonUpdated={(updated) => {
+          setIssue((prev) => ({
+            ...prev,
+            iterationComparison: updated,
+          }));
+          if (onDecisionSaved) {
+            onDecisionSaved({
+              ...issue,
+              iterationComparison: updated,
+            });
+          }
+        }}
+      />
 
       {/* 6. Designer Decision Controls */}
       <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)' }}>

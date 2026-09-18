@@ -94,8 +94,11 @@ export const GroupedUXIssueSchema = z.object({
   designerReason: z.string().optional(),
   editedRecommendation: z.string().optional(),
   decisionHistory: z.array(DecisionRecordSchema).default([]),
+  iterationComparison: z.any().optional(),
 });
-export type GroupedUXIssue = z.infer<typeof GroupedUXIssueSchema>;
+export type GroupedUXIssue = z.infer<typeof GroupedUXIssueSchema> & {
+  iterationComparison?: import('./iteration').IterationComparison;
+};
 
 export const AuditSummarySchema = z.object({
   totalRawFindings: z.number().int().nonnegative(),
