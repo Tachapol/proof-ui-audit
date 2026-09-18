@@ -126,6 +126,7 @@ export default function HomePage() {
               summary={currentRun.summary}
               targetUrl={currentRun.targetUrl}
               timestamp={currentRun.timestamp}
+              runId={currentRun.id}
             />
 
             {/* Filter Tabs */}

@@ -225,7 +225,21 @@ This document records technical and architectural decisions for `proofui-audit-p
 * **Reason**: Fulfills Phase 5 closure checkpoint requirements, ensuring complete audit traceability, verifiable threshold grounding, and offline test reliability (`ARCH-08`, `ARCH-09`, `AI-01`–`AI-05`, `TEST-21`, `TEST-25`).
 * **Affected Requirement IDs**: `ARCH-08`, `ARCH-09`, `AI-01`, `AI-02`, `AI-03`, `AI-04`, `AI-05`, `TEST-21`, `TEST-25`
 
+---
 
+## DEC-018: Server-Authoritative Report Export, Shared Normalized Model, and Untrusted-Content Sanitization
 
-
+* **Date**: 2026-09-19
+* **Decision**:
+  - **Server-Authoritative Generation**: Reports are generated strictly on the server from persisted, validated audit runs loaded via `getAuditRun(runId)`. The client is permitted to supply only `runId` and `format` (`json` | `markdown` | `md`). No client-supplied issues, titles, templates, file paths, or output directories are accepted.
+  - **Shared Normalized Data Model (`ReportModel`)**: Both JSON and Markdown formats derive from a single unified `buildNormalizedReport()` builder and `ReportModelSchema` Zod contract, guaranteeing 100% parity across run identity, summary counts, statuses, priorities, designer decisions, decision history, AI provenance, and required disclaimers.
+  - **Absolute Path & Secret Sanitization**: Internal developer machine paths (e.g. `/Users/...`, `C:\...`, `/home/...`) in screenshots or metadata are systematically sanitized to relative web-safe paths (`/screenshots/<filename>`). Environment secrets and API keys are strictly excluded.
+  - **Untrusted-Content Defense in Markdown**: Content originating from audited pages, user inputs, or AI outputs is treated as untrusted:
+    - Raw HTML tags are entity-escaped (`&lt;`, `&gt;`).
+    - Selectors containing backticks are safely wrapped in dynamic code fences with `maxBackticks + 1` (minimum 4 backticks ```` ````) to prevent premature fence closure.
+    - Heading injection (`#`, `##`) and horizontal rules (`---`, `===`) are prefixed with backslashes to prevent section impersonation.
+    - Spreadsheet formula injection strings (`=`, `+`, `-`, `@`) are prefixed with `'` to render inert if exported data is imported into spreadsheets.
+  - **Safe Download Delivery**: Filenames are generated server-side using sanitized alphanumeric characters (`proofui-audit-${safeId}.${ext}`), preventing path traversal. Responses set explicit MIME types (`application/json`, `text/markdown`) and `Content-Disposition: attachment`.
+* **Reason**: Satisfies Phase 6A requirements (`DATA-07`, `DATA-08`, `TEST-19`, `TEST-20`), ensuring secure, cross-format consistent, and leak-free report export for both machine consumption and human review.
+* **Affected Requirement IDs**: `DATA-07`, `DATA-08`, `TEST-19`, `TEST-20`, `UI-14`, `UI-15`
 

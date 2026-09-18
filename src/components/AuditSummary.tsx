@@ -7,9 +7,10 @@ interface AuditSummaryProps {
   summary: AuditSummaryType;
   targetUrl: string;
   timestamp: string;
+  runId?: string;
 }
 
-export function AuditSummary({ summary, targetUrl, timestamp }: AuditSummaryProps) {
+export function AuditSummary({ summary, targetUrl, timestamp, runId }: AuditSummaryProps) {
   const formattedDate = new Date(timestamp).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
@@ -27,8 +28,60 @@ export function AuditSummary({ summary, targetUrl, timestamp }: AuditSummaryProp
             Target: <code>{targetUrl}</code>
           </div>
         </div>
-        <div style={{ fontSize: '13px', color: 'var(--foreground-muted)' }}>
-          Run completed at {formattedDate}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ fontSize: '13px', color: 'var(--foreground-muted)' }}>
+            Run completed at {formattedDate}
+          </div>
+          {runId && (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <a
+                id="export-json-btn"
+                href={`/api/export?runId=${encodeURIComponent(runId)}&format=json`}
+                download
+                aria-label="Export audit report as JSON"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border)',
+                  background: 'var(--surface)',
+                  color: 'var(--foreground)',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  minHeight: '44px',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <span>Export JSON</span>
+              </a>
+              <a
+                id="export-markdown-btn"
+                href={`/api/export?runId=${encodeURIComponent(runId)}&format=markdown`}
+                download
+                aria-label="Export audit report as Markdown"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border)',
+                  background: 'var(--surface)',
+                  color: 'var(--foreground)',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  minHeight: '44px',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <span>Export Markdown</span>
+              </a>
+            </div>
+          )}
         </div>
       </div>
 
