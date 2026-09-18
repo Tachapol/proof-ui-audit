@@ -1,0 +1,31 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing & Playwright
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
+
+# Next.js build output
+/.next/
+/out/
+*.tsbuildinfo
+
+# Production data & screenshots generated at runtime
+/.proofui-data/
+/public/screenshots/*.png
+!/public/screenshots/.gitkeep
+
+# Environment files
+.env*.local
+.env
+
+# Debug & logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+*.pem

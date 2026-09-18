@@ -1,0 +1,111 @@
+:root {
+  /* Surface and Background */
+  --background: #f7f7f5;
+  --surface: #ffffff;
+  --surface-subtle: #f1f1ef;
+  --surface-hover: #e8e8e5;
+
+  /* Typography */
+  --foreground: #202123;
+  --foreground-muted: #676767;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Borders & Dividers */
+  --border: #dededb;
+  --border-subtle: #eaeaea;
+
+  /* Accent (Quiet Green) */
+  --accent: #10a37f;
+  --accent-hover: #0d8f70;
+  --accent-foreground: #ffffff;
+
+  /* Focus Indicator */
+  --focus-ring: #2563eb;
+
+  /* Status Colors (Reserved strictly for audit findings) */
+  --danger: #b42318;
+  --danger-surface: #fef3f2;
+  --warning: #b54708;
+  --warning-surface: #fffaeb;
+  --success: #067647;
+  --success-surface: #edfcf2;
+  --info: #175cd3;
+  --info-surface: #eff8ff;
+
+  /* Border Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+
+  /* 4px-based Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Elevation (Reserved only for modals/dropdowns) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Accessibility Focus Ring */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Accessible Interactive Touch Targets (ProofUI app controls >= 44x44px, fixtures untouched) */
+button, input, select, textarea, .btn {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+#app-root button:not(#fixture-content *), .touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Safe text wrap for long selectors, URLs, fingerprints */
+.safe-wrap {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+code, pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 13px;
+}
+
+/* Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
