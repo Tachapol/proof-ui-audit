@@ -17,7 +17,7 @@ export default function HomePage() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
-    const runId = params.get('runId') || localStorage.getItem('proofui_last_run_id');
+    const runId = params.get('runId');
 
     if (runId) {
       setIsLoading(true);

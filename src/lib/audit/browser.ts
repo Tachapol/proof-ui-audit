@@ -5,7 +5,7 @@ import { TargetMeasurement, evaluateTargetSize, checkSpacingAlternative } from '
 import { TextContrastMeasurement, evaluateTextContrast } from './rules/text-contrast';
 import { NonTextContrastMeasurement, evaluateNonTextContrast } from './rules/non-text-contrast';
 import { evaluateReflow } from './rules/reflow';
-import { evaluateTextSpacing, TEXT_SPACING_OVERRIDE_CSS } from './rules/text-spacing';
+import { evaluateTextSpacing } from './rules/text-spacing';
 import { compositeLayers, blendColors, applyElementOpacity, parseColor } from './color-math';
 import { isPrivateOrReservedIP } from './url-validator';
 import { UXIssue, Viewport } from '@/lib/schema/ux-issue';
@@ -477,9 +477,37 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
             const clientW = docEl.clientWidth;
             const overflow = Math.max(0, scrollW - clientW);
 
+            function isDecorative(el: Element): boolean {
+              if (
+                el.getAttribute('aria-hidden') === 'true' ||
+                el.getAttribute('role') === 'presentation' ||
+                el.getAttribute('role') === 'none' ||
+                el.getAttribute('data-decorative') === 'true' ||
+                el.closest('[data-decorative="true"]') !== null
+              ) {
+                return true;
+              }
+              if (el.tagName.toLowerCase() === 'svg' && !el.getAttribute('aria-label') && !el.textContent?.trim()) {
+                return true;
+              }
+              return false;
+            }
+
+            function getSelector(el: Element): string {
+              if (el.id) return `#${el.id}`;
+              let sel = el.tagName.toLowerCase();
+              if (el.className && typeof el.className === 'string') {
+                const cls = el.className.trim().split(/\s+/).filter(Boolean).slice(0, 2).join('.');
+                if (cls) sel += `.${cls}`;
+              }
+              return sel;
+            }
+
             const allEls = Array.from(document.querySelectorAll('body *'));
             const offenders: any[] = [];
+            let decorativeExcludedCount = 0;
 
+            // 1. Document-level horizontal overflow offenders
             for (const el of allEls) {
               const rect = el.getBoundingClientRect();
               const style = window.getComputedStyle(el);
@@ -488,13 +516,16 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
                 style.display === 'none' ||
                 style.visibility === 'hidden' ||
                 rect.width === 0 ||
-                rect.height === 0 ||
-                el.closest('[aria-hidden="true"]')
+                rect.height === 0
               ) {
                 continue;
               }
 
-              // Element extends beyond viewport client width by more than 1px
+              if (isDecorative(el)) {
+                if (rect.right > clientW + 1.0) decorativeExcludedCount++;
+                continue;
+              }
+
               if (rect.right > clientW + 1.0) {
                 const isEssential =
                   el.getAttribute('data-essential-2d') === 'true' ||
@@ -502,14 +533,9 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
                   el.getAttribute('role') === 'table' ||
                   el.closest('[data-essential-2d="true"]') !== null;
 
-                let sel = el.id ? `#${el.id}` : el.tagName.toLowerCase();
-                if (!el.id && el.className && typeof el.className === 'string') {
-                  const cls = el.className.trim().split(/\s+/).slice(0, 2).join('.');
-                  if (cls) sel += `.${cls}`;
-                }
-
                 offenders.push({
-                  selector: sel,
+                  elementNode: el,
+                  selector: getSelector(el),
                   element: el.tagName.toLowerCase(),
                   role: el.getAttribute('role') || undefined,
                   accessibleName: el.getAttribute('aria-label') || undefined,
@@ -527,12 +553,145 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
               }
             }
 
+            // Prioritize explicit ID first so designated component IDs are chosen over anonymous wrappers or leaf text nodes
+            const prioritizedOffenders = offenders.slice().sort((a, b) => {
+              const aId = a.selector.startsWith('#') ? 1 : 0;
+              const bId = b.selector.startsWith('#') ? 1 : 0;
+              if (bId !== aId) return bId - aId;
+              if (a.elementNode.contains(b.elementNode)) return 1;
+              if (b.elementNode.contains(a.elementNode)) return -1;
+              const aRight = a.boundingBox.x + a.boundingBox.width;
+              const bRight = b.boundingBox.x + b.boundingBox.width;
+              return bRight - aRight;
+            });
+
+            // 2. Nested horizontal scroll containers
+            const nestedContainers: any[] = [];
+            for (const el of allEls) {
+              const style = window.getComputedStyle(el);
+              if (style.display === 'none' || style.visibility === 'hidden' || isDecorative(el)) continue;
+
+              const isScrollX = style.overflowX === 'scroll' || style.overflowX === 'auto';
+              if (isScrollX && el.scrollWidth > el.clientWidth + 1.0) {
+                const rect = el.getBoundingClientRect();
+                const isEssential =
+                  el.getAttribute('data-essential-2d') === 'true' ||
+                  el.tagName.toLowerCase() === 'table' ||
+                  el.getAttribute('role') === 'table' ||
+                  el.closest('[data-essential-2d="true"]') !== null ||
+                  el.querySelector('table, [role="table"], [data-essential-2d="true"], canvas, video') !== null;
+
+                nestedContainers.push({
+                  selector: getSelector(el),
+                  element: el.tagName.toLowerCase(),
+                  role: el.getAttribute('role') || undefined,
+                  accessibleName: el.getAttribute('aria-label') || undefined,
+                  scrollWidth: el.scrollWidth,
+                  clientWidth: el.clientWidth,
+                  overflowPx: Math.round(el.scrollWidth - el.clientWidth),
+                  isEssential2D: isEssential,
+                  computedStyles: {
+                    overflowX: style.overflowX,
+                    overflowY: style.overflowY,
+                    position: style.position,
+                    display: style.display,
+                  },
+                  boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+                });
+              }
+            }
+
+            // 3. Significant content clipped by ancestor (overflow that does not increase document.scrollWidth)
+            const ancestorClipped: any[] = [];
+            for (const el of allEls) {
+              const style = window.getComputedStyle(el);
+              if (style.display === 'none' || style.visibility === 'hidden' || isDecorative(el)) continue;
+
+              const isClippedX = style.overflowX === 'hidden' || style.overflowX === 'clip';
+              if (isClippedX && el.scrollWidth > el.clientWidth + 1.0) {
+                const rect = el.getBoundingClientRect();
+                const child = Array.from(el.children).find(
+                  (c) => !isDecorative(c) && (c.scrollWidth > el.clientWidth || c.getBoundingClientRect().right > rect.right + 1.0)
+                );
+                // Exclude if all overflowing children are decorative
+                if (!child) continue;
+
+                const targetSel = getSelector(child);
+                const deficit = Math.round(el.scrollWidth - el.clientWidth);
+
+                ancestorClipped.push({
+                  selector: targetSel,
+                  ancestorSelector: getSelector(el),
+                  element: child.tagName.toLowerCase(),
+                  scrollWidth: el.scrollWidth,
+                  clientWidth: el.clientWidth,
+                  clipDeficitPx: deficit,
+                  computedStyles: {
+                    overflowX: style.overflowX,
+                    overflowY: style.overflowY,
+                  },
+                  boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+                });
+              }
+            }
+
+            // 4. Interactive controls positioned outside visible or clipping area
+            const clippedControls: any[] = [];
+            const interactiveEls = Array.from(
+              document.querySelectorAll('button, a[href], input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"])')
+            );
+            for (const ctrl of interactiveEls) {
+              const rect = ctrl.getBoundingClientRect();
+              const style = window.getComputedStyle(ctrl);
+              if (style.display === 'none' || style.visibility === 'hidden' || isDecorative(ctrl)) continue;
+
+              if (rect.right > clientW + 1.0 || rect.left < -1.0) {
+                const deficit = Math.max(0, rect.right - clientW, -rect.left);
+                clippedControls.push({
+                  selector: getSelector(ctrl),
+                  element: ctrl.tagName.toLowerCase(),
+                  role: ctrl.getAttribute('role') || ctrl.tagName.toLowerCase(),
+                  accessibleName: ctrl.getAttribute('aria-label') || (ctrl.textContent || '').trim().slice(0, 30) || undefined,
+                  violation: 'outside-viewport',
+                  clipDeficitPx: Math.round(deficit),
+                  boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+                });
+                continue;
+              }
+
+              let parent = ctrl.parentElement;
+              while (parent && parent !== document.body) {
+                const pStyle = window.getComputedStyle(parent);
+                if (pStyle.overflowX === 'hidden' || pStyle.overflowX === 'clip' || pStyle.overflow === 'hidden') {
+                  const pRect = parent.getBoundingClientRect();
+                  if (rect.right > pRect.right + 1.0 || rect.left < pRect.left - 1.0 || rect.bottom > pRect.bottom + 1.0) {
+                    const deficit = Math.max(0, rect.right - pRect.right, pRect.left - rect.left, rect.bottom - pRect.bottom);
+                    clippedControls.push({
+                      selector: getSelector(ctrl),
+                      element: ctrl.tagName.toLowerCase(),
+                      role: ctrl.getAttribute('role') || ctrl.tagName.toLowerCase(),
+                      accessibleName: ctrl.getAttribute('aria-label') || (ctrl.textContent || '').trim().slice(0, 30) || undefined,
+                      violation: 'outside-clipping-ancestor',
+                      clipDeficitPx: Math.round(deficit),
+                      boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+                    });
+                    break;
+                  }
+                }
+                parent = parent.parentElement;
+              }
+            }
+
             return {
               scrollWidth: scrollW,
               clientWidth: clientW,
               horizontalOverflowPx: overflow,
               hasDocumentHorizontalScroll: overflow > 1.0,
-              overflowingElements: offenders,
+              overflowingElements: prioritizedOffenders.map(({ elementNode, ...rest }: any) => rest),
+              nestedScrollContainers: nestedContainers,
+              ancestorClippedElements: ancestorClipped,
+              clippedControls,
+              decorativeElementsExcludedCount: decorativeExcludedCount,
             };
           });
 
@@ -550,11 +709,13 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
           }
         }
 
-        // 5. Measure Text Spacing candidates (capture baseline, apply override, capture candidate, restore)
+        // 5. Measure Text Spacing candidates (capture baseline, apply minimum-preserving override, capture candidate, restore)
         try {
           const baselineData = await page.evaluate(() => {
             const targets = Array.from(
-              document.querySelectorAll('[data-text-spacing-target="true"], [data-spacing-ambiguous="true"]')
+              document.querySelectorAll(
+                '[data-text-spacing-target="true"], [data-spacing-ambiguous="true"], [data-text-spacing-pass="true"]'
+              )
             );
             const list: any[] = [];
 
@@ -563,12 +724,27 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
               return el.tagName.toLowerCase();
             }
 
+            const docEl = document.documentElement;
+            const docScrollW = docEl.scrollWidth;
+            const docClientW = docEl.clientWidth;
+
             for (const el of targets) {
               const rect = el.getBoundingClientRect();
               const style = window.getComputedStyle(el);
               const isClipped =
-                (style.overflow === 'hidden' || style.overflowY === 'hidden') &&
-                el.scrollHeight > el.clientHeight;
+                (style.overflow === 'hidden' || style.overflowY === 'hidden' || style.overflowY === 'clip') &&
+                el.scrollHeight > el.clientHeight + 1.0;
+              const isHorizClipped =
+                (style.overflow === 'hidden' || style.overflowX === 'hidden' || style.overflowX === 'clip') &&
+                el.scrollWidth > el.clientWidth + 1.0;
+
+              // Also find adjacent controls that might get obscured
+              const nextEl = el.nextElementSibling as HTMLElement | null;
+              const hasAdjacentControl =
+                nextEl &&
+                (nextEl.tagName.toLowerCase() === 'button' ||
+                  nextEl.getAttribute('role') === 'button' ||
+                  nextEl.hasAttribute('data-spacing-control'));
 
               list.push({
                 selector: getSelector(el),
@@ -577,6 +753,10 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
                 accessibleName: el.getAttribute('aria-label') || el.id || undefined,
                 textSnippet: (el.textContent || '').trim().slice(0, 60),
                 isAmbiguous: el.getAttribute('data-spacing-ambiguous') === 'true',
+                adjacentControlSelector: hasAdjacentControl ? getSelector(nextEl) : undefined,
+                adjacentControlRect: hasAdjacentControl ? nextEl.getBoundingClientRect() : undefined,
+                docScrollW,
+                docClientW,
                 state: {
                   width: rect.width,
                   height: rect.height,
@@ -585,6 +765,7 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
                   scrollWidth: el.scrollWidth,
                   clientWidth: el.clientWidth,
                   isClipped,
+                  isHorizontalClipped: isHorizClipped,
                   boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
                 },
               });
@@ -594,20 +775,67 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
           });
 
           if (baselineData.length > 0) {
-            // Inject text spacing override
-            await page.evaluate((css) => {
-              const style = document.createElement('style');
-              style.id = 'proofui-text-spacing-override';
-              style.textContent = css;
-              document.head.appendChild(style);
-            }, TEXT_SPACING_OVERRIDE_CSS);
+            // Apply minimum-preserving text spacing styles
+            await page.evaluate(() => {
+              const modified: any[] = [];
+              const elements = Array.from(document.querySelectorAll('body *'));
+
+              for (const el of elements) {
+                if (!(el instanceof HTMLElement)) continue;
+                const style = window.getComputedStyle(el);
+                if (style.display === 'none' || style.visibility === 'hidden') continue;
+
+                const fs = parseFloat(style.fontSize) || 16;
+                let lh = parseFloat(style.lineHeight);
+                if (isNaN(lh)) lh = fs * 1.2;
+                let ls = parseFloat(style.letterSpacing);
+                if (isNaN(ls)) ls = 0;
+                let ws = parseFloat(style.wordSpacing);
+                if (isNaN(ws)) ws = 0;
+                let mb = parseFloat(style.marginBottom);
+                if (isNaN(mb)) mb = 0;
+
+                const reqLh = 1.5 * fs;
+                const reqLs = 0.12 * fs;
+                const reqWs = 0.16 * fs;
+                const reqMb = 2.0 * fs;
+
+                const origCss = el.style.cssText;
+                let changed = false;
+
+                // Minimum-preserving rule: only set if current is below required minimum!
+                if (lh < reqLh - 0.05) {
+                  el.style.setProperty('line-height', '1.5', 'important');
+                  changed = true;
+                }
+                if (ls < reqLs - 0.05) {
+                  el.style.setProperty('letter-spacing', '0.12em', 'important');
+                  changed = true;
+                }
+                if (ws < reqWs - 0.05) {
+                  el.style.setProperty('word-spacing', '0.16em', 'important');
+                  changed = true;
+                }
+                if (el.tagName.toLowerCase() === 'p' && mb < reqMb - 0.05) {
+                  el.style.setProperty('margin-bottom', '2em', 'important');
+                  changed = true;
+                }
+
+                if (changed) {
+                  modified.push({ el, originalCss: origCss });
+                }
+              }
+              (window as any).__proofui_spacing_modified = modified;
+            });
 
             // Brief wait for style re-layout
             await page.waitForTimeout(100);
 
             const candidateData = await page.evaluate(() => {
               const targets = Array.from(
-                document.querySelectorAll('[data-text-spacing-target="true"], [data-spacing-ambiguous="true"]')
+                document.querySelectorAll(
+                  '[data-text-spacing-target="true"], [data-spacing-ambiguous="true"], [data-text-spacing-pass="true"]'
+                )
               );
               const list: any[] = [];
 
@@ -616,15 +844,50 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
                 return el.tagName.toLowerCase();
               }
 
+              const docEl = document.documentElement;
+              const docScrollW = docEl.scrollWidth;
+              const docClientW = docEl.clientWidth;
+
               for (const el of targets) {
                 const rect = el.getBoundingClientRect();
                 const style = window.getComputedStyle(el);
                 const isClipped =
-                  (style.overflow === 'hidden' || style.overflowY === 'hidden') &&
-                  el.scrollHeight > el.clientHeight + 2;
+                  (style.overflow === 'hidden' || style.overflowY === 'hidden' || style.overflowY === 'clip') &&
+                  el.scrollHeight > el.clientHeight + 1.0;
+                const isHorizClipped =
+                  (style.overflow === 'hidden' || style.overflowX === 'hidden' || style.overflowX === 'clip') &&
+                  el.scrollWidth > el.clientWidth + 1.0;
+
+                // Check bounding box escape: child bleeding outside visible container
+                let isEscaped = false;
+                if (style.overflow === 'visible' || (!style.overflowX && !style.overflowY)) {
+                  for (const child of Array.from(el.children)) {
+                    const cRect = child.getBoundingClientRect();
+                    if (cRect.bottom > rect.bottom + 1.0 || cRect.right > rect.right + 1.0) {
+                      isEscaped = true;
+                      break;
+                    }
+                  }
+                }
+
+                // Check obscured adjacent control
+                const nextEl = el.nextElementSibling as HTMLElement | null;
+                let isControlObscured = false;
+                if (nextEl && (nextEl.tagName.toLowerCase() === 'button' || nextEl.getAttribute('role') === 'button' || nextEl.hasAttribute('data-spacing-control'))) {
+                  const nextRect = nextEl.getBoundingClientRect();
+                  // Check intersection between el and nextEl
+                  const overlapX = Math.max(0, Math.min(rect.right, nextRect.right) - Math.max(rect.left, nextRect.left));
+                  const overlapY = Math.max(0, Math.min(rect.bottom, nextRect.bottom) - Math.max(rect.top, nextRect.top));
+                  if (overlapX > 0 && overlapY > 0) {
+                    isControlObscured = true;
+                  }
+                }
 
                 list.push({
                   selector: getSelector(el),
+                  docScrollW,
+                  docClientW,
+                  isControlObscured,
                   state: {
                     width: rect.width,
                     height: rect.height,
@@ -633,6 +896,8 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
                     scrollWidth: el.scrollWidth,
                     clientWidth: el.clientWidth,
                     isClipped,
+                    isHorizontalClipped: isHorizClipped,
+                    isBoundingBoxEscaped: isEscaped,
                     boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
                   },
                 });
@@ -646,6 +911,10 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
               const cand = candidateData.find((c) => c.selector === base.selector);
               if (!cand) continue;
 
+              const isNewDocOverflow =
+                base.docScrollW <= base.docClientW + 1.0 &&
+                cand.docScrollW > cand.docClientW + 1.0;
+
               const issue = evaluateTextSpacing(
                 {
                   selector: base.selector,
@@ -657,6 +926,9 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
                   candidate: cand.state,
                   isAmbiguousOverlap: base.isAmbiguous,
                   hasTextOverlap: base.isAmbiguous,
+                  isControlObscured: cand.isControlObscured,
+                  isNewDocumentOverflow: isNewDocOverflow,
+                  obscuredControlSelector: base.adjacentControlSelector,
                 },
                 options.url,
                 viewport
@@ -667,8 +939,13 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
             }
           }
         } finally {
-          // ALWAYS restore the page to original styles (SC 1.4.12 safety guarantee)
+          // Guaranteed complete restoration: reset modified styles & clear state
           await page.evaluate(() => {
+            const modified = (window as any).__proofui_spacing_modified || [];
+            for (const item of modified) {
+              item.el.style.cssText = item.originalCss;
+            }
+            delete (window as any).__proofui_spacing_modified;
             document.getElementById('proofui-text-spacing-override')?.remove();
           }).catch(() => {});
         }

@@ -35,7 +35,7 @@ export function AuditSummary({ summary, targetUrl, timestamp }: AuditSummaryProp
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px' }}>
         <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', background: 'var(--surface-subtle)', border: '1px solid var(--border-subtle)' }}>
           <div style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>Raw Findings</div>
-          <div style={{ fontSize: '20px', fontWeight: 600, marginTop: '4px' }}>{summary.totalRawFindings}</div>
+          <div id="summary-raw-findings-count" style={{ fontSize: '20px', fontWeight: 600, marginTop: '4px' }}>{summary.totalRawFindings}</div>
         </div>
 
         <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', background: 'var(--surface-subtle)', border: '1px solid var(--border-subtle)' }}>

@@ -1,46 +1,49 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import { updateDesignerDecision } from '@/lib/storage/db';
 import { DesignerDecisionSchema, PrioritySchema } from '@/lib/schema/ux-issue';
 
+const DecisionRequestSchema = z.object({
+  runId: z.string().min(1, 'runId is required'),
+  fingerprint: z.string().min(1, 'fingerprint is required'),
+  decision: DesignerDecisionSchema,
+  reason: z.string().optional(),
+  newPriority: PrioritySchema.optional(),
+  editedRecommendation: z.string().optional(),
+});
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { runId, fingerprint, decision, reason, newPriority } = body;
+    const rawBody = await req.json();
+    const parseResult = DecisionRequestSchema.safeParse(rawBody);
 
-    if (!runId || typeof runId !== 'string') {
-      return NextResponse.json({ success: false, error: 'runId is required' }, { status: 400 });
-    }
-    if (!fingerprint || typeof fingerprint !== 'string') {
-      return NextResponse.json({ success: false, error: 'fingerprint is required' }, { status: 400 });
+    if (!parseResult.success) {
+      const issueMsg = parseResult.error.issues.map((i) => i.message).join('; ');
+      return NextResponse.json({ success: false, error: issueMsg || 'Invalid decision request payload' }, { status: 400 });
     }
 
-    const decisionParsed = DesignerDecisionSchema.safeParse(decision);
-    if (!decisionParsed.success) {
-      return NextResponse.json({ success: false, error: 'Invalid decision action' }, { status: 400 });
-    }
+    const { runId, fingerprint, decision, reason, newPriority, editedRecommendation } = parseResult.data;
 
-    let parsedPriority = undefined;
-    if (newPriority) {
-      const priorityCheck = PrioritySchema.safeParse(newPriority);
-      if (priorityCheck.success) {
-        parsedPriority = priorityCheck.data;
+    try {
+      const updated = await updateDesignerDecision(
+        runId,
+        fingerprint,
+        decision,
+        reason,
+        newPriority,
+        editedRecommendation
+      );
+
+      if (!updated) {
+        return NextResponse.json({ success: false, error: `Audit run '${runId}' or issue '${fingerprint}' not found.` }, { status: 404 });
       }
+
+      return NextResponse.json({ success: true, updatedGroup: updated });
+    } catch (domainErr: any) {
+      // Domain validation errors thrown by db.ts (e.g. reason requirements, identical priority/rec)
+      return NextResponse.json({ success: false, error: domainErr.message || 'Validation error' }, { status: 400 });
     }
-
-    const updated = await updateDesignerDecision(
-      runId,
-      fingerprint,
-      decisionParsed.data,
-      reason,
-      parsedPriority
-    );
-
-    if (!updated) {
-      return NextResponse.json({ success: false, error: 'Audit run or issue not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ success: true, updatedGroup: updated });
   } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message || 'Failed to save decision' }, { status: 500 });
+    return NextResponse.json({ success: false, error: err.message || 'Malformed request' }, { status: 500 });
   }
 }

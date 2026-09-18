@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { GroupedUXIssue, DesignerDecision, Priority } from '@/lib/schema/ux-issue';
 import { Icon } from './Icon';
+import { OccurrenceList } from './OccurrenceList';
+import { DecisionLog } from './DecisionLog';
 
 interface IssueCardProps {
   issue: GroupedUXIssue;
@@ -17,12 +19,22 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
     issue.designerDecision || null
   );
   const [reason, setReason] = useState<string>(issue.designerReason || '');
-  const [selectedPriority, setSelectedPriority] = useState<Priority>(issue.currentPriority);
+  const [customRecommendation, setCustomRecommendation] = useState<string>(
+    issue.editedRecommendation || issue.aiRecommendation || issue.representative.aiRecommendation || ''
+  );
+  const [selectedPriority, setSelectedPriority] = useState<Priority>(
+    issue.currentPriority === 'P0' ? 'P1' : 'P0'
+  );
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // AI explanation state
+  const [isExplaining, setIsExplaining] = useState<boolean>(false);
+  const [explainError, setExplainError] = useState<string | null>(null);
+
   const rep = issue.representative;
+  const aiResult = issue.aiExplanationResult || rep.aiExplanationResult;
 
   // Status visual attributes
   const isExcluded = issue.status === 'pass' && !!rep.exception;
@@ -55,7 +67,34 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
     P3: { label: 'P3 — Low', color: '#475467', bg: '#f2f4f7' },
   }[issue.currentPriority];
 
+  const currentEffectiveRec =
+    issue.editedRecommendation || issue.aiRecommendation || rep.aiRecommendation || rep.description;
+
+  const isReasonRequired = ['reject', 'edit', 'reprioritize'].includes(activeDecision || '');
+  const isReasonValid = !isReasonRequired || reason.trim().length >= 3;
+  const isEditDifferent =
+    activeDecision !== 'edit' ||
+    (customRecommendation.trim().length >= 3 && customRecommendation.trim() !== currentEffectiveRec);
+  const isPriorityDifferent =
+    activeDecision !== 'reprioritize' || selectedPriority !== issue.currentPriority;
+  const canSave = isReasonValid && isEditDifferent && isPriorityDifferent && !isSaving;
+
   const handleSaveDecision = async (decisionToSave: DesignerDecision) => {
+    if (!canSave) {
+      if (!isReasonValid) {
+        setSaveError(`A descriptive rationale (minimum 3 characters) is required for '${decisionToSave}'.`);
+      } else if (activeDecision === 'edit') {
+        if (customRecommendation.trim().length < 3) {
+          setSaveError('A custom recommendation (minimum 3 characters) is required when editing scope.');
+        } else if (customRecommendation.trim() === currentEffectiveRec) {
+          setSaveError('Edited recommendation must differ from the current effective recommendation.');
+        }
+      } else if (activeDecision === 'reprioritize' && !isPriorityDifferent) {
+        setSaveError('Target priority must differ from the current effective priority.');
+      }
+      return;
+    }
+
     setIsSaving(true);
     setSaveError(null);
     setSaveSuccess(false);
@@ -68,8 +107,9 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
           runId,
           fingerprint: issue.fingerprint,
           decision: decisionToSave,
-          reason,
+          reason: reason.trim(),
           newPriority: decisionToSave === 'reprioritize' ? selectedPriority : undefined,
+          editedRecommendation: decisionToSave === 'edit' ? customRecommendation.trim() : undefined,
         }),
       });
 
@@ -84,12 +124,62 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       if (onDecisionSaved) {
         onDecisionSaved(data.updatedGroup);
       }
-      setTimeout(() => setSaveSuccess(false), 3000);
+      setTimeout(() => setSaveSuccess(false), 3500);
     } catch (err: any) {
       setSaveError(err.message || 'Error saving decision.');
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleRequestExplanation = async () => {
+    setIsExplaining(true);
+    setExplainError(null);
+
+    try {
+      const res = await fetch('/api/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          runId,
+          fingerprint: issue.fingerprint,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to generate explanation.');
+      }
+
+      setIssue(data.updatedGroup);
+      if (!issue.editedRecommendation) {
+        setCustomRecommendation(data.updatedGroup.aiRecommendation || '');
+      }
+      if (onDecisionSaved) {
+        onDecisionSaved(data.updatedGroup);
+      }
+    } catch (err: any) {
+      setExplainError(err.message || 'Error generating explanation.');
+    } finally {
+      setIsExplaining(false);
+    }
+  };
+
+  const defaultGuidance =
+    issue.aiRecommendation ||
+    rep.aiRecommendation ||
+    (issue.status === 'candidateFail'
+      ? `Adjust geometry or styles for ${rep.element} to comply with WCAG threshold.`
+      : 'Review whether this component qualifies for an essential exception.');
+
+  const fallbackReasonDescriptions: Record<string, string> = {
+    no_api_key: 'Deterministic fallback (No Gemini API key configured)',
+    provider_timeout: 'Deterministic fallback (Provider request timed out)',
+    provider_error: 'Deterministic fallback (Provider service unavailable)',
+    empty_response: 'Deterministic fallback (Empty model response)',
+    malformed_json: 'Deterministic fallback (Malformed response syntax)',
+    schema_validation_failed: 'Deterministic fallback (Schema validation rejected output)',
+    grounding_failed: 'Deterministic fallback (Grounding checks rejected unsupported claims)',
   };
 
   return (
@@ -101,22 +191,24 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
         padding: '24px',
         marginBottom: '20px',
         boxShadow: 'var(--shadow-sm)',
+        overflowWrap: 'break-word',
       }}
     >
       {/* 1. Plain-Language Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
         <h3 style={{ fontSize: '17px', fontWeight: 600, color: 'var(--foreground)' }}>
           {rep.title}
         </h3>
         {issue.rawOccurrencesCount > 1 && (
           <span
+            className="occurrence-badge"
             style={{
               fontSize: '12px',
-              fontWeight: 500,
-              padding: '4px 8px',
+              fontWeight: 600,
+              padding: '4px 10px',
               borderRadius: 'var(--radius-sm)',
               background: 'var(--surface-subtle)',
-              color: 'var(--foreground-muted)',
+              color: 'var(--foreground)',
               border: '1px solid var(--border)',
               whiteSpace: 'nowrap',
             }}
@@ -126,7 +218,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
         )}
       </div>
 
-      {/* 2. Status & Initial Priority Badges */}
+      {/* 2. Status & Priority Badges */}
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
         <span
           style={{
@@ -180,24 +272,33 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
         )}
       </div>
 
+      {/* Transparent Occurrence Inspection */}
+      <OccurrenceList occurrences={issue.occurrences} fingerprint={issue.fingerprint} />
+
+      {/* Saved Designer Rationale Notice */}
       {issue.designerReason && (
-        <div style={{ marginTop: '12px', padding: '8px 12px', background: 'var(--surface-subtle)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', fontSize: '13px' }}>
-          <strong>Saved Designer Rationale:</strong> {issue.designerReason}
+        <div style={{ marginTop: '12px', padding: '10px 12px', background: 'var(--surface-subtle)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', fontSize: '13px' }}>
+          <strong style={{ color: 'var(--foreground)' }}>Saved Designer Rationale:</strong>{' '}
+          <span style={{ color: 'var(--foreground)' }}>{issue.designerReason}</span>
         </div>
       )}
 
       {/* 3. Screenshot & Bounding Box Evidence */}
-      {rep.screenshotPath && (
-        <div style={{ marginTop: '16px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--surface-subtle)', maxWidth: '400px' }}>
-          <img
-            src={rep.screenshotPath}
-            alt={`Rendered evidence for ${rep.selector}`}
-            style={{ display: 'block', width: '100%', height: 'auto', maxHeight: '180px', objectFit: 'contain' }}
-          />
-        </div>
-      )}
+      {(() => {
+        const screenshotUrl = rep.screenshotPath || issue.occurrences?.find((o) => o.screenshotPath)?.screenshotPath;
+        if (!screenshotUrl) return null;
+        return (
+          <div style={{ marginTop: '16px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--surface-subtle)', maxWidth: '400px' }}>
+            <img
+              src={screenshotUrl}
+              alt={`Rendered evidence for ${rep.selector}`}
+              style={{ display: 'block', width: '100%', height: 'auto', maxHeight: '180px', objectFit: 'contain' }}
+            />
+          </div>
+        );
+      })()}
 
-      {/* 4. Concise Explanation */}
+      {/* 4. Concise Deterministic Explanation */}
       <div style={{ marginTop: '16px' }}>
         <p style={{ fontSize: '14px', color: 'var(--foreground)', lineHeight: 1.6 }}>
           {rep.description}
@@ -208,21 +309,219 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
           </p>
         )}
         <p style={{ fontSize: '13px', color: 'var(--foreground-muted)', marginTop: '4px' }}>
-          <strong>Priority Rationale:</strong> {rep.priorityRationale}
+          <strong>Priority Rationale (Project Heuristic):</strong> {rep.priorityRationale}
         </p>
       </div>
 
-      {/* 5. Suggested Recommendation */}
-      <div style={{ marginTop: '14px', padding: '12px 14px', background: 'var(--surface-subtle)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
-        <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-          {rep.aiRecommendation ? 'AI Advisory Recommendation' : 'Automated Rule Guidance'}
+      {/* 5. AI Explanation & Fallback Section */}
+      <div
+        style={{
+          marginTop: '16px',
+          padding: '16px',
+          background: 'var(--surface-subtle)',
+          borderRadius: 'var(--radius-sm)',
+          border: '1px solid var(--border-subtle)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)' }}>
+              Assisted Explanation & Recommendation
+            </span>
+
+            {/* Provenance Label */}
+            {aiResult ? (
+              <span
+                data-testid={`provenance-badge-${issue.fingerprint}`}
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  padding: '2px 8px',
+                  borderRadius: 'var(--radius-sm)',
+                  background: aiResult.isFallback ? 'var(--surface)' : '#eff8ff',
+                  color: aiResult.isFallback ? 'var(--foreground-muted)' : '#175cd3',
+                  border: `1px solid ${aiResult.isFallback ? 'var(--border)' : '#b2ddff'}`,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                {aiResult.isFallback ? 'Deterministic Fallback' : 'AI-Generated (Gemini)'}
+              </span>
+            ) : null}
+
+            {issue.editedRecommendation && (
+              <span
+                data-testid={`designer-edit-badge-${issue.fingerprint}`}
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  padding: '2px 8px',
+                  borderRadius: 'var(--radius-sm)',
+                  background: '#fef3f2',
+                  color: '#b42318',
+                  border: '1px solid #fecdca',
+                }}
+              >
+                Designer-Edited Recommendation
+              </span>
+            )}
+          </div>
+
+          <button
+            type="button"
+            id={`explain-btn-${issue.fingerprint}`}
+            data-testid={`explain-btn-${issue.fingerprint}`}
+            onClick={handleRequestExplanation}
+            disabled={isExplaining}
+            style={{
+              padding: '6px 12px',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--border)',
+              background: isExplaining ? 'var(--surface-subtle)' : 'var(--surface)',
+              color: 'var(--foreground)',
+              fontSize: '12px',
+              fontWeight: 500,
+              cursor: isExplaining ? 'not-allowed' : 'pointer',
+              minHeight: '44px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            {isExplaining ? 'Generating...' : aiResult ? 'Regenerate Explanation' : 'Request Explanation'}
+          </button>
         </div>
-        <p style={{ fontSize: '13px', color: 'var(--foreground)', marginTop: '4px' }}>
-          {rep.aiRecommendation ||
-            (issue.status === 'candidateFail'
-              ? `Increase the interactive target dimension to at least ${rep.expected.minWidth || 24}×${rep.expected.minHeight || 24} CSS px, or increase transparent padding to satisfy the WCAG spacing offset exception.`
-              : 'Review whether this target qualifies for an inline sentence or equivalent control exception.')}
-        </p>
+
+        {explainError && (
+          <div style={{ fontSize: '12px', color: 'var(--danger)', marginBottom: '8px' }}>
+            {explainError}
+          </div>
+        )}
+
+        {/* Fallback reason description if fallback was used */}
+        {aiResult?.isFallback && aiResult.fallbackReason && (
+          <div
+            data-testid={`fallback-reason-${issue.fingerprint}`}
+            style={{
+              fontSize: '12px',
+              color: 'var(--foreground-muted)',
+              marginBottom: '10px',
+              fontStyle: 'italic',
+            }}
+          >
+            {fallbackReasonDescriptions[aiResult.fallbackReason] || `Deterministic fallback (${aiResult.fallbackReason})`}
+          </div>
+        )}
+
+        {/* Designer Review Warning or Uncertainty Note */}
+        {(aiResult?.requiresDesignerReview || aiResult?.uncertaintyNote) && (
+          <div
+            data-testid={`uncertainty-callout-${issue.fingerprint}`}
+            style={{
+              background: '#fffaeb',
+              border: '1px solid #fedf89',
+              borderRadius: 'var(--radius-sm)',
+              padding: '10px 12px',
+              marginBottom: '12px',
+              fontSize: '12px',
+              color: '#b54708',
+            }}
+          >
+            <strong>Designer Review Warning:</strong>{' '}
+            {aiResult.uncertaintyNote || 'Manual human verification is required before acting on this issue.'}
+          </div>
+        )}
+
+        {/* Generated Explanation Content */}
+        {aiResult?.explanation && (
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Explanation
+            </div>
+            <p
+              data-testid={`ai-explanation-${issue.fingerprint}`}
+              style={{ fontSize: '13px', color: 'var(--foreground)', marginTop: '2px', lineHeight: 1.5 }}
+            >
+              {aiResult.explanation}
+            </p>
+          </div>
+        )}
+
+        {/* Suggested Recommendation (With Edited Override Support) */}
+        <div>
+          {issue.editedRecommendation ? (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 600, color: '#175cd3', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <Icon name="Edit3" size={12} color="#175cd3" />
+                Designer Custom Recommendation (Active)
+              </div>
+              <p
+                data-testid={`active-recommendation-${issue.fingerprint}`}
+                style={{ fontSize: '13px', color: 'var(--foreground)', marginTop: '4px', fontWeight: 500 }}
+              >
+                {issue.editedRecommendation}
+              </p>
+              <details style={{ marginTop: '8px', fontSize: '12px', color: 'var(--foreground-muted)' }}>
+                <summary style={{ cursor: 'pointer' }}>View Original Automated / AI Guidance</summary>
+                <p
+                  data-testid={`archived-guidance-${issue.fingerprint}`}
+                  style={{ marginTop: '4px', fontStyle: 'italic' }}
+                >
+                  {aiResult?.recommendation || defaultGuidance}
+                </p>
+              </details>
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Recommendation
+              </div>
+              <p
+                data-testid={`active-recommendation-${issue.fingerprint}`}
+                style={{ fontSize: '13px', color: 'var(--foreground)', marginTop: '2px', lineHeight: 1.5 }}
+              >
+                {aiResult?.recommendation || defaultGuidance}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Append-only Generation History */}
+        {issue.aiGenerationHistory && issue.aiGenerationHistory.length > 1 && (
+          <details
+            data-testid={`generation-history-${issue.fingerprint}`}
+            style={{ marginTop: '12px', borderTop: '1px solid var(--border-subtle)', paddingTop: '8px' }}
+          >
+            <summary style={{ cursor: 'pointer', fontSize: '12px', color: 'var(--foreground-muted)' }}>
+              Generation History ({issue.aiGenerationHistory.length} records)
+            </summary>
+            <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {issue.aiGenerationHistory.map((rec, idx) => (
+                <div
+                  key={rec.id}
+                  data-testid={`generation-record-${issue.fingerprint}-${idx}`}
+                  style={{
+                    fontSize: '11px',
+                    padding: '8px',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-sm)',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <strong>Record #{idx + 1} ({rec.isFallback ? 'Fallback' : 'Gemini'})</strong>
+                    <span style={{ color: 'var(--foreground-muted)' }}>{new Date(rec.timestamp).toLocaleTimeString()}</span>
+                  </div>
+                  <div><em>ID:</em> <code>{rec.id}</code></div>
+                  <div><em>Explanation:</em> {rec.explanation}</div>
+                  <div><em>Recommendation:</em> {rec.recommendation}</div>
+                  {rec.uncertaintyNote && <div><em>Uncertainty:</em> {rec.uncertaintyNote}</div>}
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
       </div>
 
       {/* 6. Designer Decision Controls */}
@@ -238,9 +537,11 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
               <button
                 key={action}
                 type="button"
+                id={`decision-btn-${action}-${issue.fingerprint}`}
                 onClick={() => {
                   setActiveDecision(action);
                   setSaveSuccess(false);
+                  setSaveError(null);
                 }}
                 disabled={isSaving}
                 style={{
@@ -265,68 +566,115 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
         </div>
 
         {activeDecision && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px', background: 'var(--surface-subtle)', padding: '14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
             {activeDecision === 'reprioritize' && (
               <div>
-                <label htmlFor={`priority-select-${issue.fingerprint}`} style={{ fontSize: '12px', fontWeight: 500, color: 'var(--foreground-muted)' }}>
-                  Select New Target Priority
+                <label htmlFor={`priority-select-${issue.fingerprint}`} style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground)' }}>
+                  Target Priority (Project Heuristic)
                 </label>
-                <select
-                  id={`priority-select-${issue.fingerprint}`}
-                  value={selectedPriority}
-                  onChange={(e) => setSelectedPriority(e.target.value as Priority)}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                  <select
+                    id={`priority-select-${issue.fingerprint}`}
+                    value={selectedPriority}
+                    onChange={(e) => setSelectedPriority(e.target.value as Priority)}
+                    style={{
+                      padding: '8px 10px',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid var(--border)',
+                      minHeight: '44px',
+                      fontSize: '13px',
+                      background: 'var(--surface)',
+                    }}
+                  >
+                    <option value="P0">P0 — Critical blocker</option>
+                    <option value="P1">P1 — High priority</option>
+                    <option value="P2">P2 — Medium priority</option>
+                    <option value="P3">P3 — Low / backlog</option>
+                  </select>
+                  <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
+                    Note: P0–P3 is an internal research priority heuristic, not WCAG severity.
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {activeDecision === 'edit' && (
+              <div>
+                <label htmlFor={`custom-rec-${issue.fingerprint}`} style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--foreground)', marginBottom: '4px' }}>
+                  Custom Recommendation / Scope (Required)
+                </label>
+                <textarea
+                  id={`custom-rec-${issue.fingerprint}`}
+                  value={customRecommendation}
+                  onChange={(e) => setCustomRecommendation(e.target.value)}
+                  placeholder="Define custom designer-authored recommendation..."
+                  rows={3}
                   style={{
-                    padding: '8px 10px',
+                    width: '100%',
+                    padding: '8px 12px',
                     borderRadius: 'var(--radius-sm)',
                     border: '1px solid var(--border)',
-                    marginLeft: '8px',
-                    minHeight: '44px',
+                    background: 'var(--surface)',
+                    fontSize: '13px',
+                    lineHeight: 1.5,
                   }}
-                >
-                  <option value="P0">P0 — Critical blocker</option>
-                  <option value="P1">P1 — High priority</option>
-                  <option value="P2">P2 — Medium priority</option>
-                  <option value="P3">P3 — Low / backlog</option>
-                </select>
+                />
               </div>
             )}
 
             <div>
-              <label htmlFor={`reason-input-${issue.fingerprint}`} style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '4px', color: 'var(--foreground-muted)' }}>
-                Designer Rationale / Reason {activeDecision !== 'accept' ? '(Required)' : '(Optional)'}
+              <label htmlFor={`reason-input-${issue.fingerprint}`} style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: 'var(--foreground)' }}>
+                Designer Rationale / Reason {isReasonRequired ? '(Required)' : '(Optional)'}
               </label>
               <input
                 id={`reason-input-${issue.fingerprint}`}
                 type="text"
                 value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Explain the UX rationale, context, or why this was adjusted..."
+                onChange={(e) => {
+                  setReason(e.target.value);
+                  if (saveError) setSaveError(null);
+                }}
+                placeholder={
+                  activeDecision === 'reject'
+                    ? 'Explain the UX rationale: why this finding is a false positive or acceptable exception...'
+                    : activeDecision === 'edit'
+                    ? 'Explain the UX rationale: why this scope or recommendation was edited...'
+                    : activeDecision === 'reprioritize'
+                    ? 'Explain the UX rationale: why the priority was adjusted...'
+                    : 'Explain the UX rationale, context, or why this was accepted...'
+                }
                 style={{
                   width: '100%',
                   padding: '8px 12px',
                   borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border)',
+                  border: !isReasonValid && reason.length > 0 ? '1px solid var(--danger)' : '1px solid var(--border)',
                   background: 'var(--surface)',
                   minHeight: '44px',
                   fontSize: '13px',
                 }}
               />
+              {isReasonRequired && reason.trim().length > 0 && reason.trim().length < 3 && (
+                <span style={{ fontSize: '11px', color: 'var(--danger)', marginTop: '2px', display: 'block' }}>
+                  Rationale must be at least 3 characters.
+                </span>
+              )}
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <button
                 type="button"
+                id={`save-decision-btn-${issue.fingerprint}`}
                 onClick={() => handleSaveDecision(activeDecision)}
-                disabled={isSaving}
+                disabled={isSaving || !canSave}
                 style={{
-                  background: 'var(--accent)',
-                  color: 'var(--accent-foreground)',
+                  background: canSave ? 'var(--accent)' : 'var(--border)',
+                  color: canSave ? 'var(--accent-foreground)' : 'var(--foreground-muted)',
                   border: 'none',
                   borderRadius: 'var(--radius-sm)',
-                  padding: '8px 16px',
+                  padding: '8px 18px',
                   fontSize: '13px',
-                  fontWeight: 500,
-                  cursor: 'pointer',
+                  fontWeight: 600,
+                  cursor: canSave ? 'pointer' : 'not-allowed',
                   minHeight: '44px',
                 }}
               >
@@ -341,7 +689,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
               )}
 
               {saveError && (
-                <span style={{ fontSize: '13px', color: 'var(--danger)' }}>
+                <span style={{ fontSize: '13px', color: 'var(--danger)', fontWeight: 500 }}>
                   {saveError}
                 </span>
               )}
@@ -409,6 +757,9 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
           </div>
         )}
       </div>
+
+      {/* Append-Only Decision History Log */}
+      <DecisionLog history={issue.decisionHistory || []} fingerprint={issue.fingerprint} />
     </article>
   );
 }

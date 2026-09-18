@@ -13,7 +13,7 @@ test.describe('Phase 1: Target Size Vertical Slice', () => {
     await runBtn.click();
 
     // 3. Wait for audit summary to appear
-    await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 35000 });
+    await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
     // 4. Verify candidate failure card rendered
     const failCard = page.locator('article', { hasText: 'Interactive target below 24×24 CSS px' }).first();

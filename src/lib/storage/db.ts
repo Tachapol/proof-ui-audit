@@ -23,15 +23,54 @@ export async function saveAuditRun(run: AuditRun): Promise<void> {
   await atomicWriteFile(filePath, JSON.stringify(validated, null, 2));
 }
 
+// In-process per-run mutex queue for serialized atomic updates
+// Note: This provides serialization within a single Node.js process; it does not provide distributed multi-process locking.
+const runLocks = new Map<string, Promise<unknown>>();
+
+export async function withRunLock<T>(runId: string, fn: () => Promise<T>): Promise<T> {
+  const currentLock = runLocks.get(runId) || Promise.resolve();
+  let release: () => void;
+  const newLock = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  runLocks.set(
+    runId,
+    currentLock.then(
+      () => newLock,
+      () => newLock
+    )
+  );
+
+  try {
+    await currentLock;
+    return await fn();
+  } finally {
+    release!();
+    if (runLocks.get(runId) === newLock) {
+      runLocks.delete(runId);
+    }
+  }
+}
+
 export async function getAuditRun(id: string): Promise<AuditRun | null> {
   await ensureDirs();
   const filePath = path.join(RUNS_DIR, `${id}.json`);
+  let raw: string;
   try {
-    const raw = await fs.readFile(filePath, 'utf-8');
+    raw = await fs.readFile(filePath, 'utf-8');
+  } catch (err: any) {
+    if (err.code === 'ENOENT') {
+      return null;
+    }
+    throw err;
+  }
+
+  try {
     const parsed = JSON.parse(raw);
     return AuditRunSchema.parse(parsed);
-  } catch {
-    return null;
+  } catch (err: any) {
+    // Fail safely: throw a descriptive error rather than silently returning null or overwriting corrupt files
+    throw new Error(`CorruptedAuditRunError: Audit run '${id}' is corrupted or invalid: ${err.message}`);
   }
 }
 
@@ -56,7 +95,7 @@ export async function listAuditRuns(): Promise<
             summary: run.summary,
           });
         } catch {
-          // ignore corrupted or unvalidated file
+          // ignore corrupted or unvalidated file in listing
         }
       }
     }
@@ -78,34 +117,153 @@ export async function updateDesignerDecision(
   fingerprint: string,
   decision: DesignerDecision,
   reason?: string,
-  newPriority?: Priority
+  newPriority?: Priority,
+  editedRecommendation?: string
 ): Promise<GroupedUXIssue | null> {
-  const run = await getAuditRun(runId);
-  if (!run) return null;
+  return withRunLock(runId, async () => {
+    const run = await getAuditRun(runId);
+    if (!run) return null;
 
-  const targetGroup = run.groupedIssues.find((g) => g.fingerprint === fingerprint);
-  if (!targetGroup) return null;
+    const targetGroup = run.groupedIssues.find((g) => g.fingerprint === fingerprint);
+    if (!targetGroup) return null;
 
-  const previousPriority = targetGroup.currentPriority;
-  targetGroup.designerDecision = decision;
-  targetGroup.designerReason = reason;
+    const trimmedReason = reason?.trim();
+    const previousDecision = targetGroup.designerDecision;
+    const previousPriority = targetGroup.currentPriority;
+    const originalRec = targetGroup.representative.aiRecommendation || targetGroup.representative.description;
+    const currentEffectiveRec =
+      targetGroup.editedRecommendation || targetGroup.representative.aiRecommendation || targetGroup.representative.description;
 
-  if (decision === 'reprioritize' && newPriority) {
-    targetGroup.currentPriority = newPriority;
-  }
+    // 1. Validation for Reject
+    if (decision === 'reject') {
+      if (!trimmedReason || trimmedReason.length < 3) {
+        throw new Error("A descriptive designer reason (at least 3 characters) is required for 'reject'.");
+      }
+    }
 
-  targetGroup.decisionHistory.push({
-    timestamp: new Date().toISOString(),
-    action: decision,
-    reason,
-    fromPriority: previousPriority,
-    toPriority: targetGroup.currentPriority,
+    // 2. Validation for Edit
+    if (decision === 'edit') {
+      const trimmedEdit = editedRecommendation?.trim();
+      if (!trimmedEdit || trimmedEdit.length === 0) {
+        throw new Error("Edited recommendation must not be empty or whitespace-only.");
+      }
+      if (trimmedEdit === currentEffectiveRec) {
+        throw new Error("Edited recommendation must be different from the current effective recommendation.");
+      }
+      if (!trimmedReason || trimmedReason.length < 3) {
+        throw new Error("A descriptive designer reason (at least 3 characters) is required for 'edit'.");
+      }
+    }
+
+    // 3. Validation for Reprioritize
+    if (decision === 'reprioritize') {
+      if (!newPriority || !['P0', 'P1', 'P2', 'P3'].includes(newPriority)) {
+        throw new Error("A valid target priority (P0–P3) is required when reprioritizing an issue.");
+      }
+      if (newPriority === previousPriority) {
+        throw new Error("Target priority must be different from the current effective priority.");
+      }
+      if (!trimmedReason || trimmedReason.length < 3) {
+        throw new Error("A descriptive designer reason (at least 3 characters) is required for 'reprioritize'.");
+      }
+    }
+
+    // Apply mutable designer-authored state
+    targetGroup.designerDecision = decision;
+    targetGroup.designerReason = trimmedReason || undefined;
+
+    if (decision === 'reprioritize' && newPriority) {
+      targetGroup.currentPriority = newPriority;
+    }
+
+    if (decision === 'edit' && editedRecommendation !== undefined) {
+      const trimmed = editedRecommendation.trim();
+      targetGroup.editedRecommendation = trimmed;
+      targetGroup.representative.editedRecommendation = trimmed;
+    }
+
+    // Append-only decision record with server-owned ID and timestamp
+    if (!targetGroup.decisionHistory) {
+      targetGroup.decisionHistory = [];
+    }
+
+    targetGroup.decisionHistory.push({
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      action: decision,
+      reason: trimmedReason || undefined,
+      previousState: previousDecision || undefined,
+      newState: decision,
+      fromPriority: previousPriority,
+      toPriority: targetGroup.currentPriority,
+      originalRecommendation: originalRec,
+      previousRecommendation: currentEffectiveRec,
+      editedRecommendation: decision === 'edit' ? targetGroup.editedRecommendation : undefined,
+    });
+
+    // Update representative issue without touching deterministic evidence
+    targetGroup.representative.designerDecision = decision;
+    targetGroup.representative.designerReason = trimmedReason || undefined;
+
+    await saveAuditRun(run);
+    return targetGroup;
   });
-
-  // Also update representative issue
-  targetGroup.representative.designerDecision = decision;
-  targetGroup.representative.designerReason = reason;
-
-  await saveAuditRun(run);
-  return targetGroup;
 }
+
+export async function updateAIExplanation(
+  runId: string,
+  fingerprint: string,
+  aiResult: import('@/lib/schema/ai-response').AIExplanationResult
+): Promise<GroupedUXIssue | null> {
+  return withRunLock(runId, async () => {
+    const run = await getAuditRun(runId);
+    if (!run) return null;
+
+    const targetGroup = run.groupedIssues.find((g) => g.fingerprint === fingerprint);
+    if (!targetGroup) return null;
+
+    // Ensure generation history exists
+    if (!targetGroup.aiGenerationHistory) {
+      targetGroup.aiGenerationHistory = [];
+    }
+
+    const record: import('@/lib/schema/ai-response').AIGenerationRecord = {
+      id: aiResult.id || crypto.randomUUID(),
+      timestamp: aiResult.timestamp || new Date().toISOString(),
+      provenance: aiResult.provenance,
+      isFallback: aiResult.isFallback,
+      fallbackReason: aiResult.fallbackReason,
+      explanation: aiResult.explanation,
+      recommendation: aiResult.recommendation,
+      uncertaintyNote: aiResult.uncertaintyNote,
+      requiresDesignerReview: aiResult.requiresDesignerReview,
+      evidenceFingerprint: fingerprint,
+      durationMs: aiResult.durationMs,
+    };
+
+    targetGroup.aiGenerationHistory.push(record);
+
+    // Attach validated explanation result (representing the latest/current guidance)
+    aiResult.id = record.id;
+    aiResult.evidenceFingerprint = fingerprint;
+    targetGroup.aiExplanation = aiResult.explanation;
+    targetGroup.aiRecommendation = aiResult.recommendation;
+    targetGroup.aiExplanationResult = aiResult;
+
+    if (targetGroup.representative) {
+      if (!targetGroup.representative.aiGenerationHistory) {
+        targetGroup.representative.aiGenerationHistory = [];
+      }
+      targetGroup.representative.aiGenerationHistory.push(record);
+      targetGroup.representative.aiExplanation = aiResult.explanation;
+      targetGroup.representative.aiRecommendation = aiResult.recommendation;
+      targetGroup.representative.aiExplanationResult = aiResult;
+    }
+
+    // Note: If the designer previously edited the recommendation, targetGroup.editedRecommendation is preserved.
+
+    await saveAuditRun(run);
+    return targetGroup;
+  });
+}
+

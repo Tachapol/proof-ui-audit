@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AIExplanationResultSchema, AIGenerationRecordSchema } from './ai-response';
 
 export const AuditStatusSchema = z.enum(['pass', 'candidateFail', 'needsReview']);
 export type AuditStatus = z.infer<typeof AuditStatusSchema>;
@@ -52,18 +53,27 @@ export const UXIssueSchema = z.object({
 
   aiExplanation: z.string().optional(),
   aiRecommendation: z.string().optional(),
+  aiExplanationResult: AIExplanationResultSchema.optional(),
+  aiGenerationHistory: z.array(AIGenerationRecordSchema).optional(),
 
   designerDecision: DesignerDecisionSchema.optional(),
   designerReason: z.string().optional(),
+  editedRecommendation: z.string().optional(),
 });
 export type UXIssue = z.infer<typeof UXIssueSchema>;
 
 export const DecisionRecordSchema = z.object({
+  id: z.string().min(1).default(() => crypto.randomUUID()),
   timestamp: z.string().datetime(),
   action: DesignerDecisionSchema,
   reason: z.string().optional(),
+  previousState: DesignerDecisionSchema.optional(),
+  newState: DesignerDecisionSchema.optional(),
   fromPriority: PrioritySchema.optional(),
   toPriority: PrioritySchema.optional(),
+  originalRecommendation: z.string().optional(),
+  previousRecommendation: z.string().optional(),
+  editedRecommendation: z.string().optional(),
 });
 export type DecisionRecord = z.infer<typeof DecisionRecordSchema>;
 
@@ -73,10 +83,16 @@ export const GroupedUXIssueSchema = z.object({
   rawOccurrencesCount: z.number().int().positive(),
   occurrences: z.array(UXIssueSchema).min(1),
   status: AuditStatusSchema,
+  hasMixedStatus: z.boolean().optional(),
   initialPriority: PrioritySchema,
   currentPriority: PrioritySchema,
+  aiExplanation: z.string().optional(),
+  aiRecommendation: z.string().optional(),
+  aiExplanationResult: AIExplanationResultSchema.optional(),
+  aiGenerationHistory: z.array(AIGenerationRecordSchema).optional(),
   designerDecision: DesignerDecisionSchema.optional(),
   designerReason: z.string().optional(),
+  editedRecommendation: z.string().optional(),
   decisionHistory: z.array(DecisionRecordSchema).default([]),
 });
 export type GroupedUXIssue = z.infer<typeof GroupedUXIssueSchema>;

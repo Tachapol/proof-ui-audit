@@ -1,19 +1,63 @@
 import { describe, it, expect } from 'vitest';
-import { evaluateTextSpacing, TEXT_SPACING_OVERRIDE_CSS } from '../text-spacing';
+import {
+  evaluateTextSpacing,
+  computeMinimumPreservingSpacing,
+} from '../text-spacing';
 
 describe('Text Spacing Rule (WCAG 2.2 SC 1.4.12)', () => {
   const url = 'http://localhost:3123/fixtures/text-spacing-demo';
   const viewport = { width: 375, height: 667 };
 
-  it('includes required WCAG 2.2 SC 1.4.12 CSS properties in override string', () => {
-    expect(TEXT_SPACING_OVERRIDE_CSS).toContain('line-height: 1.5 !important');
-    expect(TEXT_SPACING_OVERRIDE_CSS).toContain('letter-spacing: 0.12em !important');
-    expect(TEXT_SPACING_OVERRIDE_CSS).toContain('word-spacing: 0.16em !important');
-    expect(TEXT_SPACING_OVERRIDE_CSS).toContain('margin-bottom: 2em !important');
+  describe('Minimum-Preserving Spacing Logic (Item 4)', () => {
+    it('preserves existing line-height, letter-spacing, word-spacing, and paragraph margin when already exceeding WCAG minimums', () => {
+      const fontSize = 16;
+      const result = computeMinimumPreservingSpacing({
+        fontSize,
+        lineHeightPx: 38.4, // 2.4 * 16 (exceeds 1.5 * 16 = 24px)
+        letterSpacingPx: 4.0, // 0.25 * 16 (exceeds 0.12 * 16 = 1.92px)
+        wordSpacingPx: 4.8, // 0.30 * 16 (exceeds 0.16 * 16 = 2.56px)
+        marginBottomPx: 56.0, // 3.5 * 16 (exceeds 2.0 * 16 = 32px)
+      });
+
+      expect(result.isLineHeightPreserved).toBe(true);
+      expect(result.targetLineHeightPx).toBe(38.4);
+
+      expect(result.isLetterSpacingPreserved).toBe(true);
+      expect(result.targetLetterSpacingPx).toBe(4.0);
+
+      expect(result.isWordSpacingPreserved).toBe(true);
+      expect(result.targetWordSpacingPx).toBe(4.8);
+
+      expect(result.isMarginBottomPreserved).toBe(true);
+      expect(result.targetMarginBottomPx).toBe(56.0);
+    });
+
+    it('enforces required minimums when author spacing is below thresholds', () => {
+      const fontSize = 16;
+      const result = computeMinimumPreservingSpacing({
+        fontSize,
+        lineHeightPx: 19.2, // 1.2 * 16 (below 1.5 * 16 = 24px)
+        letterSpacingPx: 0, // 0px (below 0.12 * 16 = 1.92px)
+        wordSpacingPx: 0, // 0px (below 0.16 * 16 = 2.56px)
+        marginBottomPx: 16.0, // 1.0 * 16 (below 2.0 * 16 = 32px)
+      });
+
+      expect(result.isLineHeightPreserved).toBe(false);
+      expect(result.targetLineHeightPx).toBe(24.0); // 1.5 * 16
+
+      expect(result.isLetterSpacingPreserved).toBe(false);
+      expect(result.targetLetterSpacingPx).toBe(1.92); // 0.12 * 16
+
+      expect(result.isWordSpacingPreserved).toBe(false);
+      expect(result.targetWordSpacingPx).toBe(2.56); // 0.16 * 16
+
+      expect(result.isMarginBottomPreserved).toBe(false);
+      expect(result.targetMarginBottomPx).toBe(32.0); // 2.0 * 16
+    });
   });
 
   describe('Clean Text Spacing Pass (TEST-12)', () => {
-    it('evaluates fluid text container that expands without clipping as pass', () => {
+    it('evaluates normal wrapping and height expansion without clipping as clean pass', () => {
       const issue = evaluateTextSpacing(
         {
           selector: 'div.fluid-card',
@@ -31,7 +75,7 @@ describe('Text Spacing Rule (WCAG 2.2 SC 1.4.12)', () => {
           },
           candidate: {
             width: 300,
-            height: 90, // expands naturally
+            height: 90, // normal expansion from 60px to 90px!
             scrollHeight: 90,
             clientHeight: 90,
             scrollWidth: 300,
@@ -46,14 +90,13 @@ describe('Text Spacing Rule (WCAG 2.2 SC 1.4.12)', () => {
 
       expect(issue.status).toBe('pass');
       expect(issue.ruleId).toBe('text-spacing');
-      expect(issue.title).toContain('Text adapts cleanly');
+      expect(issue.title).toContain('expands fluidly');
       expect(issue.priorityRationale).toContain('Project Heuristic P3 (Not WCAG Severity)');
     });
   });
 
   describe('Deterministically Clipped Candidate Fail (TEST-13)', () => {
-    it('evaluates fixed-height container with clipped overflow as candidateFail', () => {
-      // Container is constrained to 40px height with overflow: hidden
+    it('evaluates fixed-height container with vertical clipping as candidateFail', () => {
       const issue = evaluateTextSpacing(
         {
           selector: 'div.fixed-pill-box',
@@ -72,8 +115,8 @@ describe('Text Spacing Rule (WCAG 2.2 SC 1.4.12)', () => {
           },
           candidate: {
             width: 250,
-            height: 40, // height constrained!
-            scrollHeight: 68, // text expanded to 68px!
+            height: 40,
+            scrollHeight: 68,
             clientHeight: 40,
             scrollWidth: 250,
             clientWidth: 250,
@@ -89,35 +132,35 @@ describe('Text Spacing Rule (WCAG 2.2 SC 1.4.12)', () => {
       expect(issue.initialPriority).toBe('P1'); // 28px deficit > 15px
       expect(issue.measured.clipDeficitPx).toBe(28);
       expect(issue.measured.isClipped).toBe(true);
-      expect(issue.priorityRationale).toContain('Project Heuristic P1 (Not WCAG Severity)');
-      expect(issue.title).toContain('clipped under text spacing override');
+      expect(issue.title).toContain('vertically clipped under text spacing override');
     });
 
-    it('assigns P2 for moderate text clipping (<15px)', () => {
+    it('evaluates horizontal text clipping as candidateFail', () => {
       const issue = evaluateTextSpacing(
         {
-          selector: 'div.slightly-clipped-badge',
+          selector: 'div.fixed-width-strip',
           element: 'div',
-          textSnippet: 'Badge title slightly cut off',
+          textSnippet: 'SingleLineTextThatCannotWrap',
           baseline: {
-            width: 150,
+            width: 140,
             height: 30,
             scrollHeight: 30,
             clientHeight: 30,
-            scrollWidth: 150,
-            clientWidth: 150,
+            scrollWidth: 140,
+            clientWidth: 140,
             isClipped: false,
-            boundingBox: { x: 20, y: 250, width: 150, height: 30 },
+            boundingBox: { x: 10, y: 100, width: 140, height: 30 },
           },
           candidate: {
-            width: 150,
+            width: 140,
             height: 30,
-            scrollHeight: 38,
+            scrollHeight: 30,
             clientHeight: 30,
-            scrollWidth: 150,
-            clientWidth: 150,
-            isClipped: true,
-            boundingBox: { x: 20, y: 250, width: 150, height: 30 },
+            scrollWidth: 210, // expanded horizontally beyond 140px!
+            clientWidth: 140,
+            isClipped: false,
+            isHorizontalClipped: true,
+            boundingBox: { x: 10, y: 100, width: 140, height: 30 },
           },
         },
         url,
@@ -125,8 +168,84 @@ describe('Text Spacing Rule (WCAG 2.2 SC 1.4.12)', () => {
       );
 
       expect(issue.status).toBe('candidateFail');
+      expect(issue.title).toContain('horizontally clipped under text spacing override');
+      expect(issue.measured.horizontalClipDeficitPx).toBe(70);
+    });
+
+    it('evaluates text escaping container bounding box as candidateFail', () => {
+      const issue = evaluateTextSpacing(
+        {
+          selector: 'div.visible-overflow-box',
+          element: 'div',
+          textSnippet: 'Escaping text',
+          baseline: {
+            width: 200,
+            height: 50,
+            scrollHeight: 50,
+            clientHeight: 50,
+            scrollWidth: 200,
+            clientWidth: 200,
+            isClipped: false,
+            boundingBox: { x: 10, y: 100, width: 200, height: 50 },
+          },
+          candidate: {
+            width: 200,
+            height: 50,
+            scrollHeight: 50,
+            clientHeight: 50,
+            scrollWidth: 200,
+            clientWidth: 200,
+            isClipped: false,
+            isBoundingBoxEscaped: true,
+            boundingBox: { x: 10, y: 100, width: 200, height: 50 },
+          },
+        },
+        url,
+        viewport
+      );
+
+      expect(issue.status).toBe('candidateFail');
+      expect(issue.title).toContain('escapes container bounding box');
       expect(issue.initialPriority).toBe('P2');
-      expect(issue.measured.clipDeficitPx).toBe(8);
+    });
+
+    it('evaluates interactive control obscured by expanded text as P0 candidateFail', () => {
+      const issue = evaluateTextSpacing(
+        {
+          selector: 'div.expanding-card',
+          element: 'div',
+          textSnippet: 'Expanding text that covers button',
+          baseline: {
+            width: 250,
+            height: 40,
+            scrollHeight: 40,
+            clientHeight: 40,
+            scrollWidth: 250,
+            clientWidth: 250,
+            isClipped: false,
+            boundingBox: { x: 10, y: 50, width: 250, height: 40 },
+          },
+          candidate: {
+            width: 250,
+            height: 80,
+            scrollHeight: 80,
+            clientHeight: 80,
+            scrollWidth: 250,
+            clientWidth: 250,
+            isClipped: false,
+            boundingBox: { x: 10, y: 50, width: 250, height: 80 },
+          },
+          isControlObscured: true,
+          obscuredControlSelector: 'button#submit-action',
+        },
+        url,
+        viewport
+      );
+
+      expect(issue.status).toBe('candidateFail');
+      expect(issue.initialPriority).toBe('P0');
+      expect(issue.title).toContain('Interactive control obscured by expanded text');
+      expect(issue.description).toContain('button#submit-action');
     });
   });
 
