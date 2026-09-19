@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { validateAndNormalizeAuditUrl, isPrivateOrReservedIP } from '../url-validator';
+import {
+  validateAndNormalizeAuditUrl,
+  isPrivateOrReservedIP,
+  DnsLookupFn,
+} from '../url-validator';
 
 describe('Audit URL Validation & Advanced SSRF Rejection (TEST-22)', () => {
   it('identifies private IPv4 and reserved ranges correctly', () => {
@@ -27,12 +31,76 @@ describe('Audit URL Validation & Advanced SSRF Rejection (TEST-22)', () => {
     expect(isPrivateOrReservedIP('::ffff:8.8.8.8')).toBe(false);
   });
 
-  it('accepts valid public domain with DNS resolution', async () => {
-    const res = await validateAndNormalizeAuditUrl('https://example.com');
-    expect(res.valid).toBe(true);
-    expect(res.isFixture).toBe(false);
-    expect(res.resolvedIP).toBeDefined();
-    expect(isPrivateOrReservedIP(res.resolvedIP!)).toBe(false);
+  describe('Hermetic DNS Resolution & SSRF Protection', () => {
+    it('accepts public hostname resolving to a mocked public IP', async () => {
+      const mockDns: DnsLookupFn = async () => [
+        { address: '93.184.216.34', family: 4 },
+      ];
+      const res = await validateAndNormalizeAuditUrl(
+        'https://example.com',
+        'http://localhost:3123',
+        mockDns
+      );
+      expect(res.valid).toBe(true);
+      expect(res.isFixture).toBe(false);
+      expect(res.resolvedIP).toBe('93.184.216.34');
+      expect(isPrivateOrReservedIP(res.resolvedIP!)).toBe(false);
+    });
+
+    it('rejects hostname resolving to a mocked private IP', async () => {
+      const mockDns: DnsLookupFn = async () => [
+        { address: '10.0.0.1', family: 4 },
+      ];
+      const res = await validateAndNormalizeAuditUrl(
+        'https://internal.corp',
+        'http://localhost:3123',
+        mockDns
+      );
+      expect(res.valid).toBe(false);
+      expect(res.error).toContain('Security restriction');
+      expect(res.error).toContain('resolves to blocked IP 10.0.0.1');
+    });
+
+    it('rejects multiple resolved IPs including one blocked address (DNS rebinding)', async () => {
+      const mockDns: DnsLookupFn = async () => [
+        { address: '93.184.216.34', family: 4 },
+        { address: '127.0.0.1', family: 4 },
+      ];
+      const res = await validateAndNormalizeAuditUrl(
+        'https://dual-homed.example.com',
+        'http://localhost:3123',
+        mockDns
+      );
+      expect(res.valid).toBe(false);
+      expect(res.error).toContain('Security restriction');
+      expect(res.error).toContain('resolves to blocked IP 127.0.0.1');
+    });
+
+    it('handles DNS lookup failure gracefully without unhandled exception', async () => {
+      const mockDns: DnsLookupFn = async () => {
+        const err = new Error('getaddrinfo ENOTFOUND non-existent-domain.xyz');
+        throw err;
+      };
+      const res = await validateAndNormalizeAuditUrl(
+        'https://non-existent-domain.xyz',
+        'http://localhost:3123',
+        mockDns
+      );
+      expect(res.valid).toBe(false);
+      expect(res.error).toContain('DNS resolution failed');
+      expect(res.error).toContain('ENOTFOUND');
+    });
+
+    it('rejects ambiguous resolution with empty or invalid lookup results', async () => {
+      const mockDns: DnsLookupFn = async () => [];
+      const res = await validateAndNormalizeAuditUrl(
+        'https://ambiguous.example.com',
+        'http://localhost:3123',
+        mockDns
+      );
+      expect(res.valid).toBe(false);
+      expect(res.error).toContain('Ambiguous or empty resolution');
+    });
   });
 
   it('accepts fixture identifiers without network lookup', async () => {

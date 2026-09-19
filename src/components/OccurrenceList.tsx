@@ -197,6 +197,8 @@ export function OccurrenceList({ occurrences, fingerprint }: OccurrenceListProps
                         <img
                           src={occ.screenshotPath}
                           alt={`Visual evidence screenshot for occurrence ${occ.id} (${occ.selector}) at ${viewportLabel}`}
+                          loading="lazy"
+                          decoding="async"
                           style={{ width: '100%', height: 'auto', maxHeight: '120px', objectFit: 'contain', display: 'block' }}
                         />
                       </div>

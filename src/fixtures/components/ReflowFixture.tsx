@@ -222,7 +222,7 @@ export function ReflowDecorativePass() {
         Decorative Bleed (Excluded from Failure)
       </h2>
       <p style={{ fontSize: '13px', color: '#676767', marginBottom: '16px' }}>
-        Decorative shape bleeds beyond 320px with aria-hidden="true" and data-decorative="true" inside an overflow-contained section. The audit excludes decorative content and confirms clean reflow.
+        Decorative shape bleeds beyond 320px with aria-hidden=&quot;true&quot; and data-decorative=&quot;true&quot; inside an overflow-contained section. The audit excludes decorative content and confirms clean reflow.
       </p>
       <div
         id="decorative-bleed-shape"

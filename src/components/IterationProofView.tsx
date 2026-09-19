@@ -162,6 +162,7 @@ export function IterationProofView({
       {/* Step 1: Pre-launch state */}
       {!comparison ? (
         <div>
+          <div className="content-label">Preview awaiting approval</div>
           <p style={{ fontSize: '13px', color: 'var(--foreground-muted)', marginBottom: '12px', lineHeight: 1.5 }}>
             A predefined allowlisted CSS fix (<code>min-width: 24px; min-height: 24px;</code>) is available for this Target Size candidate failure. The override will run in an isolated browser context without touching fixture source files.
           </p>
@@ -187,6 +188,7 @@ export function IterationProofView({
           >
             {isGenerating ? 'Running Isolated Preview...' : 'Approve & Launch Isolated Preview'}
           </button>
+          {isGenerating && <span role="status" aria-live="polite" className="preview-running-status">Preview running in an isolated browser. Source remains unchanged.</span>}
         </div>
       ) : (
         /* Step 2: Comparison Display */
@@ -268,6 +270,8 @@ export function IterationProofView({
                 <img
                   src={comparison.baselineScreenshotPath}
                   alt="Baseline target size visual evidence"
+                  loading="lazy"
+                  decoding="async"
                   style={{ width: '100%', maxHeight: '140px', objectFit: 'contain', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)' }}
                 />
               ) : (
@@ -299,6 +303,8 @@ export function IterationProofView({
                 <img
                   src={comparison.candidateScreenshotPath}
                   alt="Candidate preview target size visual evidence"
+                  loading="lazy"
+                  decoding="async"
                   style={{ width: '100%', maxHeight: '140px', objectFit: 'contain', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)' }}
                 />
               ) : (
@@ -334,8 +340,8 @@ export function IterationProofView({
             </div>
 
             {decisionSuccess && (
-              <div style={{ fontSize: '12px', color: 'var(--success)', marginBottom: '8px', fontWeight: 500 }}>
-                ✓ Final decision saved to audit run.
+              <div role="status" aria-live="polite" style={{ fontSize: '12px', color: 'var(--success)', marginBottom: '8px', fontWeight: 500, display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <Icon name="Check" size={15} /> Final decision saved to audit run.
               </div>
             )}
 
@@ -346,7 +352,11 @@ export function IterationProofView({
               </div>
             ) : (
               <div>
+                <label htmlFor={`candidate-reason-${fingerprint}`} style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '5px' }}>
+                  Final decision reason <span style={{ fontWeight: 400, color: 'var(--foreground-muted)' }}>(required for reject or revision)</span>
+                </label>
                 <input
+                  id={`candidate-reason-${fingerprint}`}
                   type="text"
                   placeholder="Designer reason / notes for decision (required for reject/revision)..."
                   value={reason}

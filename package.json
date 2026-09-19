@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "check:traceability": "node scripts/check-traceability.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

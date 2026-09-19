@@ -41,6 +41,9 @@ test.describe('Phase 6B: Isolated Before/After Iteration Proof', () => {
     // 5. Verify isolated candidate preview generated
     // Result banner appears
     await expect(failCard.locator('text=Result: [IMPROVED]')).toBeVisible({ timeout: 30000 });
+    const candidateImage = failCard.getByRole('img', { name: 'Candidate preview target size visual evidence' });
+    await expect(candidateImage).toBeVisible();
+    await expect.poll(() => candidateImage.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
     await expect(failCard.locator('text=Isolated preview — source unchanged')).toBeVisible();
 
     // Baseline remains below threshold

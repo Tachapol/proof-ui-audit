@@ -76,9 +76,13 @@ export function isPrivateOrReservedIP(ip: string): boolean {
   return false;
 }
 
+export type DnsLookupResult = Array<{ address: string; family: number }>;
+export type DnsLookupFn = (hostname: string, options: { all: true }) => Promise<DnsLookupResult>;
+
 export async function validateAndNormalizeAuditUrl(
   input: string,
-  devServerBaseUrl = 'http://localhost:3123'
+  devServerBaseUrl = 'http://localhost:3123',
+  dnsLookup: DnsLookupFn = (h, opts) => dns.lookup(h, opts)
 ): Promise<URLValidationResult> {
   if (!input || typeof input !== 'string') {
     return { valid: false, error: 'Target URL or fixture identifier is required.' };
@@ -168,12 +172,18 @@ export async function validateAndNormalizeAuditUrl(
 
   // 3. DNS resolution validation (SSRF DNS-rebinding protection)
   try {
-    const lookupResult = await dns.lookup(hostname, { all: true });
+    const lookupResult = await dnsLookup(hostname, { all: true });
+    if (!Array.isArray(lookupResult) || lookupResult.length === 0) {
+      return {
+        valid: false,
+        error: `DNS resolution failed for host ${hostname}: Ambiguous or empty resolution`,
+      };
+    }
     for (const address of lookupResult) {
-      if (isPrivateOrReservedIP(address.address)) {
+      if (!address.address || isPrivateOrReservedIP(address.address)) {
         return {
           valid: false,
-          error: `Security restriction: Domain ${hostname} resolves to blocked IP ${address.address}.`,
+          error: `Security restriction: Domain ${hostname} resolves to blocked IP ${address?.address || 'unknown'}.`,
         };
       }
     }

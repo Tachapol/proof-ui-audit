@@ -22,7 +22,14 @@ export type IconName =
   | 'Sliders'
   | 'Play'
   | 'Info'
-  | 'ShieldAlert';
+  | 'ShieldAlert'
+  | 'Menu'
+  | 'PanelLeftClose'
+  | 'FlaskConical'
+  | 'History'
+  | 'CircleDot'
+  | 'Clock3'
+  | 'LoaderCircle';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   name: IconName;

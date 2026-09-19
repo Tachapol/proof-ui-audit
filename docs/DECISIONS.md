@@ -260,3 +260,55 @@ This document records technical and architectural decisions for `proofui-audit-p
 * **Reason**: Satisfies Phase 6B requirements (`ARCH-10`, `TEST-23`), ensuring safe, reversible, isolated CSS optimization previews with complete before/after evidence, designer approval gating, and zero fixture source modification.
 * **Affected Requirement IDs**: `ARCH-10`, `TEST-23`, `DATA-05`, `DATA-06`
 
+---
+
+## DEC-020: Test Counts Are Authoritative Suite Totals with Shared Coverage Attribution
+
+* **Date**: 2026-09-19
+* **Decision**:
+  - The authoritative baseline immediately before Phase 7 is the result of complete suite execution: **166 Vitest tests across 19 files** and **16 Playwright tests across 8 files**.
+  - Per-file values such as `11/11` describe the scoped result for that named file. Values recorded in earlier decisions describe historical cumulative checkpoints at that time. Neither category is an exclusive per-phase count.
+  - Test files and cases are intentionally attributed to multiple requirement and phase rows when one scenario verifies shared behavior (for example, grouping, persistence, keyboard behavior, and responsive containment in one end-to-end flow). Therefore those references overlap and must not be summed.
+  - The `Tests That Must Pass` lists in `docs/IMPLEMENTATION_PLAN.md` are selected representative coverage assignments, not exhaustive inventories or numeric subtotals.
+* **Reason**: This interpretation matches the repository's executable inventory and historical records without inventing missing results or retroactively reallocating shared tests.
+* **Affected Requirement IDs**: `TEST-01` through `TEST-25`
+
+---
+
+## DEC-021: Phase 7 Semantic Shell, Modal Drawer, and State Presentation
+
+* **Date**: 2026-09-19
+* **Decision**:
+  - Use a lean CSS/React application shell with a 244px desktop navigation rail, quiet sticky context bar, and centered evidence column; do not add a component framework, animation dependency, or external font.
+  - Treat the mobile navigation as a modal drawer: focus enters the close control, Tab is contained within the drawer, Escape closes it, focus returns to the trigger, page scrolling is locked, and the background content is inert while open.
+  - Keep deterministic evidence visually and structurally ahead of assisted guidance. Label AI/fallback and designer-authored content in text, retain technical evidence collapsed by default, and place raw occurrences, histories, and isolated comparison later in the card hierarchy.
+  - Reserve stable regions for audit progress, screenshots, assisted guidance, export feedback, and preview comparison. Missing screenshots render an explicit fixed-space fallback.
+  - Keep the specified `#10a37f` accent for identity and selection, while using a darker centralized `--accent-strong` for white-text primary actions to preserve readable contrast.
+* **Reason**: Completes Phase 7's restrained, content-first UI and keyboard/responsive requirements while preserving all deterministic, persistence, report, AI-grounding, and allowlisted-preview contracts.
+* **Affected Requirement IDs**: `ARCH-06`, `ARCH-07`, `UI-01` through `UI-18`, `SEC-08`
+
+---
+
+## DEC-022: Production-Safe Delivery of Runtime Screenshot Evidence
+
+* **Date**: 2026-09-19
+* **Decision**:
+  - Preserve all persisted screenshot paths under `/screenshots/<filename>` and add a dynamic read-only route at that same URL shape so screenshots generated after `next build` are available in production.
+  - Accept only single `.png` basenames matching a strict alphanumeric/dot/underscore/hyphen allowlist, resolve only within `public/screenshots`, reject traversal or missing files with a generic 404, set `nosniff`, and disable caching for runtime evidence.
+  - Do not alter screenshot creation, audit measurements, iteration comparison data, report schemas, or the allowlisted CSS preview mechanism.
+* **Reason**: Next.js production static serving returned 404 for evidence files created after the build manifest was generated, even though development mode displayed them. The route fixes evidence presentation without changing any verified semantic contract.
+* **Affected Requirement IDs**: `DONE-07`, `UI-07`, `UI-16`, `SEC-08`, `TEST-23`
+
+---
+
+## DEC-023: Phase 8 ESLint Configuration, Full-Pipeline E2E Test, and Traceability Closure
+
+* **Date**: 2026-09-19
+* **Decision**:
+  - **ESLint 9 Flat Config**: Created `eslint.config.mjs` using `@eslint/eslintrc` `FlatCompat` to bridge the legacy `eslint-config-next` format into ESLint 9's flat config format. The `@next/next/no-img-element` rule is disabled because all `<img>` elements in the application render runtime-generated audit screenshots whose paths are dynamic and cannot be statically optimized by `next/image`. The `next/core-web-vitals` preset is used for all other rules.
+  - **Full-Audit-Flow E2E Test (TEST-24)**: Implemented as a single comprehensive Playwright test (`tests/full-audit-flow.spec.ts`) that exercises the complete pipeline end-to-end: homepage load with landmarks, fixture selection, audit execution, three-status verification, issue card hierarchy, AI fallback explanation with provenance, designer decision with persistence, JSON and Markdown export with cross-format consistency, iteration proof with improved comparison, full page reload persistence, 320px responsive containment, and excluded-feature absence. A single flow test was chosen over many small tests because Phase 8 requires demonstrating that all subsystems integrate correctly in sequence, matching the real user workflow.
+  - **Traceability Closure**: All `DONE-*` rows are verified by cross-referencing existing Phase 0–7 test evidence, the new `full-audit-flow.spec.ts` results, and repository-level absence audits for excluded features. No requirement was marked `verified` without at least one passing automated test or documented manual verification step.
+  - **Excluded-Feature Audit**: Repository-level scans (`grep`) confirm the absence of all `EXCL-01` through `EXCL-20` features, with the full-audit-flow E2E test additionally checking the rendered DOM for prohibited patterns.
+  - **Fixture Entity Fix**: One `react/no-unescaped-entities` error in `ReflowFixture.tsx` was fixed by replacing literal double quotes with `&quot;` entities in JSX text content. This is a linting compliance fix with no behavioral change.
+* **Reason**: Satisfies Phase 8 exit criteria requiring clean ESLint, complete Playwright coverage, and 100% traceability closure without introducing new features or dependencies.
+* **Affected Requirement IDs**: `TEST-24`, `TEST-25`, `DONE-01` through `DONE-20`

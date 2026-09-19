@@ -1,120 +1,90 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { AuditSummary as AuditSummaryType } from '@/lib/schema/ux-issue';
+import { Icon } from './Icon';
 
-interface AuditSummaryProps {
-  summary: AuditSummaryType;
-  targetUrl: string;
-  timestamp: string;
-  runId?: string;
-}
+import { FIXTURES } from '@/fixtures/fixture-registry';
 
-export function AuditSummary({ summary, targetUrl, timestamp, runId }: AuditSummaryProps) {
-  const formattedDate = new Date(timestamp).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
+interface AuditSummaryProps { summary: AuditSummaryType; targetUrl: string; timestamp: string; runId?: string; fixtureId?: string; }
+type ExportState = { format: 'json' | 'markdown'; status: 'preparing' | 'completed' | 'failed'; message: string } | null;
+
+export function AuditSummary({ summary, targetUrl, timestamp, runId, fixtureId }: AuditSummaryProps) {
+  const [exportState, setExportState] = useState<ExportState>(null);
+  const formattedDate = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  const fixtureDef = fixtureId ? FIXTURES.find((f) => f.id === fixtureId) : undefined;
+  const fixtureName = fixtureDef ? fixtureDef.name : fixtureId;
+
+  const handleExport = async (format: 'json' | 'markdown') => {
+    if (!runId || exportState?.status === 'preparing') return;
+    setExportState({ format, status: 'preparing', message: `Preparing ${format === 'json' ? 'JSON' : 'Markdown'} report…` });
+    try {
+      const response = await fetch(`/api/export?runId=${encodeURIComponent(runId)}&format=${format}`);
+      if (!response.ok) throw new Error('The report service could not prepare this export.');
+      const blob = await response.blob();
+      const disposition = response.headers.get('content-disposition') || '';
+      const nameMatch = disposition.match(/filename="?([^";]+)"?/i);
+      const filename = nameMatch?.[1] || `proofui-audit-${runId}.${format === 'json' ? 'json' : 'md'}`;
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = objectUrl;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      setExportState({ format, status: 'completed', message: `${format === 'json' ? 'JSON' : 'Markdown'} report downloaded.` });
+    } catch (caught: unknown) {
+      setExportState({ format, status: 'failed', message: caught instanceof Error ? caught.message : 'Export failed. Try again.' });
+    }
+  };
+
+  const metrics = [
+    { label: 'Raw findings', value: summary.totalRawFindings, id: 'summary-raw-findings-count', tone: 'neutral' },
+    { label: 'Grouped issues', value: summary.totalGroupedIssues, tone: 'neutral' },
+    { label: 'Pass', value: summary.passCount, tone: 'success' },
+    { label: 'Candidate fail', value: summary.candidateFailCount, tone: 'danger' },
+    { label: 'Needs review', value: summary.needsReviewCount, tone: 'warning' },
+  ];
 
   return (
-    <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', padding: '16px 20px', marginBottom: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-        <div>
-          <span style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--foreground-muted)', letterSpacing: '0.05em' }}>
-            Audit Result Summary
-          </span>
-          <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--foreground)', marginTop: '2px' }} className="safe-wrap">
-            Target: <code>{targetUrl}</code>
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <div style={{ fontSize: '13px', color: 'var(--foreground-muted)' }}>
-            Run completed at {formattedDate}
-          </div>
-          {runId && (
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <a
-                id="export-json-btn"
-                href={`/api/export?runId=${encodeURIComponent(runId)}&format=json`}
-                download
-                aria-label="Export audit report as JSON"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border)',
-                  background: 'var(--surface)',
-                  color: 'var(--foreground)',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  minHeight: '44px',
-                  boxSizing: 'border-box',
-                }}
-              >
-                <span>Export JSON</span>
-              </a>
-              <a
-                id="export-markdown-btn"
-                href={`/api/export?runId=${encodeURIComponent(runId)}&format=markdown`}
-                download
-                aria-label="Export audit report as Markdown"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border)',
-                  background: 'var(--surface)',
-                  color: 'var(--foreground)',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  minHeight: '44px',
-                  boxSizing: 'border-box',
-                }}
-              >
-                <span>Export Markdown</span>
-              </a>
-            </div>
+    <section className="audit-summary" aria-labelledby="audit-summary-title">
+      <div className="summary-header">
+        <div className="summary-context">
+          <h3 id="audit-summary-title">Audit Result Summary</h3>
+          {fixtureId ? (
+            <>
+              <p className="safe-wrap">
+                <span>Fixture</span> <strong>{fixtureName} (<code>{fixtureId}</code>)</strong>
+              </p>
+              <p className="safe-wrap" style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
+                <span>Resolved URL</span> <code>{targetUrl}</code>
+              </p>
+            </>
+          ) : (
+            <p className="safe-wrap"><span>Target</span> <code>{targetUrl}</code></p>
           )}
+          <p>Completed at {formattedDate}</p>
         </div>
+        {runId && (
+          <div className="export-actions" aria-label="Report exports">
+            <button id="export-json-btn" type="button" onClick={() => handleExport('json')} disabled={exportState?.status === 'preparing'} aria-label="Export audit report as JSON"><Icon name="Download" size={16} /> JSON</button>
+            <button id="export-markdown-btn" type="button" onClick={() => handleExport('markdown')} disabled={exportState?.status === 'preparing'} aria-label="Export audit report as Markdown"><Icon name="FileText" size={16} /> Markdown</button>
+          </div>
+        )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px' }}>
-        <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', background: 'var(--surface-subtle)', border: '1px solid var(--border-subtle)' }}>
-          <div style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>Raw Findings</div>
-          <div id="summary-raw-findings-count" style={{ fontSize: '20px', fontWeight: 600, marginTop: '4px' }}>{summary.totalRawFindings}</div>
-        </div>
+      <dl className="summary-strip">
+        {metrics.map((metric) => <div key={metric.label} className={`summary-metric tone-${metric.tone}`}><dt>{metric.label}</dt><dd id={metric.id}>{metric.value}</dd></div>)}
+      </dl>
 
-        <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', background: 'var(--surface-subtle)', border: '1px solid var(--border-subtle)' }}>
-          <div style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>Grouped Issues</div>
-          <div style={{ fontSize: '20px', fontWeight: 600, marginTop: '4px' }}>{summary.totalGroupedIssues}</div>
-        </div>
-
-        <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', background: 'var(--danger-surface)', border: '1px solid rgba(180, 35, 24, 0.2)' }}>
-          <div style={{ fontSize: '12px', color: 'var(--danger)', fontWeight: 500 }}>Candidate Fail</div>
-          <div style={{ fontSize: '20px', fontWeight: 600, color: 'var(--danger)', marginTop: '4px' }}>{summary.candidateFailCount}</div>
-        </div>
-
-        <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', background: 'var(--warning-surface)', border: '1px solid rgba(181, 71, 8, 0.2)' }}>
-          <div style={{ fontSize: '12px', color: 'var(--warning)', fontWeight: 500 }}>Needs Review</div>
-          <div style={{ fontSize: '20px', fontWeight: 600, color: 'var(--warning)', marginTop: '4px' }}>{summary.needsReviewCount}</div>
-        </div>
-
-        <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', background: 'var(--success-surface)', border: '1px solid rgba(6, 118, 71, 0.2)' }}>
-          <div style={{ fontSize: '12px', color: 'var(--success)', fontWeight: 500 }}>Pass</div>
-          <div style={{ fontSize: '20px', fontWeight: 600, color: 'var(--success)', marginTop: '4px' }}>{summary.passCount}</div>
+      <div className="summary-footer">
+        <p>P0–P3 is a project heuristic, not WCAG severity. Candidate failures are automated evidence, not confirmed conformance violations.</p>
+        <div className={`export-status${exportState ? ` is-${exportState.status}` : ''}`} role="status" aria-live="polite" aria-atomic="true">
+          {exportState && <><Icon name={exportState.status === 'completed' ? 'CheckCircle2' : exportState.status === 'failed' ? 'AlertTriangle' : 'LoaderCircle'} size={15} className={exportState.status === 'preparing' ? 'spin' : ''} /><span>{exportState.message}</span></>}
         </div>
       </div>
-
-      <p style={{ fontSize: '12px', color: 'var(--foreground-muted)', marginTop: '14px', fontStyle: 'italic' }}>
-        Note: P0–P3 is a research project heuristic and not a severity scale defined by WCAG. Automated results do not establish complete WCAG conformance.
-      </p>
-    </div>
+    </section>
   );
 }

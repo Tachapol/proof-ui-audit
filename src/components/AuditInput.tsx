@@ -1,174 +1,105 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FIXTURES } from '@/fixtures/fixture-registry';
 import { Icon } from './Icon';
 
 interface AuditInputProps {
   onRunAudit: (target: string) => Promise<void>;
+  onTargetChange?: (target: string) => void;
+  onValidationStateChange?: (hasError: boolean) => void;
   isLoading: boolean;
   error?: string | null;
 }
 
-export function AuditInput({ onRunAudit, isLoading, error }: AuditInputProps) {
-  const [selectedFixture, setSelectedFixture] = useState<string>(FIXTURES[0].id);
-  const [customUrl, setCustomUrl] = useState<string>('');
+const PRIVATE_HOST_PATTERN = /^(localhost|127(?:\.\d{1,3}){3}|10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|169\.254(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2}|\[?::1\]?)$/i;
+
+function validatePublicUrl(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return 'Enter a public HTTP or HTTPS URL.';
+  let parsed: URL;
+  try { parsed = new URL(trimmed); } catch { return 'Enter a complete URL, for example https://example.com.'; }
+  if (!['http:', 'https:'].includes(parsed.protocol)) return 'Only HTTP and HTTPS URLs can be audited.';
+  if (PRIVATE_HOST_PATTERN.test(parsed.hostname)) return 'Private, internal, localhost, and metadata targets are blocked. Use a local fixture instead.';
+  return null;
+}
+
+export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange, isLoading, error }: AuditInputProps) {
+  const [selectedFixture, setSelectedFixture] = useState(FIXTURES[0].id);
+  const [customUrl, setCustomUrl] = useState('');
   const [activeTab, setActiveTab] = useState<'fixture' | 'custom'>('fixture');
+  const [clientError, setClientError] = useState<string | null>(null);
+  const urlInputRef = useRef<HTMLInputElement>(null);
+  const fixtureSelectRef = useRef<HTMLSelectElement>(null);
+  const displayedError = clientError || error || null;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    onTargetChange?.(activeTab === 'fixture' ? `fixture://${selectedFixture}` : customUrl);
+  }, [activeTab, customUrl, onTargetChange, selectedFixture]);
+
+  const selectMode = (mode: 'fixture' | 'custom') => {
+    setActiveTab(mode);
+    setClientError(null);
+    onValidationStateChange?.(false);
+    requestAnimationFrame(() => (mode === 'fixture' ? fixtureSelectRef.current : urlInputRef.current)?.focus());
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (isLoading) return;
-
-    if (activeTab === 'fixture') {
-      onRunAudit(selectedFixture);
-    } else {
-      onRunAudit(customUrl);
+    if (activeTab === 'custom') {
+      const validationError = validatePublicUrl(customUrl);
+      if (validationError) {
+        setClientError(validationError);
+        onValidationStateChange?.(true);
+        requestAnimationFrame(() => urlInputRef.current?.focus());
+        return;
+      }
     }
+    setClientError(null);
+    onValidationStateChange?.(false);
+    await onRunAudit(activeTab === 'fixture' ? selectedFixture : customUrl.trim());
   };
 
   return (
-    <div style={{ background: 'var(--surface)', padding: '24px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px' }}>
-        <button
-          type="button"
-          onClick={() => setActiveTab('fixture')}
-          style={{
-            background: 'none',
-            border: 'none',
-            borderBottom: activeTab === 'fixture' ? '2px solid var(--accent)' : '2px solid transparent',
-            padding: '8px 12px',
-            cursor: 'pointer',
-            fontWeight: activeTab === 'fixture' ? 600 : 400,
-            color: activeTab === 'fixture' ? 'var(--foreground)' : 'var(--foreground-muted)',
-            minHeight: '44px',
-          }}
-        >
-          Local Test Fixtures (Recommended)
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('custom')}
-          style={{
-            background: 'none',
-            border: 'none',
-            borderBottom: activeTab === 'custom' ? '2px solid var(--accent)' : '2px solid transparent',
-            padding: '8px 12px',
-            cursor: 'pointer',
-            fontWeight: activeTab === 'custom' ? 600 : 400,
-            color: activeTab === 'custom' ? 'var(--foreground)' : 'var(--foreground-muted)',
-            minHeight: '44px',
-          }}
-        >
-          Public URL Target
-        </button>
+    <section id="audit-input" className="audit-input-panel" aria-labelledby="audit-input-title">
+      <div className="section-heading-row">
+        <div><p className="eyebrow">New audit</p><h2 id="audit-input-title">Choose what to review</h2></div>
+        <span className="duration-note"><Icon name="Clock3" size={15} /> Usually 10–30 seconds</span>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div className="segmented-control" role="tablist" aria-label="Audit target type">
+        <button type="button" role="tab" aria-selected={activeTab === 'fixture'} aria-controls="fixture-panel" id="fixture-tab" onClick={() => selectMode('fixture')}>Local fixture <span>Recommended</span></button>
+        <button type="button" role="tab" aria-selected={activeTab === 'custom'} aria-controls="url-panel" id="url-tab" onClick={() => selectMode('custom')}>Public URL</button>
+      </div>
+
+      <form onSubmit={handleSubmit} noValidate>
         {activeTab === 'fixture' ? (
-          <div>
-            <label htmlFor="fixture-select" style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: 'var(--foreground-muted)' }}>
-              Select Test Fixture Suite
-            </label>
-            <select
-              id="fixture-select"
-              value={selectedFixture}
-              onChange={(e) => setSelectedFixture(e.target.value)}
-              disabled={isLoading}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border)',
-                background: 'var(--surface-subtle)',
-                minHeight: '44px',
-              }}
-            >
-              {FIXTURES.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.name} — {f.description.slice(0, 60)}...
-                </option>
-              ))}
+          <div id="fixture-panel" role="tabpanel" aria-labelledby="fixture-tab" className="field-group">
+            <label htmlFor="fixture-select">Local test fixture</label>
+            <p id="fixture-help" className="field-help">Self-contained and safe for a first audit. Fixture colors and behaviors remain unchanged.</p>
+            <select ref={fixtureSelectRef} id="fixture-select" value={selectedFixture} onChange={(event) => setSelectedFixture(event.target.value)} disabled={isLoading} aria-describedby="fixture-help">
+              {FIXTURES.map((fixture) => <option key={fixture.id} value={fixture.id}>{fixture.name} — {fixture.description}</option>)}
             </select>
           </div>
         ) : (
-          <div>
-            <label htmlFor="custom-url-input" style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px', color: 'var(--foreground-muted)' }}>
-              Public HTTP / HTTPS Rendered Page URL
-            </label>
-            <input
-              id="custom-url-input"
-              type="text"
-              value={customUrl}
-              onChange={(e) => setCustomUrl(e.target.value)}
-              placeholder="https://example.com"
-              disabled={isLoading}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border)',
-                background: 'var(--surface-subtle)',
-                minHeight: '44px',
-              }}
-            />
-            <span style={{ fontSize: '12px', color: 'var(--foreground-muted)', display: 'block', marginTop: '4px' }}>
-              Private IP ranges and localhost targets are blocked for SSRF protection.
-            </span>
+          <div id="url-panel" role="tabpanel" aria-labelledby="url-tab" className="field-group">
+            <label htmlFor="custom-url-input">Public rendered page URL</label>
+            <p id="url-help" className="field-help">HTTP and HTTPS only. Authentication, localhost, private networks, and metadata endpoints are blocked.</p>
+            <input ref={urlInputRef} id="custom-url-input" name="auditUrl" type="url" inputMode="url" autoComplete="url" value={customUrl} onChange={(event) => { setCustomUrl(event.target.value); if (clientError) { setClientError(null); onValidationStateChange?.(false); } }} placeholder="https://example.com" disabled={isLoading} aria-invalid={displayedError ? 'true' : 'false'} aria-describedby={`url-help${displayedError ? ' audit-target-error' : ''}`} />
           </div>
         )}
 
-        {error && (
-          <div
-            role="alert"
-            style={{
-              padding: '12px',
-              borderRadius: 'var(--radius-sm)',
-              background: 'var(--danger-surface)',
-              color: 'var(--danger)',
-              fontSize: '13px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            <Icon name="AlertTriangle" size={16} color="var(--danger)" />
-            <span>{error}</span>
+        <div className="form-action-row">
+          <div className="form-message-slot">
+            {displayedError && <div id="audit-target-error" className="inline-error" role="alert"><Icon name="AlertTriangle" size={17} /><span>{displayedError}</span></div>}
           </div>
-        )}
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button
-            type="submit"
-            id="run-audit-button"
-            disabled={isLoading}
-            style={{
-              background: isLoading ? 'var(--foreground-muted)' : 'var(--accent)',
-              color: 'var(--accent-foreground)',
-              border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              padding: '0 24px',
-              fontWeight: 500,
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              minHeight: '44px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            {isLoading ? (
-              <>
-                <Icon name="RefreshCw" size={16} />
-                <span>Auditing in Headless Browser...</span>
-              </>
-            ) : (
-              <>
-                <Icon name="Play" size={16} />
-                <span>Run Audit</span>
-              </>
-            )}
+          <button type="submit" id="run-audit-button" className="primary-button" disabled={isLoading} aria-describedby="audit-duration">
+            <Icon name={isLoading ? 'LoaderCircle' : 'Play'} size={17} className={isLoading ? 'spin' : ''} /><span>{isLoading ? 'Audit in progress' : 'Run audit'}</span>
           </button>
         </div>
+        <span id="audit-duration" className="sr-only">An audit usually takes ten to thirty seconds.</span>
       </form>
-    </div>
+    </section>
   );
 }

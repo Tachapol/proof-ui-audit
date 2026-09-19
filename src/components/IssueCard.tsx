@@ -6,6 +6,7 @@ import { Icon } from './Icon';
 import { OccurrenceList } from './OccurrenceList';
 import { DecisionLog } from './DecisionLog';
 import { IterationProofView } from './IterationProofView';
+import { getDefaultRecommendation } from '@/lib/audit/recommendation';
 
 interface IssueCardProps {
   issue: GroupedUXIssue;
@@ -68,8 +69,21 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
     P3: { label: 'P3 — Low', color: '#475467', bg: '#f2f4f7' },
   }[issue.currentPriority];
 
+  const defaultGuidance =
+    issue.aiRecommendation ||
+    rep.aiRecommendation ||
+    getDefaultRecommendation({
+      ruleId: rep.ruleId,
+      status: issue.status,
+      element: rep.element,
+      selector: rep.selector,
+      exception: rep.exception,
+      measured: rep.measured,
+      expected: rep.expected,
+    });
+
   const currentEffectiveRec =
-    issue.editedRecommendation || issue.aiRecommendation || rep.aiRecommendation || rep.description;
+    issue.editedRecommendation || issue.aiRecommendation || rep.aiRecommendation || defaultGuidance;
 
   const isReasonRequired = ['reject', 'edit', 'reprioritize'].includes(activeDecision || '');
   const isReasonValid = !isReasonRequired || reason.trim().length >= 3;
@@ -166,12 +180,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
     }
   };
 
-  const defaultGuidance =
-    issue.aiRecommendation ||
-    rep.aiRecommendation ||
-    (issue.status === 'candidateFail'
-      ? `Adjust geometry or styles for ${rep.element} to comply with WCAG threshold.`
-      : 'Review whether this component qualifies for an essential exception.');
+
 
   const fallbackReasonDescriptions: Record<string, string> = {
     no_api_key: 'Deterministic fallback (No Gemini API key configured)',
@@ -185,6 +194,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
 
   return (
     <article
+      className="issue-card"
       style={{
         background: 'var(--surface)',
         borderRadius: 'var(--radius-md)',
@@ -196,7 +206,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       }}
     >
       {/* 1. Plain-Language Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
+      <div className="issue-title-block" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
         <h3 style={{ fontSize: '17px', fontWeight: 600, color: 'var(--foreground)' }}>
           {rep.title}
         </h3>
@@ -220,7 +230,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       </div>
 
       {/* 2. Status & Priority Badges */}
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
+      <div className="issue-status-row" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '10px', flexWrap: 'wrap' }}>
         <span
           style={{
             display: 'inline-flex',
@@ -274,11 +284,13 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       </div>
 
       {/* Transparent Occurrence Inspection */}
-      <OccurrenceList occurrences={issue.occurrences} fingerprint={issue.fingerprint} />
+      <div className="issue-occurrences">
+        <OccurrenceList occurrences={issue.occurrences} fingerprint={issue.fingerprint} />
+      </div>
 
       {/* Saved Designer Rationale Notice */}
       {issue.designerReason && (
-        <div style={{ marginTop: '12px', padding: '10px 12px', background: 'var(--surface-subtle)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', fontSize: '13px' }}>
+        <div className="issue-designer-note" style={{ marginTop: '12px', padding: '10px 12px', background: 'var(--surface-subtle)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', fontSize: '13px' }}>
           <strong style={{ color: 'var(--foreground)' }}>Saved Designer Rationale:</strong>{' '}
           <span style={{ color: 'var(--foreground)' }}>{issue.designerReason}</span>
         </div>
@@ -287,20 +299,39 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       {/* 3. Screenshot & Bounding Box Evidence */}
       {(() => {
         const screenshotUrl = rep.screenshotPath || issue.occurrences?.find((o) => o.screenshotPath)?.screenshotPath;
-        if (!screenshotUrl) return null;
+        if (!screenshotUrl) {
+          const isPassedCheck = issue.status === 'pass';
+          return (
+            <div
+              className={`issue-evidence-media screenshot-fallback${isPassedCheck ? ' screenshot-omitted-pass' : ''}`}
+              role="img"
+              aria-label={isPassedCheck ? `Screenshot not captured for this passed check on ${rep.selector}` : `No visual screenshot is available for ${rep.selector}`}
+            >
+              <Icon name="Info" size={18} />
+              <div>
+                <strong>{isPassedCheck ? 'Screenshot not captured for this passed check.' : 'Screenshot unavailable'}</strong>
+                <span>Deterministic measurements remain available below.</span>
+              </div>
+            </div>
+          );
+        }
         return (
-          <div style={{ marginTop: '16px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--surface-subtle)', maxWidth: '400px' }}>
+          <figure className="issue-evidence-media" style={{ marginTop: '16px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--surface-subtle)', maxWidth: '400px' }}>
             <img
               src={screenshotUrl}
               alt={`Rendered evidence for ${rep.selector}`}
+              loading="lazy"
+              decoding="async"
               style={{ display: 'block', width: '100%', height: 'auto', maxHeight: '180px', objectFit: 'contain' }}
             />
-          </div>
+            <figcaption className="sr-only">Screenshot and bounding-box evidence</figcaption>
+          </figure>
         );
       })()}
 
       {/* 4. Concise Deterministic Explanation */}
-      <div style={{ marginTop: '16px' }}>
+      <div className="deterministic-evidence" style={{ marginTop: '16px' }}>
+        <div className="content-label">Deterministic evidence</div>
         <p style={{ fontSize: '14px', color: 'var(--foreground)', lineHeight: 1.6 }}>
           {rep.description}
         </p>
@@ -316,6 +347,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
 
       {/* 5. AI Explanation & Fallback Section */}
       <div
+        className="assisted-guidance"
         style={{
           marginTop: '16px',
           padding: '16px',
@@ -395,7 +427,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
         </div>
 
         {explainError && (
-          <div style={{ fontSize: '12px', color: 'var(--danger)', marginBottom: '8px' }}>
+          <div role="alert" style={{ fontSize: '12px', color: 'var(--danger)', marginBottom: '8px' }}>
             {explainError}
           </div>
         )}
@@ -488,65 +520,24 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
           )}
         </div>
 
-        {/* Append-only Generation History */}
-        {issue.aiGenerationHistory && issue.aiGenerationHistory.length > 1 && (
-          <details
-            data-testid={`generation-history-${issue.fingerprint}`}
-            style={{ marginTop: '12px', borderTop: '1px solid var(--border-subtle)', paddingTop: '8px' }}
-          >
-            <summary style={{ cursor: 'pointer', fontSize: '12px', color: 'var(--foreground-muted)' }}>
-              Generation History ({issue.aiGenerationHistory.length} records)
-            </summary>
-            <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {issue.aiGenerationHistory.map((rec, idx) => (
-                <div
-                  key={rec.id}
-                  data-testid={`generation-record-${issue.fingerprint}-${idx}`}
-                  style={{
-                    fontSize: '11px',
-                    padding: '8px',
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-sm)',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <strong>Record #{idx + 1} ({rec.isFallback ? 'Fallback' : 'Gemini'})</strong>
-                    <span style={{ color: 'var(--foreground-muted)' }}>{new Date(rec.timestamp).toLocaleTimeString()}</span>
-                  </div>
-                  <div><em>ID:</em> <code>{rec.id}</code></div>
-                  <div><em>Explanation:</em> {rec.explanation}</div>
-                  <div><em>Recommendation:</em> {rec.recommendation}</div>
-                  {rec.uncertaintyNote && <div><em>Uncertainty:</em> {rec.uncertaintyNote}</div>}
-                </div>
-              ))}
-            </div>
-          </details>
-        )}
       </div>
 
       {/* 5.5 Isolated Before/After Optimization Proof */}
-      <IterationProofView
-        runId={runId}
-        fingerprint={issue.fingerprint}
-        initialComparison={issue.iterationComparison}
-        isEligible={issue.representative.ruleId === 'target-size' && issue.status === 'candidateFail'}
-        onComparisonUpdated={(updated) => {
-          setIssue((prev) => ({
-            ...prev,
-            iterationComparison: updated,
-          }));
-          if (onDecisionSaved) {
-            onDecisionSaved({
-              ...issue,
-              iterationComparison: updated,
-            });
-          }
-        }}
-      />
+      <div className="iteration-proof-slot">
+        <IterationProofView
+          runId={runId}
+          fingerprint={issue.fingerprint}
+          initialComparison={issue.iterationComparison}
+          isEligible={issue.representative.ruleId === 'target-size' && issue.status === 'candidateFail'}
+          onComparisonUpdated={(updated) => {
+            setIssue((prev) => ({ ...prev, iterationComparison: updated }));
+            if (onDecisionSaved) onDecisionSaved({ ...issue, iterationComparison: updated });
+          }}
+        />
+      </div>
 
       {/* 6. Designer Decision Controls */}
-      <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)' }}>
+      <div className="designer-actions" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)' }}>
         <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)', marginBottom: '10px' }}>
           UX/UI Designer Decision
         </div>
@@ -565,6 +556,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
                   setSaveError(null);
                 }}
                 disabled={isSaving}
+                aria-pressed={isSelected}
                 style={{
                   padding: '8px 14px',
                   borderRadius: 'var(--radius-sm)',
@@ -593,7 +585,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
                 <label htmlFor={`priority-select-${issue.fingerprint}`} style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground)' }}>
                   Target Priority (Project Heuristic)
                 </label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                <div className="priority-control-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                   <select
                     id={`priority-select-${issue.fingerprint}`}
                     value={selectedPriority}
@@ -664,6 +656,8 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
                     ? 'Explain the UX rationale: why the priority was adjusted...'
                     : 'Explain the UX rationale, context, or why this was accepted...'
                 }
+                aria-invalid={!isReasonValid && reason.length > 0 ? 'true' : 'false'}
+                aria-describedby={!isReasonValid && reason.length > 0 ? `reason-error-${issue.fingerprint}` : undefined}
                 style={{
                   width: '100%',
                   padding: '8px 12px',
@@ -675,7 +669,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
                 }}
               />
               {isReasonRequired && reason.trim().length > 0 && reason.trim().length < 3 && (
-                <span style={{ fontSize: '11px', color: 'var(--danger)', marginTop: '2px', display: 'block' }}>
+                <span id={`reason-error-${issue.fingerprint}`} style={{ fontSize: '11px', color: 'var(--danger)', marginTop: '2px', display: 'block' }}>
                   Rationale must be at least 3 characters.
                 </span>
               )}
@@ -703,14 +697,14 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
               </button>
 
               {saveSuccess && (
-                <span style={{ fontSize: '13px', color: 'var(--success)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span role="status" aria-live="polite" style={{ fontSize: '13px', color: 'var(--success)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                   <Icon name="Check" size={16} color="var(--success)" />
                   Decision saved to audit log
                 </span>
               )}
 
               {saveError && (
-                <span style={{ fontSize: '13px', color: 'var(--danger)', fontWeight: 500 }}>
+                <span role="alert" style={{ fontSize: '13px', color: 'var(--danger)', fontWeight: 500 }}>
                   {saveError}
                 </span>
               )}
@@ -720,7 +714,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       </div>
 
       {/* 7. Expandable Technical Evidence (Collapsed by Default) */}
-      <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
+      <div className="technical-evidence" style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
@@ -746,6 +740,10 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
         {isExpanded && (
           <div style={{ marginTop: '12px', background: 'var(--surface-subtle)', padding: '12px 16px', borderRadius: 'var(--radius-sm)', fontSize: '12px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px' }}>
+              <div>
+                <span style={{ color: 'var(--foreground-muted)' }}>Target URL:</span>
+                <code style={{ display: 'block', marginTop: '2px' }} className="safe-wrap">{rep.url}</code>
+              </div>
               <div>
                 <span style={{ color: 'var(--foreground-muted)' }}>Selector:</span>
                 <code style={{ display: 'block', marginTop: '2px' }} className="safe-wrap">{rep.selector}</code>
@@ -780,7 +778,26 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       </div>
 
       {/* Append-Only Decision History Log */}
-      <DecisionLog history={issue.decisionHistory || []} fingerprint={issue.fingerprint} />
+      <div className="decision-history-slot">
+        <DecisionLog history={issue.decisionHistory || []} fingerprint={issue.fingerprint} />
+      </div>
+
+      {issue.aiGenerationHistory && issue.aiGenerationHistory.length > 1 && (
+        <details className="generation-history-slot" data-testid={`generation-history-${issue.fingerprint}`}>
+          <summary>AI generation history ({issue.aiGenerationHistory.length} records)</summary>
+          <div className="history-list">
+            {issue.aiGenerationHistory.map((record, index) => (
+              <div key={record.id} data-testid={`generation-record-${issue.fingerprint}-${index}`} className="history-record">
+                <div><strong>Record #{index + 1} ({record.isFallback ? 'Fallback' : 'Gemini'})</strong><span>{new Date(record.timestamp).toLocaleTimeString()}</span></div>
+                <p><em>ID:</em> <code>{record.id}</code></p>
+                <p><em>Explanation:</em> {record.explanation}</p>
+                <p><em>Recommendation:</em> {record.recommendation}</p>
+                {record.uncertaintyNote && <p><em>Uncertainty:</em> {record.uncertaintyNote}</p>}
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
     </article>
   );
 }

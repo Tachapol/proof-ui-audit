@@ -1,5 +1,6 @@
 import { ExplanationProvider } from './provider';
 import { AIExplanationInput, AIExplanationResult, AIFallbackReason } from '@/lib/schema/ai-response';
+import { getDefaultRecommendation } from '@/lib/audit/recommendation';
 
 export class DeterministicExplanationProvider implements ExplanationProvider {
   readonly id = 'fallback' as const;
@@ -24,7 +25,7 @@ export class DeterministicExplanationProvider implements ExplanationProvider {
 
         if (isPass) {
           explanation = `The interactive target "${selector}" measures ${width}×${height} CSS px, meeting or exceeding the minimum ${minW}×${minH} CSS px target size threshold.`;
-          recommendation = 'Maintain existing interactive target dimensions and spacing to ensure continued touch accessibility.';
+          recommendation = 'Target size meets or exceeds the 24×24 CSS px threshold. Requirement satisfied; no remediation required.';
         } else if (isNeedsReview) {
           explanation = `The target "${selector}" measures ${width}×${height} CSS px (below ${minW}×${minH} px), but an exception may apply (${exception || reviewReason || 'inline target or spacing alternative candidate'}).`;
           recommendation = 'A designer must review whether this component qualifies as an inline link exception or provides sufficient 24px diameter clear spacing.';
