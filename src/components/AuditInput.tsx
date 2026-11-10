@@ -161,23 +161,6 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
         onContextModeChange={setContextMode}
       />
 
-      <div className="flex items-center justify-between gap-3 pt-1">
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-md border border-zinc-200 bg-white hover:bg-zinc-100 hover:text-zinc-900 text-zinc-700 text-xs font-medium px-3 h-8 shadow-xs transition-colors disabled:opacity-50"
-          disabled={isLoading}
-          onClick={() => {
-            setActiveTab('fixture');
-            setSelectedFixture('mvp-contrast-demo');
-            setClientError(null);
-            onValidationStateChange?.(false);
-            void submitAudit('fixture://mvp-contrast-demo');
-          }}
-        >
-          Run Text Contrast MVP
-        </button>
-      </div>
-
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         {activeTab === 'fixture' ? (
           <div id="fixture-panel" role="tabpanel" aria-labelledby="fixture-tab" className="field-group space-y-1.5">

@@ -1,6 +1,6 @@
 # Text Contrast MVP — Happy path
 
-เปิด http://localhost:3123 แล้วกด **Run Text Contrast MVP**
+เปิด http://localhost:3123 แล้วเลือกฟิกซ์เจอร์ **Text Contrast MVP** จากนั้นกด **Run audit**
 
 1. Code วัด 4 กรณีบน rendered DOM ที่ viewport 375×667
 2. ระบบส่งหลักฐานของ candidate issue ให้ CPE LLM อัตโนมัติ

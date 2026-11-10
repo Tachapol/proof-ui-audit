@@ -81,15 +81,12 @@ export function ProductContextFields({
       <legend className="sr-only">Product Context</legend>
 
       {/* Mode Switch Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-0.5">
         <div>
           <span className="text-xs font-semibold text-zinc-900 flex items-center gap-1.5">
             Product Context
-            <span className="text-[10px] font-normal text-zinc-500">(Optional)</span>
+            <span className="text-[10px] font-normal text-zinc-400">(Optional)</span>
           </span>
-          <p id="product-context-help" className="text-[11px] text-zinc-500">
-            Choose whether to auto-detect details from page or specify custom brand guidelines.
-          </p>
         </div>
 
         {/* 2 Choice segmented control */}
@@ -133,28 +130,22 @@ export function ProductContextFields({
         </div>
       </div>
 
-      {/* Choice 1: Auto-detect summary card */}
+      {/* Choice 1: Compact Auto-detect note */}
       {mode === 'auto' ? (
-        <div className="rounded-lg border border-dashed border-zinc-200 bg-zinc-50/70 p-3.5 flex items-start gap-3 transition-colors">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-50 border border-amber-200/70 text-amber-600 shrink-0 mt-0.5">
-            <Icon name="Sparkles" size={16} />
+        <div className="flex items-center justify-between gap-2 text-[11px] text-zinc-500 bg-zinc-50/80 border border-zinc-200/60 rounded-md px-3 py-1.5">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Icon name="Sparkles" size={12} className="text-amber-500 shrink-0" />
+            <span id="product-context-help" className="truncate">
+              Title, description, and brand theme color will be auto-detected from page.
+            </span>
           </div>
-          <div className="space-y-1 text-xs leading-relaxed">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-zinc-900">Auto-detect from page</span>
-              <span className="text-[10px] bg-amber-100/70 text-amber-800 font-medium px-1.5 py-0.5 rounded">Active</span>
-            </div>
-            <p className="text-zinc-600 text-[11px]">
-              Page title, meta description, and brand theme color will be extracted automatically during the audit to tailor remediation guidance.
-            </p>
-            <button
-              type="button"
-              onClick={() => setMode('manual')}
-              className="text-[11px] font-medium text-zinc-900 underline hover:text-zinc-700 pt-0.5 inline-block"
-            >
-              Need specific requirements? Customize manually &rarr;
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setMode('manual')}
+            className="text-zinc-700 hover:text-zinc-950 font-medium underline shrink-0 whitespace-nowrap ml-2"
+          >
+            Customize &rarr;
+          </button>
         </div>
       ) : (
         /* Choice 2: Manual inputs */

@@ -18,10 +18,12 @@ test('MVP automatically renders a newly returned CPE critique without reload', a
     await route.fulfill({ json: { success: true, aiResult: result, updatedGroup: { ...group, aiExplanationResult: result, aiExplanation: result.explanation, aiRecommendation: result.recommendation } } });
   });
   await page.goto('/');
+  await page.click('#context-mode-manual');
   await page.getByLabel('Product Goal', { exact: true }).fill('Help students register for courses');
   await page.getByLabel('Theme Color', { exact: true }).fill('#2563EB');
   await page.getByLabel('Target Audience', { exact: true }).fill('University students on mobile');
-  await page.getByRole('button', { name: 'Run Text Contrast MVP', exact: true }).click();
+  await page.selectOption('#fixture-select', 'mvp-contrast-demo');
+  await page.locator('#run-audit-button').click();
   await expect(page.getByText('AI-Generated (CPE · test-model)', { exact: true })).toBeVisible();
   await expect(page.getByText(result.explanation, { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Regenerate Explanation', exact: true })).toBeVisible();
