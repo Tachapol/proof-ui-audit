@@ -79,9 +79,18 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
         requestAnimationFrame(() => fixtureSelectRef.current?.focus());
       }
     };
+    const handleSelectFixture = () => selectMode('fixture');
+    const handleSelectCustom = () => selectMode('custom');
+
     handleHash();
     window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+    window.addEventListener('proofui:select-fixture-tab', handleSelectFixture);
+    window.addEventListener('proofui:select-custom-tab', handleSelectCustom);
+    return () => {
+      window.removeEventListener('hashchange', handleHash);
+      window.removeEventListener('proofui:select-fixture-tab', handleSelectFixture);
+      window.removeEventListener('proofui:select-custom-tab', handleSelectCustom);
+    };
   }, [onValidationStateChange]);
 
   const selectMode = (mode: 'fixture' | 'custom') => {

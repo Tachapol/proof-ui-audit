@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { validateAndNormalizeAuditUrl } from '@/lib/audit/url-validator';
 import { runBrowserAudit, DEFAULT_AUDIT_VIEWPORTS } from '@/lib/audit/browser';
 import { groupUXIssues, calculateAuditSummary } from '@/lib/audit/grouping';
-import { saveAuditRun, getAuditRun } from '@/lib/storage/db';
+import { saveAuditRun, getAuditRun, listAuditRuns } from '@/lib/storage/db';
 import { AuditRun } from '@/lib/schema/ux-issue';
 import { ProductContext, ProductContextSchema } from '@/lib/schema/product-context';
 
@@ -137,7 +137,8 @@ export async function GET(req: Request) {
   const id = searchParams.get('id');
 
   if (!id) {
-    return NextResponse.json({ success: false, error: 'Audit run ID required' }, { status: 400 });
+    const runs = await listAuditRuns();
+    return NextResponse.json({ success: true, runs });
   }
 
   const run = await getAuditRun(id);

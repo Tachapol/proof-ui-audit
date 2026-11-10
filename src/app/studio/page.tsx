@@ -271,7 +271,7 @@ export default function StudioPage() {
       {/* Top Header */}
       <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-zinc-200/80 bg-white/95 px-4 sm:px-6 backdrop-blur">
         <div className="flex items-center gap-3">
-          <Link className="flex items-center gap-2.5 font-semibold text-zinc-900 text-sm tracking-tight" href="/studio">
+          <Link className="flex items-center gap-2.5 font-semibold text-zinc-900 text-sm tracking-tight hover:opacity-85 transition" href="/" title="Back to Audit workspace">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-900 text-xs font-bold text-white shadow-sm">
               P
             </span>
@@ -281,6 +281,8 @@ export default function StudioPage() {
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-1.5 text-xs text-zinc-400">
+            <ChevronRight className="size-3.5" />
+            <Link href="/" className="hover:text-zinc-700 transition">Audit workspace</Link>
             <ChevronRight className="size-3.5" />
             <span className="text-zinc-600 font-medium">{session ? 'Design review' : 'New critique'}</span>
           </div>
@@ -310,10 +312,10 @@ export default function StudioPage() {
             )}
           </Button>
 
-          <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5 text-zinc-600 hover:text-zinc-900" asChild>
+          <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 border-zinc-200 text-zinc-700 hover:bg-zinc-100 transition" asChild>
             <Link href="/">
-              <span>Audit workspace</span>
-              <ArrowRight className="size-3.5" />
+              <ArrowLeft className="size-3.5" />
+              <span>Back to Audit</span>
             </Link>
           </Button>
         </nav>

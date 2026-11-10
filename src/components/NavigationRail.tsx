@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { Icon } from './Icon';
 
 interface NavigationRailProps {
@@ -9,6 +10,18 @@ interface NavigationRailProps {
   currentRunId?: string;
   currentFixtureId?: string;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
+}
+
+interface RecentRunItem {
+  id: string;
+  targetUrl: string;
+  fixtureId?: string;
+  timestamp: string;
+  summary: {
+    candidateFailCount: number;
+    needsReviewCount: number;
+    passCount: number;
+  };
 }
 
 export function NavigationRail({
@@ -20,6 +33,22 @@ export function NavigationRail({
 }: NavigationRailProps) {
   const drawerRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const [recentRuns, setRecentRuns] = useState<RecentRunItem[]>([]);
+  const [isLoadingRuns, setIsLoadingRuns] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setIsLoadingRuns(true);
+    fetch('/api/audit')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && Array.isArray(d.runs)) {
+          setRecentRuns(d.runs);
+        }
+      })
+      .catch(() => undefined)
+      .finally(() => setIsLoadingRuns(false));
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -64,27 +93,28 @@ export function NavigationRail({
     triggerRef.current?.focus();
   };
 
-  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
+    e.preventDefault();
     handleClose();
-    if (hash === '#local-fixtures') {
-      window.location.hash = '#local-fixtures';
-      const el = document.getElementById('local-fixtures') || document.getElementById('audit-input');
+
+    if (target === '#audit-input') {
+      const el = document.getElementById('audit-input');
       el?.scrollIntoView({ behavior: 'smooth' });
-      requestAnimationFrame(() => {
-        const select = document.getElementById('fixture-select') as HTMLSelectElement | null;
-        select?.focus();
-      });
-    } else if (hash === '#audit-results') {
-      if (currentRunId) {
-        window.location.hash = '#audit-results';
-        const el = document.getElementById('audit-results');
-        el?.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        const el = document.getElementById('empty-state') || document.getElementById('audit-input');
-        el?.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else if (hash.startsWith('#')) {
-      const el = document.querySelector(hash);
+    } else if (target === '#local-fixtures') {
+      window.dispatchEvent(new CustomEvent('proofui:select-fixture-tab'));
+      const el = document.getElementById('audit-input');
+      el?.scrollIntoView({ behavior: 'smooth' });
+    } else if (target === '#visual-canvas-section') {
+      const el =
+        document.getElementById('visual-canvas-section') ||
+        document.getElementById('audit-results') ||
+        document.getElementById('audit-input');
+      el?.scrollIntoView({ behavior: 'smooth' });
+    } else if (target === '#audit-results') {
+      const el =
+        document.getElementById('audit-results') ||
+        document.getElementById('empty-state') ||
+        document.getElementById('audit-input');
       el?.scrollIntoView({ behavior: 'smooth' });
     }
   };
@@ -111,52 +141,139 @@ export function NavigationRail({
           </button>
         </div>
 
-        <nav aria-label="Audit workspace">
+        <nav aria-label="Audit workspace" className="rail-nav-links">
           <a
-            className="rail-link is-current"
+            className="rail-link"
             href="#audit-input"
-            aria-current="page"
             onClick={(e) => handleAnchorClick(e, '#audit-input')}
           >
             <Icon name="Target" size={17} />
-            <span>Current audit</span>
+            <div className="rail-link-text">
+              <span>Target & Context</span>
+              <small>Configure URL or Fixture</small>
+            </div>
           </a>
+
           <a
             className="rail-link"
             href="#local-fixtures"
             onClick={(e) => handleAnchorClick(e, '#local-fixtures')}
           >
             <Icon name="FlaskConical" size={17} />
-            <span>Local fixtures</span>
+            <div className="rail-link-text">
+              <span>Local Test Fixtures</span>
+              <small>WCAG 2.2 benchmark suites</small>
+            </div>
           </a>
+
           <a
-            className="rail-link"
-            href={currentRunId ? '#audit-results' : '#empty-state'}
+            className={`rail-link ${!currentRunId ? 'is-disabled' : ''}`}
+            href="#visual-canvas-section"
             aria-disabled={!currentRunId}
-            onClick={(e) => handleAnchorClick(e, '#audit-results')}
+            onClick={(e) => {
+              if (currentRunId) handleAnchorClick(e, '#visual-canvas-section');
+            }}
+          >
+            <Icon name="Maximize2" size={17} />
+            <div className="rail-link-text">
+              <span>Visual Canvas</span>
+              <small>{currentRunId ? 'Live overlay & Before/After' : 'Run audit to preview'}</small>
+            </div>
+          </a>
+
+          <a
+            className={`rail-link ${!currentRunId ? 'is-disabled' : ''}`}
+            href="#audit-results"
+            aria-disabled={!currentRunId}
+            onClick={(e) => {
+              if (currentRunId) handleAnchorClick(e, '#audit-results');
+            }}
           >
             <Icon name="FileText" size={17} />
-            <span>Report access</span>
+            <div className="rail-link-text">
+              <span>Audit Findings</span>
+              <small>{currentRunId ? 'Grouped evidence & decisions' : 'No audit results yet'}</small>
+            </div>
           </a>
-          <a
-            className="rail-link"
-            href="/studio"
+
+          <Link
+            className="rail-link rail-studio-link"
+            href={currentRunId ? `/studio?runId=${encodeURIComponent(currentRunId)}` : '/studio'}
             onClick={handleClose}
           >
             <Icon name="Users" size={17} />
-            <span>Critique Studio</span>
-          </a>
+            <div className="rail-link-text">
+              <span>Critique Studio</span>
+              <small>{currentRunId ? 'Deliberate this run with AI' : 'Multi-role AI round-table'}</small>
+            </div>
+            <Icon name="ArrowRight" size={14} className="ml-auto opacity-60" />
+          </Link>
         </nav>
 
         <section className="rail-section rail-recent" aria-labelledby="recent-title">
-          <h2 id="recent-title">Recent audit runs</h2>
-          {currentRunId ? (
-            <a className="recent-run" href={`?runId=${encodeURIComponent(currentRunId)}`} onClick={handleClose}>
-              <Icon name="History" size={15} />
-              <span className="safe-wrap">{currentRunId}</span>
-            </a>
+          <div className="rail-section-header flex items-center justify-between pb-1">
+            <h2 id="recent-title" className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              Recent Audit Runs
+            </h2>
+            {recentRuns.length > 0 && (
+              <span className="text-[10px] text-zinc-400 font-mono">{recentRuns.length} saved</span>
+            )}
+          </div>
+
+          {isLoadingRuns ? (
+            <div className="py-4 text-center text-xs text-zinc-400">Loading history…</div>
+          ) : recentRuns.length > 0 ? (
+            <div className="recent-runs-list">
+              {recentRuns.slice(0, 8).map((run) => {
+                const isSelected = run.id === currentRunId;
+                const displayName = run.fixtureId ? `fixture://${run.fixtureId}` : run.targetUrl;
+                let dateStr = '';
+                try {
+                  dateStr = new Date(run.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                } catch {
+                  dateStr = '';
+                }
+
+                return (
+                  <Link
+                    key={run.id}
+                    className={`recent-run-card ${isSelected ? 'is-current' : ''}`}
+                    href={`/?runId=${encodeURIComponent(run.id)}`}
+                    onClick={handleClose}
+                  >
+                    <div className="run-card-top flex items-center justify-between gap-2">
+                      <span className="run-card-target truncate font-mono text-xs font-medium text-zinc-800" title={displayName}>
+                        {displayName}
+                      </span>
+                      {dateStr && (
+                        <span className="run-card-time text-[10px] text-zinc-400 shrink-0">
+                          {dateStr}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="run-card-badges flex items-center gap-1.5 mt-1 text-[10px]">
+                      {run.summary.candidateFailCount > 0 ? (
+                        <span className="run-badge badge-fail text-red-700 bg-red-50 border border-red-200 px-1.5 py-0.2 rounded font-medium">
+                          {run.summary.candidateFailCount} {run.summary.candidateFailCount === 1 ? 'fail' : 'fails'}
+                        </span>
+                      ) : (
+                        <span className="run-badge badge-pass text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded font-medium">
+                          Pass
+                        </span>
+                      )}
+                      {run.summary.needsReviewCount > 0 && (
+                        <span className="run-badge badge-review text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded font-medium">
+                          {run.summary.needsReviewCount} review
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           ) : (
-            <p>No saved run in this session.</p>
+            <p className="text-xs text-zinc-400 py-4 text-center">No saved audit runs yet.</p>
           )}
         </section>
       </aside>

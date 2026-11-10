@@ -1348,6 +1348,58 @@ summary:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
+.recent-run-card.is-current {
+  border-color: var(--accent-strong);
+  background: var(--accent-surface);
+}
+
+.rail-link-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+}
+.rail-link-text span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.rail-link-text small {
+  font-size: 10px;
+  color: var(--foreground-muted);
+}
+.rail-link.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.rail-studio-link {
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  margin-top: 6px;
+}
+.recent-runs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.recent-run-card {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: all 120ms ease;
+}
+.recent-run-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
 /* Dynamic Visual Spec Comparison additions */
 .contrast-text-sample {
   display: inline-flex;
