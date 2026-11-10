@@ -31,6 +31,7 @@ export type IconName =
   | 'CircleDot'
   | 'Clock3'
   | 'Users'
+  | 'Layers'
   | 'Sparkles'
   | 'LoaderCircle';
 

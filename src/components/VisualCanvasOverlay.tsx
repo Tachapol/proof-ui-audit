@@ -259,7 +259,6 @@ export function VisualCanvasOverlay({
     }
     return pins;
   }, [pins, statusFilter]);
-  }, [pins, statusFilter]);
 
   // Active pin or fallback to first candidateFail / visible pin
   const activePin = useMemo(() => {
