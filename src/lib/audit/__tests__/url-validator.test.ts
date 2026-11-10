@@ -108,10 +108,40 @@ describe('Audit URL Validation & Advanced SSRF Rejection (TEST-22)', () => {
     expect(res1.valid).toBe(true);
     expect(res1.isFixture).toBe(true);
     expect(res1.fixtureId).toBe('target-size-demo');
+    expect(res1.localOrigin).toBe('http://localhost:3123');
 
     const res2 = await validateAndNormalizeAuditUrl('fixture://reflow-demo');
     expect(res2.valid).toBe(true);
     expect(res2.isFixture).toBe(true);
+    expect(res2.localOrigin).toBe('http://localhost:3123');
+  });
+
+  it('normalizes local fixture URLs accessed via LAN IP to devServerBaseUrl', async () => {
+    const res1 = await validateAndNormalizeAuditUrl(
+      'https://192.168.1.88:3123/fixtures/mvp-contrast-demo',
+      'http://localhost:3123'
+    );
+    expect(res1.valid).toBe(true);
+    expect(res1.isFixture).toBe(true);
+    expect(res1.fixtureId).toBe('mvp-contrast-demo');
+    expect(res1.normalizedUrl).toBe('http://localhost:3123/fixtures/mvp-contrast-demo');
+    expect(res1.localOrigin).toBe('http://localhost:3123');
+
+    const res2 = await validateAndNormalizeAuditUrl(
+      'http://192.168.1.88:3123/fixtures/target-size-demo',
+      'http://localhost:3123'
+    );
+    expect(res2.valid).toBe(true);
+    expect(res2.isFixture).toBe(true);
+    expect(res2.normalizedUrl).toBe('http://localhost:3123/fixtures/target-size-demo');
+
+    // Non-fixture path on LAN IP must still be blocked by SSRF
+    const res3 = await validateAndNormalizeAuditUrl(
+      'http://192.168.1.88:3123/admin',
+      'http://localhost:3123'
+    );
+    expect(res3.valid).toBe(false);
+    expect(res3.error).toContain('Security restriction');
   });
 
   it('rejects localhost, 127.0.0.1, and cloud metadata targets', async () => {

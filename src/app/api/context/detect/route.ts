@@ -42,8 +42,9 @@ export async function POST(req: Request) {
     }
 
     const host = req.headers.get('host') || 'localhost:3123';
-    const protocol = host.startsWith('localhost') ? 'http' : 'https';
-    const baseUrl = `${protocol}://${host}`;
+    const portMatch = host.match(/:(\d+)$/);
+    const port = portMatch ? portMatch[1] : (process.env.PORT || '3123');
+    const baseUrl = `http://localhost:${port}`;
 
     const validation = await validateAndNormalizeAuditUrl(target, baseUrl, undefined, {
       allowLocalhost: body.allowLocalhost === true && process.env.NODE_ENV === 'development',

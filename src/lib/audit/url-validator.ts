@@ -97,12 +97,20 @@ export async function validateAndNormalizeAuditUrl(
     (f) => f.id === trimmed || f.path === trimmed || trimmed === `fixture://${f.id}`
   );
 
+  let devOrigin: string;
+  try {
+    devOrigin = new URL(devServerBaseUrl).origin;
+  } catch {
+    devOrigin = 'http://localhost:3123';
+  }
+
   if (matchingFixture) {
     return {
       valid: true,
       normalizedUrl: `${devServerBaseUrl}${matchingFixture.path}`,
       isFixture: true,
       fixtureId: matchingFixture.id,
+      localOrigin: devOrigin,
     };
   }
 
@@ -116,6 +124,7 @@ export async function validateAndNormalizeAuditUrl(
         normalizedUrl: `${devServerBaseUrl}${trimmed}`,
         isFixture: true,
         fixtureId,
+        localOrigin: devOrigin,
       };
     }
   }
@@ -137,20 +146,32 @@ export async function validateAndNormalizeAuditUrl(
     return { valid: false, error: 'Authenticated URLs containing user credentials are not permitted.' };
   }
 
-  // Internal fixture check
-  const isInternalFixture =
-    parsed.origin === devServerBaseUrl && parsed.pathname.startsWith('/fixtures/');
-
-  if (isInternalFixture) {
-    const fixtureId = parsed.pathname.replace('/fixtures/', '').split('/')[0];
+  // Internal fixture check (from dev server, loopback, or same-origin / LAN client)
+  if (parsed.pathname.startsWith('/fixtures/')) {
+    const fixtureId = parsed.pathname.replace('/fixtures/', '').split('/')[0].split('?')[0];
     const exists = FIXTURES.some((f) => f.id === fixtureId);
     if (exists) {
-      return {
-        valid: true,
-        normalizedUrl: parsed.toString(),
-        isFixture: true,
-        fixtureId,
-      };
+      let devParsed: URL;
+      try {
+        devParsed = new URL(devServerBaseUrl);
+      } catch {
+        devParsed = new URL('http://localhost:3123');
+      }
+
+      const isLocalHost = ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname.toLowerCase());
+      const devPort = devParsed.port || (devParsed.protocol === 'https:' ? '443' : '80');
+      const parsedPort = parsed.port || (parsed.protocol === 'https:' ? '443' : '80');
+      const isSameHost = parsed.origin === devParsed.origin || (isPrivateOrReservedIP(parsed.hostname) && parsedPort === devPort);
+
+      if (isLocalHost || isSameHost) {
+        return {
+          valid: true,
+          normalizedUrl: `${devServerBaseUrl}${parsed.pathname}${parsed.search}`,
+          isFixture: true,
+          fixtureId,
+          localOrigin: devOrigin,
+        };
+      }
     }
   }
 

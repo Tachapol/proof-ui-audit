@@ -77,11 +77,18 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{
           try {
             const parsed = new URL(reqUrl);
             const host = parsed.hostname.toLowerCase();
+            const optionsUrl = new URL(options.url);
+            const isLocalHost = (h: string) => h === 'localhost' || h === '127.0.0.1' || h === '[::1]';
+            const isFixtureOrigin =
+              parsed.origin === optionsUrl.origin ||
+              (options.localOrigin && parsed.origin === options.localOrigin) ||
+              (isLocalHost(host) && isLocalHost(optionsUrl.hostname) && parsed.port === optionsUrl.port);
 
             // Allow local fixture endpoints if navigated from test server
             const isFixtureRequest =
-              (host === 'localhost' || host === '127.0.0.1') && parsed.origin === new URL(options.url).origin && new URL(options.url).pathname.startsWith('/fixtures/') &&
-              (parsed.pathname.startsWith('/fixtures/') || parsed.pathname.startsWith('/_next/'));
+              optionsUrl.pathname.startsWith('/fixtures/') &&
+              isFixtureOrigin &&
+              (parsed.pathname.startsWith('/fixtures/') || parsed.pathname.startsWith('/_next/') || parsed.pathname === '/favicon.ico');
 
             if (!isFixtureRequest && parsed.origin !== options.localOrigin) {
               if (host === 'localhost' || host.endsWith('.localhost') || isPrivateOrReservedIP(host)) {
@@ -103,8 +110,13 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{
               try {
                 const targetUrl = new URL(location, res.url());
                 const targetHost = targetUrl.hostname.toLowerCase();
+                const optionsUrl = new URL(options.url);
+                const isLocalHost = (h: string) => h === 'localhost' || h === '127.0.0.1' || h === '[::1]';
                 const isFixtureLocation =
-                  (targetHost === 'localhost' || targetHost === '127.0.0.1') && targetUrl.origin === new URL(options.url).origin && new URL(options.url).pathname.startsWith('/fixtures/') &&
+                  optionsUrl.pathname.startsWith('/fixtures/') &&
+                  (targetUrl.origin === optionsUrl.origin ||
+                    (options.localOrigin && targetUrl.origin === options.localOrigin) ||
+                    (isLocalHost(targetHost) && isLocalHost(optionsUrl.hostname) && targetUrl.port === optionsUrl.port)) &&
                   targetUrl.pathname.startsWith('/fixtures/');
 
                 if (!isFixtureLocation && targetUrl.origin !== options.localOrigin) {

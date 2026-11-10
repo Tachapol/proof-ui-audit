@@ -14,8 +14,10 @@ export async function POST(req: Request) {
     if (!context.success) return NextResponse.json({ success: false, error: context.error.issues[0].message }, { status: 400 });
 
     const host = req.headers.get('host') || 'localhost:3123';
-    const protocol = host.startsWith('localhost') ? 'http' : 'https';
-    const baseUrl = `${protocol}://${host}`;
+    const portMatch = host.match(/:(\d+)$/);
+    const port = portMatch ? portMatch[1] : (process.env.PORT || '3123');
+    // Internal fixture requests should always target local loopback on the running server port over HTTP
+    const baseUrl = `http://localhost:${port}`;
 
     // 1. Validate & normalize URL with SSRF protection (SEC-04, SEC-05)
     const validation = await validateAndNormalizeAuditUrl(target, baseUrl, undefined, { allowLocalhost: body.allowLocalhost === true && process.env.NODE_ENV === 'development' });
