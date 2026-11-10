@@ -30,7 +30,7 @@ function validatePublicUrl(value: string): string | null {
 
 export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange, isLoading, error, currentFixtureId, currentContext }: AuditInputProps) {
   const [productContext, setProductContext] = useState<ProductContext>(EMPTY_PRODUCT_CONTEXT);
-  const [contextMode, setContextMode] = useState<'auto' | 'manual'>('auto');
+  const [contextMode, setContextMode] = useState<'auto' | 'manual'>('manual');
 
   useEffect(() => {
     if (currentContext) {
@@ -156,7 +156,7 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
         value={productContext}
         onChange={setProductContext}
         disabled={isLoading}
-        targetUrl={activeTab === 'custom' && customUrl.trim() ? customUrl.trim() : undefined}
+        targetUrl={activeTab === 'fixture' ? `fixture://${selectedFixture}` : (customUrl.trim() || undefined)}
         contextMode={contextMode}
         onContextModeChange={setContextMode}
       />

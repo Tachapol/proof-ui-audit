@@ -21,10 +21,8 @@ export function ProductContextFields({
   contextMode,
   onContextModeChange,
 }: Props) {
-  // If value has non-empty values, default to manual; otherwise default to auto
-  const [internalMode, setInternalMode] = useState<'auto' | 'manual'>(() =>
-    Object.values(value).some(Boolean) ? 'manual' : 'auto'
-  );
+  // Default to manual (Custom details) as requested
+  const [internalMode, setInternalMode] = useState<'auto' | 'manual'>('manual');
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectNotice, setDetectNotice] = useState<string | null>(null);
 
@@ -89,28 +87,12 @@ export function ProductContextFields({
           </span>
         </div>
 
-        {/* 2 Choice segmented control */}
+        {/* 2 Choice segmented control: Custom details first, Auto-detect second */}
         <div
           className="inline-flex items-center rounded-lg bg-zinc-100 p-0.5 self-start sm:self-auto border border-zinc-200/60"
           role="radiogroup"
           aria-label="Context input mode"
         >
-          <button
-            type="button"
-            role="radio"
-            id="context-mode-auto"
-            aria-checked={mode === 'auto'}
-            onClick={() => setMode('auto')}
-            disabled={disabled}
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
-              mode === 'auto'
-                ? 'bg-white text-zinc-950 shadow-xs font-semibold'
-                : 'text-zinc-600 hover:text-zinc-900'
-            }`}
-          >
-            <Icon name="Sparkles" size={13} className="text-amber-500" />
-            <span>Auto-detect</span>
-          </button>
           <button
             type="button"
             role="radio"
@@ -126,6 +108,22 @@ export function ProductContextFields({
           >
             <Icon name="FileText" size={13} />
             <span>Custom details</span>
+          </button>
+          <button
+            type="button"
+            role="radio"
+            id="context-mode-auto"
+            aria-checked={mode === 'auto'}
+            onClick={() => setMode('auto')}
+            disabled={disabled}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+              mode === 'auto'
+                ? 'bg-white text-zinc-950 shadow-xs font-semibold'
+                : 'text-zinc-600 hover:text-zinc-900'
+            }`}
+          >
+            <Icon name="Sparkles" size={13} className="text-amber-500" />
+            <span>Auto-detect</span>
           </button>
         </div>
       </div>
@@ -153,10 +151,11 @@ export function ProductContextFields({
           {targetUrl && (
             <div className="flex flex-wrap items-center justify-between gap-2 bg-zinc-50/80 border border-zinc-200/80 rounded-md px-3 py-1.5">
               <span className="text-[11px] text-zinc-600">
-                Want to start with values from this page?
+                Want to auto-detect details from this target?
               </span>
               <button
                 type="button"
+                id="btn-auto-fill-context"
                 onClick={handleAutoFill}
                 disabled={disabled || isDetecting}
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-800 bg-white hover:bg-zinc-100 border border-zinc-200 px-2.5 py-1 rounded shadow-2xs transition-colors disabled:opacity-50"
@@ -166,7 +165,7 @@ export function ProductContextFields({
                   size={12}
                   className={isDetecting ? 'animate-spin' : 'text-amber-500'}
                 />
-                <span>{isDetecting ? 'Detecting page...' : 'Auto-fill from page'}</span>
+                <span>{isDetecting ? 'Detecting page...' : 'Auto-detect from page'}</span>
               </button>
             </div>
           )}
