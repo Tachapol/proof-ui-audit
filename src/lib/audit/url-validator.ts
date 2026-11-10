@@ -8,6 +8,7 @@ export interface URLValidationResult {
   isFixture?: boolean;
   fixtureId?: string;
   resolvedIP?: string;
+  localOrigin?: string;
 }
 
 export function isPrivateOrReservedIP(ip: string): boolean {
@@ -82,7 +83,8 @@ export type DnsLookupFn = (hostname: string, options: { all: true }) => Promise<
 export async function validateAndNormalizeAuditUrl(
   input: string,
   devServerBaseUrl = 'http://localhost:3123',
-  dnsLookup: DnsLookupFn = (h, opts) => dns.lookup(h, opts)
+  dnsLookup: DnsLookupFn = (h, opts) => dns.lookup(h, opts),
+  options: { allowLocalhost?: boolean } = {}
 ): Promise<URLValidationResult> {
   if (!input || typeof input !== 'string') {
     return { valid: false, error: 'Target URL or fixture identifier is required.' };
@@ -153,6 +155,11 @@ export async function validateAndNormalizeAuditUrl(
   }
 
   const hostname = parsed.hostname.toLowerCase();
+
+  // Explicit loopback development target only; never allow LAN or metadata addresses.
+  if (options.allowLocalhost && ['localhost', '127.0.0.1', '[::1]'].includes(hostname)) {
+    return { valid:true, normalizedUrl:parsed.toString(), isFixture:false, localOrigin:parsed.origin };
+  }
 
   // Block localhost names
   if (hostname === 'localhost' || hostname.endsWith('.localhost')) {

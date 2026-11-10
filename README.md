@@ -111,8 +111,10 @@ Available fixture categories:
 
 - [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) — Complete requirements checklist
 - [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) — Phased execution plan
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) ([ภาษาไทย](docs/ARCHITECTURE.th.md)) — System architecture, use case, and user flow diagrams
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — Architecture and implementation decisions
 - [`docs/TRACEABILITY.md`](docs/TRACEABILITY.md) — Requirement traceability matrix
+- [`docs/METRICS.md`](docs/METRICS.md) ([English](docs/METRICS.en.md)) — Comprehensive metrics and measurement reference
 
 ## License
 

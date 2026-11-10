@@ -1,6 +1,7 @@
+import { ProductContextSchema } from '@/lib/schema/product-context';
 import { z } from 'zod';
 
-export const AIProvenanceSchema = z.enum(['gemini', 'fallback']);
+export const AIProvenanceSchema = z.enum(['gemini', 'cpe', 'fallback']);
 export type AIProvenance = z.infer<typeof AIProvenanceSchema>;
 
 export const AIFallbackReasonSchema = z.enum([
@@ -15,6 +16,7 @@ export const AIFallbackReasonSchema = z.enum([
 export type AIFallbackReason = z.infer<typeof AIFallbackReasonSchema>;
 
 export const AIExplanationInputSchema = z.object({
+  productContext: ProductContextSchema.optional(),
   ruleId: z.enum(['target-size', 'text-contrast', 'non-text-contrast', 'reflow', 'text-spacing']),
   wcagCriterion: z.string().min(1),
   status: z.enum(['pass', 'candidateFail', 'needsReview']),
@@ -60,6 +62,7 @@ export const AIGenerationRecordSchema = z.object({
   uncertaintyNote: z.string().trim().optional(),
   requiresDesignerReview: z.boolean(),
   evidenceFingerprint: z.string().min(1),
+  model: z.string().optional(),
   durationMs: z.number().nonnegative().optional(),
 });
 export type AIGenerationRecord = z.infer<typeof AIGenerationRecordSchema>;
@@ -74,6 +77,7 @@ export const AIExplanationResultSchema = z.object({
   isFallback: z.boolean(),
   fallbackReason: AIFallbackReasonSchema.optional(),
   timestamp: z.string().datetime(),
+  model: z.string().optional(),
   durationMs: z.number().nonnegative().optional(),
   evidenceFingerprint: z.string().optional(),
 });

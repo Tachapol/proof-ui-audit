@@ -3,12 +3,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FIXTURES } from '@/fixtures/fixture-registry';
 import { Icon } from './Icon';
+import { ProductContextFields } from './ProductContextFields';
+import { ProductContext, ProductContextSchema, EMPTY_PRODUCT_CONTEXT } from '@/lib/schema/product-context';
 
 interface AuditInputProps {
-  onRunAudit: (target: string) => Promise<void>;
+  onRunAudit: (target: string, productContext?: ProductContext) => Promise<void>;
   onTargetChange?: (target: string) => void;
   onValidationStateChange?: (hasError: boolean) => void;
   isLoading: boolean;
+  currentFixtureId?: string;
+  currentContext?: ProductContext;
   error?: string | null;
 }
 
@@ -24,14 +28,25 @@ function validatePublicUrl(value: string): string | null {
   return null;
 }
 
-export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange, isLoading, error }: AuditInputProps) {
-  const [selectedFixture, setSelectedFixture] = useState(FIXTURES[0].id);
+export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange, isLoading, error, currentFixtureId, currentContext }: AuditInputProps) {
+  const [productContext, setProductContext] = useState<ProductContext>(EMPTY_PRODUCT_CONTEXT);
+  useEffect(() => { setProductContext(currentContext || EMPTY_PRODUCT_CONTEXT); }, [currentContext]);
+  const submitAudit = async (target: string) => {
+    const parsed = ProductContextSchema.safeParse(productContext);
+    if (!parsed.success) { setClientError(parsed.error.issues[0].message); onValidationStateChange?.(true); return; }
+    await onRunAudit(target, parsed.data);
+  };
+  const [selectedFixture, setSelectedFixture] = useState('target-size-demo');
   const [customUrl, setCustomUrl] = useState('');
   const [activeTab, setActiveTab] = useState<'fixture' | 'custom'>('fixture');
   const [clientError, setClientError] = useState<string | null>(null);
   const urlInputRef = useRef<HTMLInputElement>(null);
   const fixtureSelectRef = useRef<HTMLSelectElement>(null);
   const displayedError = clientError || error || null;
+
+  useEffect(() => {
+    if (currentFixtureId && FIXTURES.some(f => f.id === currentFixtureId)) setSelectedFixture(currentFixtureId);
+  }, [currentFixtureId]);
 
   useEffect(() => {
     onTargetChange?.(activeTab === 'fixture' ? `fixture://${selectedFixture}` : customUrl);
@@ -58,7 +73,7 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
     }
     setClientError(null);
     onValidationStateChange?.(false);
-    await onRunAudit(activeTab === 'fixture' ? selectedFixture : customUrl.trim());
+    await submitAudit(activeTab === 'fixture' ? selectedFixture : customUrl.trim());
   };
 
   return (
@@ -73,6 +88,12 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
         <button type="button" role="tab" aria-selected={activeTab === 'custom'} aria-controls="url-panel" id="url-tab" onClick={() => selectMode('custom')}>Public URL</button>
       </div>
 
+      <ProductContextFields value={productContext} onChange={setProductContext} disabled={isLoading} />
+      <p>Happy path: measure text contrast → read LLM critique → review → export.</p>
+      <button type="button" className="primary-button" disabled={isLoading} onClick={() => {
+        setActiveTab('fixture'); setSelectedFixture('mvp-contrast-demo'); setClientError(null); onValidationStateChange?.(false);
+        void submitAudit('fixture://mvp-contrast-demo');
+      }}>Run Text Contrast MVP</button>
       <form onSubmit={handleSubmit} noValidate>
         {activeTab === 'fixture' ? (
           <div id="fixture-panel" role="tabpanel" aria-labelledby="fixture-tab" className="field-group">

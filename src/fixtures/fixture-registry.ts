@@ -7,6 +7,8 @@ export interface FixtureDefinition {
 }
 
 export const FIXTURES: FixtureDefinition[] = [
+  { id: 'mvp-contrast-demo', name: 'Text Contrast MVP — Happy Path', category: 'contrast',
+    description: 'Four controlled text cases: code measures, CPE LLM critiques one candidate issue, designer reviews.', path: '/fixtures/mvp-contrast-demo' },
   {
     id: 'target-size-demo',
     name: 'Target Size Test Suite',

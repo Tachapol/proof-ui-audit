@@ -5,6 +5,7 @@ export type IconName =
   | 'Target'
   | 'Contrast'
   | 'Maximize2'
+  | 'Minimize2'
   | 'Type'
   | 'CheckCircle2'
   | 'AlertTriangle'

@@ -130,3 +130,22 @@ describe('Audit URL Validation & Advanced SSRF Rejection (TEST-22)', () => {
     expect(res.error).toContain('credentials');
   });
 });
+
+
+describe('Explicit localhost audit opt-in', () => {
+ it('allows only exact loopback hosts when opted in',async()=>{
+  const dnsLookup:DnsLookupFn=async()=>[{address:'192.168.1.2',family:4}];
+  for(const host of ['localhost:3210','127.0.0.1:3210','[::1]:3210']) {
+   const result=await validateAndNormalizeAuditUrl('http://'+host+'/design','http://localhost:3123',dnsLookup,{allowLocalhost:true});
+   expect(result.valid).toBe(true);expect(result.localOrigin).toBe('http://'+host);
+  }
+  for(const host of ['192.168.1.2','169.254.169.254','internal.example','app.localhost']) {
+   const result=await validateAndNormalizeAuditUrl('http://'+host,'http://localhost:3123',dnsLookup,{allowLocalhost:true});
+   expect(result.valid).toBe(false);
+  }
+ });
+ it('still blocks loopback by default and URLs with credentials',async()=>{
+  expect((await validateAndNormalizeAuditUrl('http://localhost:3210')).valid).toBe(false);
+  expect((await validateAndNormalizeAuditUrl('http://user:password@localhost:3210','http://localhost:3123',undefined,{allowLocalhost:true})).valid).toBe(false);
+ });
+});

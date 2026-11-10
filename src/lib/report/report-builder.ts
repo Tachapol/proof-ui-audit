@@ -133,6 +133,7 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
       timestamp: run.timestamp,
       targetUrl: run.targetUrl,
       fixtureId: run.fixtureId,
+      productContext: run.productContext,
       viewports: run.viewports,
     },
     summary: {
@@ -143,8 +144,8 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
       needsReviewCount,
       priorityCounts,
     },
-    disclaimers: STANDARD_DISCLAIMERS,
-    limitations: KNOWN_LIMITATIONS,
+    disclaimers: run.fixtureId === 'mvp-contrast-demo' ? ['This MVP report covers Text Contrast only for four controlled cases; other criteria are not included.', ...STANDARD_DISCLAIMERS.slice(1)] : STANDARD_DISCLAIMERS,
+    limitations: run.fixtureId === 'mvp-contrast-demo' ? ['MVP viewport: 375 × 667 CSS px. Designer acceptance does not apply a CSS patch or verify a fix.', ...KNOWN_LIMITATIONS.slice(1)] : KNOWN_LIMITATIONS,
     groupedIssues,
     rawOccurrences,
   };

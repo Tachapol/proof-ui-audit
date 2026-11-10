@@ -17,6 +17,7 @@ export interface AuditOptions {
   viewports?: Viewport[];
   timeoutMs?: number;
   captureScreenshots?: boolean;
+  localOrigin?: string;
 }
 
 export const DEFAULT_AUDIT_VIEWPORTS: Viewport[] = [
@@ -29,10 +30,11 @@ async function ensureScreenshotDir() {
   await fs.mkdir(SCREENSHOTS_DIR, { recursive: true });
 }
 
-export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: UXIssue[]; errors: string[] }> {
+export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: UXIssue[]; errors: string[]; pageScreenshots: Array<{width:number;height:number;path:string}> }> {
   await ensureScreenshotDir();
   const issues: UXIssue[] = [];
   const errors: string[] = [];
+  const pageScreenshots: Array<{width:number;height:number;path:string}> = [];
   const viewports = options.viewports || DEFAULT_AUDIT_VIEWPORTS;
   const timeout = options.timeoutMs || 25000;
 
@@ -52,8 +54,10 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
         context = await browser.newContext({
           viewport: { width: viewport.width, height: viewport.height },
           deviceScaleFactor: 1,
+          serviceWorkers: 'block',
         });
 
+        await context.routeWebSocket('**', socket => socket.close());
         page = await context.newPage();
         page.setDefaultTimeout(timeout);
 
@@ -69,10 +73,10 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
 
             // Allow local fixture endpoints if navigated from test server
             const isFixtureRequest =
-              (host === 'localhost' || host === '127.0.0.1') &&
+              (host === 'localhost' || host === '127.0.0.1') && parsed.origin === new URL(options.url).origin && new URL(options.url).pathname.startsWith('/fixtures/') &&
               (parsed.pathname.startsWith('/fixtures/') || parsed.pathname.startsWith('/_next/'));
 
-            if (!isFixtureRequest) {
+            if (!isFixtureRequest && parsed.origin !== options.localOrigin) {
               if (host === 'localhost' || host.endsWith('.localhost') || isPrivateOrReservedIP(host)) {
                 ssrfViolation = `Blocked SSRF target: ${host}`;
                 return route.abort('blockedbyclient');
@@ -93,10 +97,10 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
                 const targetUrl = new URL(location, res.url());
                 const targetHost = targetUrl.hostname.toLowerCase();
                 const isFixtureLocation =
-                  (targetHost === 'localhost' || targetHost === '127.0.0.1') &&
+                  (targetHost === 'localhost' || targetHost === '127.0.0.1') && targetUrl.origin === new URL(options.url).origin && new URL(options.url).pathname.startsWith('/fixtures/') &&
                   targetUrl.pathname.startsWith('/fixtures/');
 
-                if (!isFixtureLocation) {
+                if (!isFixtureLocation && targetUrl.origin !== options.localOrigin) {
                   if (targetHost === 'localhost' || targetHost.endsWith('.localhost') || isPrivateOrReservedIP(targetHost)) {
                     ssrfViolation = `Redirected to disallowed private address: ${targetHost}`;
                   }
@@ -124,6 +128,12 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
         }
 
         await page.waitForTimeout(300);
+
+        if (options.captureScreenshots !== false) {
+          const filename = `page-${viewport.width}-${crypto.randomUUID()}.png`;
+          await page.screenshot({path:path.join(SCREENSHOTS_DIR,filename),fullPage:false});
+          pageScreenshots.push({width:viewport.width,height:viewport.height,path:`/screenshots/${filename}`});
+        }
 
         // Helper to capture screenshots safely
         const captureIssueScreenshot = async (issue: UXIssue) => {
@@ -966,5 +976,5 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
     }
   }
 
-  return { issues, errors };
+  return { issues, errors, pageScreenshots };
 }

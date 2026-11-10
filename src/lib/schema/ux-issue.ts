@@ -1,3 +1,4 @@
+import { ProductContextSchema } from '@/lib/schema/product-context';
 import { z } from 'zod';
 import { AIExplanationResultSchema, AIGenerationRecordSchema } from './ai-response';
 
@@ -110,6 +111,9 @@ export const AuditSummarySchema = z.object({
 export type AuditSummary = z.infer<typeof AuditSummarySchema>;
 
 export const AuditRunSchema = z.object({
+  pageScreenshots: z.array(z.object({width:z.number(),height:z.number(),path:z.string()})).optional(),
+  auditWarnings: z.array(z.string()).optional(),
+  productContext: ProductContextSchema.optional(),
   id: z.string().min(1),
   targetUrl: z.string().min(1),
   fixtureId: z.string().optional(),

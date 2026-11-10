@@ -4,21 +4,25 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AuditInput } from '@/components/AuditInput';
 import { AuditSummary } from '@/components/AuditSummary';
 import { IssueCard } from '@/components/IssueCard';
+import { VisualCanvasOverlay } from '@/components/VisualCanvasOverlay';
 import { NavigationRail } from '@/components/NavigationRail';
 import { StateView } from '@/components/StateViews';
 import { AuditUiStatus, TopBar } from '@/components/TopBar';
 import { AuditRun, AuditStatus } from '@/lib/schema/ux-issue';
 import { Icon } from '@/components/Icon';
 import { FIXTURES } from '@/fixtures/fixture-registry';
+import { ProductContext } from '@/lib/schema/product-context';
 
 export default function HomePage() {
   const [currentRun, setCurrentRun] = useState<AuditRun | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [pipelineMessage, setPipelineMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [partialMessage, setPartialMessage] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | AuditStatus>('all');
   const [auditStatus, setAuditStatus] = useState<AuditUiStatus>('ready');
   const [pendingTarget, setPendingTarget] = useState('fixture://target-size-demo');
+  const [activeFingerprint, setActiveFingerprint] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [hasInputValidationError, setHasInputValidationError] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -51,11 +55,12 @@ export default function HomePage() {
 
   const handleTargetChange = useCallback((target: string) => setPendingTarget(target), []);
 
-  const handleRunAudit = async (target: string) => {
+  const handleRunAudit = async (target: string, productContext?: ProductContext) => {
     if (isLoading) return;
     setIsLoading(true);
     setError(null);
     setPartialMessage(null);
+    setPipelineMessage(target === 'fixture://mvp-contrast-demo' ? 'Step 1/3: Measuring text contrast from rendered DOM…' : '');
     setAuditStatus('queued');
     runningTimerRef.current = setTimeout(() => setAuditStatus('running'), 180);
 
@@ -63,11 +68,28 @@ export default function HomePage() {
       const response = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target }),
+        body: JSON.stringify({ target, productContext }),
       });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.error || 'Failed to complete audit.');
-      setCurrentRun(data.run);
+      if (data.run.fixtureId === 'mvp-contrast-demo') {
+        data.run.groupedIssues.sort((a: { status: string }, b: { status: string }) => Number(b.status === 'candidateFail') - Number(a.status === 'candidateFail'));
+        setCurrentRun(data.run);
+        setPipelineMessage('Step 2/3: Requesting LLM critique from measured evidence…');
+        const candidate = data.run.groupedIssues.find((group: { status: string }) => group.status === 'candidateFail');
+        if (candidate) {
+          try {
+            const explained = await fetch('/api/explain', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ runId: data.run.id, fingerprint: candidate.fingerprint }) });
+            const answer = await explained.json();
+            if (!explained.ok || !answer.success || !answer.updatedGroup) throw new Error('Critique could not be loaded. Use Request Explanation to retry.');
+            data.run.groupedIssues = data.run.groupedIssues.map((group: { fingerprint: string }) => group.fingerprint === candidate.fingerprint ? answer.updatedGroup : group);
+            setPipelineMessage(answer.aiResult.isFallback ? 'Measurements complete. LLM unavailable: template fallback shown. Retry Request Explanation.' : 'Step 3/3: Live LLM critique ready. Review the finding, record your decision, and export.');
+          } catch {
+            setPipelineMessage('Measurements complete. Critique unavailable. Use Request Explanation on the candidate issue to retry.');
+          }
+        } else setPipelineMessage('Measurements complete. No candidate issue requires critique.');
+      }
+      setCurrentRun({ ...data.run });
       setStatusFilter('all');
       if (data.partialErrors?.length) {
         setPartialMessage(`The audit completed with limited coverage: ${data.partialErrors.join('; ')}`);
@@ -108,11 +130,13 @@ export default function HomePage() {
             <header className="page-intro">
               <p className="eyebrow">Designer-in-the-loop review</p>
               <h1>ProofUI Audit PoC</h1>
+              <a href="/studio" className="primary-button" style={{ display: 'inline-flex', margin: '12px 0' }}>Open Critique Studio →</a>
               <p>Review deterministic, WCAG-informed evidence before making a design decision.</p>
             </header>
 
-            <AuditInput onRunAudit={handleRunAudit} onTargetChange={handleTargetChange} onValidationStateChange={setHasInputValidationError} isLoading={isLoading} error={error} />
+            <AuditInput currentContext={currentRun?.productContext} currentFixtureId={currentRun?.fixtureId} onRunAudit={handleRunAudit} onTargetChange={handleTargetChange} onValidationStateChange={setHasInputValidationError} isLoading={isLoading} error={error} />
 
+            {pipelineMessage && <p role="status" aria-live="polite">{pipelineMessage}</p>}
             <div className="dynamic-state-slot">
               {isLoading && <StateView kind="loading" title={auditStatus === 'queued' ? 'Audit queued' : 'Audit running'} description={auditStatus === 'queued' ? 'Preparing the isolated browser and requested viewports.' : 'Collecting deterministic measurements and screenshot evidence. You can keep this page open.'} />}
               {!isLoading && error && <StateView kind="error" title="Audit could not be completed" description={`${error} The entered target is preserved above so you can correct or retry it.`} />}
@@ -126,7 +150,29 @@ export default function HomePage() {
                   <div><p className="eyebrow">Review queue</p><h2 id="results-heading">Audit evidence</h2></div>
                   <span>{currentRun.groupedIssues.length} grouped {currentRun.groupedIssues.length === 1 ? 'issue' : 'issues'}</span>
                 </div>
+                {currentRun.productContext && Object.values(currentRun.productContext).some(Boolean) && <details className="saved-product-context"><summary>Product context used for this audit</summary><dl>{Object.entries(currentRun.productContext).filter(([, value]) => value).map(([key, value]) => <div key={key}><dt>{({ productGoal: 'Product Goal', brandKeywords: 'Brand Keywords', themeColor: 'Theme Color', targetAudience: 'Target Audience', additionalContext: 'Others' } as Record<string, string>)[key]}</dt><dd>{value}</dd></div>)}</dl></details>}
                 <AuditSummary summary={currentRun.summary} targetUrl={currentRun.targetUrl} timestamp={currentRun.timestamp} runId={currentRun.id} fixtureId={currentRun.fixtureId} />
+
+                {/* Designer Visual Canvas Overlay */}
+                {currentRun.fixtureId !== 'mvp-contrast-demo' && <VisualCanvasOverlay
+                  currentRun={currentRun}
+                  activeFingerprint={activeFingerprint}
+                  onSelectIssue={(fp) => {
+                    setActiveFingerprint(fp);
+                  }}
+                  onDecisionSaved={(updated) => {
+                    setCurrentRun((previous) =>
+                      previous
+                        ? {
+                            ...previous,
+                            groupedIssues: previous.groupedIssues.map((group) =>
+                              group.fingerprint === updated.fingerprint ? updated : group
+                            ),
+                          }
+                        : null
+                    );
+                  }}
+                />}
 
                 <div className="filter-bar" role="group" aria-label="Filter audit issues by status">
                   {([

@@ -239,6 +239,7 @@ export async function updateAIExplanation(
       requiresDesignerReview: aiResult.requiresDesignerReview,
       evidenceFingerprint: fingerprint,
       durationMs: aiResult.durationMs,
+      model: aiResult.model,
     };
 
     targetGroup.aiGenerationHistory.push(record);

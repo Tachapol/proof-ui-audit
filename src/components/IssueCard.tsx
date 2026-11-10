@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GroupedUXIssue, DesignerDecision, Priority } from '@/lib/schema/ux-issue';
 import { Icon } from './Icon';
 import { OccurrenceList } from './OccurrenceList';
@@ -34,6 +34,8 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
   // AI explanation state
   const [isExplaining, setIsExplaining] = useState<boolean>(false);
   const [explainError, setExplainError] = useState<string | null>(null);
+
+  useEffect(() => { setIssue(initialIssue); }, [initialIssue]);
 
   const rep = issue.representative;
   const aiResult = issue.aiExplanationResult || rep.aiExplanationResult;
@@ -194,6 +196,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
 
   return (
     <article
+      id={`issue-card-${issue.fingerprint}`}
       className="issue-card"
       style={{
         background: 'var(--surface)',
@@ -379,7 +382,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
                   gap: '4px',
                 }}
               >
-                {aiResult.isFallback ? 'Deterministic Fallback' : 'AI-Generated (Gemini)'}
+                {aiResult.isFallback ? 'Deterministic Fallback' : aiResult.provenance === 'cpe' ? `AI-Generated (CPE · ${aiResult.model || 'LLM'})` : 'AI-Generated (Gemini)'}
               </span>
             ) : null}
 

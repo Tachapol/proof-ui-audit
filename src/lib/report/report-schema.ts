@@ -1,3 +1,4 @@
+import { ProductContextSchema } from '@/lib/schema/product-context';
 import { z } from 'zod';
 import {
   AuditStatusSchema,
@@ -76,6 +77,7 @@ export const ReportGroupedIssueSchema = z.object({
 });
 
 export const ReportMetadataSchema = z.object({
+  productContext: ProductContextSchema.optional(),
   runId: z.string(),
   timestamp: z.string(),
   targetUrl: z.string(),

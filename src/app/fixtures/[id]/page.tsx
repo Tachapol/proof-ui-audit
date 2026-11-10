@@ -1,4 +1,6 @@
+import { readStudio } from '@/lib/studio/store';
 import { notFound } from 'next/navigation';
+import { MvpContrastFixture } from '@/fixtures/components/MvpContrastFixture';
 import { FIXTURES } from '@/fixtures/fixture-registry';
 import { TargetSizeFixture } from '@/fixtures/components/TargetSizeFixture';
 import { ContrastFixture } from '@/fixtures/components/ContrastFixture';
@@ -24,10 +26,24 @@ import { OccurrenceFixture } from '@/fixtures/components/OccurrenceFixture';
 
 interface FixturePageProps {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ studioSession?: string }>;
 }
 
-export default async function FixturePage({ params }: FixturePageProps) {
+export default async function FixturePage({ params, searchParams }: FixturePageProps) {
   const { id } = await params;
+  const query = await searchParams;
+  let sessionCss = '';
+  if (query?.studioSession) {
+    try {
+      const session = await readStudio(query.studioSession);
+      for (const [issueId, candidate] of Object.entries(session.candidates)) {
+        const item = session.agenda.find(a => a.id === issueId);
+        const run = session.runs.find(r => r.id === item?.runId);
+        const rep = run?.groupedIssues.find(g => g.fingerprint === item?.fingerprint)?.representative;
+        if (candidate.applied && candidate.verified && run?.fixtureId === id && rep && /^#[a-zA-Z][\w-]*$/.test(rep.selector) && /^#[0-9a-f]{6}$/i.test(candidate.color)) sessionCss += `${rep.selector} { color: ${candidate.color} !important; }\n`;
+      }
+    } catch { /* Invalid session never applies an override. */ }
+  }
   const fixture = FIXTURES.find((f) => f.id === id);
 
   if (!fixture) {
@@ -48,7 +64,9 @@ export default async function FixturePage({ params }: FixturePageProps) {
         </p>
       </header>
 
+      <style>{sessionCss}</style>
       <main id="fixture-content">
+        {fixture.id === 'mvp-contrast-demo' && <MvpContrastFixture />}
         {fixture.id === 'target-size-demo' && <TargetSizeFixture />}
         {fixture.id === 'text-contrast-demo' && <ContrastFixture />}
         {fixture.id === 'reflow-demo' && <ReflowFixture />}

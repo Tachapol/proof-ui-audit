@@ -152,6 +152,14 @@ export function generateMarkdownReport(report: ReportModel): string {
   );
   sections.push('');
 
+  if (report.audit.productContext && Object.values(report.audit.productContext).some(Boolean)) {
+    sections.push('## Product Context', '');
+    for (const [key, value] of Object.entries(report.audit.productContext)) {
+      if (value) sections.push(`- **${escapeHtml(key)}**: ${escapeHtml(sanitizeMarkdownProse(value))}`);
+    }
+    sections.push('');
+  }
+
   // 3. Scope and Disclaimers
   sections.push('## Scope and Disclaimers');
   sections.push('');
