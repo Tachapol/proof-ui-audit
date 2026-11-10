@@ -7,7 +7,7 @@ import { readStudio,saveStudio,listStudios,withStudioLock } from '@/lib/studio/s
 const id=z.string().regex(/^[a-zA-Z0-9-]{1,80}$/);
 const role=z.enum(['ux','product','engineering']);
 const action=z.discriminatedUnion('action',[
- z.object({action:z.literal('create'),runIds:z.array(id).min(1).max(2),roles:z.array(role).min(1).max(3)}),
+ z.object({action:z.literal('create'),runIds:z.array(id).min(1).max(2),roles:z.array(role).min(1).max(3),model:z.string().trim().max(80).optional()}),
  z.object({action:z.literal('chat'),sessionId:id,issueId:id,role:z.enum(['lead','ux','product','engineering']),message:z.string().trim().min(1).max(1500)}),
  z.object({action:z.literal('preview'),sessionId:id,issueId:id,color:z.string().regex(/^#[0-9a-f]{6}$/i).optional()}),
  z.object({action:z.literal('apply'),sessionId:id,issueId:id}),
@@ -28,7 +28,7 @@ export async function POST(req:NextRequest){try{
  if(data.action==='create'){
  const runs=await Promise.all([...new Set(data.runIds)].map(getAuditRun));if(runs.some(r=>!r))throw new Error('Audit run not found.');
 
- return NextResponse.json({session:await createStudio(runs.filter((r):r is NonNullable<typeof r>=>!!r),[...new Set(data.roles)])});}
+ return NextResponse.json({session:await createStudio(runs.filter((r):r is NonNullable<typeof r>=>!!r),[...new Set(data.roles)],data.model)});}
  return await withStudioLock(data.sessionId,async()=>{
  const session=await readStudio(data.sessionId);const item=session.agenda.find(a=>a.id===data.issueId);if(!item)throw new Error('Issue not found.');
  if(data.action==='chat')return NextResponse.json({session:await discussStudio(session,data.issueId,data.role,data.message)});

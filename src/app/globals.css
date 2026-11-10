@@ -1,3 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --ui-background: 0 0% 100%;
+    --ui-foreground: 240 10% 3.9%;
+    --ui-card: 0 0% 100%;
+    --ui-card-foreground: 240 10% 3.9%;
+    --ui-popover: 0 0% 100%;
+    --ui-popover-foreground: 240 10% 3.9%;
+    --ui-primary: 240 5.9% 10%;
+    --ui-primary-foreground: 0 0% 98%;
+    --ui-secondary: 240 4.8% 95.9%;
+    --ui-secondary-foreground: 240 5.9% 10%;
+    --ui-muted: 240 4.8% 95.9%;
+    --ui-muted-foreground: 240 3.8% 46.1%;
+    --ui-accent: 240 4.8% 95.9%;
+    --ui-accent-foreground: 240 5.9% 10%;
+    --ui-destructive: 0 84.2% 60.2%;
+    --ui-destructive-foreground: 0 0% 98%;
+    --ui-border: 240 5.9% 90%;
+    --ui-input: 240 5.9% 90%;
+    --ui-ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+  }
+}
+
 :root {
   --background: #f7f7f5;
   --surface: #ffffff;

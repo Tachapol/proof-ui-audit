@@ -128,10 +128,8 @@ export default function HomePage() {
         <div className="workspace-content" inert={drawerOpen ? true : undefined} aria-hidden={drawerOpen ? true : undefined}>
           <main id="main-content" tabIndex={-1}>
             <header className="page-intro">
-              <p className="eyebrow">Designer-in-the-loop review</p>
               <h1>ProofUI Audit PoC</h1>
               <a href="/studio" className="primary-button" style={{ display: 'inline-flex', margin: '12px 0' }}>Open Critique Studio →</a>
-              <p>Review deterministic, WCAG-informed evidence before making a design decision.</p>
             </header>
 
             <AuditInput currentContext={currentRun?.productContext} currentFixtureId={currentRun?.fixtureId} onRunAudit={handleRunAudit} onTargetChange={handleTargetChange} onValidationStateChange={setHasInputValidationError} isLoading={isLoading} error={error} />

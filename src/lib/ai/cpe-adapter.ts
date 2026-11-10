@@ -7,6 +7,9 @@ export class CpeExplanationProvider implements ExplanationProvider {
   readonly id = 'cpe' as const;
   constructor(private apiKey: string, private model: string, private baseUrl = 'https://gateway.ai.cpe.kmutt.ac.th/v1', private fetchImpl: typeof fetch = fetch) {
     if (!apiKey.trim() || !model.trim()) throw new Error('CPE API key and model are required.');
+    if (this.apiKey.startsWith('xpl_') && this.baseUrl === 'https://gateway.ai.cpe.kmutt.ac.th/v1') {
+      this.baseUrl = 'https://api.experientiallabs.ai/v1';
+    }
   }
   async explain(input: AIExplanationInput): Promise<AIExplanationResult> {
     const prompt = buildExplanationPrompt(input);

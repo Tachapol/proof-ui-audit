@@ -89,7 +89,6 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
       </div>
 
       <ProductContextFields value={productContext} onChange={setProductContext} disabled={isLoading} />
-      <p>Happy path: measure text contrast → read LLM critique → review → export.</p>
       <button type="button" className="primary-button" disabled={isLoading} onClick={() => {
         setActiveTab('fixture'); setSelectedFixture('mvp-contrast-demo'); setClientError(null); onValidationStateChange?.(false);
         void submitAudit('fixture://mvp-contrast-demo');
