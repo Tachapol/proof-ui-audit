@@ -28,10 +28,12 @@ import {
   Laptop,
   CheckCircle2,
   AlertTriangle,
+  Copy,
 } from 'lucide-react';
 import { ProductContextFields } from '@/components/ProductContextFields';
 import { EMPTY_PRODUCT_CONTEXT, ProductContextSchema, type ProductContext } from '@/lib/schema/product-context';
 import { ROLE_NAMES, findStudioIssue, type StudioRole, type StudioSession } from '@/lib/studio/types';
+import { formatStudioMarkdown } from '@/lib/studio/markdown';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -119,6 +121,7 @@ export default function StudioPage() {
   const [message, setMessage] = useState('');
   const [color, setColor] = useState('#111827');
   const [panel, setPanel] = useState<'agenda' | 'discussion' | 'preview'>('agenda');
+  const [copied, setCopied] = useState(false);
 
   const [history, setHistory] = useState<Array<{ id: string; createdAt: string; frames: number; goal: string }>>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -129,9 +132,25 @@ export default function StudioPage() {
       .then(d => setHistory(d.sessions || []))
       .catch(() => undefined);
 
+  const handleCopySummary = async () => {
+    if (!session) return;
+    try {
+      const md = formatStudioMarkdown(session);
+      await navigator.clipboard.writeText(md);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch {
+      setError('Could not copy to clipboard. Use Download MD instead.');
+    }
+  };
+
   useEffect(() => {
     void loadHistory();
-    const id = new URLSearchParams(location.search).get('session');
+    const params = new URLSearchParams(location.search);
+    const id = params.get('session');
+    const runId = params.get('runId');
+    const issueFingerprint = params.get('issue');
+
     if (id) {
       setBusy('Opening saved critique…');
       fetch('/api/studio?id=' + encodeURIComponent(id))
@@ -143,7 +162,23 @@ export default function StudioPage() {
         })
         .catch(e => setError(e.message))
         .finally(() => setBusy(''));
+    } else if (runId) {
+      setBusy('Importing audit evidence into Critique Studio…');
+      post({ action: 'create', runIds: [runId], roles: ['ux', 'product', 'engineering'], model: selectedModel })
+        .then(next => {
+          acceptSession(next);
+          if (issueFingerprint) {
+            const matched = next.agenda.find(a => a.fingerprint === issueFingerprint);
+            setActive(matched?.id || next.agenda[0]?.id || '');
+          } else {
+            setActive(next.agenda[0]?.id || '');
+          }
+          setPanel('agenda');
+        })
+        .catch(e => setError(e instanceof Error ? e.message : 'Could not import audit run into Studio.'))
+        .finally(() => setBusy(''));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const item = session?.agenda.find(a => a.id === active);
@@ -629,15 +664,25 @@ export default function StudioPage() {
               <Badge variant="outline" className="hidden sm:inline-flex text-[11px] text-zinc-500 border-zinc-200 font-normal">
                 CPE · {session.model}
               </Badge>
-              <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" asChild>
-                <a href={`/api/studio?id=${session.id}&format=json`} download>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs gap-1.5 border-zinc-200 text-zinc-700 hover:text-zinc-900 shadow-xs"
+                onClick={handleCopySummary}
+                title="Copy Markdown summary to clipboard"
+              >
+                {copied ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
+                <span>{copied ? 'Copied!' : 'Copy Summary'}</span>
+              </Button>
+              <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 border-zinc-200 text-zinc-700 hover:text-zinc-900 shadow-xs" asChild>
+                <a href={`/api/studio?id=${session.id}&format=markdown`} download={`proofui-studio-${session.id}.md`}>
                   <Download className="size-3.5" />
-                  <span>JSON</span>
+                  <span>Report</span>
                 </a>
               </Button>
-              <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" asChild>
-                <a href={`/api/studio?id=${session.id}&format=markdown`} download>
-                  <span>Report</span>
+              <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 border-zinc-200 text-zinc-700 hover:text-zinc-900 shadow-xs" asChild>
+                <a href={`/api/studio?id=${session.id}&format=json`} download={`proofui-studio-${session.id}.json`}>
+                  <span>JSON</span>
                 </a>
               </Button>
             </nav>
@@ -722,9 +767,20 @@ export default function StudioPage() {
 
               {/* Lead Summary Callout Card */}
               <div className="p-4 border-b border-zinc-100 bg-zinc-50/50">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-zinc-900">Lead Coordinator</span>
-                  <span className="text-[11px] text-zinc-500">· {session.roles.length} roles</span>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-zinc-900">Lead Coordinator</span>
+                    <span className="text-[11px] text-zinc-500">· {session.roles.length} roles</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-[10px] gap-1 px-2 text-zinc-600 hover:text-zinc-900"
+                    onClick={handleCopySummary}
+                  >
+                    {copied ? <Check className="size-3 text-emerald-600" /> : <Copy className="size-3" />}
+                    <span>{copied ? 'Copied' : 'Copy'}</span>
+                  </Button>
                 </div>
                 <p className="text-xs text-zinc-700 leading-relaxed whitespace-pre-wrap">
                   {session.agenda.reduce(
@@ -732,6 +788,28 @@ export default function StudioPage() {
                     session.leadSummary
                   )}
                 </p>
+                <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-zinc-200/60">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-[11px] gap-1.5 border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 shadow-xs"
+                    onClick={handleCopySummary}
+                  >
+                    {copied ? <Check className="size-3 text-emerald-600" /> : <Copy className="size-3" />}
+                    <span>{copied ? 'Copied to clipboard!' : 'Copy Summary for Jira/Slack'}</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-[11px] gap-1.5 border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 shadow-xs"
+                    asChild
+                  >
+                    <a href={`/api/studio?id=${session.id}&format=markdown`} download={`proofui-studio-${session.id}.md`}>
+                      <Download className="size-3" />
+                      <span>Download Markdown</span>
+                    </a>
+                  </Button>
+                </div>
               </div>
 
               {/* Role Errors if any */}

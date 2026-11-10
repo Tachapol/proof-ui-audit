@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { AuditSummary as AuditSummaryType } from '@/lib/schema/ux-issue';
 import { Icon } from './Icon';
 
@@ -96,7 +97,16 @@ export function AuditSummary({ summary, targetUrl, timestamp, runId, fixtureId }
           <p className="text-xs text-zinc-400">Completed at {formattedDate}</p>
         </div>
         {runId && (
-          <div className="export-actions flex items-center gap-2 shrink-0" aria-label="Report exports">
+          <div className="export-actions flex flex-wrap items-center gap-2 shrink-0" aria-label="Report exports">
+            <Link
+              href={`/studio?runId=${encodeURIComponent(runId)}`}
+              className="inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 transition-colors shadow-xs"
+              title="Open all findings and screenshots in Multi-Role Critique Studio"
+            >
+              <Icon name="Users" size={13} />
+              <span>Critique in Studio</span>
+              <Icon name="ArrowRight" size={12} />
+            </Link>
             <button
               id="export-json-btn"
               type="button"

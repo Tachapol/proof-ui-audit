@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { getAuditRun } from '@/lib/storage/db';
 import { createStudio, discussStudio } from '@/lib/studio/service';
 import { previewStudio } from '@/lib/studio/preview';
-import { readStudio,saveStudio,listStudios,withStudioLock } from '@/lib/studio/store';
+import { readStudio, saveStudio, listStudios, withStudioLock } from '@/lib/studio/store';
+import { formatStudioMarkdown } from '@/lib/studio/markdown';
 const id=z.string().regex(/^[a-zA-Z0-9-]{1,80}$/);
 const role=z.enum(['ux','product','engineering']);
 const action=z.discriminatedUnion('action',[
@@ -19,7 +20,7 @@ export async function GET(req:NextRequest){try{
  const session=await readStudio(id.parse(sessionId));const format=req.nextUrl.searchParams.get('format');
  if(format==='json')return new NextResponse(JSON.stringify(session,null,2),{headers:{'Content-Type':'application/json','Content-Disposition':`attachment; filename="proofui-studio-${session.id}.json"`,'Cache-Control':'no-store'}});
  if(format==='markdown'){
- const text=['# ProofUI Critique Studio',`Session: ${session.id}`,`Model: ${session.model}`,'Scope: Text contrast, controlled web fixtures. Apply modifies the session preview, not source files.','',session.leadSummary,'',...session.runs.map(r=>'## Context\n'+JSON.stringify(r.productContext||{},null,2)),...session.agenda.map(a=>`## ${a.title}\nStatus: ${a.status}\nDecision: ${a.decision||'pending'}\n`+a.notes.map(n=>`${n.role}: ${n.comment}\nRecommendation: ${n.recommendation}\nTrade-off: ${n.tradeoff}`).join('\n')+'\nCandidate: '+JSON.stringify(session.candidates[a.id]||null)), '## Discussion',...session.messages.map(m=>`${m.sender}: ${m.text}`)].join('\n');
+ const text=formatStudioMarkdown(session);
  return new NextResponse(text,{headers:{'Content-Type':'text/markdown; charset=utf-8','Content-Disposition':`attachment; filename="proofui-studio-${session.id}.md"`,'Cache-Control':'no-store'}});}
  return NextResponse.json({session},{headers:{'Cache-Control':'no-store'}});
  }catch(error){return NextResponse.json({error:error instanceof Error?error.message:'Could not load critique.'},{status:400});}}

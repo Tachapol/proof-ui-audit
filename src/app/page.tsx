@@ -203,9 +203,20 @@ export default function HomePage() {
                     <p className="eyebrow text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Review queue</p>
                     <h2 id="results-heading" className="text-lg font-bold tracking-tight text-zinc-900">Audit evidence</h2>
                   </div>
-                  <span className="text-xs font-medium text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200/60 font-mono">
-                    {currentRun.groupedIssues.length} grouped {currentRun.groupedIssues.length === 1 ? 'issue' : 'issues'}
-                  </span>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xs font-medium text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200/60 font-mono">
+                      {currentRun.groupedIssues.length} grouped {currentRun.groupedIssues.length === 1 ? 'issue' : 'issues'}
+                    </span>
+                    <Link
+                      href={`/studio?runId=${encodeURIComponent(currentRun.id)}`}
+                      className="hidden sm:inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 transition-colors"
+                      title="Open this audit in Critique Studio"
+                    >
+                      <Icon name="Users" size={13} />
+                      <span>Open in Studio</span>
+                      <Icon name="ArrowRight" size={12} />
+                    </Link>
+                  </div>
                 </div>
 
                 {currentRun.productContext && Object.values(currentRun.productContext).some(Boolean) && (

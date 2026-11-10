@@ -30,13 +30,13 @@ async function query(system: string, data: unknown, modelOverride?: string) {
 }
 function inputFor(session: StudioSession, item: StudioSession['agenda'][number]): AIExplanationInput {
   const run = session.runs.find(r => r.id === item.runId)!; const issue = findStudioIssue(session, item)!; const rep = issue.representative;
-  return { ruleId: 'text-contrast', wcagCriterion: rep.wcagCriterion, status: issue.status, title: rep.title, description: rep.description, selector: rep.selector, element: rep.element, viewport: rep.viewport, measured: rep.measured, expected: rep.expected, exception: rep.exception, initialPriority: rep.initialPriority, priorityRationale: rep.priorityRationale, productContext: run.productContext };
+  return { ruleId: rep.ruleId as any, wcagCriterion: rep.wcagCriterion, status: issue.status, title: rep.title, description: rep.description, selector: rep.selector, element: rep.element, viewport: rep.viewport, measured: rep.measured, expected: rep.expected, exception: rep.exception, initialPriority: rep.initialPriority, priorityRationale: rep.priorityRationale, productContext: run.productContext };
 }
 export async function createStudio(runs: AuditRun[], roles: StudioRole[], modelName?: string) {
  const chosenModel = modelName?.trim() || process.env.CPE_MODEL || 'gpt-6-luna';
  const session: StudioSession={version:1,id:crypto.randomUUID(),createdAt:new Date().toISOString(),model:chosenModel,runs,roles,agenda:[],roleSummaries:{},leadSummary:'',roleErrors:{},messages:[],candidates:{}};
- for(const run of runs)for(const issue of run.groupedIssues.filter(g=>g.representative.ruleId==='text-contrast' && g.status!=='pass').slice(0,8))session.agenda.push({id:crypto.randomUUID(),runId:run.id,fingerprint:issue.fingerprint,title:issue.representative.title,status:issue.status,notes:[]});
- if(!session.agenda.length){session.leadSummary='No candidate text contrast issues were found within the selected checks. Passed checks remain available in the frame audit.';await saveStudio(session);return session;}
+ for(const run of runs)for(const issue of run.groupedIssues.filter(g=>g.status!=='pass').slice(0,8))session.agenda.push({id:crypto.randomUUID(),runId:run.id,fingerprint:issue.fingerprint,title:issue.representative.title,status:issue.status,notes:[]});
+ if(!session.agenda.length){session.leadSummary='No candidate accessibility issues were found within the selected checks. Passed checks remain available in the frame audit.';await saveStudio(session);return session;}
  const evidence=session.agenda.map(item=>({issueId:item.id,...inputFor(session,item)}));
  const schema=z.object({summary:z.string().min(1).max(2000),items:z.array(z.object({issueId:z.string(),comment:z.string().min(1).max(2000),recommendation:z.string().min(1).max(2000),tradeoff:z.string().max(1000).default('')})).max(16)});
  await Promise.all(roles.map(async role=>{try{
