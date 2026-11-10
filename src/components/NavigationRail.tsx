@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { FIXTURES } from '@/fixtures/fixture-registry';
 import { Icon } from './Icon';
 
 interface NavigationRailProps {
@@ -102,18 +101,6 @@ export function NavigationRail({
           </a>
         </nav>
 
-        <section className="rail-section" aria-labelledby="fixture-nav-title">
-          <h2 id="fixture-nav-title">Fixture library</h2>
-          <ul className="rail-list">
-            {FIXTURES.slice(0, 4).map((fixture) => (
-              <li key={fixture.id} className={fixture.id === currentFixtureId ? 'is-active' : ''}>
-                <span className="rail-list-dot" aria-hidden="true" />
-                <span>{fixture.name.replace(' Test Suite', '').replace(' Suite', '')}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
         <section className="rail-section rail-recent" aria-labelledby="recent-title">
           <h2 id="recent-title">Recent audit runs</h2>
           {currentRunId ? (
@@ -125,8 +112,6 @@ export function NavigationRail({
             <p>No saved run in this session.</p>
           )}
         </section>
-
-        <p className="rail-note">Decision support only. Automated evidence does not establish WCAG conformance.</p>
       </aside>
     </>
   );
