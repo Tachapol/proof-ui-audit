@@ -56,7 +56,7 @@ export default function HomePage() {
 
   const handleTargetChange = useCallback((target: string) => setPendingTarget(target), []);
 
-  const handleRunAudit = async (target: string, productContext?: ProductContext) => {
+  const handleRunAudit = async (target: string, productContext?: ProductContext, autoDetectContext?: boolean) => {
     if (isLoading) return;
     setIsLoading(true);
     setError(null);
@@ -69,7 +69,7 @@ export default function HomePage() {
       const response = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target, productContext }),
+        body: JSON.stringify({ target, productContext, autoDetectContext }),
       });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.error || 'Failed to complete audit.');

@@ -4,7 +4,7 @@ import { runBrowserAudit, DEFAULT_AUDIT_VIEWPORTS } from '@/lib/audit/browser';
 import { groupUXIssues, calculateAuditSummary } from '@/lib/audit/grouping';
 import { saveAuditRun, getAuditRun } from '@/lib/storage/db';
 import { AuditRun } from '@/lib/schema/ux-issue';
-import { ProductContextSchema } from '@/lib/schema/product-context';
+import { ProductContext, ProductContextSchema } from '@/lib/schema/product-context';
 
 export async function POST(req: Request) {
   try {
@@ -29,12 +29,60 @@ export async function POST(req: Request) {
     // 2. Execute browser auditing across mobile & desktop viewports (RULE-02, SEC-07)
     const isMvp = validation.fixtureId === 'mvp-contrast-demo';
     const viewports = isMvp ? [{ width: 375, height: 667 }] : DEFAULT_AUDIT_VIEWPORTS;
-    const { issues: allIssues, errors, pageScreenshots } = await runBrowserAudit({
+    const { issues: allIssues, errors, pageScreenshots, detectedContext } = await runBrowserAudit({
       url: validation.normalizedUrl,
       timeoutMs: 25000,
       localOrigin: validation.localOrigin,
       viewports,
     });
+
+    const FIXTURE_CONTEXTS: Record<string, Partial<ProductContext>> = {
+      'mvp-contrast-demo': {
+        productGoal: 'Course registration demo for accessibility testing',
+        brandKeywords: 'Accessible, Clear, Learning',
+        themeColor: '#2563EB',
+        targetAudience: 'University students and faculty',
+        additionalContext: 'Evaluates WCAG 2.2 SC 1.4.3 minimum contrast requirements.',
+      },
+      'target-size-benchmarks': {
+        productGoal: 'Interactive touch and pointer action targets',
+        brandKeywords: 'Ergonomic, Touch-first, Responsive',
+        themeColor: '#059669',
+        targetAudience: 'Mobile users on touch-screen devices',
+        additionalContext: 'Evaluates WCAG 2.2 SC 2.5.8 minimum target sizing.',
+      },
+      'contrast-matrix': {
+        productGoal: 'Components color matrix and non-text indicators',
+        brandKeywords: 'High-contrast, Corporate, Structured',
+        themeColor: '#4F46E5',
+        targetAudience: 'Designers and frontend engineers',
+        additionalContext: 'Evaluates SC 1.4.3 and SC 1.4.11 graphical contrast.',
+      },
+      'reflow-suite': {
+        productGoal: 'Adaptive documentation and reflow layout',
+        brandKeywords: 'Readable, Adaptive, Fluid',
+        themeColor: '#0284C7',
+        targetAudience: 'Users with low vision zooming at 400% or 320px width',
+        additionalContext: 'Evaluates WCAG 2.2 SC 1.4.10 reflow.',
+      },
+    };
+
+    const fixtureContext = validation.fixtureId ? FIXTURE_CONTEXTS[validation.fixtureId] : undefined;
+    const baseDetected = detectedContext || fixtureContext;
+
+    let finalContext: ProductContext | undefined = context.data;
+    const isUserContextEmpty = !finalContext || !Object.values(finalContext).some(Boolean);
+    const autoDetectRequested = body.autoDetectContext !== false;
+
+    if (autoDetectRequested && baseDetected) {
+      finalContext = {
+        productGoal: finalContext?.productGoal || baseDetected.productGoal || '',
+        brandKeywords: finalContext?.brandKeywords || baseDetected.brandKeywords || '',
+        themeColor: finalContext?.themeColor || baseDetected.themeColor || '',
+        targetAudience: finalContext?.targetAudience || baseDetected.targetAudience || '',
+        additionalContext: finalContext?.additionalContext || baseDetected.additionalContext || '',
+      };
+    }
 
     const caseSelectors = ['#normal-pass', '#normal-fail', '#large-pass', '#gradient-review'];
     const issues = isMvp ? allIssues.filter(issue => issue.ruleId === 'text-contrast' && caseSelectors.includes(issue.selector)) : allIssues;
@@ -57,7 +105,7 @@ export async function POST(req: Request) {
       pageScreenshots,
       auditWarnings: errors.length ? errors : undefined,
       fixtureId: validation.fixtureId,
-      productContext: context.data,
+      productContext: finalContext,
       timestamp: new Date().toISOString(),
       viewports,
       rawIssues: issues,

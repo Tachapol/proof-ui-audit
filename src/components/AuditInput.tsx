@@ -7,7 +7,7 @@ import { ProductContextFields } from './ProductContextFields';
 import { ProductContext, ProductContextSchema, EMPTY_PRODUCT_CONTEXT } from '@/lib/schema/product-context';
 
 interface AuditInputProps {
-  onRunAudit: (target: string, productContext?: ProductContext) => Promise<void>;
+  onRunAudit: (target: string, productContext?: ProductContext, autoDetectContext?: boolean) => Promise<void>;
   onTargetChange?: (target: string) => void;
   onValidationStateChange?: (hasError: boolean) => void;
   isLoading: boolean;
@@ -30,11 +30,29 @@ function validatePublicUrl(value: string): string | null {
 
 export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange, isLoading, error, currentFixtureId, currentContext }: AuditInputProps) {
   const [productContext, setProductContext] = useState<ProductContext>(EMPTY_PRODUCT_CONTEXT);
-  useEffect(() => { setProductContext(currentContext || EMPTY_PRODUCT_CONTEXT); }, [currentContext]);
+  const [contextMode, setContextMode] = useState<'auto' | 'manual'>('auto');
+
+  useEffect(() => {
+    if (currentContext) {
+      setProductContext(currentContext);
+      if (Object.values(currentContext).some(Boolean)) {
+        setContextMode('manual');
+      }
+    }
+  }, [currentContext]);
+
   const submitAudit = async (target: string) => {
     const parsed = ProductContextSchema.safeParse(productContext);
-    if (!parsed.success) { setClientError(parsed.error.issues[0].message); onValidationStateChange?.(true); return; }
-    await onRunAudit(target, parsed.data);
+    if (contextMode === 'manual' && !parsed.success) {
+      setClientError(parsed.error.issues[0].message);
+      onValidationStateChange?.(true);
+      return;
+    }
+    await onRunAudit(
+      target,
+      contextMode === 'manual' ? (parsed.success ? parsed.data : undefined) : undefined,
+      contextMode === 'auto'
+    );
   };
   const [selectedFixture, setSelectedFixture] = useState('target-size-demo');
   const [customUrl, setCustomUrl] = useState('');
@@ -134,7 +152,14 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
         </button>
       </div>
 
-      <ProductContextFields value={productContext} onChange={setProductContext} disabled={isLoading} />
+      <ProductContextFields
+        value={productContext}
+        onChange={setProductContext}
+        disabled={isLoading}
+        targetUrl={activeTab === 'custom' && customUrl.trim() ? customUrl.trim() : undefined}
+        contextMode={contextMode}
+        onContextModeChange={setContextMode}
+      />
 
       <div className="flex items-center justify-between gap-3 pt-1">
         <button

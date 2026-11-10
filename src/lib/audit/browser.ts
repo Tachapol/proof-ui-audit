@@ -9,6 +9,7 @@ import { evaluateTextSpacing } from './rules/text-spacing';
 import { compositeLayers, blendColors, applyElementOpacity, parseColor } from './color-math';
 import { isPrivateOrReservedIP } from './url-validator';
 import { UXIssue, Viewport } from '@/lib/schema/ux-issue';
+import { ProductContext } from '@/lib/schema/product-context';
 
 const SCREENSHOTS_DIR = path.resolve(process.cwd(), 'public/screenshots');
 
@@ -30,11 +31,17 @@ async function ensureScreenshotDir() {
   await fs.mkdir(SCREENSHOTS_DIR, { recursive: true });
 }
 
-export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: UXIssue[]; errors: string[]; pageScreenshots: Array<{width:number;height:number;path:string}> }> {
+export async function runBrowserAudit(options: AuditOptions): Promise<{
+  issues: UXIssue[];
+  errors: string[];
+  pageScreenshots: Array<{ width: number; height: number; path: string }>;
+  detectedContext?: Partial<ProductContext>;
+}> {
   await ensureScreenshotDir();
   const issues: UXIssue[] = [];
   const errors: string[] = [];
-  const pageScreenshots: Array<{width:number;height:number;path:string}> = [];
+  const pageScreenshots: Array<{ width: number; height: number; path: string }> = [];
+  let detectedContext: Partial<ProductContext> | undefined = undefined;
   const viewports = options.viewports || DEFAULT_AUDIT_VIEWPORTS;
   const timeout = options.timeoutMs || 25000;
 
@@ -128,6 +135,66 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
         }
 
         await page.waitForTimeout(300);
+
+        if (!detectedContext) {
+          try {
+            detectedContext = await page.evaluate(() => {
+              const getMeta = (selectors: string[]) => {
+                for (const sel of selectors) {
+                  const el = document.querySelector(sel);
+                  if (el) {
+                    const content = el.getAttribute('content');
+                    if (content && content.trim()) return content.trim();
+                  }
+                }
+                return '';
+              };
+
+              const title = (document.title || '').trim();
+              const description = getMeta([
+                'meta[name="description"]',
+                'meta[property="og:description"]',
+                'meta[name="twitter:description"]',
+              ]);
+              const siteName = getMeta([
+                'meta[property="og:site_name"]',
+                'meta[name="application-name"]',
+              ]);
+              const rawKeywords = getMeta(['meta[name="keywords"]']);
+              const themeColor = getMeta([
+                'meta[name="theme-color"]',
+                'meta[name="msapplication-TileColor"]',
+              ]);
+
+              const lang = document.documentElement.lang || 'en';
+
+              const productGoal = description
+                ? (title ? `${title}: ${description}` : description).slice(0, 1000)
+                : (title ? title.slice(0, 1000) : '');
+
+              const brandKeywords = [siteName, rawKeywords].filter(Boolean).join(', ').slice(0, 300);
+
+              let validThemeColor = '';
+              if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(themeColor)) {
+                validThemeColor = themeColor;
+              }
+
+              const targetAudience = lang && lang !== 'en'
+                ? `Web users (${lang})`
+                : 'General web audience';
+
+              return {
+                productGoal,
+                brandKeywords,
+                themeColor: validThemeColor,
+                targetAudience,
+                additionalContext: 'Auto-detected from page metadata during audit.',
+              };
+            });
+          } catch {
+            // non-fatal metadata extraction
+          }
+        }
 
         if (options.captureScreenshots !== false) {
           const filename = `page-${viewport.width}-${crypto.randomUUID()}.png`;
@@ -976,5 +1043,5 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
     }
   }
 
-  return { issues, errors, pageScreenshots };
+  return { issues, errors, pageScreenshots, detectedContext };
 }
