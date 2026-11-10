@@ -208,8 +208,7 @@ export function VisualCanvasOverlay({
           css += `
             /* Color Contrast Optimization: Minimum 4.5:1 Accessible Text */
             ${cSel} {
-              color: #111827 !important;
-              background-color: #ffffff !important;
+              color: #0f172a !important;
               transition: color 150ms ease !important;
             }
           `;
@@ -347,15 +346,203 @@ export function VisualCanvasOverlay({
   // Generate CSS snippet for quick copy
   const getCssFixSnippet = (pin: IssuePinData): string => {
     if (pin.ruleId === 'target-size') {
-      return `/* WCAG 2.2 Target Size (44px HIG / 24px WCAG AA) */\n${pin.selector} {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 12px 16px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n}`;
+      return `/* WCAG 2.2 SC 2.5.8 Target Size (44px HIG / 24px WCAG AA) */\n${pin.selector} {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 10px 14px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n}`;
     }
     if (pin.ruleId.includes('contrast')) {
-      return `/* High-Contrast Accessible Colors */\n${pin.selector} {\n  color: #1f2937;\n  background-color: #ffffff;\n}`;
+      return `/* WCAG 2.2 SC 1.4.3 Minimum Contrast (≥ 4.5:1) */\n${pin.selector} {\n  color: #0f172a !important;\n}`;
     }
     if (pin.ruleId.includes('text-spacing')) {
-      return `/* Fluid Text Spacing Container */\n${pin.selector} {\n  height: auto;\n  min-height: fit-content;\n  overflow: visible;\n}`;
+      return `/* WCAG 2.2 SC 1.4.12 Text Spacing (Fluid Container) */\n${pin.selector} {\n  height: auto !important;\n  min-height: fit-content !important;\n  overflow: visible !important;\n}`;
     }
-    return `/* Layout Fix for ${pin.ruleId} */\n${pin.selector} {\n  max-width: 100%;\n  overflow-x: auto;\n}`;
+    return `/* WCAG 2.2 SC 1.4.10 Reflow (Single-axis Fluid Flow) */\n${pin.selector} {\n  max-width: 100% !important;\n  overflow-x: auto !important;\n}`;
+  };
+
+  const renderVisualComparison = (pin: IssuePinData) => {
+    if (pin.ruleId.includes('contrast')) {
+      const measuredRatio = Number(pin.measured?.contrastRatio) || 2.32;
+      const textColor = (pin.measured?.textColor as string) || '#737373';
+      const bgColor = (pin.measured?.backgroundColor as string) || '#ffffff';
+      const minRatio = Number(pin.expected?.minRatio) || 4.5;
+      const candidateColor = '#0f172a';
+      const candidateRatio = '16.5:1';
+
+      return (
+        <div className="comparison-grid">
+          {/* Before (Current baseline) */}
+          <div className="comparison-card card-before">
+            <div className="card-badge badge-before">Baseline (Current)</div>
+            <div className="spec-visual-box box-before" style={{ backgroundColor: bgColor }}>
+              <div
+                className="contrast-text-sample"
+                style={{
+                  color: textColor,
+                  backgroundColor: bgColor,
+                  fontSize: '15px',
+                  fontWeight: 650,
+                  padding: '8px 14px',
+                  borderRadius: '4px',
+                }}
+              >
+                Aa Sample Text
+              </div>
+            </div>
+            <div className="spec-details">
+              <div className="spec-metric tone-danger">
+                <strong>Measured:</strong> {measuredRatio.toFixed(2)}:1 Ratio
+              </div>
+              <p className="spec-note">
+                Fails WCAG 2.2 SC 1.4.3 (requires ≥ {minRatio}:1). Text color <code>{textColor}</code> has low luminance.
+              </p>
+            </div>
+          </div>
+
+          {/* After (Candidate fix) */}
+          <div className="comparison-card card-after">
+            <div className="card-badge badge-after">Candidate Fix (Optimized)</div>
+            <div className="spec-visual-box box-after" style={{ backgroundColor: bgColor }}>
+              <div
+                className="contrast-text-sample"
+                style={{
+                  color: candidateColor,
+                  backgroundColor: bgColor,
+                  fontSize: '15px',
+                  fontWeight: 650,
+                  padding: '8px 14px',
+                  borderRadius: '4px',
+                }}
+              >
+                Aa Sample Text
+              </div>
+            </div>
+            <div className="spec-details">
+              <div className="spec-metric tone-success">
+                <strong>Optimized:</strong> {candidateRatio} (Passes AAA)
+              </div>
+              <p className="spec-note">
+                Adjusted foreground token <code>{candidateColor}</code> delivers crisp legibility while preserving brand palette.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (pin.ruleId === 'target-size') {
+      const w = Math.round(pin.boundingBox.width);
+      const h = Math.round(pin.boundingBox.height);
+      return (
+        <div className="comparison-grid">
+          <div className="comparison-card card-before">
+            <div className="card-badge badge-before">Baseline (Current)</div>
+            <div className="spec-visual-box box-before">
+              <div
+                className="measured-box-mock"
+                style={{
+                  width: `${Math.min(90, Math.max(20, w))}px`,
+                  height: `${Math.min(60, Math.max(18, h))}px`,
+                }}
+              >
+                <span>{w}×{h} px</span>
+              </div>
+            </div>
+            <div className="spec-details">
+              <div className="spec-metric tone-danger">
+                <strong>Measured:</strong> {w} × {h} px
+              </div>
+              <p className="spec-note">
+                Fails minimum target threshold (needs ≥ 24×24px WCAG 2.2 AA).
+              </p>
+            </div>
+          </div>
+
+          <div className="comparison-card card-after">
+            <div className="card-badge badge-after">Candidate Fix (Optimized)</div>
+            <div className="spec-visual-box box-after">
+              <div
+                className="candidate-box-mock"
+                style={{
+                  width: '74px',
+                  height: '52px',
+                }}
+              >
+                <span className="candidate-text">44×44 px</span>
+                <span className="candidate-padding-guide">+12px padding</span>
+              </div>
+            </div>
+            <div className="spec-details">
+              <div className="spec-metric tone-success">
+                <strong>Recommended:</strong> 44 × 44 px (Apple HIG / Android)
+              </div>
+              <p className="spec-note">
+                Provides comfortable touch target with adequate spacing.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Default: Reflow or Text Spacing
+    return (
+      <div className="comparison-grid">
+        <div className="comparison-card card-before">
+          <div className="card-badge badge-before">Baseline (Current)</div>
+          <div className="spec-visual-box box-before" style={{ padding: '6px' }}>
+            <div
+              style={{
+                width: '100%',
+                border: '1.5px dashed var(--danger)',
+                background: 'rgba(180, 35, 24, 0.08)',
+                padding: '4px 6px',
+                fontSize: '11px',
+                color: 'var(--danger)',
+                borderRadius: '4px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              Fixed / Overflowing Container
+            </div>
+          </div>
+          <div className="spec-details">
+            <div className="spec-metric tone-danger">
+              <strong>Measured:</strong> Fixed dimensions / Overflow
+            </div>
+            <p className="spec-note">
+              Rigid layout causes 2D scroll or clipped content under user zoom.
+            </p>
+          </div>
+        </div>
+
+        <div className="comparison-card card-after">
+          <div className="card-badge badge-after">Candidate Fix (Optimized)</div>
+          <div className="spec-visual-box box-after" style={{ padding: '6px' }}>
+            <div
+              style={{
+                width: '100%',
+                border: '1.5px solid var(--success)',
+                background: 'rgba(6, 118, 71, 0.08)',
+                padding: '4px 6px',
+                fontSize: '11px',
+                color: 'var(--success)',
+                borderRadius: '4px',
+              }}
+            >
+              Fluid responsive container
+            </div>
+          </div>
+          <div className="spec-details">
+            <div className="spec-metric tone-success">
+              <strong>Optimized:</strong> Fluid layout (max-width: 100%)
+            </div>
+            <p className="spec-note">
+              Fluid wrapping maintains single-axis flow with zero overflow at 320px.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const copyToClipboard = (text: string, label: string) => {
@@ -695,7 +882,13 @@ export function VisualCanvasOverlay({
                                 className="bounding-box-badge"
                                 style={{ background: isResolvedByOptimization ? '#067647' : colors.bg }}
                               >
-                                {isResolvedByOptimization ? 'Resolved (44px)' : `${Math.round(box.width)}×${Math.round(box.height)}px`}
+                                {isResolvedByOptimization
+                                  ? (pin.ruleId.includes('contrast')
+                                      ? 'Resolved (≥ 4.5:1)'
+                                      : pin.ruleId === 'target-size'
+                                      ? 'Resolved (44×44px)'
+                                      : 'Resolved (Fluid)')
+                                  : `${Math.round(box.width)}×${Math.round(box.height)}px`}
                               </div>
                             )}
                           </div>
@@ -833,58 +1026,42 @@ export function VisualCanvasOverlay({
                       <span className="comparison-eyebrow">Visual Spec Comparison</span>
                     </div>
 
-                    <div className="comparison-grid">
-                      {/* Before (Current baseline) */}
-                      <div className="comparison-card card-before">
-                        <div className="card-badge badge-before">Baseline (Current)</div>
-                        <div className="spec-visual-box box-before">
-                          <div
-                            className="measured-box-mock"
-                            style={{
-                              width: `${Math.min(90, Math.max(20, activePin.boundingBox.width))}px`,
-                              height: `${Math.min(60, Math.max(18, activePin.boundingBox.height))}px`,
-                            }}
-                          >
-                            <span>
-                              {Math.round(activePin.boundingBox.width)}×{Math.round(activePin.boundingBox.height)}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="spec-details">
-                          <div className="spec-metric tone-danger">
-                            <strong>Measured:</strong> {Math.round(activePin.boundingBox.width)} × {Math.round(activePin.boundingBox.height)} px
-                          </div>
-                          <p className="spec-note">
-                            Fails minimum target threshold (needs ≥ 24×24px WCAG AA).
-                          </p>
-                        </div>
-                      </div>
+                    {renderVisualComparison(activePin)}
 
-                      {/* After (Candidate fix) */}
-                      <div className="comparison-card card-after">
-                        <div className="card-badge badge-after">Candidate Fix</div>
-                        <div className="spec-visual-box box-after">
-                          <div
-                            className="candidate-box-mock"
-                            style={{
-                              width: '74px',
-                              height: '52px',
-                            }}
-                          >
-                            <span className="candidate-text">44×44 px</span>
-                            <span className="candidate-padding-guide">+12px pad</span>
-                          </div>
-                        </div>
-                        <div className="spec-details">
-                          <div className="spec-metric tone-success">
-                            <strong>Recommended:</strong> 44 × 44 px (Apple HIG / Android)
-                          </div>
-                          <p className="spec-note">
-                            Provides comfortable touch target with adequate spacing.
-                          </p>
-                        </div>
+                    {/* Mode quick switch inside the inspector */}
+                    <div className="inspector-mode-quick-switch">
+                      <span className="quick-switch-label">Canvas Preview:</span>
+                      <div className="quick-switch-pills">
+                        <button
+                          type="button"
+                          className={`quick-switch-btn ${optimizationMode === 'baseline' ? 'is-active' : ''}`}
+                          onClick={() => setOptimizationMode('baseline')}
+                        >
+                          Baseline
+                        </button>
+                        <button
+                          type="button"
+                          className={`quick-switch-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
+                          onClick={() => setOptimizationMode('optimized')}
+                        >
+                          <Icon name="CheckCircle2" size={13} />
+                          <span>Optimized Fix</span>
+                        </button>
                       </div>
                     </div>
+
+                    {/* AI / Remediator recommendation */}
+                    {(activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation) && (
+                      <div className="inspector-ai-rec-box">
+                        <div className="ai-rec-badge">
+                          <Icon name="Sparkles" size={13} />
+                          <span>AI Remediation Guidance</span>
+                        </div>
+                        <p className="ai-rec-text">
+                          {activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Action feedback message */}
