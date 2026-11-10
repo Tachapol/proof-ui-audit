@@ -23,12 +23,9 @@ export function ProductContextFields({
 }: Props) {
   // Default to manual (Custom details) as requested
   const [internalMode, setInternalMode] = useState<'auto' | 'manual'>('manual');
-  const [isDetecting, setIsDetecting] = useState(false);
-  const [detectNotice, setDetectNotice] = useState<string | null>(null);
 
   const mode = contextMode ?? internalMode;
   const setMode = (nextMode: 'auto' | 'manual') => {
-    setDetectNotice(null);
     if (onContextModeChange) {
       onContextModeChange(nextMode);
     } else {
@@ -43,36 +40,6 @@ export function ProductContextFields({
     { key: 'targetAudience', label: 'Target Audience', placeholder: 'University students using mobile devices', max: 1000, multiline: true },
     { key: 'additionalContext', label: 'Others / Additional Context', placeholder: 'Key task, platform, language, design constraints or evaluation focus', max: 2000, multiline: true },
   ] as const;
-
-  const handleAutoFill = async () => {
-    if (!targetUrl || disabled || isDetecting) return;
-    setIsDetecting(true);
-    setDetectNotice(null);
-    try {
-      const res = await fetch('/api/context/detect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target: targetUrl }),
-      });
-      const data = await res.json();
-      if (data.success && data.context) {
-        onChange({
-          productGoal: data.context.productGoal || value.productGoal,
-          brandKeywords: data.context.brandKeywords || value.brandKeywords,
-          themeColor: data.context.themeColor || value.themeColor,
-          targetAudience: data.context.targetAudience || value.targetAudience,
-          additionalContext: data.context.additionalContext || value.additionalContext,
-        });
-        setDetectNotice('Auto-filled from page metadata.');
-      } else {
-        setDetectNotice(data.error || 'Could not auto-detect from this URL.');
-      }
-    } catch {
-      setDetectNotice('Failed to reach detection service.');
-    } finally {
-      setIsDetecting(false);
-    }
-  };
 
   return (
     <fieldset disabled={disabled} className="product-context-fields space-y-3">
@@ -148,34 +115,6 @@ export function ProductContextFields({
       ) : (
         /* Choice 2: Manual inputs */
         <div className="space-y-3.5 pt-1">
-          {targetUrl && (
-            <div className="flex flex-wrap items-center justify-between gap-2 bg-zinc-50/80 border border-zinc-200/80 rounded-md px-3 py-1.5">
-              <span className="text-[11px] text-zinc-600">
-                Want to auto-detect details from this target?
-              </span>
-              <button
-                type="button"
-                id="btn-auto-fill-context"
-                onClick={handleAutoFill}
-                disabled={disabled || isDetecting}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-800 bg-white hover:bg-zinc-100 border border-zinc-200 px-2.5 py-1 rounded shadow-2xs transition-colors disabled:opacity-50"
-              >
-                <Icon
-                  name={isDetecting ? 'LoaderCircle' : 'Sparkles'}
-                  size={12}
-                  className={isDetecting ? 'animate-spin' : 'text-amber-500'}
-                />
-                <span>{isDetecting ? 'Detecting page...' : 'Auto-detect from page'}</span>
-              </button>
-            </div>
-          )}
-
-          {detectNotice && (
-            <p className="text-[11px] text-zinc-600 bg-zinc-100 px-2.5 py-1 rounded border border-zinc-200/60">
-              {detectNotice}
-            </p>
-          )}
-
           <div className="product-context-grid grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {fields.map(field => (
               <div
