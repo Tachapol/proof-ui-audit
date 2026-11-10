@@ -68,12 +68,10 @@ export function OccurrenceList({ occurrences, fingerprint }: OccurrenceListProps
         >
           {occurrences.map((occ, idx) => {
             const viewportLabel =
-              occ.viewport.width === 320
-                ? '320px Reflow'
+              occ.viewport.width === 1440
+                ? '1440px Desktop'
                 : occ.viewport.width === 375
                 ? '375px Mobile'
-                : occ.viewport.width === 1440
-                ? '1440px Desktop'
                 : `${occ.viewport.width}×${occ.viewport.height}px`;
 
             const badge = statusBadge(occ.status);

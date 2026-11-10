@@ -18,7 +18,7 @@ export const STANDARD_DISCLAIMERS = [
 ];
 
 export const KNOWN_LIMITATIONS = [
-  'Automated testing is restricted to three designated viewports: 375px (mobile), 1440px (desktop), and 320px (reflow).',
+  'Automated testing is conducted across designated viewports: 1440px (desktop) and 375px (mobile).',
   'Dynamic interactive animations, single-page application route transitions, and authenticated states are excluded from automated auditing.',
   'Text and elements over complex canvas, dynamic video, or multi-layered CSS blend modes require manual designer review.',
 ];

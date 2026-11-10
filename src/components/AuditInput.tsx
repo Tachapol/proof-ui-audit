@@ -188,7 +188,7 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
               aria-describedby="fixture-help"
               className="flex h-9 w-full rounded-md border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 focus:bg-white text-zinc-900 transition-colors"
             >
-              {FIXTURES.map((fixture) => (
+              {FIXTURES.filter((f) => f.category !== 'reflow').map((fixture) => (
                 <option key={fixture.id} value={fixture.id}>
                   {fixture.name} — {fixture.description}
                 </option>

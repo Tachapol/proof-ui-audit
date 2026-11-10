@@ -32,22 +32,34 @@ export function VisualCanvasOverlay({
   onSelectIssue,
   onDecisionSaved,
 }: VisualCanvasOverlayProps) {
-  // 1. Available viewports
+  // 1. Available viewports (prioritizing Desktop, omitting 320px reflow)
   const viewports: Viewport[] = useMemo(() => {
-    if (currentRun.viewports && currentRun.viewports.length > 0) {
-      return currentRun.viewports;
-    }
-    return [
-      { width: 375, height: 667 },
-      { width: 1440, height: 900 },
-      { width: 320, height: 667 },
-    ];
+    let list = currentRun.viewports && currentRun.viewports.length > 0
+      ? currentRun.viewports
+      : [
+          { width: 1440, height: 900 },
+          { width: 375, height: 667 },
+        ];
+    // Strip out 320px reflow completely
+    list = list.filter((v) => v.width !== 320);
+    // Sort so desktop is first
+    return [...list].sort((a, b) => b.width - a.width);
   }, [currentRun.viewports]);
 
-  // Default to 375 mobile or first available
+  // Default to Desktop frame (1440px or widest)
   const [selectedViewport, setSelectedViewport] = useState<Viewport>(() => {
-    return viewports.find((v) => v.width === 375) || viewports[0];
+    return viewports.find((v) => v.width >= 1024) || viewports[0];
   });
+
+  // Re-sync if current run changes or 320px viewport is loaded from legacy run
+  useEffect(() => {
+    if (selectedViewport.width === 320 || !viewports.some((v) => v.width === selectedViewport.width)) {
+      const desktopVp = viewports.find((v) => v.width >= 1024) || viewports[0];
+      if (desktopVp) {
+        setSelectedViewport(desktopVp);
+      }
+    }
+  }, [viewports, selectedViewport.width]);
 
   const [zoomScale, setZoomScale] = useState<number | 'fit'>('fit');
   const [showOverlays, setShowOverlays] = useState(true);
@@ -106,7 +118,7 @@ export function VisualCanvasOverlay({
       if (group.status === 'candidateFail') {
         if (ruleId === 'target-size' && selector) tSels.push(selector);
         if (ruleId.includes('contrast') && selector) cSels.push(selector);
-        if ((ruleId.includes('spacing') || ruleId.includes('reflow')) && selector) sSels.push(selector);
+        if (ruleId.includes('spacing') && selector) sSels.push(selector);
       }
     }
 
@@ -225,7 +237,7 @@ export function VisualCanvasOverlay({
         if (activeMetrics.textSpacing && spacingSelectors.length > 0) {
           const sSel = spacingSelectors.join(', ');
           css += `
-            /* Text Spacing & Reflow Optimization: Fluid Responsive Container */
+            /* Text Spacing Optimization: Fluid Responsive Container */
             ${sSel} {
               height: auto !important;
               min-height: fit-content !important;
@@ -367,7 +379,7 @@ export function VisualCanvasOverlay({
     if (pin.ruleId.includes('text-spacing')) {
       return `/* WCAG 2.2 SC 1.4.12 Text Spacing (Fluid Container) */\n${pin.selector} {\n  height: auto !important;\n  min-height: fit-content !important;\n  overflow: visible !important;\n}`;
     }
-    return `/* WCAG 2.2 SC 1.4.10 Reflow (Single-axis Fluid Flow) */\n${pin.selector} {\n  max-width: 100% !important;\n  overflow-x: auto !important;\n}`;
+    return `/* WCAG Responsive Remediation */\n${pin.selector} {\n  max-width: 100% !important;\n}`;
   };
 
   const renderVisualComparison = (pin: IssuePinData) => {
@@ -495,7 +507,7 @@ export function VisualCanvasOverlay({
       );
     }
 
-    // Default: Reflow or Text Spacing
+    // Default: Text Spacing (Fluid Container)
     return (
       <div className="comparison-grid">
         <div className="comparison-card card-before">
@@ -550,7 +562,7 @@ export function VisualCanvasOverlay({
               <strong>Optimized:</strong> Fluid layout (max-width: 100%)
             </div>
             <p className="spec-note">
-              Fluid wrapping maintains single-axis flow with zero overflow at 320px.
+              Fluid wrapping maintains single-axis flow with zero clipping or text loss.
             </p>
           </div>
         </div>
@@ -628,12 +640,10 @@ export function VisualCanvasOverlay({
                   size={12}
                 />
                 <span>
-                  {vp.width === 375
-                    ? '375px Mobile'
-                    : vp.width === 1440
+                  {vp.width === 1440
                     ? '1440px Desktop'
-                    : vp.width === 320
-                    ? '320px Reflow'
+                    : vp.width === 375
+                    ? '375px Mobile'
                     : `${vp.width}px`}
                 </span>
               </button>
@@ -829,7 +839,7 @@ export function VisualCanvasOverlay({
                 }}
               />
               <span className="toggle-dot" />
-              <span>Fluid Containers: 320px Reflow & Spacing</span>
+              <span>Fluid Containers: Text Spacing Adaptation</span>
             </label>
           </div>
 
@@ -848,9 +858,9 @@ export function VisualCanvasOverlay({
             </div>
 
             <div className="scorecard-tile">
-              <div className="scorecard-metric">Layout Stability Impact</div>
-              <div className="scorecard-delta tone-success">0 Overflow at 320px</div>
-              <p className="scorecard-note">No horizontal scrollbar generated. Fluid wrapping handles 200% zoom cleanly.</p>
+              <div className="scorecard-metric">Layout Adaptation</div>
+              <div className="scorecard-delta tone-success">100% Fluid Text Flow</div>
+              <p className="scorecard-note">No text clipping or truncation under expanded line heights and letter spacing.</p>
             </div>
           </div>
         </div>
