@@ -52,6 +52,20 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
     onTargetChange?.(activeTab === 'fixture' ? `fixture://${selectedFixture}` : customUrl);
   }, [activeTab, customUrl, onTargetChange, selectedFixture]);
 
+  useEffect(() => {
+    const handleHash = () => {
+      if (typeof window !== 'undefined' && window.location.hash === '#local-fixtures') {
+        setActiveTab('fixture');
+        setClientError(null);
+        onValidationStateChange?.(false);
+        requestAnimationFrame(() => fixtureSelectRef.current?.focus());
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [onValidationStateChange]);
+
   const selectMode = (mode: 'fixture' | 'custom') => {
     setActiveTab(mode);
     setClientError(null);
@@ -77,7 +91,8 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
   };
 
   return (
-    <section id="audit-input" className="audit-input-panel rounded-xl border border-zinc-200/90 bg-white p-5 sm:p-6 shadow-xs space-y-5" aria-labelledby="audit-input-title">
+    <section id="audit-input" className="audit-input-panel rounded-xl border border-zinc-200/90 bg-white p-5 sm:p-6 shadow-xs space-y-5 scroll-mt-20" aria-labelledby="audit-input-title">
+      <div id="local-fixtures" className="scroll-mt-24" />
       <div className="section-heading-row flex items-start justify-between gap-4 pb-1">
         <div>
           <p className="eyebrow text-[10px] font-semibold uppercase tracking-wider text-zinc-500">New audit</p>

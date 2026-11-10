@@ -64,6 +64,31 @@ export function NavigationRail({
     triggerRef.current?.focus();
   };
 
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+    handleClose();
+    if (hash === '#local-fixtures') {
+      window.location.hash = '#local-fixtures';
+      const el = document.getElementById('local-fixtures') || document.getElementById('audit-input');
+      el?.scrollIntoView({ behavior: 'smooth' });
+      requestAnimationFrame(() => {
+        const select = document.getElementById('fixture-select') as HTMLSelectElement | null;
+        select?.focus();
+      });
+    } else if (hash === '#audit-results') {
+      if (currentRunId) {
+        window.location.hash = '#audit-results';
+        const el = document.getElementById('audit-results');
+        el?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        const el = document.getElementById('empty-state') || document.getElementById('audit-input');
+        el?.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else if (hash.startsWith('#')) {
+      const el = document.querySelector(hash);
+      el?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       {isOpen && <button className="drawer-backdrop" aria-label="Close navigation drawer" onClick={handleClose} />}
@@ -87,24 +112,46 @@ export function NavigationRail({
         </div>
 
         <nav aria-label="Audit workspace">
-          <a className="rail-link is-current" href="#audit-input" aria-current="page">
+          <a
+            className="rail-link is-current"
+            href="#audit-input"
+            aria-current="page"
+            onClick={(e) => handleAnchorClick(e, '#audit-input')}
+          >
             <Icon name="Target" size={17} />
             <span>Current audit</span>
           </a>
-          <a className="rail-link" href="#local-fixtures">
+          <a
+            className="rail-link"
+            href="#local-fixtures"
+            onClick={(e) => handleAnchorClick(e, '#local-fixtures')}
+          >
             <Icon name="FlaskConical" size={17} />
             <span>Local fixtures</span>
           </a>
-          <a className="rail-link" href={currentRunId ? '#audit-results' : '#empty-state'} aria-disabled={!currentRunId}>
+          <a
+            className="rail-link"
+            href={currentRunId ? '#audit-results' : '#empty-state'}
+            aria-disabled={!currentRunId}
+            onClick={(e) => handleAnchorClick(e, '#audit-results')}
+          >
             <Icon name="FileText" size={17} />
             <span>Report access</span>
+          </a>
+          <a
+            className="rail-link"
+            href="/studio"
+            onClick={handleClose}
+          >
+            <Icon name="Users" size={17} />
+            <span>Critique Studio</span>
           </a>
         </nav>
 
         <section className="rail-section rail-recent" aria-labelledby="recent-title">
           <h2 id="recent-title">Recent audit runs</h2>
           {currentRunId ? (
-            <a className="recent-run" href={`?runId=${encodeURIComponent(currentRunId)}`}>
+            <a className="recent-run" href={`?runId=${encodeURIComponent(currentRunId)}`} onClick={handleClose}>
               <Icon name="History" size={15} />
               <span className="safe-wrap">{currentRunId}</span>
             </a>

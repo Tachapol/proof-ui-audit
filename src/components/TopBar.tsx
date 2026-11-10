@@ -64,15 +64,17 @@ export function TopBar({ menuButtonRef, onOpenNavigation, target, status, viewpo
           </span>
         )}
 
-        <span
-          className={`audit-status status-${status} inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${currentStatusStyle.badge} transition-colors`}
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <span className={`status-dot w-1.5 h-1.5 rounded-full ${currentStatusStyle.dot}`} aria-hidden="true" />
-          {statusLabels[status]}
-        </span>
+        {status !== 'ready' && (
+          <span
+            className={`audit-status status-${status} inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${currentStatusStyle.badge} transition-colors`}
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <span className={`status-dot w-1.5 h-1.5 rounded-full ${currentStatusStyle.dot}`} aria-hidden="true" />
+            {statusLabels[status]}
+          </span>
+        )}
 
         <Link
           href="/studio"
