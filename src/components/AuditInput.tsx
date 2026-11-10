@@ -98,9 +98,6 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
           <p className="eyebrow text-[10px] font-semibold uppercase tracking-wider text-zinc-500">New audit</p>
           <h2 id="audit-input-title" className="text-lg font-bold tracking-tight text-zinc-900">Choose what to review</h2>
         </div>
-        <span className="duration-note inline-flex items-center gap-1.5 text-xs text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200/60 font-mono">
-          <Icon name="Clock3" size={13} /> Usually 10–30s
-        </span>
       </div>
 
       <div className="segmented-control grid grid-cols-2 gap-1 rounded-lg bg-zinc-100 p-1" role="tablist" aria-label="Audit target type">
