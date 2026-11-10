@@ -51,7 +51,9 @@ export function VisualCanvasOverlay({
 
   const [zoomScale, setZoomScale] = useState<number | 'fit'>('fit');
   const [showOverlays, setShowOverlays] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'candidateFail' | 'needsReview'>('all');
+  const [statusFilter, setStatusFilter] = useState<'issues' | 'candidateFail' | 'needsReview' | 'all'>('issues');
+  const [boxDisplayMode, setBoxDisplayMode] = useState<'hover_focus' | 'all'>('hover_focus');
+  const [hoveredFingerprint, setHoveredFingerprint] = useState<string | null>(null);
   const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
   const [isSavingDecision, setIsSavingDecision] = useState(false);
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
@@ -95,14 +97,30 @@ export function VisualCanvasOverlay({
     let pinCounter = 1;
     const occupiedPositions: Array<{ x: number; y: number }> = [];
 
+    // Collect selectors ONLY from actual failures for candidate optimization
     for (const group of sortedGroups) {
       const rep = group.representative;
       if (!rep) continue;
       const ruleId = rep.ruleId || group.occurrences?.[0]?.ruleId || '';
       const selector = rep.selector || '';
-      if (ruleId === 'target-size' && selector) tSels.push(selector);
-      if (ruleId.includes('contrast') && selector) cSels.push(selector);
-      if ((ruleId.includes('spacing') || ruleId.includes('reflow')) && selector) sSels.push(selector);
+      if (group.status === 'candidateFail') {
+        if (ruleId === 'target-size' && selector) tSels.push(selector);
+        if (ruleId.includes('contrast') && selector) cSels.push(selector);
+        if ((ruleId.includes('spacing') || ruleId.includes('reflow')) && selector) sSels.push(selector);
+      }
+    }
+
+    // Numbered pins are placed ONLY on actionable issues (candidateFail & needsReview)
+    // Pass checks must NEVER clutter the visual canvas overlay!
+    const targetGroups = statusFilter === 'all'
+      ? sortedGroups
+      : sortedGroups.filter((g) => g.status === 'candidateFail' || g.status === 'needsReview');
+
+    for (const group of targetGroups) {
+      const rep = group.representative;
+      if (!rep) continue;
+      const ruleId = rep.ruleId || group.occurrences?.[0]?.ruleId || '';
+      const selector = rep.selector || '';
 
       // Find occurrence matching the selected viewport width, or fall back to representative
       const matchingOcc =
@@ -180,31 +198,21 @@ export function VisualCanvasOverlay({
 
         let css = '';
 
-        if (activeMetrics.targetSize) {
-          const tSel = targetSelectors.length > 0
-            ? targetSelectors.join(', ')
-            : 'button.small-btn, #submit-btn, button.icon-btn, .action-btn, #btn-fail-tiny-delete, #btn-fail-tiny-edit, .target-fail-delete, .target-fail-edit';
-
+        if (activeMetrics.targetSize && targetSelectors.length > 0) {
+          const tSel = targetSelectors.join(', ');
           css += `
-            /* Target Size Optimization: Apple HIG 44px / WCAG 2.2 AA 24px */
+            /* Target Size Optimization: WCAG 2.2 AA 24px */
             ${tSel} {
-              min-width: 44px !important;
-              min-height: 44px !important;
-              padding: 10px 14px !important;
+              min-width: 24px !important;
+              min-height: 24px !important;
               box-sizing: border-box !important;
-              display: inline-flex !important;
-              align-items: center !important;
-              justify-content: center !important;
               transition: all 150ms ease !important;
             }
           `;
         }
 
-        if (activeMetrics.contrast) {
-          const cSel = contrastSelectors.length > 0
-            ? contrastSelectors.join(', ')
-            : '.low-contrast, [style*="color: #767676"], [style*="color: rgb(118, 118, 118)"], [data-purpose*="contrast"]';
-
+        if (activeMetrics.contrast && contrastSelectors.length > 0) {
+          const cSel = contrastSelectors.join(', ');
           css += `
             /* Color Contrast Optimization: Minimum 4.5:1 Accessible Text */
             ${cSel} {
@@ -214,11 +222,8 @@ export function VisualCanvasOverlay({
           `;
         }
 
-        if (activeMetrics.textSpacing) {
-          const sSel = spacingSelectors.length > 0
-            ? spacingSelectors.join(', ')
-            : '.fixed-height-clip, .overflow-clip, .text-clip';
-
+        if (activeMetrics.textSpacing && spacingSelectors.length > 0) {
+          const sSel = spacingSelectors.join(', ');
           css += `
             /* Text Spacing & Reflow Optimization: Fluid Responsive Container */
             ${sSel} {
@@ -243,8 +248,17 @@ export function VisualCanvasOverlay({
 
   // Filtered pins
   const visiblePins = useMemo(() => {
-    if (statusFilter === 'all') return pins;
-    return pins.filter((p) => p.status === statusFilter);
+    if (statusFilter === 'issues') {
+      return pins.filter((p) => p.status === 'candidateFail' || p.status === 'needsReview');
+    }
+    if (statusFilter === 'candidateFail') {
+      return pins.filter((p) => p.status === 'candidateFail');
+    }
+    if (statusFilter === 'needsReview') {
+      return pins.filter((p) => p.status === 'needsReview');
+    }
+    return pins;
+  }, [pins, statusFilter]);
   }, [pins, statusFilter]);
 
   // Active pin or fallback to first candidateFail / visible pin
@@ -579,6 +593,7 @@ export function VisualCanvasOverlay({
   };
 
   const failCount = currentRun.summary.candidateFailCount;
+  const reviewCount = currentRun.summary.needsReviewCount;
 
   return (
     <div
@@ -624,6 +639,36 @@ export function VisualCanvasOverlay({
                 </span>
               </button>
             ))}
+          </div>
+
+          {/* Issue Filter Pills */}
+          <div className="canvas-filter-group" role="group" aria-label="Filter pins">
+            <button
+              type="button"
+              className={`filter-pill ${statusFilter === 'issues' ? 'is-active' : ''}`}
+              onClick={() => setStatusFilter('issues')}
+              title="Show all actionable issues (Failures + Review)"
+            >
+              <span>Issues ({failCount + reviewCount})</span>
+            </button>
+            <button
+              type="button"
+              className={`filter-pill ${statusFilter === 'candidateFail' ? 'is-active' : ''}`}
+              onClick={() => setStatusFilter('candidateFail')}
+              title="Show failures only"
+            >
+              <span>Failures ({failCount})</span>
+            </button>
+            {reviewCount > 0 && (
+              <button
+                type="button"
+                className={`filter-pill ${statusFilter === 'needsReview' ? 'is-active' : ''}`}
+                onClick={() => setStatusFilter('needsReview')}
+                title="Show review items only"
+              >
+                <span>Review ({reviewCount})</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -697,10 +742,21 @@ export function VisualCanvasOverlay({
             className={`canvas-toggle-btn ${showOverlays ? 'is-active' : ''}`}
             onClick={() => setShowOverlays(!showOverlays)}
             aria-pressed={showOverlays}
-            title="Toggle Visual Pins & Bounding Boxes"
+            title="Toggle Visual Pins"
           >
             <Icon name={showOverlays ? 'Check' : 'X'} size={14} />
             <span>{showOverlays ? 'Pins Visible' : 'Pins Hidden'}</span>
+          </button>
+
+          {/* Bounding Box Mode Toggle */}
+          <button
+            type="button"
+            className={`canvas-toggle-btn ${boxDisplayMode === 'all' ? 'is-active' : ''}`}
+            onClick={() => setBoxDisplayMode(boxDisplayMode === 'all' ? 'hover_focus' : 'all')}
+            title="Toggle whether all bounding box borders are shown or only when hovered"
+          >
+            <Icon name="Layers" size={14} />
+            <span>{boxDisplayMode === 'all' ? 'Boxes: All' : 'Boxes: On Hover'}</span>
           </button>
 
           {/* Full Page Canvas Toggle */}
@@ -858,51 +914,64 @@ export function VisualCanvasOverlay({
                   <div className="canvas-interactive-overlay" aria-label="Visual Issue Overlay">
                     {visiblePins.map((pin) => {
                       const isSelected = activePin?.fingerprint === pin.fingerprint;
+                      const isHovered = hoveredFingerprint === pin.fingerprint;
+                      const isHighlighted = isSelected || isHovered;
+                      const isBoxVisible = boxDisplayMode === 'all' || isHighlighted;
                       const colors = getStatusColor(pin.status);
                       const box = pin.boundingBox;
                       const isResolvedByOptimization = optimizationMode === 'optimized' && pin.status === 'candidateFail';
 
                       return (
                         <React.Fragment key={pin.fingerprint}>
-                          {/* Bounding Box Highlight */}
-                          <div
-                            className={`canvas-bounding-box ${isSelected ? 'is-selected' : ''} ${isResolvedByOptimization ? 'tone-success is-optimized-box' : `tone-${colors.tone}`}`}
-                            style={{
-                              left: `${box.x}px`,
-                              top: `${box.y}px`,
-                              width: `${box.width}px`,
-                              height: `${box.height}px`,
-                              borderColor: isResolvedByOptimization ? '#12b76a' : colors.border,
-                            }}
-                            onClick={() => handlePinClick(pin)}
-                            title={`Pin ${pin.index}: ${pin.title} (${Math.round(box.width)}×${Math.round(box.height)}px)`}
-                          >
-                            {isSelected && (
-                              <div
-                                className="bounding-box-badge"
-                                style={{ background: isResolvedByOptimization ? '#067647' : colors.bg }}
-                              >
-                                {isResolvedByOptimization
-                                  ? (pin.ruleId.includes('contrast')
-                                      ? 'Resolved (≥ 4.5:1)'
-                                      : pin.ruleId === 'target-size'
-                                      ? 'Resolved (44×44px)'
-                                      : 'Resolved (Fluid)')
-                                  : `${Math.round(box.width)}×${Math.round(box.height)}px`}
-                              </div>
-                            )}
-                          </div>
+                          {/* Bounding Box Highlight - Rendered cleanly when boxDisplayMode === 'all' or highlighted */}
+                          {isBoxVisible && (
+                            <div
+                              className={`canvas-bounding-box ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''} ${isResolvedByOptimization ? 'tone-success is-optimized-box' : `tone-${colors.tone}`}`}
+                              style={{
+                                left: `${box.x}px`,
+                                top: `${box.y}px`,
+                                width: `${box.width}px`,
+                                height: `${box.height}px`,
+                                borderColor: isResolvedByOptimization
+                                  ? '#12b76a'
+                                  : isHighlighted
+                                  ? undefined
+                                  : colors.border,
+                              }}
+                              onClick={() => handlePinClick(pin)}
+                              onMouseEnter={() => setHoveredFingerprint(pin.fingerprint)}
+                              onMouseLeave={() => setHoveredFingerprint(null)}
+                              title={`Pin ${pin.index}: ${pin.title} (${Math.round(box.width)}×${Math.round(box.height)}px)`}
+                            >
+                              {isHighlighted && (
+                                <div
+                                  className="bounding-box-badge"
+                                  style={{ background: isResolvedByOptimization ? '#067647' : colors.bg }}
+                                >
+                                  {isResolvedByOptimization
+                                    ? (pin.ruleId.includes('contrast')
+                                        ? 'Resolved (≥ 4.5:1)'
+                                        : pin.ruleId === 'target-size'
+                                        ? 'Resolved (24×24px)'
+                                        : 'Resolved (Fluid)')
+                                    : `#${pin.index}: ${Math.round(box.width)}×${Math.round(box.height)}px`}
+                                </div>
+                              )}
+                            </div>
+                          )}
 
                           {/* Numbered Pin Badge */}
                           <button
                             type="button"
-                            className={`canvas-pin-marker ${isSelected ? 'is-selected' : ''} ${isResolvedByOptimization ? 'tone-success is-optimized-pin' : `tone-${colors.tone}`}`}
+                            className={`canvas-pin-marker ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''} ${isResolvedByOptimization ? 'tone-success is-optimized-pin' : `tone-${colors.tone}`}`}
                             style={{
                               left: `${Math.max(2, box.x)}px`,
                               top: `${Math.max(2, box.y - 14)}px`,
                               backgroundColor: isResolvedByOptimization ? '#067647' : colors.bg,
                             }}
                             onClick={() => handlePinClick(pin)}
+                            onMouseEnter={() => setHoveredFingerprint(pin.fingerprint)}
+                            onMouseLeave={() => setHoveredFingerprint(null)}
                             aria-label={`Pin ${pin.index}: ${pin.title}`}
                           >
                             {isResolvedByOptimization ? (
