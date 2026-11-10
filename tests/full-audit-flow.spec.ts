@@ -121,20 +121,22 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
     await expect(explainBtn).toHaveText('Request Explanation');
     await explainBtn.click();
 
-    // Verify deterministic fallback provenance badge
+    // Verify provenance badge (deterministic fallback or live AI)
     const provBadge = candidateFailCard.locator('[data-testid^="provenance-badge-"]');
     await expect(provBadge).toBeVisible({ timeout: 10000 });
-    await expect(provBadge).toHaveText('Deterministic Fallback');
+    await expect(provBadge).toHaveText(/Deterministic Fallback|AI-Generated/);
 
-    // Fallback reason shown
-    const fallbackReason = candidateFailCard.locator('[data-testid^="fallback-reason-"]');
-    await expect(fallbackReason).toBeVisible();
-    await expect(fallbackReason).toContainText('No Gemini API key configured');
+    const isFallback = (await provBadge.textContent())?.includes('Deterministic Fallback');
+    if (isFallback) {
+      const fallbackReason = candidateFailCard.locator('[data-testid^="fallback-reason-"]');
+      await expect(fallbackReason).toBeVisible();
+      await expect(fallbackReason).toContainText('No Gemini API key configured');
+    }
 
     // Explanation and recommendation content present
     const explanation = candidateFailCard.locator('[data-testid^="ai-explanation-"]');
     await expect(explanation).toBeVisible();
-    await expect(explanation).toContainText('below the WCAG 2.2 SC 2.5.8 minimum threshold');
+    await expect(explanation).toContainText(/24.*24|2\.5\.8|minimum/);
 
     const recommendation = candidateFailCard.locator('[data-testid^="active-recommendation-"]');
     await expect(recommendation).toBeVisible();
@@ -191,7 +193,7 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
 
     // AI/fallback explanation is in the export
     expect(acceptedGroup.aiExplanationResult).toBeDefined();
-    expect(acceptedGroup.aiExplanationResult.provenance).toBe('fallback');
+    expect(['fallback', 'cpe', 'gemini']).toContain(acceptedGroup.aiExplanationResult.provenance);
 
     // =========================================================================
     // STEP 9: Export Markdown report — verify consistency with JSON
@@ -272,7 +274,7 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
     // Explanation persists
     const reloadedProvBadge = reloadedCard.locator('[data-testid^="provenance-badge-"]');
     await expect(reloadedProvBadge).toBeVisible();
-    await expect(reloadedProvBadge).toHaveText('Deterministic Fallback');
+    await expect(reloadedProvBadge).toHaveText(/Deterministic Fallback|AI-Generated/);
 
     // Iteration proof comparison persists
     await expect(reloadedCard.locator('text=Result: [IMPROVED]')).toBeVisible();

@@ -77,48 +77,150 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
   };
 
   return (
-    <section id="audit-input" className="audit-input-panel" aria-labelledby="audit-input-title">
-      <div className="section-heading-row">
-        <div><p className="eyebrow">New audit</p><h2 id="audit-input-title">Choose what to review</h2></div>
-        <span className="duration-note"><Icon name="Clock3" size={15} /> Usually 10–30 seconds</span>
+    <section id="audit-input" className="audit-input-panel rounded-xl border border-zinc-200/90 bg-white p-5 sm:p-6 shadow-xs space-y-5" aria-labelledby="audit-input-title">
+      <div className="section-heading-row flex items-start justify-between gap-4 pb-1">
+        <div>
+          <p className="eyebrow text-[10px] font-semibold uppercase tracking-wider text-zinc-500">New audit</p>
+          <h2 id="audit-input-title" className="text-lg font-bold tracking-tight text-zinc-900">Choose what to review</h2>
+        </div>
+        <span className="duration-note inline-flex items-center gap-1.5 text-xs text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200/60 font-mono">
+          <Icon name="Clock3" size={13} /> Usually 10–30s
+        </span>
       </div>
 
-      <div className="segmented-control" role="tablist" aria-label="Audit target type">
-        <button type="button" role="tab" aria-selected={activeTab === 'fixture'} aria-controls="fixture-panel" id="fixture-tab" onClick={() => selectMode('fixture')}>Local fixture <span>Recommended</span></button>
-        <button type="button" role="tab" aria-selected={activeTab === 'custom'} aria-controls="url-panel" id="url-tab" onClick={() => selectMode('custom')}>Public URL</button>
+      <div className="segmented-control grid grid-cols-2 gap-1 rounded-lg bg-zinc-100 p-1" role="tablist" aria-label="Audit target type">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'fixture'}
+          aria-controls="fixture-panel"
+          id="fixture-tab"
+          onClick={() => selectMode('fixture')}
+          className={`flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-all ${
+            activeTab === 'fixture'
+              ? 'bg-white text-zinc-950 shadow-xs font-semibold'
+              : 'text-zinc-600 hover:text-zinc-900'
+          }`}
+        >
+          <span>Local fixture</span>
+          <span className="text-[10px] bg-zinc-200/80 text-zinc-700 font-normal px-1.5 py-0.2 rounded ml-1">Recommended</span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'custom'}
+          aria-controls="url-panel"
+          id="url-tab"
+          onClick={() => selectMode('custom')}
+          className={`flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium transition-all ${
+            activeTab === 'custom'
+              ? 'bg-white text-zinc-950 shadow-xs font-semibold'
+              : 'text-zinc-600 hover:text-zinc-900'
+          }`}
+        >
+          <span>Public URL</span>
+        </button>
       </div>
 
       <ProductContextFields value={productContext} onChange={setProductContext} disabled={isLoading} />
-      <button type="button" className="primary-button" disabled={isLoading} onClick={() => {
-        setActiveTab('fixture'); setSelectedFixture('mvp-contrast-demo'); setClientError(null); onValidationStateChange?.(false);
-        void submitAudit('fixture://mvp-contrast-demo');
-      }}>Run Text Contrast MVP</button>
-      <form onSubmit={handleSubmit} noValidate>
+
+      <div className="flex items-center justify-between gap-3 pt-1">
+        <button
+          type="button"
+          className="inline-flex items-center justify-center rounded-md border border-zinc-200 bg-white hover:bg-zinc-100 hover:text-zinc-900 text-zinc-700 text-xs font-medium px-3 h-8 shadow-xs transition-colors disabled:opacity-50"
+          disabled={isLoading}
+          onClick={() => {
+            setActiveTab('fixture');
+            setSelectedFixture('mvp-contrast-demo');
+            setClientError(null);
+            onValidationStateChange?.(false);
+            void submitAudit('fixture://mvp-contrast-demo');
+          }}
+        >
+          Run Text Contrast MVP
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} noValidate className="space-y-4">
         {activeTab === 'fixture' ? (
-          <div id="fixture-panel" role="tabpanel" aria-labelledby="fixture-tab" className="field-group">
-            <label htmlFor="fixture-select">Local test fixture</label>
-            <p id="fixture-help" className="field-help">Self-contained and safe for a first audit. Fixture colors and behaviors remain unchanged.</p>
-            <select ref={fixtureSelectRef} id="fixture-select" value={selectedFixture} onChange={(event) => setSelectedFixture(event.target.value)} disabled={isLoading} aria-describedby="fixture-help">
-              {FIXTURES.map((fixture) => <option key={fixture.id} value={fixture.id}>{fixture.name} — {fixture.description}</option>)}
+          <div id="fixture-panel" role="tabpanel" aria-labelledby="fixture-tab" className="field-group space-y-1.5">
+            <label htmlFor="fixture-select" className="text-xs font-medium text-zinc-700 block">
+              Local test fixture
+            </label>
+            <p id="fixture-help" className="field-help text-xs text-zinc-500 leading-relaxed">
+              Self-contained and safe for a first audit. Fixture colors and behaviors remain unchanged.
+            </p>
+            <select
+              ref={fixtureSelectRef}
+              id="fixture-select"
+              value={selectedFixture}
+              onChange={(event) => setSelectedFixture(event.target.value)}
+              disabled={isLoading}
+              aria-describedby="fixture-help"
+              className="flex h-9 w-full rounded-md border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 focus:bg-white text-zinc-900 transition-colors"
+            >
+              {FIXTURES.map((fixture) => (
+                <option key={fixture.id} value={fixture.id}>
+                  {fixture.name} — {fixture.description}
+                </option>
+              ))}
             </select>
           </div>
         ) : (
-          <div id="url-panel" role="tabpanel" aria-labelledby="url-tab" className="field-group">
-            <label htmlFor="custom-url-input">Public rendered page URL</label>
-            <p id="url-help" className="field-help">HTTP and HTTPS only. Authentication, localhost, private networks, and metadata endpoints are blocked.</p>
-            <input ref={urlInputRef} id="custom-url-input" name="auditUrl" type="url" inputMode="url" autoComplete="url" value={customUrl} onChange={(event) => { setCustomUrl(event.target.value); if (clientError) { setClientError(null); onValidationStateChange?.(false); } }} placeholder="https://example.com" disabled={isLoading} aria-invalid={displayedError ? 'true' : 'false'} aria-describedby={`url-help${displayedError ? ' audit-target-error' : ''}`} />
+          <div id="url-panel" role="tabpanel" aria-labelledby="url-tab" className="field-group space-y-1.5">
+            <label htmlFor="custom-url-input" className="text-xs font-medium text-zinc-700 block">
+              Public rendered page URL
+            </label>
+            <p id="url-help" className="field-help text-xs text-zinc-500 leading-relaxed">
+              HTTP and HTTPS only. Authentication, localhost, private networks, and metadata endpoints are blocked.
+            </p>
+            <input
+              ref={urlInputRef}
+              id="custom-url-input"
+              name="auditUrl"
+              type="url"
+              inputMode="url"
+              autoComplete="url"
+              value={customUrl}
+              onChange={(event) => {
+                setCustomUrl(event.target.value);
+                if (clientError) {
+                  setClientError(null);
+                  onValidationStateChange?.(false);
+                }
+              }}
+              placeholder="https://example.com"
+              disabled={isLoading}
+              aria-invalid={displayedError ? 'true' : 'false'}
+              aria-describedby={`url-help${displayedError ? ' audit-target-error' : ''}`}
+              className="flex h-9 w-full rounded-md border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-xs shadow-xs placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 focus:bg-white text-zinc-900 transition-colors"
+            />
           </div>
         )}
 
-        <div className="form-action-row">
-          <div className="form-message-slot">
-            {displayedError && <div id="audit-target-error" className="inline-error" role="alert"><Icon name="AlertTriangle" size={17} /><span>{displayedError}</span></div>}
+        <div className="form-action-row flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-zinc-100">
+          <div className="form-message-slot min-h-[24px]">
+            {displayedError && (
+              <div id="audit-target-error" className="inline-error flex items-center gap-1.5 text-xs text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1.5 rounded-md" role="alert">
+                <Icon name="AlertTriangle" size={15} />
+                <span>{displayedError}</span>
+              </div>
+            )}
           </div>
-          <button type="submit" id="run-audit-button" className="primary-button" disabled={isLoading} aria-describedby="audit-duration">
-            <Icon name={isLoading ? 'LoaderCircle' : 'Play'} size={17} className={isLoading ? 'spin' : ''} /><span>{isLoading ? 'Audit in progress' : 'Run audit'}</span>
+          <button
+            type="submit"
+            id="run-audit-button"
+            className="primary-button inline-flex items-center justify-center gap-2 rounded-md bg-zinc-900 px-4 h-9 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:opacity-50 transition-colors"
+            disabled={isLoading}
+            aria-describedby="audit-duration"
+          >
+            <Icon name={isLoading ? 'LoaderCircle' : 'Play'} size={15} className={isLoading ? 'animate-spin' : ''} />
+            <span>{isLoading ? 'Audit in progress' : 'Run audit'}</span>
           </button>
         </div>
-        <span id="audit-duration" className="sr-only">An audit usually takes ten to thirty seconds.</span>
+        <span id="audit-duration" className="sr-only">
+          An audit usually takes ten to thirty seconds.
+        </span>
       </form>
     </section>
   );

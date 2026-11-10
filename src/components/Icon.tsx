@@ -30,6 +30,7 @@ export type IconName =
   | 'History'
   | 'CircleDot'
   | 'Clock3'
+  | 'Users'
   | 'LoaderCircle';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {

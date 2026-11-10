@@ -48,41 +48,109 @@ export function AuditSummary({ summary, targetUrl, timestamp, runId, fixtureId }
     { label: 'Needs review', value: summary.needsReviewCount, tone: 'warning' },
   ];
 
+  const metricStyles: Record<string, { card: string; dt: string; dd: string }> = {
+    neutral: {
+      card: 'bg-zinc-50 border-zinc-200/80',
+      dt: 'text-zinc-500',
+      dd: 'text-zinc-900',
+    },
+    success: {
+      card: 'bg-emerald-50/60 border-emerald-200/70',
+      dt: 'text-emerald-700',
+      dd: 'text-emerald-900',
+    },
+    danger: {
+      card: 'bg-rose-50/60 border-rose-200/70',
+      dt: 'text-rose-700',
+      dd: 'text-rose-900',
+    },
+    warning: {
+      card: 'bg-amber-50/60 border-amber-200/70',
+      dt: 'text-amber-700',
+      dd: 'text-amber-900',
+    },
+  };
+
   return (
-    <section className="audit-summary" aria-labelledby="audit-summary-title">
-      <div className="summary-header">
-        <div className="summary-context">
-          <h3 id="audit-summary-title">Audit Result Summary</h3>
+    <section className="audit-summary rounded-xl border border-zinc-200/90 bg-white p-5 sm:p-6 shadow-xs space-y-5" aria-labelledby="audit-summary-title">
+      <div className="summary-header flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-1">
+        <div className="summary-context space-y-1">
+          <h3 id="audit-summary-title" className="text-lg font-bold tracking-tight text-zinc-900">Audit Result Summary</h3>
           {fixtureId ? (
             <>
-              <p className="safe-wrap">
-                <span>Fixture</span> <strong>{fixtureName} (<code>{fixtureId}</code>)</strong>
+              <p className="safe-wrap text-xs text-zinc-600">
+                <span className="font-medium text-zinc-500">Fixture: </span>
+                <strong className="text-zinc-900">{fixtureName}</strong> <code className="text-zinc-500 text-[11px] bg-zinc-100 px-1 py-0.5 rounded">({fixtureId})</code>
               </p>
-              <p className="safe-wrap" style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
-                <span>Resolved URL</span> <code>{targetUrl}</code>
+              <p className="safe-wrap text-xs text-zinc-500">
+                <span className="font-medium text-zinc-500">Resolved URL: </span>
+                <code className="text-[11px] bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200/60 font-mono text-zinc-700">{targetUrl}</code>
               </p>
             </>
           ) : (
-            <p className="safe-wrap"><span>Target</span> <code>{targetUrl}</code></p>
+            <p className="safe-wrap text-xs text-zinc-600">
+              <span className="font-medium text-zinc-500">Target: </span>
+              <code className="text-[11px] bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200/60 font-mono text-zinc-700">{targetUrl}</code>
+            </p>
           )}
-          <p>Completed at {formattedDate}</p>
+          <p className="text-xs text-zinc-400">Completed at {formattedDate}</p>
         </div>
         {runId && (
-          <div className="export-actions" aria-label="Report exports">
-            <button id="export-json-btn" type="button" onClick={() => handleExport('json')} disabled={exportState?.status === 'preparing'} aria-label="Export audit report as JSON"><Icon name="Download" size={16} /> JSON</button>
-            <button id="export-markdown-btn" type="button" onClick={() => handleExport('markdown')} disabled={exportState?.status === 'preparing'} aria-label="Export audit report as Markdown"><Icon name="FileText" size={16} /> Markdown</button>
+          <div className="export-actions flex items-center gap-2 shrink-0" aria-label="Report exports">
+            <button
+              id="export-json-btn"
+              type="button"
+              onClick={() => handleExport('json')}
+              disabled={exportState?.status === 'preparing'}
+              aria-label="Export audit report as JSON"
+              className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition-colors shadow-xs disabled:opacity-50"
+            >
+              <Icon name="Download" size={14} /> JSON
+            </button>
+            <button
+              id="export-markdown-btn"
+              type="button"
+              onClick={() => handleExport('markdown')}
+              disabled={exportState?.status === 'preparing'}
+              aria-label="Export audit report as Markdown"
+              className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition-colors shadow-xs disabled:opacity-50"
+            >
+              <Icon name="FileText" size={14} /> Markdown
+            </button>
           </div>
         )}
       </div>
 
-      <dl className="summary-strip">
-        {metrics.map((metric) => <div key={metric.label} className={`summary-metric tone-${metric.tone}`}><dt>{metric.label}</dt><dd id={metric.id}>{metric.value}</dd></div>)}
+      <dl className="summary-strip grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {metrics.map((metric) => {
+          const style = metricStyles[metric.tone];
+          return (
+            <div
+              key={metric.label}
+              className={`summary-metric tone-${metric.tone} rounded-lg border p-3 text-center transition-all ${style.card}`}
+            >
+              <dt className={`text-[11px] font-semibold uppercase tracking-wider block mb-1 ${style.dt}`}>
+                {metric.label}
+              </dt>
+              <dd id={metric.id} className={`text-2xl font-bold tracking-tight ${style.dd}`}>
+                {metric.value}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
 
-      <div className="summary-footer">
-        <p>P0–P3 is a project heuristic, not WCAG severity. Candidate failures are automated evidence, not confirmed conformance violations.</p>
-        <div className={`export-status${exportState ? ` is-${exportState.status}` : ''}`} role="status" aria-live="polite" aria-atomic="true">
-          {exportState && <><Icon name={exportState.status === 'completed' ? 'CheckCircle2' : exportState.status === 'failed' ? 'AlertTriangle' : 'LoaderCircle'} size={15} className={exportState.status === 'preparing' ? 'spin' : ''} /><span>{exportState.message}</span></>}
+      <div className="summary-footer flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-zinc-100 text-xs text-zinc-500">
+        <p className="leading-relaxed">
+          P0–P3 is a project heuristic, not WCAG severity. Candidate failures are automated evidence, not confirmed conformance violations.
+        </p>
+        <div className={`export-status${exportState ? ` is-${exportState.status}` : ''} shrink-0`} role="status" aria-live="polite" aria-atomic="true">
+          {exportState && (
+            <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${exportState.status === 'completed' ? 'text-emerald-700' : exportState.status === 'failed' ? 'text-rose-700' : 'text-zinc-600'}`}>
+              <Icon name={exportState.status === 'completed' ? 'CheckCircle2' : exportState.status === 'failed' ? 'AlertTriangle' : 'LoaderCircle'} size={14} className={exportState.status === 'preparing' ? 'animate-spin' : ''} />
+              <span>{exportState.message}</span>
+            </span>
+          )}
         </div>
       </div>
     </section>
