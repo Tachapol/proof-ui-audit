@@ -362,21 +362,38 @@ export default function StudioPage() {
     <div className="min-h-screen bg-zinc-50/50 text-zinc-900 font-sans antialiased flex flex-col">
       {/* Top Header */}
       <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-zinc-200/80 bg-white/95 px-4 sm:px-6 backdrop-blur">
-        <div className="flex items-center gap-3">
-          <Link className="flex items-center gap-2.5 font-semibold text-zinc-900 text-sm tracking-tight hover:opacity-85 transition" href="/" title="Back to Audit workspace">
+        <div className="flex items-center gap-2.5">
+          <Link
+            className="inline-flex items-center gap-2.5 font-semibold text-zinc-900 text-sm tracking-tight hover:opacity-85 transition min-h-0"
+            href="/"
+            title="ProofUI Home"
+          >
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-900 text-xs font-bold text-white shadow-sm">
               P
             </span>
             <span>ProofUI</span>
-            <span className="hidden sm:inline-block border-l border-zinc-200 pl-2.5 text-xs font-normal text-zinc-500">
+          </Link>
+
+          <div className="hidden md:flex items-center gap-1.5 text-xs text-zinc-400">
+            <ChevronRight className="size-3.5 shrink-0 text-zinc-400" />
+            <Link
+              href="/"
+              className="inline-flex items-center h-auto min-h-0 py-0.5 px-1.5 rounded text-xs text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+            >
+              Audit workspace
+            </Link>
+            <ChevronRight className="size-3.5 shrink-0 text-zinc-400" />
+            <span className="inline-flex items-center h-auto min-h-0 py-0.5 px-1.5 font-medium text-zinc-900">
               Critique Studio
             </span>
-          </Link>
-          <div className="hidden md:flex items-center gap-1.5 text-xs text-zinc-400">
-            <ChevronRight className="size-3.5" />
-            <Link href="/" className="hover:text-zinc-700 transition">Audit workspace</Link>
-            <ChevronRight className="size-3.5" />
-            <span className="text-zinc-600 font-medium">{session ? 'Design review' : 'New critique'}</span>
+            {session && (
+              <>
+                <ChevronRight className="size-3.5 shrink-0 text-zinc-400" />
+                <span className="inline-flex items-center h-auto min-h-0 py-0.5 px-1.5 text-zinc-500">
+                  Design review
+                </span>
+              </>
+            )}
           </div>
         </div>
 
