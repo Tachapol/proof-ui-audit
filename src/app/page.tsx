@@ -138,14 +138,23 @@ export default function HomePage() {
                   Deterministic accessibility measurements and evidence collection for WCAG 2.1 conformance.
                 </p>
               </div>
-              <Link
-                href="/studio"
-                className="inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3.5 py-2 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 transition-colors shrink-0"
-              >
-                <Icon name="Users" size={14} />
-                <span>Open Critique Studio</span>
-                <Icon name="ArrowRight" size={13} />
-              </Link>
+              <div className="flex items-center gap-2 shrink-0">
+                <Link
+                  href="/sandbox"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100 hover:border-blue-300 transition-colors"
+                >
+                  <Icon name="Layers" size={14} />
+                  <span>Component Sandbox</span>
+                </Link>
+                <Link
+                  href="/studio"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3.5 py-2 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 transition-colors"
+                >
+                  <Icon name="Users" size={14} />
+                  <span>Open Critique Studio</span>
+                  <Icon name="ArrowRight" size={13} />
+                </Link>
+              </div>
             </header>
 
             <AuditInput

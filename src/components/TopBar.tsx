@@ -77,6 +77,14 @@ export function TopBar({ menuButtonRef, onOpenNavigation, target, status, viewpo
         )}
 
         <Link
+          href="/sandbox"
+          className="hidden md:inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 hover:text-blue-900 border border-blue-200/80 hover:border-blue-300 rounded-md px-2.5 py-1 transition-colors bg-blue-50/50 hover:bg-blue-50"
+        >
+          <Icon name="Layers" size={13} />
+          <span>Code Sandbox</span>
+        </Link>
+
+        <Link
           href="/studio"
           className="hidden md:inline-flex items-center gap-1 text-xs font-medium text-zinc-600 hover:text-zinc-900 border border-zinc-200 hover:border-zinc-300 rounded-md px-2.5 py-1 transition-colors bg-white hover:bg-zinc-50"
         >

@@ -197,6 +197,19 @@ export function NavigationRail({
           </a>
 
           <Link
+            className="rail-link"
+            href="/sandbox"
+            onClick={handleClose}
+          >
+            <Icon name="Layers" size={17} />
+            <div className="rail-link-text">
+              <span>Code Sandbox</span>
+              <small>Live component iteration</small>
+            </div>
+            <Icon name="ArrowRight" size={14} className="ml-auto opacity-60" />
+          </Link>
+
+          <Link
             className="rail-link rail-studio-link"
             href={currentRunId ? `/studio?runId=${encodeURIComponent(currentRunId)}` : '/studio'}
             onClick={handleClose}

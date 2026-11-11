@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Execute browser auditing across mobile & desktop viewports (RULE-02, SEC-07)
+    // 2. Execute browser auditing across viewports (RULE-02, SEC-07)
     const isMvp = validation.fixtureId === 'mvp-contrast-demo';
     const viewports = isMvp ? [{ width: 375, height: 667 }] : DEFAULT_AUDIT_VIEWPORTS;
     const { issues: allIssues, errors, pageScreenshots, detectedContext } = await runBrowserAudit({
