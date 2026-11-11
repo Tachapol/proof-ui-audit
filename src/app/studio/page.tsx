@@ -31,6 +31,7 @@ import {
   Copy,
 } from 'lucide-react';
 import { ProductContextFields } from '@/components/ProductContextFields';
+import { createSandboxSnippetFromIssue } from '@/lib/sandbox/snippet-builder';
 import { EMPTY_PRODUCT_CONTEXT, ProductContextSchema, type ProductContext } from '@/lib/schema/product-context';
 import { ROLE_NAMES, findStudioIssue, type StudioRole, type StudioSession } from '@/lib/studio/types';
 import { formatStudioMarkdown } from '@/lib/studio/markdown';
@@ -234,6 +235,28 @@ export default function StudioPage() {
     } catch {
       setError('Could not copy to clipboard. Use Download MD instead.');
     }
+  };
+
+  const handleOpenInSandbox = (rep: any) => {
+    try {
+      const code = createSandboxSnippetFromIssue({
+        selector: rep.selector,
+        element: rep.element || 'button',
+        title: rep.title,
+        accessibleName: rep.accessibleName || rep.title,
+        ruleId: rep.ruleId,
+        wcagCriterion: rep.wcagCriterion,
+        measured: rep.measured,
+        expected: rep.expected,
+      });
+      sessionStorage.setItem(
+        'proofui_sandbox_init',
+        JSON.stringify({ code, source: 'studio', title: rep.title, ruleId: rep.ruleId })
+      );
+    } catch {
+      // Fallback
+    }
+    window.location.href = '/sandbox?from=studio';
   };
 
   useEffect(() => {
@@ -1061,12 +1084,24 @@ export default function StudioPage() {
                 <>
                   {/* Selected Finding Header Card */}
                   <div className="p-4 border-b border-zinc-100 bg-zinc-50/40">
-                    <Badge
-                      variant={item.status === 'needsReview' ? 'review' : 'destructive'}
-                      className="text-[10px] mb-2"
-                    >
-                      {item.status === 'needsReview' ? 'Designer review needed' : 'Measured finding'}
-                    </Badge>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <Badge
+                        variant={item.status === 'needsReview' ? 'review' : 'destructive'}
+                        className="text-[10px]"
+                      >
+                        {item.status === 'needsReview' ? 'Designer review needed' : 'Measured finding'}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-6 text-[10px] gap-1 border-blue-200 bg-blue-50/80 text-blue-700 hover:bg-blue-100 shrink-0 font-medium transition-colors"
+                        onClick={() => handleOpenInSandbox(issue.representative)}
+                        title="Open this element in Component Sandbox to Auto-Iterate code"
+                      >
+                        <Sparkles className="size-3 text-blue-600" />
+                        <span>Fix in Sandbox →</span>
+                      </Button>
+                    </div>
                     <h3 className="text-sm font-semibold text-zinc-900 leading-snug">{item.title}</h3>
 
                     {(() => {

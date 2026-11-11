@@ -65,9 +65,25 @@ export default function SandboxPage() {
   const [activeCodePreview, setActiveCodePreview] = useState<string>(SAMPLE_ACCESSIBLE_SNIPPET);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Initial audit on load
+  // Initial audit on load: check if an issue was sent from Visual Canvas or Studio
   useEffect(() => {
-    void handleRunAudit(code);
+    let initialCode = code;
+    try {
+      const stored = sessionStorage.getItem('proofui_sandbox_init');
+      if (stored) {
+        sessionStorage.removeItem('proofui_sandbox_init');
+        const parsed = JSON.parse(stored);
+        if (parsed.code && typeof parsed.code === 'string') {
+          initialCode = parsed.code;
+          setCode(parsed.code);
+          setActiveCodePreview(parsed.code);
+        }
+      }
+    } catch {
+      // Fallback to default
+    }
+
+    void handleRunAudit(initialCode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -525,3 +541,4 @@ export default function SandboxPage() {
     </div>
   );
 }
+

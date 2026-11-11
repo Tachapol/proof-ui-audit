@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { AuditRun, GroupedUXIssue, Viewport, DesignerDecision } from '@/lib/schema/ux-issue';
+import { createSandboxSnippetFromIssue } from '@/lib/sandbox/snippet-builder';
 import { Icon } from './Icon';
 
 interface VisualCanvasOverlayProps {
@@ -366,6 +367,28 @@ export function VisualCanvasOverlay({
     } finally {
       setIsSavingDecision(false);
     }
+  };
+
+  const handleOpenInSandbox = (pin: IssuePinData) => {
+    try {
+      const code = createSandboxSnippetFromIssue({
+        selector: pin.selector,
+        element: pin.selector.split(/[.#:[ ]/)[0] || 'button',
+        title: pin.title,
+        accessibleName: (pin.measured?.accessibleName as string) || pin.title,
+        ruleId: pin.ruleId,
+        wcagCriterion: pin.wcagCriterion,
+        measured: pin.measured,
+        expected: pin.expected,
+      });
+      sessionStorage.setItem(
+        'proofui_sandbox_init',
+        JSON.stringify({ code, source: 'canvas', title: pin.title, ruleId: pin.ruleId })
+      );
+    } catch {
+      // Fallback
+    }
+    window.location.href = '/sandbox?from=canvas';
   };
 
   // Generate CSS snippet for quick copy
@@ -1201,6 +1224,21 @@ export function VisualCanvasOverlay({
                       >
                         <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={14} />
                         <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="action-btn btn-sandbox-fix"
+                        onClick={() => handleOpenInSandbox(activePin)}
+                        style={{
+                          background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                          color: '#ffffff',
+                          fontWeight: 600,
+                          border: 'none',
+                        }}
+                      >
+                        <Icon name="Sparkles" size={14} />
+                        <span>Fix in Sandbox →</span>
                       </button>
                     </div>
 
