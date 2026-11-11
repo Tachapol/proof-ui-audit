@@ -92,6 +92,98 @@ const roleMeta: Record<StudioRole | 'lead', { icon: any; color: string; badge: s
 
 const round = (n: number) => Number(n.toFixed(2));
 
+function getEvidenceDisplay(rep?: any) {
+  if (!rep) {
+    return {
+      metricLabel: 'Finding',
+      metricValue: '—',
+      criterionLabel: 'Criterion',
+      criterionValue: '—',
+      scope: 'Accessibility',
+      linkUrl: 'https://www.w3.org/WAI/standards-guidelines/wcag/',
+      linkText: 'WCAG 2.2 Guidelines',
+    };
+  }
+
+  const rule = rep.ruleId || '';
+  const measured = rep.measured || {};
+  const expected = rep.expected || {};
+
+  // 1. Contrast rule (text or non-text)
+  if (rule.includes('contrast') || measured.contrastRatio !== undefined) {
+    const rawMeasured = measured.contrastRatio;
+    const ratioStr =
+      rawMeasured !== undefined && rawMeasured !== null && !isNaN(Number(rawMeasured))
+        ? `${Number(rawMeasured).toFixed(2).replace(/\.00$/, '')}:1`
+        : '—';
+
+    const rawExpected = expected.minRatio ?? expected.minContrastRatio;
+    const critStr =
+      rawExpected !== undefined && rawExpected !== null && !isNaN(Number(rawExpected))
+        ? `≥ ${rawExpected}:1`
+        : (expected.thresholdDescription || '≥ 4.5:1');
+
+    const isNonText = rule === 'non-text-contrast';
+    return {
+      metricLabel: isNonText ? 'UI Contrast' : 'Contrast',
+      metricValue: ratioStr,
+      criterionLabel: 'Criterion',
+      criterionValue: critStr,
+      scope: isNonText ? 'Graphical UI contrast' : 'Text contrast',
+      linkUrl: isNonText
+        ? 'https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html'
+        : 'https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html',
+      linkText: isNonText
+        ? 'WCAG 1.4.11 · Non-text Contrast'
+        : 'WCAG 1.4.3 · Contrast (Minimum)',
+    };
+  }
+
+  // 2. Target size rule
+  if (rule === 'target-size' || (measured.width !== undefined && measured.height !== undefined)) {
+    const w = measured.width !== undefined && !isNaN(Number(measured.width)) ? Math.round(Number(measured.width)) : null;
+    const h = measured.height !== undefined && !isNaN(Number(measured.height)) ? Math.round(Number(measured.height)) : null;
+    const sizeStr = w !== null && h !== null ? `${w} × ${h} px` : (rep.element ? `<${rep.element}>` : 'Sub-minimum');
+
+    const minW = expected.minWidth ?? 24;
+    const minH = expected.minHeight ?? 24;
+    return {
+      metricLabel: 'Measured Size',
+      metricValue: sizeStr,
+      criterionLabel: 'Criterion',
+      criterionValue: `≥ ${minW} × ${minH} px`,
+      scope: 'Target size (Touch / Pointer)',
+      linkUrl: 'https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html',
+      linkText: 'WCAG 2.5.8 · Target Size (Minimum)',
+    };
+  }
+
+  // 3. Text spacing rule
+  if (rule.includes('spacing')) {
+    const statusVal = measured.clipDeficitPx ? `${measured.clipDeficitPx}px clipped` : 'Content clipping / overflow';
+    return {
+      metricLabel: 'Layout Behavior',
+      metricValue: statusVal,
+      criterionLabel: 'Criterion',
+      criterionValue: 'Fluid text flow (No clipping)',
+      scope: 'Text spacing',
+      linkUrl: 'https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html',
+      linkText: 'WCAG 1.4.12 · Text Spacing',
+    };
+  }
+
+  // 4. Fallback for any other rule
+  return {
+    metricLabel: 'Finding Value',
+    metricValue: rep.element ? `<${rep.element}>` : 'Evaluated',
+    criterionLabel: 'Criterion',
+    criterionValue: rep.wcagCriterion || 'WCAG 2.2 Standard',
+    scope: rule ? rule.replace(/-/g, ' ') : 'General accessibility',
+    linkUrl: 'https://www.w3.org/WAI/standards-guidelines/wcag/',
+    linkText: rep.wcagCriterion || 'WCAG 2.2 Guidelines',
+  };
+}
+
 async function post(data: unknown) {
   const response = await fetch('/api/studio', {
     method: 'POST',
@@ -895,7 +987,7 @@ export default function StudioPage() {
                   <div className="py-12 px-4 text-center">
                     <ShieldCheck className="size-8 text-zinc-300 mx-auto mb-2" />
                     <h3 className="text-xs font-semibold text-zinc-700">No candidate findings</h3>
-                    <p className="text-[11px] text-zinc-400 mt-1">No text contrast issue was flagged by the selected checks.</p>
+                    <p className="text-[11px] text-zinc-400 mt-1">No candidate accessibility issue was flagged by the selected checks.</p>
                   </div>
                 )}
               </div>
@@ -960,39 +1052,46 @@ export default function StudioPage() {
                     </Badge>
                     <h3 className="text-sm font-semibold text-zinc-900 leading-snug">{item.title}</h3>
 
-                    {/* Measured Evidence Strip */}
-                    <div className="flex flex-wrap items-center gap-4 mt-3 p-2.5 rounded-lg border border-zinc-200/80 bg-white text-xs">
-                      <div>
-                        <span className="text-[10px] text-zinc-400 block uppercase font-bold">Contrast</span>
-                        <strong className="text-xs font-bold text-zinc-900">{String(issue.representative.measured.contrastRatio)}:1</strong>
-                      </div>
-                      <div className="border-l border-zinc-200 pl-4">
-                        <span className="text-[10px] text-zinc-400 block uppercase font-bold">Criterion</span>
-                        <strong className="text-xs font-bold text-zinc-900">{String(issue.representative.expected.minRatio)}:1</strong>
-                      </div>
-                      <div className="border-l border-zinc-200 pl-4">
-                        <span className="text-[10px] text-zinc-400 block uppercase font-bold">Scope</span>
-                        <span className="text-xs font-medium text-zinc-700">Text contrast</span>
-                      </div>
-                    </div>
+                    {(() => {
+                      const evidence = getEvidenceDisplay(issue.representative);
+                      return (
+                        <>
+                          {/* Measured Evidence Strip */}
+                          <div className="flex flex-wrap items-center gap-4 mt-3 p-2.5 rounded-lg border border-zinc-200/80 bg-white text-xs">
+                            <div>
+                              <span className="text-[10px] text-zinc-400 block uppercase font-bold">{evidence.metricLabel}</span>
+                              <strong className="text-xs font-bold text-zinc-900">{evidence.metricValue}</strong>
+                            </div>
+                            <div className="border-l border-zinc-200 pl-4">
+                              <span className="text-[10px] text-zinc-400 block uppercase font-bold">{evidence.criterionLabel}</span>
+                              <strong className="text-xs font-bold text-zinc-900">{evidence.criterionValue}</strong>
+                            </div>
+                            <div className="border-l border-zinc-200 pl-4">
+                              <span className="text-[10px] text-zinc-400 block uppercase font-bold">Scope</span>
+                              <span className="text-xs font-medium text-zinc-700">{evidence.scope}</span>
+                            </div>
+                          </div>
 
-                    <details className="mt-2.5 text-xs text-zinc-500">
-                      <summary className="cursor-pointer hover:text-zinc-800 text-[11px]">
-                        Measurement evidence & guideline
-                      </summary>
-                      <pre className="mt-1.5 p-2 rounded bg-zinc-100 text-[10px] font-mono overflow-x-auto text-zinc-800">
-                        {JSON.stringify({ measured: issue.representative.measured, expected: issue.representative.expected }, null, 2)}
-                      </pre>
-                      <a
-                        href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] text-blue-600 hover:underline mt-1.5"
-                      >
-                        <span>WCAG 1.4.3 · Contrast (Minimum)</span>
-                        <ExternalLink className="size-3" />
-                      </a>
-                    </details>
+                          <details className="mt-2.5 text-xs text-zinc-500">
+                            <summary className="cursor-pointer hover:text-zinc-800 text-[11px]">
+                              Measurement evidence & guideline
+                            </summary>
+                            <pre className="mt-1.5 p-2 rounded bg-zinc-100 text-[10px] font-mono overflow-x-auto text-zinc-800">
+                              {JSON.stringify({ measured: issue.representative.measured, expected: issue.representative.expected }, null, 2)}
+                            </pre>
+                            <a
+                              href={evidence.linkUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-[11px] text-blue-600 hover:underline mt-1.5"
+                            >
+                              <span>{evidence.linkText}</span>
+                              <ExternalLink className="size-3" />
+                            </a>
+                          </details>
+                        </>
+                      );
+                    })()}
                   </div>
 
                   {/* Conversation & Role Notes */}
@@ -1214,6 +1313,7 @@ export default function StudioPage() {
               item &&
               issue &&
               item.status === 'candidateFail' &&
+              (issue.representative.ruleId?.includes('contrast') ?? true) &&
               /^#[a-zA-Z][\w-]*$/.test(issue.representative.selector) ? (
                 <div className="p-4 border-t border-zinc-200 bg-white space-y-4">
                   <div>
