@@ -161,16 +161,7 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
         </button>
       </div>
 
-      <ProductContextFields
-        value={productContext}
-        onChange={setProductContext}
-        disabled={isLoading}
-        targetUrl={activeTab === 'fixture' ? `fixture://${selectedFixture}` : (customUrl.trim() || undefined)}
-        contextMode={contextMode}
-        onContextModeChange={setContextMode}
-      />
-
-      <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="space-y-5">
         {activeTab === 'fixture' ? (
           <div id="fixture-panel" role="tabpanel" aria-labelledby="fixture-tab" className="field-group space-y-1.5">
             <label htmlFor="fixture-select" className="text-xs font-medium text-zinc-700 block">
@@ -226,6 +217,15 @@ export function AuditInput({ onRunAudit, onTargetChange, onValidationStateChange
             />
           </div>
         )}
+
+        <ProductContextFields
+          value={productContext}
+          onChange={setProductContext}
+          disabled={isLoading}
+          targetUrl={activeTab === 'fixture' ? `fixture://${selectedFixture}` : (customUrl.trim() || undefined)}
+          contextMode={contextMode}
+          onContextModeChange={setContextMode}
+        />
 
         <div className="form-action-row flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-zinc-100">
           <div className="form-message-slot min-h-[24px]">
