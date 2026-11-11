@@ -248,27 +248,25 @@ export default function HomePage() {
                 />
 
                 {/* Designer Visual Canvas Overlay */}
-                {currentRun.fixtureId !== 'mvp-contrast-demo' && (
-                  <VisualCanvasOverlay
-                    currentRun={currentRun}
-                    activeFingerprint={activeFingerprint}
-                    onSelectIssue={(fp) => {
-                      setActiveFingerprint(fp);
-                    }}
-                    onDecisionSaved={(updated) => {
-                      setCurrentRun((previous) =>
-                        previous
-                          ? {
-                              ...previous,
-                              groupedIssues: previous.groupedIssues.map((group) =>
-                                group.fingerprint === updated.fingerprint ? updated : group
-                              ),
-                            }
-                          : null
-                      );
-                    }}
-                  />
-                )}
+                <VisualCanvasOverlay
+                  currentRun={currentRun}
+                  activeFingerprint={activeFingerprint}
+                  onSelectIssue={(fp) => {
+                    setActiveFingerprint(fp);
+                  }}
+                  onDecisionSaved={(updated) => {
+                    setCurrentRun((previous) =>
+                      previous
+                        ? {
+                            ...previous,
+                            groupedIssues: previous.groupedIssues.map((group) =>
+                              group.fingerprint === updated.fingerprint ? updated : group
+                            ),
+                          }
+                        : null
+                    );
+                  }}
+                />
 
                 <div className="filter-bar flex flex-wrap items-center gap-2 py-1" role="group" aria-label="Filter audit issues by status">
                   {([
