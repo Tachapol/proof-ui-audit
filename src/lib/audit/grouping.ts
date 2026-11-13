@@ -99,7 +99,7 @@ export function groupUXIssues(issues: UXIssue[]): GroupedUXIssue[] {
       occurrences[0];
 
     // Priority ordering via Priority Engine
-    const { priority: highestPriority } = resolveGroupedPriority(occurrences);
+    const { priority: currentPriority, initialPriority } = resolveGroupedPriority(occurrences);
 
     // Aggregate status policy: candidateFail (actionable defect) > needsReview (advisory exception check) > pass.
     // If occurrences differ in status across viewports, explicitly expose hasMixedStatus flag.
@@ -113,8 +113,8 @@ export function groupUXIssues(issues: UXIssue[]): GroupedUXIssue[] {
       occurrences,
       status: representative.status,
       hasMixedStatus,
-      initialPriority: highestPriority,
-      currentPriority: highestPriority,
+      initialPriority,
+      currentPriority,
       designerDecision: representative.designerDecision,
       designerReason: representative.designerReason,
       editedRecommendation: representative.editedRecommendation,

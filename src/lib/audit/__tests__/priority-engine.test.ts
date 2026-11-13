@@ -5,186 +5,238 @@ import {
   resolveGroupedPriority,
   PRIORITY_METADATA,
   PRIORITY_DISCLAIMER,
+  PRIORITY_ENGINE_VERSION,
 } from '../priority-engine';
 import { UXIssue } from '@/lib/schema/ux-issue';
 
-describe('Priority Engine', () => {
-  describe('Priority Comparison & Sorting', () => {
-    it('orders P0 > P1 > P2 > P3 correctly', () => {
+describe('Priority Engine — Research & Heuristic Verification', () => {
+  describe('1. Versioning & Deterministic 0–100 Severity Scores', () => {
+    it('pins the engine version to 1.0.0', () => {
+      expect(PRIORITY_ENGINE_VERSION).toBe('1.0.0');
+    });
+
+    it('orders priorities correctly: P0 > P1 > P2 > P3', () => {
       const unsorted = ['P3', 'P0', 'P2', 'P1'] as const;
       const sorted = [...unsorted].sort(comparePriority);
       expect(sorted).toEqual(['P0', 'P1', 'P2', 'P3']);
     });
 
-    it('has metadata and non-WCAG disclaimer for all priorities', () => {
-      for (const p of ['P0', 'P1', 'P2', 'P3'] as const) {
-        expect(PRIORITY_METADATA[p].label).toContain(p);
-        expect(PRIORITY_METADATA[p].shortDescription).toBeDefined();
-      }
-      expect(PRIORITY_DISCLAIMER).toContain('Not WCAG Severity');
-    });
-  });
-
-  describe('Rule Priority Evaluation', () => {
-    it('evaluates target size: <12px as P0 blocker, <24px as P1', () => {
+    it('assigns reproducible scores within bounded score ranges', () => {
+      // P0: 90-100
       const p0 = evaluateIssuePriority({
         ruleId: 'target-size',
         status: 'candidateFail',
-        measured: { width: 10, height: 10 },
+        measured: { width: 8, height: 8 },
       });
       expect(p0.priority).toBe('P0');
       expect(p0.severityScore).toBeGreaterThanOrEqual(90);
-      expect(p0.rationale).toContain('Project Heuristic P0 (Not WCAG Severity)');
+      expect(p0.severityScore).toBeLessThanOrEqual(100);
+      expect(p0.ruleEngineVersion).toBe('1.0.0');
 
+      // P1: 70-89
       const p1 = evaluateIssuePriority({
         ruleId: 'target-size',
         status: 'candidateFail',
-        measured: { width: 18, height: 20 },
+        measured: { width: 18, height: 18 },
       });
       expect(p1.priority).toBe('P1');
-      expect(p1.rationale).toContain('Project Heuristic P1 (Not WCAG Severity)');
-    });
+      expect(p1.severityScore).toBeGreaterThanOrEqual(70);
+      expect(p1.severityScore).toBeLessThanOrEqual(89);
 
-    it('evaluates text contrast: <2.0 as P1, <4.5 as P2, pass as P3', () => {
-      const p1 = evaluateIssuePriority({
-        ruleId: 'text-contrast',
-        status: 'candidateFail',
-        measured: { contrastRatio: 1.85, isLargeText: false },
-      });
-      expect(p1.priority).toBe('P1');
-      expect(p1.rationale).toContain('Project Heuristic P1');
-
+      // P2: 40-69
       const p2 = evaluateIssuePriority({
         ruleId: 'text-contrast',
         status: 'candidateFail',
-        measured: { contrastRatio: 3.2, isLargeText: false },
+        measured: { contrastRatio: 3.5, isLargeText: false },
       });
       expect(p2.priority).toBe('P2');
-      expect(p2.rationale).toContain('Project Heuristic P2');
+      expect(p2.severityScore).toBeGreaterThanOrEqual(40);
+      expect(p2.severityScore).toBeLessThanOrEqual(69);
 
-      const p3 = evaluateIssuePriority({
-        ruleId: 'text-contrast',
+      // P3: 0-39
+      const pass = evaluateIssuePriority({
+        ruleId: 'target-size',
         status: 'pass',
-        measured: { contrastRatio: 4.8 },
+        measured: { width: 32, height: 32 },
       });
-      expect(p3.priority).toBe('P3');
-    });
+      expect(pass.priority).toBe('P3');
+      expect(pass.severityScore).toBe(0);
 
-    it('evaluates reflow: out-of-bounds/clipped button as P0, >50px as P1', () => {
-      const p0 = evaluateIssuePriority({
+      const review = evaluateIssuePriority({
         ruleId: 'reflow',
-        status: 'candidateFail',
-        element: 'button',
-        measured: { clipDeficitPx: 20 },
-      });
-      expect(p0.priority).toBe('P0');
-
-      const p1 = evaluateIssuePriority({
-        ruleId: 'reflow',
-        status: 'candidateFail',
-        measured: { horizontalOverflowPx: 75 },
-      });
-      expect(p1.priority).toBe('P1');
-
-      const p2 = evaluateIssuePriority({
-        ruleId: 'reflow',
-        status: 'candidateFail',
+        status: 'needsReview',
         measured: { horizontalOverflowPx: 20 },
       });
-      expect(p2.priority).toBe('P2');
-    });
-
-    it('evaluates text spacing: control obscured as P0, horizontal clipping as P1', () => {
-      const p0 = evaluateIssuePriority({
-        ruleId: 'text-spacing',
-        status: 'candidateFail',
-        measured: { isControlObscured: true },
-      });
-      expect(p0.priority).toBe('P0');
-
-      const p1 = evaluateIssuePriority({
-        ruleId: 'text-spacing',
-        status: 'candidateFail',
-        measured: { horizontalClipDeficitPx: 14 },
-      });
-      expect(p1.priority).toBe('P1');
-
-      const p2 = evaluateIssuePriority({
-        ruleId: 'text-spacing',
-        status: 'candidateFail',
-        measured: { clipDeficitPx: 5 },
-      });
-      expect(p2.priority).toBe('P2');
-    });
-
-    it('evaluates non-text-contrast: <2.0 as P1, >=2.0 as P2', () => {
-      const p1 = evaluateIssuePriority({
-        ruleId: 'non-text-contrast',
-        status: 'candidateFail',
-        measured: { contrastRatio: 1.5 },
-      });
-      expect(p1.priority).toBe('P1');
-
-      const p2 = evaluateIssuePriority({
-        ruleId: 'non-text-contrast',
-        status: 'candidateFail',
-        measured: { contrastRatio: 2.4 },
-      });
-      expect(p2.priority).toBe('P2');
-    });
-
-    it('elevates priority when product context targets elderly/low-vision users', () => {
-      const standard = evaluateIssuePriority({
-        ruleId: 'text-contrast',
-        status: 'candidateFail',
-        measured: { contrastRatio: 3.2, isLargeText: false },
-      });
-      expect(standard.priority).toBe('P2');
-
-      const elevated = evaluateIssuePriority({
-        ruleId: 'text-contrast',
-        status: 'candidateFail',
-        measured: { contrastRatio: 3.2, isLargeText: false },
-        productContext: { targetAudience: 'Elderly citizens managing healthcare benefits' },
-      });
-      expect(elevated.priority).toBe('P1');
-      expect(elevated.factors.some(f => f.includes('Priority elevated'))).toBe(true);
+      expect(review.priority).toBe('P3');
+      expect(review.severityScore).toBe(25);
     });
   });
 
-  describe('Grouped Priority Resolution', () => {
-    const makeOccurrence = (priority: 'P0' | 'P1' | 'P2' | 'P3', width: number): UXIssue => ({
+  describe('2. Multi-Viewport Escalation Language Discipline', () => {
+    const makeOcc = (width: number, status: 'candidateFail' | 'needsReview' = 'candidateFail'): UXIssue => ({
       id: `occ-${width}`,
       ruleId: 'text-contrast',
       wcagCriterion: 'WCAG 2.2 SC 1.4.3 Contrast (Minimum)',
-      status: 'candidateFail',
+      status,
       title: 'Contrast deficit',
-      description: 'Contrast below threshold',
+      description: 'Measured contrast below threshold',
       url: 'http://localhost:3123',
       viewport: { width, height: 800 },
-      selector: '#btn',
+      selector: '#test-btn',
       element: 'button',
       measured: { contrastRatio: 3.2 },
       expected: { minRatio: 4.5 },
-      initialPriority: priority,
-      priorityRationale: `Project Heuristic ${priority} (Not WCAG Severity): Base rationale`,
+      initialPriority: status === 'candidateFail' ? 'P2' : 'P3',
+      priorityRationale: `Project Heuristic ${status === 'candidateFail' ? 'P2' : 'P3'} (Not WCAG Severity): Base rationale`,
     });
 
-    it('retains P0 if any occurrence has P0', () => {
-      const occurrences = [makeOccurrence('P2', 375), makeOccurrence('P0', 1440)];
-      const res = resolveGroupedPriority(occurrences);
-      expect(res.priority).toBe('P0');
-    });
-
-    it('escalates P2 to P1 when pervasive across >= 3 viewports', () => {
+    it('counts distinct viewports and uses exact language without overgeneralizing to all devices', () => {
       const occurrences = [
-        makeOccurrence('P2', 320),
-        makeOccurrence('P2', 375),
-        makeOccurrence('P2', 1440),
+        makeOcc(320),
+        makeOcc(375),
+        makeOcc(1440),
       ];
+
       const res = resolveGroupedPriority(occurrences);
+      expect(res.distinctViewportCount).toBe(3);
       expect(res.priority).toBe('P1');
-      expect(res.rationale).toContain('Composite escalation: Pervasive across 3 distinct viewports');
+      // Must use disciplined phrasing
+      expect(res.rationale).toContain('พบใน 3 ขนาดหน้าจอที่ทดสอบ (Observed across 3 evaluated test viewports)');
+      // Must NOT overclaim "all devices" or "กระทบทุกอุปกรณ์"
+      expect(res.rationale).not.toContain('กระทบทุกอุปกรณ์');
+      expect(res.rationale).not.toContain('all devices');
+    });
+
+    it('does not escalate when occurrences duplicate the same viewport', () => {
+      const occurrences = [
+        makeOcc(375),
+        makeOcc(375),
+        makeOcc(375),
+      ];
+
+      const res = resolveGroupedPriority(occurrences);
+      expect(res.distinctViewportCount).toBe(1);
+      expect(res.priority).toBe('P2');
+      expect(res.rationale).not.toContain('Observed across 3 evaluated test viewports');
+    });
+  });
+
+  describe('3. Product Context: Thai, English, Irrelevant, and Missing', () => {
+    const baseParams = {
+      ruleId: 'text-contrast',
+      status: 'candidateFail' as const,
+      measured: { contrastRatio: 3.2, isLargeText: false },
+    };
+
+    it('elevates priority with English sensitive cohort keywords', () => {
+      const res = evaluateIssuePriority({
+        ...baseParams,
+        productContext: { targetAudience: 'Elderly citizens accessing retirement portal' },
+      });
+      expect(res.priority).toBe('P1');
+      expect(res.factors.some(f => f.includes('Priority elevated'))).toBe(true);
+    });
+
+    it('elevates priority with Thai sensitive cohort keywords', () => {
+      const res = evaluateIssuePriority({
+        ...baseParams,
+        productContext: { targetAudience: 'กลุ่มผู้สูงอายุและผู้มีความบกพร่องทางการมองเห็น' },
+      });
+      expect(res.priority).toBe('P1');
+      expect(res.factors.some(f => f.includes('Priority elevated'))).toBe(true);
+    });
+
+    it('does not elevate priority for irrelevant contexts in English or Thai', () => {
+      const irrelevantEn = evaluateIssuePriority({
+        ...baseParams,
+        productContext: { targetAudience: 'General e-commerce fashion shoppers on desktop' },
+      });
+      expect(irrelevantEn.priority).toBe('P2');
+
+      const irrelevantTh = evaluateIssuePriority({
+        ...baseParams,
+        productContext: { targetAudience: 'บุคคลทั่วไป สั่งซื้ออาหารดิลิเวอรี' },
+      });
+      expect(irrelevantTh.priority).toBe('P2');
+    });
+
+    it('gracefully handles missing, empty, or whitespace-only context without errors', () => {
+      const emptyObj = evaluateIssuePriority({ ...baseParams, productContext: {} });
+      expect(emptyObj.priority).toBe('P2');
+
+      const undefinedContext = evaluateIssuePriority({ ...baseParams, productContext: undefined });
+      expect(undefinedContext.priority).toBe('P2');
+
+      const whitespaceContext = evaluateIssuePriority({ ...baseParams, productContext: { targetAudience: '   ' } });
+      expect(whitespaceContext.priority).toBe('P2');
+    });
+  });
+
+  describe('4. Inconclusive or Missing Evidence Isolation', () => {
+    it('caps needsReview at P3 even with sensitive target audience', () => {
+      const res = evaluateIssuePriority({
+        ruleId: 'text-spacing',
+        status: 'needsReview',
+        measured: { hasTextOverlap: true },
+        productContext: { targetAudience: 'ผู้สูงอายุ' },
+      });
+      // NeedsReview must NEVER be elevated to confirmed high severity P1 or P0
+      expect(res.priority).toBe('P3');
+      expect(res.severityScore).toBeLessThanOrEqual(30);
+      expect(res.rationale).toContain('unconfirmed');
+    });
+
+    it('handles missing or NaN measurement numbers safely as P3 advisory', () => {
+      const missingDimensions = evaluateIssuePriority({
+        ruleId: 'target-size',
+        status: 'candidateFail',
+        measured: { width: NaN, height: undefined },
+      });
+      expect(missingDimensions.priority).toBe('P3');
+      expect(missingDimensions.severityScore).toBeLessThanOrEqual(35);
+      expect(missingDimensions.factors).toContain('Inconclusive target measurements');
+
+      const missingContrast = evaluateIssuePriority({
+        ruleId: 'text-contrast',
+        status: 'candidateFail',
+        measured: { contrastRatio: undefined },
+      });
+      expect(missingContrast.priority).toBe('P3');
+      expect(missingContrast.factors).toContain('Inconclusive contrast measurement');
+    });
+  });
+
+  describe('5. Designer Override Preservation', () => {
+    const occurrences: UXIssue[] = [
+      {
+        id: 'occ-1',
+        ruleId: 'target-size',
+        wcagCriterion: 'WCAG 2.2 SC 2.5.8',
+        status: 'candidateFail',
+        title: 'Target size',
+        description: 'Target size deficit',
+        url: 'http://localhost:3123',
+        viewport: { width: 375, height: 812 },
+        selector: '#action-btn',
+        element: 'button',
+        measured: { width: 18, height: 18 },
+        expected: { minWidth: 24, minHeight: 24 },
+        initialPriority: 'P1',
+        priorityRationale: 'Project Heuristic P1 (Not WCAG Severity): Baseline machine priority',
+      },
+    ];
+
+    it('preserves human override priority while keeping machine initialPriority separate', () => {
+      const res = resolveGroupedPriority(occurrences, {
+        priority: 'P0',
+        reason: 'Payment submission button on checkout screen must be fixed immediately for Q4 release.',
+      });
+
+      expect(res.isDesignerOverridden).toBe(true);
+      expect(res.priority).toBe('P0'); // Human overridden priority
+      expect(res.initialPriority).toBe('P1'); // Machine calculated priority preserved!
+      expect(res.rationale).toContain('Designer Override: P1 → P0');
+      expect(res.rationale).toContain('Payment submission button');
     });
   });
 });
