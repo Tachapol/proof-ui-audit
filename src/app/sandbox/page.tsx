@@ -70,23 +70,21 @@ const SAMPLE_ACCESSIBLE_SNIPPET = `<div class="p-6 max-w-sm mx-auto bg-white rou
       UI
     </div>
     <div>
-      <h3 class="text-sm font-semibold text-zinc-900">Course Registration</h3>
-      <!-- Fails SC 1.4.3: Low contrast text (2.1:1 ratio) -->
-      <p class="text-xs text-zinc-400">Semester 1 / 2026 Academic Year</p>
+      <h3 id="course-title" class="text-sm font-semibold text-zinc-900">Course Registration</h3>
+      <!-- Fails SC 1.4.3: Low contrast text (2.56:1 ratio) -->
+      <p id="course-semester" class="text-xs text-zinc-400">Semester 1 / 2026 Academic Year</p>
     </div>
   </div>
 
   <!-- Fails SC 1.4.3: Muted descriptive text -->
-  <p class="text-xs text-zinc-400 leading-relaxed">
+  <p id="course-desc" class="text-xs text-zinc-400 leading-relaxed">
     Select your elective subjects before deadline. Late enrollment incurs additional penalty fees.
   </p>
 
-  <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
-    <span class="text-xs text-zinc-500 font-medium">$450.00 / term</span>
-    <!-- Fails SC 2.5.8: Target size too small (20px height) and low contrast button -->
-    <button class="btn bg-blue-500 hover:bg-blue-600 text-white text-[10px] px-2 py-1 rounded">
-      Enroll Now
-    </button>
+  <div class="flex items-center gap-1.5 pt-2 border-t border-zinc-100">
+    <!-- Fails SC 2.5.8: Target size too small (18px) with adjacent interactive button -->
+    <button id="cancel-btn" class="btn text-xs text-zinc-500 font-medium" style="width:18px;height:18px;padding:0;">✕</button>
+    <button id="enroll-btn" class="btn bg-blue-700 hover:bg-blue-800 text-white text-[10px]" style="width:18px;height:18px;padding:0;">✓</button>
   </div>
 </div>`;
 
@@ -396,6 +394,8 @@ export default function SandboxPage() {
                   return (
                     <div
                       key={cand.id}
+                      data-testid={`candidate-card-${cand.id}`}
+                      data-candidate-id={cand.id}
                       onClick={() => handleSelectCandidate(cand)}
                       className={`p-3 rounded-lg border text-left cursor-pointer transition-all ${
                         isSelected
@@ -672,7 +672,7 @@ export default function SandboxPage() {
 
               <div className="p-2.5 rounded-lg border border-zinc-200 bg-zinc-50/50 col-span-2 sm:col-span-1">
                 <span className="text-[10px] text-zinc-400 uppercase font-bold block">Remediation Status</span>
-                <strong className={`text-xs font-semibold block mt-0.5 ${
+                <strong data-testid="remediation-status-value" className={`text-xs font-semibold block mt-0.5 ${
                   activeCandidate?.verificationStatus === 'verified'
                     ? 'text-emerald-700'
                     : activeCandidate?.verificationStatus === 'unable_to_verify'

@@ -55,7 +55,12 @@ export function compareRegression(before: UXIssue[], after: UXIssue[], auditErro
         : 'Baseline was inconclusive; regression cannot be established.';
     } else if (b?.status === 'candidateFail') {
       change = 'resolved'; reason = 'The same occurrence now passes the selected automated rule.';
-    } else if (b?.status === 'needsReview' || !b) {
+    } else if (b?.status === 'needsReview') {
+      change = a?.status === 'pass' ? 'resolved' : 'unverified';
+      reason = a?.status === 'pass'
+        ? 'Baseline finding requiring review now definitively passes the selected automated rule.'
+        : 'No conclusive baseline measurement for comparison.';
+    } else if (!b) {
       change = 'unverified'; reason = 'No conclusive baseline measurement for comparison.';
     }
     if (change) findings.push({ key, change, reason, before: b, after: a });
