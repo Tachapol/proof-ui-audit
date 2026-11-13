@@ -88,4 +88,24 @@ describe('Sandbox verification evidence', () => {
     audit([{ ...baseline, status: 'pass', measured: { contrastRatio: 5.63 } }]);
     expect((await run([baseline]))[0].metrics.contrast).toEqual({ before: '2.37:1', after: '5.63:1', passed: true });
   });
+  it('records explicit error messages in verificationErrors when elements are missing or review is required', async () => {
+    audit([issue({ selector: '#non-existent', status: 'pass' })]);
+    const [candidateMissing] = await run([issue({ selector: '#target' })]);
+    expect(candidateMissing.verificationErrors).toContain('Some baseline elements or viewports were not found in the re-audit.');
+    expect(candidateMissing.verified).toBe(false);
+
+    audit([issue({ selector: '#target', status: 'needsReview' })]);
+    const [candidateReview] = await run([issue({ selector: '#target' })]);
+    expect(candidateReview.verificationErrors.some(err => err.includes('require human review'))).toBe(true);
+    expect(candidateReview.verified).toBe(false);
+  });
+  it('ensures verified is strictly false whenever verificationStatus is not verified', async () => {
+    audit([]);
+    const emptyResult = await run();
+    expect(emptyResult.every(c => c.verified === false && c.verificationStatus === 'unable_to_verify')).toBe(true);
+
+    audit([issue({ status: 'candidateFail' })]);
+    const failedResult = await run();
+    expect(failedResult.every(c => c.verified === false && c.verificationStatus === 'failed')).toBe(true);
+  });
 });

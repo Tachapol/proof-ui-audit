@@ -17,6 +17,7 @@ import {
   FileCode,
   Layers,
   CheckCircle2,
+  XCircle,
   Sliders,
   ExternalLink,
 } from 'lucide-react';
@@ -24,6 +25,44 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { SandboxCandidate } from '@/lib/sandbox/types';
 import type { AuditRun, UXIssue } from '@/lib/schema/ux-issue';
+
+function formatMeasuredValue(ruleId: string, m?: Record<string, unknown>): string {
+  if (!m) return 'Unable to verify';
+  if (ruleId === 'target-size' && typeof m.width === 'number' && Number.isFinite(m.width) && typeof m.height === 'number' && Number.isFinite(m.height)) {
+    return `${m.width} × ${m.height} CSS px`;
+  }
+  if (ruleId === 'text-contrast' && typeof m.contrastRatio === 'number' && Number.isFinite(m.contrastRatio)) {
+    return `${m.contrastRatio}:1`;
+  }
+  const keys = Object.keys(m);
+  if (keys.length === 0) return 'Unable to verify';
+  return JSON.stringify(m);
+}
+
+function renderCandidateStatusBadge(cand: SandboxCandidate) {
+  if (cand.verificationStatus === 'verified') {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full" title="Verified for selected automated checks (WCAG 2.5.8 & 1.4.3)">
+        <CheckCircle2 className="size-3 text-emerald-600" />
+        <span>Selected checks passed</span>
+      </span>
+    );
+  }
+  if (cand.verificationStatus === 'unable_to_verify') {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full" title="Unable to verify: Re-audit failed, elements missing, or human review required">
+        <AlertTriangle className="size-3 text-amber-600" />
+        <span>Unable to verify</span>
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full" title="Checks failed">
+      <XCircle className="size-3 text-rose-600" />
+      <span>Checks failed</span>
+    </span>
+  );
+}
 
 const SAMPLE_ACCESSIBLE_SNIPPET = `<div class="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md space-y-4 border border-zinc-200">
   <div class="flex items-center space-x-3">
@@ -371,14 +410,24 @@ export default function SandboxPage() {
                             {cand.badge}
                           </span>
                         </div>
-                        {cand.verified && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                            <CheckCircle2 className="size-3 text-emerald-600" />
-                            <span>Selected checks passed</span>
-                          </span>
-                        )}
+                        {renderCandidateStatusBadge(cand)}
                       </div>
-                      <p className="text-[11px] text-zinc-600 leading-relaxed mb-2.5">{cand.description}</p>
+                      <p className="text-[11px] text-zinc-600 leading-relaxed mb-2">{cand.description}</p>
+
+                      {/* Explicit Verification Errors / Unable to verify reasons */}
+                      {cand.verificationErrors && cand.verificationErrors.length > 0 && (
+                        <div className="my-2 p-2 rounded-md bg-amber-50 border border-amber-200/80 text-[11px] text-amber-900 space-y-1">
+                          <div className="flex items-center gap-1.5 font-semibold text-amber-800">
+                            <AlertTriangle className="size-3.5 text-amber-600 shrink-0" />
+                            <span>ตรวจสอบไม่ได้ / Verification Incomplete:</span>
+                          </div>
+                          <ul className="list-disc list-inside space-y-0.5 pl-1 text-[10.5px] text-amber-800/90">
+                            {cand.verificationErrors.map((err, i) => (
+                              <li key={i}>{err}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
                       {/* Verification Checklist */}
                       <div className="space-y-1 mb-3 pt-2 border-t border-zinc-200/60">
@@ -391,6 +440,52 @@ export default function SandboxPage() {
                           </div>
                         ))}
                       </div>
+
+                      {/* Measured Evidence Breakdown */}
+                      {cand.measurements && cand.measurements.length > 0 && (
+                        <details className="mb-2 text-[11px] text-zinc-700" onClick={(e) => e.stopPropagation()}>
+                          <summary className="cursor-pointer font-semibold text-zinc-800 hover:text-zinc-950 flex items-center justify-between">
+                            <span>Measured Evidence ({cand.measurements.length} {cand.measurements.length === 1 ? 'element' : 'elements'})</span>
+                            <span className="text-[10px] font-normal text-zinc-500">
+                              {cand.measurements.filter(m => m.status === 'pass').length} passed / {cand.measurements.filter(m => m.status === 'unable_to_verify').length} unverified
+                            </span>
+                          </summary>
+                          <div className="mt-2 space-y-1.5">
+                            {cand.measurements.map((m, idx) => (
+                              <div key={idx} className="p-2 rounded bg-zinc-50 border border-zinc-200/70 text-[10.5px] space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-mono font-medium text-zinc-900 truncate max-w-[200px]" title={m.selector}>
+                                    {m.selector}
+                                  </span>
+                                  <span className={`px-1.5 py-0.2 rounded text-[9px] font-semibold ${
+                                    m.status === 'pass'
+                                      ? 'bg-emerald-100 text-emerald-800'
+                                      : m.status === 'unable_to_verify'
+                                      ? 'bg-amber-100 text-amber-800'
+                                      : 'bg-rose-100 text-rose-800'
+                                  }`}>
+                                    {m.status === 'pass' ? '✓ Pass' : m.status === 'unable_to_verify' ? '⚠️ Unable to verify' : '✗ Fail'}
+                                  </span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 text-zinc-600 text-[10px]">
+                                  <div>
+                                    <span className="text-zinc-400 block text-[9px] uppercase">Before</span>
+                                    <span className="font-mono">{formatMeasuredValue(m.ruleId, m.before)}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-zinc-400 block text-[9px] uppercase">After (Candidate)</span>
+                                    <span className="font-mono">{formatMeasuredValue(m.ruleId, m.after)}</span>
+                                  </div>
+                                </div>
+                                <div className="text-[9.5px] text-zinc-500 flex items-center justify-between pt-1 border-t border-zinc-200/40">
+                                  <span>Rule: {m.ruleId}</span>
+                                  <span>Viewport: {m.viewport.width} × {m.viewport.height}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </details>
+                      )}
 
                       {cand.regression && (
                         <details className="mb-3 text-[11px] text-zinc-700" onClick={e => e.stopPropagation()}>
@@ -519,14 +614,43 @@ export default function SandboxPage() {
                 <span>Deterministic Evidence & Verification</span>
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
-                  {auditRun ? `${auditRun.summary.candidateFailCount} Failures` : 'Auditing…'}
-                </span>
-                <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                  {auditRun ? `${auditRun.summary.passCount} Passed` : '0 Passed'}
-                </span>
+                {activeCandidate ? (
+                  <>
+                    <span className="text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
+                      {activeCandidate.summary.candidateFailCount} Failures
+                    </span>
+                    <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                      {activeCandidate.summary.passCount} Passed
+                    </span>
+                    {activeCandidate.summary.needsReviewCount > 0 && (
+                      <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                        {activeCandidate.summary.needsReviewCount} Needs Review
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
+                      {auditRun ? `${auditRun.summary.candidateFailCount} Failures` : 'Auditing…'}
+                    </span>
+                    <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                      {auditRun ? `${auditRun.summary.passCount} Passed` : '0 Passed'}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
+
+            {/* Active Candidate Verification Warning Banner if unable_to_verify */}
+            {activeCandidate?.verificationStatus === 'unable_to_verify' && activeCandidate.verificationErrors.length > 0 && (
+              <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+                <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="text-[11px] space-y-0.5">
+                  <span className="font-semibold block">ตรวจสอบไม่ได้ (Verification Incomplete):</span>
+                  <span>{activeCandidate.verificationErrors.join(' · ')}</span>
+                </div>
+              </div>
+            )}
 
             {/* Evidence Findings Strip */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
@@ -548,10 +672,28 @@ export default function SandboxPage() {
 
               <div className="p-2.5 rounded-lg border border-zinc-200 bg-zinc-50/50 col-span-2 sm:col-span-1">
                 <span className="text-[10px] text-zinc-400 uppercase font-bold block">Remediation Status</span>
-                <strong className={`text-xs font-semibold block mt-0.5 ${activeCandidate?.verified ? 'text-emerald-700' : 'text-amber-700'}`}>
-                  {activeCandidate?.verified ? 'Selected checks passed' : activeCandidate?.verificationStatus === 'unable_to_verify' ? 'Unable to verify' : activeCandidate ? 'Candidate needs review' : 'Not evaluated'}
+                <strong className={`text-xs font-semibold block mt-0.5 ${
+                  activeCandidate?.verificationStatus === 'verified'
+                    ? 'text-emerald-700'
+                    : activeCandidate?.verificationStatus === 'unable_to_verify'
+                    ? 'text-amber-700'
+                    : activeCandidate
+                    ? 'text-rose-700'
+                    : 'text-zinc-600'
+                }`}>
+                  {activeCandidate?.verificationStatus === 'verified'
+                    ? 'Selected checks passed'
+                    : activeCandidate?.verificationStatus === 'unable_to_verify'
+                    ? 'Unable to verify'
+                    : activeCandidate
+                    ? 'Checks failed'
+                    : 'Not evaluated'}
                 </strong>
-                <span className="text-[10px] text-zinc-500">Automated scope only; designer review required</span>
+                <span className="text-[10px] text-zinc-500">
+                  {activeCandidate?.verified
+                    ? 'WCAG 2.5.8 & 1.4.3 only; visual/design review required'
+                    : 'Automated scope only; designer review required'}
+                </span>
               </div>
             </div>
           </div>

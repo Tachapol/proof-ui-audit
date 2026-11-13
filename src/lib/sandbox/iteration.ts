@@ -136,6 +136,9 @@ export async function runMultiCandidateIteration(
       verificationErrors.push('Some baseline elements or viewports were not found in the re-audit.');
     if (baselineIssues.some(issue => !hasMeasurement(issue)) || candidateIssues.some(issue => !hasMeasurement(issue)))
       verificationErrors.push('Required measurement values are missing or invalid.');
+    if (candidateIssues.some(issue => issue.status === 'needsReview')) {
+      verificationErrors.push(`${reviewCount} findings require human review.`);
+    }
     const regression = compareRegression(baselineIssues, candidateIssues, auditErrors);
     const incomplete = regression.status === 'unable_to_verify' || verificationErrors.length > 0 || candidateIssues.some(issue => issue.status === 'needsReview');
     const verificationStatus: VerificationStatus = incomplete ? 'unable_to_verify'
