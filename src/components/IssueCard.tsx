@@ -8,6 +8,7 @@ import { IssueReview } from './IssueReview';
 import { DecisionLog } from './DecisionLog';
 import { IterationProofView } from './IterationProofView';
 import { getDefaultRecommendation } from '@/lib/audit/recommendation';
+import { PRIORITY_METADATA, PRIORITY_DISCLAIMER } from '@/lib/audit/priority-engine';
 
 interface IssueCardProps {
   issue: GroupedUXIssue;
@@ -253,6 +254,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
         </span>
 
         <span
+          title={`${PRIORITY_METADATA[issue.currentPriority]?.fullDescription || ''} (${PRIORITY_DISCLAIMER})`}
           style={{
             fontSize: '12px',
             fontWeight: 600,
@@ -260,6 +262,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
             borderRadius: 'var(--radius-sm)',
             background: priorityConfig.bg,
             color: priorityConfig.color,
+            cursor: 'help',
           }}
         >
           {priorityConfig.label}
@@ -346,6 +349,11 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
         )}
         <p style={{ fontSize: '13px', color: 'var(--foreground-muted)', marginTop: '4px' }}>
           <strong>Priority Rationale (Project Heuristic):</strong> {rep.priorityRationale}
+          {issue.currentPriority !== issue.initialPriority && (
+            <span className="ml-1 font-semibold text-amber-700">
+              (Reprioritized by designer: {issue.initialPriority} → {issue.currentPriority})
+            </span>
+          )}
         </p>
       </div>
 

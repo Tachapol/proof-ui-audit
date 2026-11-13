@@ -1,4 +1,5 @@
 import { UXIssue, GroupedUXIssue, AuditSummary } from '@/lib/schema/ux-issue';
+import { resolveGroupedPriority } from './priority-engine';
 
 export function createMeasurementSignature(issue: UXIssue): string {
   const measured = issue.measured || {};
@@ -97,11 +98,8 @@ export function groupUXIssues(issues: UXIssue[]): GroupedUXIssue[] {
       occurrences.find((i) => i.screenshotPath) ||
       occurrences[0];
 
-    // Priority ordering P0 > P1 > P2 > P3
-    const priorityRank = { P0: 0, P1: 1, P2: 2, P3: 3 };
-    const highestPriority = occurrences.reduce((highest, curr) => {
-      return priorityRank[curr.initialPriority] < priorityRank[highest] ? curr.initialPriority : highest;
-    }, occurrences[0].initialPriority);
+    // Priority ordering via Priority Engine
+    const { priority: highestPriority } = resolveGroupedPriority(occurrences);
 
     // Aggregate status policy: candidateFail (actionable defect) > needsReview (advisory exception check) > pass.
     // If occurrences differ in status across viewports, explicitly expose hasMixedStatus flag.

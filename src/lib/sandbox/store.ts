@@ -1,4 +1,6 @@
 import { randomUUID } from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
 export interface SandboxSnippet {
   id: string;
@@ -6,8 +8,19 @@ export interface SandboxSnippet {
   timestamp: string;
 }
 
-// In-memory store with auto-cleanup for snippets
-const snippetStore = new Map<string, SandboxSnippet>();
+const SNIPPETS_DIR = path.resolve(process.cwd(), '.proofui-data/snippets');
+try {
+  fs.mkdirSync(SNIPPETS_DIR, { recursive: true });
+} catch {
+  // Ignore
+}
+
+// Global store with disk fallback to prevent cache drops on module re-evaluation
+const globalForSnippets = globalThis as unknown as {
+  __proofui_snippetStore?: Map<string, SandboxSnippet>;
+};
+const snippetStore = globalForSnippets.__proofui_snippetStore || new Map<string, SandboxSnippet>();
+globalForSnippets.__proofui_snippetStore = snippetStore;
 
 export function saveSandboxSnippet(html: string): SandboxSnippet {
   const id = `snip-${randomUUID().slice(0, 8)}`;
@@ -18,7 +31,13 @@ export function saveSandboxSnippet(html: string): SandboxSnippet {
   };
   snippetStore.set(id, snippet);
 
-  // Keep store bounded to latest 50 snippets
+  try {
+    fs.writeFileSync(path.join(SNIPPETS_DIR, `${id}.json`), JSON.stringify(snippet), 'utf-8');
+  } catch {
+    // Disk write best-effort
+  }
+
+  // Keep memory store bounded to latest 50 snippets
   if (snippetStore.size > 50) {
     const oldestKey = snippetStore.keys().next().value;
     if (oldestKey) snippetStore.delete(oldestKey);
@@ -28,7 +47,21 @@ export function saveSandboxSnippet(html: string): SandboxSnippet {
 }
 
 export function getSandboxSnippet(id: string): SandboxSnippet | undefined {
-  return snippetStore.get(id);
+  const inMem = snippetStore.get(id);
+  if (inMem) return inMem;
+
+  try {
+    const filePath = path.join(SNIPPETS_DIR, `${id}.json`);
+    if (fs.existsSync(filePath)) {
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      snippetStore.set(id, data);
+      return data;
+    }
+  } catch {
+    // Disk fallback best-effort
+  }
+
+  return undefined;
 }
 
 export function buildSandboxedDocument(snippetHtml: string): string {
