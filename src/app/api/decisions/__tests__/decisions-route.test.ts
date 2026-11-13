@@ -3,7 +3,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import { POST } from '../route';
 import { saveAuditRun, getAuditRun } from '@/lib/storage/db';
-import { AuditRun } from '@/lib/schema/ux-issue';
+import { buildNormalizedReport } from '@/lib/report/report-builder';
+import { generateMarkdownReport } from '@/lib/report/markdown-export';
+import { generateJsonReport } from '@/lib/report/json-export';
+import { effectiveReviewDisposition, AuditRun } from '@/lib/schema/ux-issue';
 
 describe('API Route /api/decisions Security & Immutability Tests', () => {
   const testRunId = 'test-run-api-decisions';
@@ -208,4 +211,68 @@ describe('API Route /api/decisions Security & Immutability Tests', () => {
     const res = await POST(req);
     expect(res.status).toBe(404);
   });
+  const reviewRequest = (body: Record<string, unknown>) => POST(new Request('http://localhost/api/decisions', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId: testRunId, fingerprint: testFingerprint, disposition: 'accepted_risk',
+      reason: 'Temporary exception pending design review', reviewer: 'Design reviewer', ...body }),
+  }));
+
+  it('persists all four review states separately from automated evidence and exports history', async () => {
+    for (const disposition of ['confirmed_issue', 'false_positive', 'needs_review', 'accepted_risk']) {
+      const res = await reviewRequest({ disposition, timestamp: '1970-01-01', measured: { width: 999 } });
+      expect(res.status).toBe(200);
+    }
+    const run = (await getAuditRun(testRunId))!;
+    const group = run.groupedIssues[0];
+    expect(group.reviewDisposition).toBe('accepted_risk');
+    expect(group.reviewer).toBe('Design reviewer');
+    expect(group.status).toBe('candidateFail');
+    expect(group.representative.measured.width).toBe(20);
+    expect(group.designerDecision).toBeUndefined();
+    expect(group.decisionHistory).toHaveLength(4);
+    expect(group.decisionHistory[3]).toMatchObject({ action: 'review_disposition', previousDisposition: 'needs_review', newDisposition: 'accepted_risk', reviewer: 'Design reviewer' });
+    expect(group.reviewedAt).not.toBe('1970-01-01');
+    const report = buildNormalizedReport(run);
+    expect(JSON.parse(generateJsonReport(report)).groupedIssues[0].reviewDisposition).toBe('accepted_risk');
+    const md = generateMarkdownReport(report);
+    expect(md).toContain('**Review Status**: accepted_risk');
+    expect(md).toContain('Design reviewer');
+    expect(md).toContain('needs_review &rarr; accepted_risk');
+  });
+
+  it.each([{ reason: '  ' }, { reviewer: '  ' }, { disposition: 'not_valid' }, { decision: 'accept' }, { reason: 'x'.repeat(2001) }])('rejects invalid or ambiguous reviews: %j', async invalid => {
+    expect((await reviewRequest(invalid)).status).toBe(400);
+    expect((await getAuditRun(testRunId))?.groupedIssues[0].decisionHistory).toHaveLength(0);
+  });
+
+  it('retains accepted risk when editing or reprioritizing', async () => {
+    await reviewRequest({});
+    const res = await POST(new Request('http://localhost/api/decisions', {
+      method: 'POST', body: JSON.stringify({ runId: testRunId, fingerprint: testFingerprint,
+        decision: 'reprioritize', reason: 'Change scheduling priority', newPriority: 'P2' }),
+    }));
+    expect(res.status).toBe(200);
+    const group = (await getAuditRun(testRunId))!.groupedIssues[0];
+    expect(group.reviewDisposition).toBe('accepted_risk');
+    expect(group.reviewer).toBe('Design reviewer');
+    expect(group.currentPriority).toBe('P2');
+    expect(group.decisionHistory).toHaveLength(2);
+  });
+
+  it('keeps legacy data readable and legacy rejection distinct from accepted risk', async () => {
+    expect(effectiveReviewDisposition({ designerDecision: 'reprioritize', decisionHistory: [{ action: 'reject' }, { action: 'reprioritize' }] })).toBe('false_positive');
+    await reviewRequest({});
+    await POST(new Request('http://localhost/api/decisions', { method: 'POST', body: JSON.stringify({
+      runId: testRunId, fingerprint: testFingerprint, decision: 'reject', reason: 'Measured evidence is incorrect',
+    }) }));
+    const group = (await getAuditRun(testRunId))!.groupedIssues[0];
+    expect(group.reviewDisposition).toBe('false_positive');
+    expect(group.reviewer).toBeUndefined();
+    expect(group.decisionHistory[0].newDisposition).toBe('accepted_risk');
+  });
+
+  it('returns 404 for a review on an unknown issue', async () => {
+    expect((await reviewRequest({ fingerprint: 'unknown' })).status).toBe(404);
+  });
+
 });

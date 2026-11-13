@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { DecisionRecord } from '@/lib/schema/ux-issue';
+import { DecisionRecord, REVIEW_DISPOSITION_LABELS } from '@/lib/schema/ux-issue';
 import { Icon } from './Icon';
 
 interface DecisionLogProps {
@@ -17,6 +17,7 @@ export function DecisionLog({ history, fingerprint }: DecisionLogProps) {
   }
 
   const actionLabels: Record<string, { label: string; color: string; bg: string }> = {
+    review_disposition: { label: 'Issue Review', color: '#175cd3', bg: '#eff8ff' },
     accept: { label: 'Accepted', color: 'var(--success)', bg: 'var(--success-surface)' },
     reject: { label: 'Rejected (False Positive)', color: 'var(--danger)', bg: 'var(--danger-surface)' },
     edit: { label: 'Scope Edited', color: '#175cd3', bg: '#eff8ff' },
@@ -117,6 +118,10 @@ export function DecisionLog({ history, fingerprint }: DecisionLogProps) {
                   Event ID: <code style={{ wordBreak: 'break-all' }}>{record.id}</code>
                 </div>
 
+                {record.newDisposition && (
+                  <p>Review: {record.previousDisposition ? REVIEW_DISPOSITION_LABELS[record.previousDisposition] : 'Not reviewed'} → {REVIEW_DISPOSITION_LABELS[record.newDisposition]}</p>
+                )}
+                {record.reviewer && <p>Reviewer (self-reported): {record.reviewer}</p>}
                 {record.reason && (
                   <div style={{ color: 'var(--foreground)', marginTop: '4px', lineHeight: 1.5 }}>
                     <strong style={{ color: 'var(--foreground-muted)' }}>Rationale:</strong> {record.reason}

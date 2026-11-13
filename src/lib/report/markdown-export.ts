@@ -114,6 +114,15 @@ function formatIssueSection(issue: ReportGroupedIssue, index: number): string {
     lines.push('');
   }
 
+  if (issue.reviewDisposition) {
+    lines.push('**Issue Review**:');
+    lines.push(`- **Review Status**: ${issue.reviewDisposition}`);
+    if (issue.reviewReason) lines.push(`- **Review Rationale**: ${escapeHtml(sanitizeMarkdownProse(issue.reviewReason))}`);
+    if (issue.reviewer) lines.push(`- **Reviewer (self-reported)**: ${escapeHtml(sanitizeMarkdownProse(issue.reviewer))}`);
+    if (issue.reviewedAt) lines.push(`- **Reviewed At**: ${issue.reviewedAt}`);
+    lines.push('- Review decisions do not change automated evidence or verify a candidate fix.');
+    lines.push('');
+  }
   // Designer Decision
   if (issue.designerDecision) {
     lines.push('**Designer-in-the-Loop Decision**:');
@@ -299,7 +308,7 @@ export function generateMarkdownReport(report: ReportModel): string {
   sections.push('');
 
   // 8. Designer Decisions
-  const decided = report.groupedIssues.filter((i) => Boolean(i.designerDecision));
+  const decided = report.groupedIssues.filter((i) => Boolean(i.designerDecision || i.reviewDisposition));
   sections.push('## Designer Decisions');
   sections.push('');
   if (decided.length === 0) {
@@ -309,9 +318,9 @@ export function generateMarkdownReport(report: ReportModel): string {
     sections.push('| :--- | :--- | :--- | :--- |');
     for (const d of decided) {
       const title = escapeHtml(d.title);
-      const dec = `\`${d.designerDecision}\``;
+      const dec = `\`${d.reviewDisposition || d.designerDecision}\``;
       const prio = `${d.currentPriority}`;
-      const reason = escapeHtml(d.designerReason || '—');
+      const reason = escapeHtml(sanitizeMarkdownProse(d.reviewReason || d.designerReason || '—'));
       sections.push(`| ${title} | ${dec} | ${prio} | ${reason} |`);
     }
   }
@@ -332,8 +341,8 @@ export function generateMarkdownReport(report: ReportModel): string {
       const ts = h.timestamp;
       const act = `\`${h.action}\``;
       const title = escapeHtml(h.issueTitle);
-      const transition = `${h.previousState || 'none'} &rarr; ${h.newState}`;
-      const reason = escapeHtml(h.reason || '—');
+      const transition = h.newDisposition ? `${h.previousDisposition || 'none'} &rarr; ${h.newDisposition}` : `${h.previousState || 'none'} &rarr; ${h.newState || 'none'}`;
+      const reason = escapeHtml(sanitizeMarkdownProse(`${h.reason || '—'}${h.reviewer ? ` (Reviewer, self-reported: ${h.reviewer})` : ''}`));
       sections.push(`| ${ts} | ${act} | ${title} | ${transition} | ${reason} |`);
     }
   }

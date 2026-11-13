@@ -1,4 +1,4 @@
-import { AuditRun } from '@/lib/schema/ux-issue';
+import { AuditRun, effectiveReviewDisposition } from '@/lib/schema/ux-issue';
 import {
   ReportModel,
   ReportModelSchema,
@@ -109,6 +109,10 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
       aiExplanationResult: group.aiExplanationResult,
       aiGenerationHistory: group.aiGenerationHistory,
       // Designer
+      reviewDisposition: effectiveReviewDisposition(group),
+      reviewReason: group.reviewReason || (group.designerDecision === 'accept' || group.designerDecision === 'reject' ? group.designerReason : undefined),
+      reviewer: group.reviewer,
+      reviewedAt: group.reviewedAt,
       designerDecision: group.designerDecision,
       designerReason: group.designerReason,
       editedRecommendation: group.editedRecommendation,

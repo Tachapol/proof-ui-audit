@@ -119,3 +119,22 @@ Available fixture categories:
 ## License
 
 This is a research prototype. No license is specified.
+
+## Issue review dispositions
+
+Issue cards support an independent review status: **Confirmed Issue**, **False
+Positive**, **Needs Review**, or **Accepted Risk**. Accepted risk acknowledges a
+real issue that remains unfixed; it does not mark the automated check as passed.
+Every new issue review requires a rationale and a self-reported reviewer/risk
+approver name. This PoC has no authenticated reviewer identity.
+
+Review transitions are appended to the decision log and included in JSON and
+Markdown exports. Editing recommendations and reprioritizing preserve the review
+status. Existing accept/reject events remain readable as confirmed issue/false
+positive; legacy actions without a reviewer are not attributed to an earlier
+reviewer. Candidate fix approval remains separate from issue review.
+
+Run `npx playwright test tests/issue-review.spec.ts` to verify review transitions,
+reload persistence, exports, failed-save draft preservation, and mobile layout
+through the UI. The test uses a controlled saved audit with the real decision and
+export APIs; it does not invoke an external AI provider.

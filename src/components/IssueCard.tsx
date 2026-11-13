@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { GroupedUXIssue, DesignerDecision, Priority } from '@/lib/schema/ux-issue';
 import { Icon } from './Icon';
 import { OccurrenceList } from './OccurrenceList';
+import { IssueReview } from './IssueReview';
 import { DecisionLog } from './DecisionLog';
 import { IterationProofView } from './IterationProofView';
 import { getDefaultRecommendation } from '@/lib/audit/recommendation';
@@ -782,6 +783,9 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
 
       {/* Append-Only Decision History Log */}
       <div className="decision-history-slot">
+        <IssueReview issue={issue} runId={runId} onSaved={updated => {
+          setIssue(updated); onDecisionSaved?.(updated);
+        }} />
         <DecisionLog history={issue.decisionHistory || []} fingerprint={issue.fingerprint} />
       </div>
 

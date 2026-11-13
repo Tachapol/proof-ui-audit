@@ -1,3 +1,4 @@
+import { ReviewDispositionSchema, effectiveReviewDisposition, type ReviewDisposition } from '@/lib/schema/ux-issue';
 import fs from 'fs/promises';
 import path from 'path';
 import { AuditRun, AuditRunSchema, DesignerDecision, GroupedUXIssue, Priority } from '@/lib/schema/ux-issue';
@@ -129,6 +130,7 @@ export async function updateDesignerDecision(
 
     const trimmedReason = reason?.trim();
     const previousDecision = targetGroup.designerDecision;
+    const previousDisposition = effectiveReviewDisposition(targetGroup);
     const previousPriority = targetGroup.currentPriority;
     const originalRec = targetGroup.representative.aiRecommendation || targetGroup.representative.description;
     const currentEffectiveRec =
@@ -168,6 +170,15 @@ export async function updateDesignerDecision(
       }
     }
 
+    // Legacy accept/reject API actions also update the independent issue disposition.
+    // Do not assign an old reviewer's name to a new, unidentified legacy action.
+    if (decision === 'accept' || decision === 'reject') {
+      targetGroup.reviewDisposition = decision === 'accept' ? 'confirmed_issue' : 'false_positive';
+      targetGroup.reviewReason = trimmedReason || undefined;
+      targetGroup.reviewer = undefined;
+      targetGroup.reviewedAt = new Date().toISOString();
+    }
+
     // Apply mutable designer-authored state
     targetGroup.designerDecision = decision;
     targetGroup.designerReason = trimmedReason || undefined;
@@ -191,6 +202,8 @@ export async function updateDesignerDecision(
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
       action: decision,
+      previousDisposition,
+      newDisposition: effectiveReviewDisposition(targetGroup),
       reason: trimmedReason || undefined,
       previousState: previousDecision || undefined,
       newState: decision,
@@ -202,6 +215,10 @@ export async function updateDesignerDecision(
     });
 
     // Update representative issue without touching deterministic evidence
+    Object.assign(targetGroup.representative, {
+      reviewDisposition: targetGroup.reviewDisposition, reviewReason: targetGroup.reviewReason,
+      reviewer: targetGroup.reviewer, reviewedAt: targetGroup.reviewedAt,
+    });
     targetGroup.representative.designerDecision = decision;
     targetGroup.representative.designerReason = trimmedReason || undefined;
 
@@ -268,3 +285,29 @@ export async function updateAIExplanation(
   });
 }
 
+
+/** Reviewer names are self-reported in this single-user PoC, not authenticated identities. */
+export async function updateReviewDisposition(
+  runId: string, fingerprint: string, disposition: ReviewDisposition, reason: string, reviewer: string
+): Promise<GroupedUXIssue | null> {
+  const parsed = ReviewDispositionSchema.parse(disposition);
+  const trimmedReason = reason.trim(), trimmedReviewer = reviewer.trim();
+  if (trimmedReason.length < 3 || trimmedReason.length > 2000)
+    throw new Error('A review rationale of 3–2000 characters is required.');
+  if (!trimmedReviewer || trimmedReviewer.length > 120)
+    throw new Error('A reviewer name of 1–120 characters is required.');
+  return withRunLock(runId, async () => {
+    const run = await getAuditRun(runId);
+    const group = run?.groupedIssues.find(g => g.fingerprint === fingerprint);
+    if (!run || !group) return null;
+    const previousDisposition = effectiveReviewDisposition(group);
+    const timestamp = new Date().toISOString();
+    const review = { reviewDisposition: parsed, reviewReason: trimmedReason, reviewer: trimmedReviewer, reviewedAt: timestamp };
+    Object.assign(group, review);
+    Object.assign(group.representative, review);
+    group.decisionHistory.push({ id: crypto.randomUUID(), timestamp, action: 'review_disposition',
+      reason: trimmedReason, reviewer: trimmedReviewer, previousDisposition, newDisposition: parsed });
+    await saveAuditRun(run);
+    return group;
+  });
+}

@@ -8,6 +8,22 @@ export type AuditStatus = z.infer<typeof AuditStatusSchema>;
 export const DesignerDecisionSchema = z.enum(['accept', 'reject', 'edit', 'reprioritize']);
 export type DesignerDecision = z.infer<typeof DesignerDecisionSchema>;
 
+export const ReviewDispositionSchema = z.enum(['confirmed_issue', 'false_positive', 'needs_review', 'accepted_risk']);
+export type ReviewDisposition = z.infer<typeof ReviewDispositionSchema>;
+export const REVIEW_DISPOSITION_LABELS: Record<ReviewDisposition, string> = {
+  confirmed_issue: 'Confirmed Issue', false_positive: 'False Positive',
+  needs_review: 'Needs Review', accepted_risk: 'Accepted Risk',
+};
+// Legacy accept/reject records remain readable; do not infer a disposition from edit/reprioritize.
+export function effectiveReviewDisposition(issue: {
+  reviewDisposition?: ReviewDisposition; designerDecision?: DesignerDecision;
+  decisionHistory?: { action: string }[];
+}): ReviewDisposition | undefined {
+  if (issue.reviewDisposition) return issue.reviewDisposition;
+  const legacy = [...(issue.decisionHistory || [])].reverse().find(event => event.action === 'accept' || event.action === 'reject')?.action || issue.designerDecision;
+  return legacy === 'accept' ? 'confirmed_issue' : legacy === 'reject' ? 'false_positive' : undefined;
+}
+
 export const PrioritySchema = z.enum(['P0', 'P1', 'P2', 'P3']);
 export type Priority = z.infer<typeof PrioritySchema>;
 
@@ -57,6 +73,10 @@ export const UXIssueSchema = z.object({
   aiExplanationResult: AIExplanationResultSchema.optional(),
   aiGenerationHistory: z.array(AIGenerationRecordSchema).optional(),
 
+  reviewDisposition: ReviewDispositionSchema.optional(),
+  reviewReason: z.string().optional(),
+  reviewer: z.string().optional(),
+  reviewedAt: z.string().datetime().optional(),
   designerDecision: DesignerDecisionSchema.optional(),
   designerReason: z.string().optional(),
   editedRecommendation: z.string().optional(),
@@ -66,7 +86,10 @@ export type UXIssue = z.infer<typeof UXIssueSchema>;
 export const DecisionRecordSchema = z.object({
   id: z.string().min(1).default(() => crypto.randomUUID()),
   timestamp: z.string().datetime(),
-  action: DesignerDecisionSchema,
+  action: z.enum(['accept', 'reject', 'edit', 'reprioritize', 'review_disposition']),
+  reviewer: z.string().optional(),
+  previousDisposition: ReviewDispositionSchema.optional(),
+  newDisposition: ReviewDispositionSchema.optional(),
   reason: z.string().optional(),
   previousState: DesignerDecisionSchema.optional(),
   newState: DesignerDecisionSchema.optional(),
@@ -91,6 +114,10 @@ export const GroupedUXIssueSchema = z.object({
   aiRecommendation: z.string().optional(),
   aiExplanationResult: AIExplanationResultSchema.optional(),
   aiGenerationHistory: z.array(AIGenerationRecordSchema).optional(),
+  reviewDisposition: ReviewDispositionSchema.optional(),
+  reviewReason: z.string().optional(),
+  reviewer: z.string().optional(),
+  reviewedAt: z.string().datetime().optional(),
   designerDecision: DesignerDecisionSchema.optional(),
   designerReason: z.string().optional(),
   editedRecommendation: z.string().optional(),

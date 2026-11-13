@@ -5,6 +5,7 @@ import {
   PrioritySchema,
   DesignerDecisionSchema,
   DecisionRecordSchema,
+  ReviewDispositionSchema,
   ViewportSchema,
   BoundingBoxSchema,
 } from '@/lib/schema/ux-issue';
@@ -117,6 +118,10 @@ export const ReportGroupedIssueSchema = z.object({
   aiRecommendation: z.string().optional(),
   aiExplanationResult: AIExplanationResultSchema.optional(),
   aiGenerationHistory: z.array(AIGenerationRecordSchema).optional(),
+  reviewDisposition: ReviewDispositionSchema.optional(),
+  reviewReason: z.string().optional(),
+  reviewer: z.string().optional(),
+  reviewedAt: z.string().datetime().optional(),
   // Designer Decisions
   designerDecision: DesignerDecisionSchema.optional(),
   designerReason: z.string().optional(),
