@@ -606,4 +606,86 @@ describe('Report Export — Phase 6A', () => {
       expect(bodyText).toContain('# ProofUI UX/UI Audit Report');
     });
   });
+
+  describe('Remediation & Iteration Proof Export', () => {
+    it('connects candidate iteration, measurements, and regression evidence into JSON and Markdown reports', () => {
+      const mockRun = createMockRun();
+      mockRun.groupedIssues[0].iterationComparison = {
+        candidateId: 'candidate-opt-1',
+        candidateName: 'Option 1: Ergonomic & Luminance',
+        candidateCode: '<button class="min-h-[44px] min-w-[44px] px-3.5 py-2">Submit</button>',
+        viewport: { width: 375, height: 667 },
+        targetSelector: '#submit-btn',
+        baselineMeasurement: { width: 18, height: 18 },
+        baselineStatus: 'candidateFail',
+        candidateMeasurement: { width: 44, height: 44 },
+        candidateStatus: 'pass',
+        regressionResult: 'no_new_failures',
+        verificationStatus: 'verified',
+        regressionCounts: { resolved: 2, persistent: 0, new: 0, unverified: 0 },
+        plainLanguageSummary: 'Target enlarged to 44×44 CSS px meeting SC 2.5.8.',
+        finalDesignerDecision: 'accept',
+        finalDesignerReason: 'Verified larger target meets ergonomic requirements.',
+      };
+
+      const normalized = buildNormalizedReport(mockRun);
+      expect(normalized.groupedIssues[0].iterationComparison?.verificationStatus).toBe('verified');
+      expect(normalized.summary.remediationSummary).toEqual({
+        totalIterated: 1,
+        verifiedCount: 1,
+        regressedCount: 0,
+        unableToVerifyCount: 0,
+      });
+
+      // JSON export check
+      const json = generateJsonReport(normalized);
+      const parsed = JSON.parse(json);
+      expect(parsed.groupedIssues[0].iterationComparison.candidateName).toBe('Option 1: Ergonomic & Luminance');
+      expect(parsed.groupedIssues[0].iterationComparison.regressionCounts).toEqual({
+        resolved: 2,
+        persistent: 0,
+        new: 0,
+        unverified: 0,
+      });
+
+      // Markdown export check
+      const md = generateMarkdownReport(normalized);
+      expect(md).toContain('#### 🔄 Remediation & Iteration Proof');
+      expect(md).toContain('Selected checks passed (WCAG 2.5.8 & 1.4.3 only)');
+      expect(md).toContain('Option 1: Ergonomic &amp; Luminance');
+      expect(md).toContain('| **Baseline (Before)** | `candidateFail` | `{"width":18,"height":18}` |');
+      expect(md).toContain('| **Candidate (After)** | `pass` | `{"width":44,"height":44}` |');
+      expect(md).toContain('min-h-[44px]');
+      expect(md).toContain('| Remediation & Iteration | Evaluated: 1 | Verified: 1 | Regressed: 0 | Unverified: 0 |');
+      expect(md).toContain('- **Final Designer Decision**: `accept`');
+    });
+
+    it('renders unable_to_verify warning block and explanation in Markdown when verification is incomplete', () => {
+      const mockRun = createMockRun();
+      mockRun.groupedIssues[0].iterationComparison = {
+        candidateId: 'candidate-error',
+        candidateName: 'Option Error: Missing Element',
+        candidateCode: '<div>No element</div>',
+        baselineMeasurement: { width: 18, height: 18 },
+        baselineStatus: 'candidateFail',
+        candidateMeasurement: {},
+        verificationStatus: 'unable_to_verify',
+        verificationErrors: [
+          'Some baseline elements or viewports were not found in the re-audit.',
+          'Re-audit returned no measurements.',
+        ],
+        regressionResult: 'unable_to_verify',
+        regressionCounts: { resolved: 0, persistent: 0, new: 0, unverified: 1 },
+      };
+
+      const normalized = buildNormalizedReport(mockRun);
+      expect(normalized.summary.remediationSummary?.unableToVerifyCount).toBe(1);
+
+      const md = generateMarkdownReport(normalized);
+      expect(md).toContain('Unable to verify (Incomplete verification)');
+      expect(md).toContain('> [!WARNING]');
+      expect(md).toContain('> **Verification Incomplete / ตรวจสอบไม่ได้**:');
+      expect(md).toContain('Some baseline elements or viewports were not found in the re-audit.');
+    });
+  });
 });

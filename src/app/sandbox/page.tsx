@@ -20,6 +20,8 @@ import {
   XCircle,
   Sliders,
   ExternalLink,
+  Download,
+  FileText,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -155,6 +157,7 @@ export default function SandboxPage() {
         body: JSON.stringify({
           html: code,
           issues: auditRun.rawIssues,
+          runId: auditRun.id,
         }),
       });
       const data = await res.json();
@@ -246,6 +249,39 @@ export default function SandboxPage() {
         </div>
 
         <nav className="flex items-center gap-2 sm:gap-3">
+          {auditRun && (
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs gap-1.5 border-zinc-200 text-zinc-700 hover:bg-zinc-100"
+                asChild
+              >
+                <a
+                  href={`/api/export?runId=${auditRun.id}&format=json`}
+                  download={`proofui-sandbox-${auditRun.id}.json`}
+                >
+                  <Download className="size-3.5" />
+                  <span>JSON Report</span>
+                </a>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs gap-1.5 border-zinc-200 text-zinc-700 hover:bg-zinc-100"
+                asChild
+              >
+                <a
+                  href={`/api/export?runId=${auditRun.id}&format=markdown`}
+                  download={`proofui-sandbox-${auditRun.id}.md`}
+                >
+                  <FileText className="size-3.5" />
+                  <span>Markdown Report</span>
+                </a>
+              </Button>
+            </div>
+          )}
+
           <Button
             variant="outline"
             size="sm"

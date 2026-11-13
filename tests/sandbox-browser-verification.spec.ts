@@ -4,7 +4,9 @@ test.describe('Sandbox Real Browser Verification: 4 Core Scenarios', () => {
   test.setTimeout(90000);
 
   test('Case 1: Resolved — fixes touch target & contrast with true measured evidence and Selected checks passed badge', async ({ page }) => {
+    const auditPromise = page.waitForResponse(resp => resp.url().includes('/api/sandbox/audit') && resp.status() === 200);
     await page.goto('/sandbox');
+    await auditPromise;
 
     // 1. Textarea editor should contain initial snippet and iframe preview renders
     await expect(page.locator('textarea')).toHaveValue(/Course Registration/);
@@ -43,6 +45,17 @@ test.describe('Sandbox Real Browser Verification: 4 Core Scenarios', () => {
     // Textarea editor should now contain min-h-[44px]
     const textarea = page.locator('textarea');
     await expect(textarea).toHaveValue(/min-h-\[44px\]/);
+
+    // 5. Verify Export JSON and Markdown buttons exist and link to export endpoints
+    const exportJsonLink = page.locator('a:has-text("JSON Report")');
+    await expect(exportJsonLink).toBeVisible();
+    const jsonHref = await exportJsonLink.getAttribute('href');
+    expect(jsonHref).toContain('/api/export?runId=');
+
+    const exportMdLink = page.locator('a:has-text("Markdown Report")');
+    await expect(exportMdLink).toBeVisible();
+    const mdHref = await exportMdLink.getAttribute('href');
+    expect(mdHref).toContain('&format=markdown');
   });
 
   test('Case 2: Regressed — shows Checks failed and regression evidence when new failure introduced', async ({ page }) => {

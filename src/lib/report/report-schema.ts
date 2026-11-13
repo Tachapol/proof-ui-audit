@@ -41,6 +41,56 @@ export const ReportOccurrenceSchema = z.object({
   exception: z.string().optional(),
 });
 
+export const ReportIterationComparisonSchema = z.object({
+  overrideId: z.string().optional(),
+  overrideName: z.string().optional(),
+  candidateId: z.string().optional(),
+  candidateName: z.string().optional(),
+  appliedCss: z.string().optional(),
+  candidateCode: z.string().optional(),
+  viewport: ViewportSchema.optional(),
+  targetSelector: z.string().optional(),
+
+  // Baseline
+  baselineMeasurement: z.record(z.unknown()).default({}),
+  baselineStatus: AuditStatusSchema.optional(),
+  baselineScreenshotPath: z.string().optional(),
+
+  // Candidate
+  candidateMeasurement: z.record(z.unknown()).default({}),
+  candidateStatus: AuditStatusSchema.optional(),
+  candidateScreenshotPath: z.string().optional(),
+
+  // Comparison & Measurements
+  expectedThreshold: z.record(z.unknown()).optional(),
+  measurementDelta: z.record(z.unknown()).optional(),
+  regressionResult: z.enum(['improved', 'unchanged', 'regressed', 'unable_to_verify', 'no_new_failures']).optional(),
+  verificationStatus: z.enum(['verified', 'failed', 'unable_to_verify']).optional(),
+  verificationErrors: z.array(z.string()).optional(),
+  regressionCounts: z.object({
+    resolved: z.number().int().nonnegative(),
+    persistent: z.number().int().nonnegative(),
+    new: z.number().int().nonnegative(),
+    unverified: z.number().int().nonnegative(),
+  }).optional(),
+  plainLanguageSummary: z.string().optional(),
+
+  // Events & Decisions
+  approvalTimestamp: z.string().optional(),
+  approvalReason: z.string().optional(),
+  finalDesignerDecision: DesignerDecisionSchema.optional(),
+  finalDesignerReason: z.string().optional(),
+  finalDecisionTimestamp: z.string().optional(),
+  eventHistory: z.array(z.object({
+    id: z.string(),
+    timestamp: z.string(),
+    type: z.string(),
+    description: z.string(),
+    metadata: z.record(z.unknown()).optional(),
+  })).optional(),
+});
+export type ReportIterationComparison = z.infer<typeof ReportIterationComparisonSchema>;
+
 export const ReportGroupedIssueSchema = z.object({
   fingerprint: z.string(),
   ruleId: z.string(),
@@ -72,6 +122,8 @@ export const ReportGroupedIssueSchema = z.object({
   designerReason: z.string().optional(),
   editedRecommendation: z.string().optional(),
   decisionHistory: z.array(DecisionRecordSchema).optional(),
+  // Remediation & Iteration Proof
+  iterationComparison: ReportIterationComparisonSchema.optional(),
   // Occurrences
   occurrences: z.array(ReportOccurrenceSchema),
 });
@@ -97,6 +149,14 @@ export const ReportSummarySchema = z.object({
     P2: z.number().int().nonnegative(),
     P3: z.number().int().nonnegative(),
   }),
+  remediationSummary: z
+    .object({
+      totalIterated: z.number().int().nonnegative(),
+      verifiedCount: z.number().int().nonnegative(),
+      regressedCount: z.number().int().nonnegative(),
+      unableToVerifyCount: z.number().int().nonnegative(),
+    })
+    .optional(),
 });
 
 export const ReportModelSchema = z.object({

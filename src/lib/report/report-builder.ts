@@ -113,6 +113,38 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
       designerReason: group.designerReason,
       editedRecommendation: group.editedRecommendation,
       decisionHistory: group.decisionHistory,
+      // Remediation / Iteration Proof
+      iterationComparison: group.iterationComparison
+        ? {
+            overrideId: group.iterationComparison.overrideId,
+            overrideName: group.iterationComparison.overrideName,
+            candidateId: group.iterationComparison.candidateId,
+            candidateName: group.iterationComparison.candidateName,
+            appliedCss: group.iterationComparison.appliedCss,
+            candidateCode: group.iterationComparison.candidateCode,
+            viewport: group.iterationComparison.viewport,
+            targetSelector: group.iterationComparison.targetSelector,
+            baselineMeasurement: group.iterationComparison.baselineMeasurement || {},
+            baselineStatus: group.iterationComparison.baselineStatus,
+            baselineScreenshotPath: sanitizePath(group.iterationComparison.baselineScreenshotPath),
+            candidateMeasurement: group.iterationComparison.candidateMeasurement || {},
+            candidateStatus: group.iterationComparison.candidateStatus,
+            candidateScreenshotPath: sanitizePath(group.iterationComparison.candidateScreenshotPath),
+            expectedThreshold: group.iterationComparison.expectedThreshold,
+            measurementDelta: group.iterationComparison.measurementDelta,
+            regressionResult: group.iterationComparison.regressionResult,
+            verificationStatus: group.iterationComparison.verificationStatus,
+            verificationErrors: group.iterationComparison.verificationErrors,
+            regressionCounts: group.iterationComparison.regressionCounts,
+            plainLanguageSummary: group.iterationComparison.plainLanguageSummary,
+            approvalTimestamp: group.iterationComparison.approvalTimestamp,
+            approvalReason: group.iterationComparison.approvalReason,
+            finalDesignerDecision: group.iterationComparison.finalDesignerDecision,
+            finalDesignerReason: group.iterationComparison.finalDesignerReason,
+            finalDecisionTimestamp: group.iterationComparison.finalDecisionTimestamp,
+            eventHistory: group.iterationComparison.eventHistory,
+          }
+        : undefined,
       // Underlying occurrences
       occurrences,
     };
@@ -124,6 +156,30 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
   const candidateFailCount = groupedIssues.filter((g) => g.status === 'candidateFail').length;
   const needsReviewCount = groupedIssues.filter((g) => g.status === 'needsReview').length;
   const passCount = groupedIssues.filter((g) => g.status === 'pass').length;
+
+  const iteratedIssues = groupedIssues.filter((g) => g.iterationComparison !== undefined);
+  const remediationSummary =
+    iteratedIssues.length > 0
+      ? {
+          totalIterated: iteratedIssues.length,
+          verifiedCount: iteratedIssues.filter(
+            (g) =>
+              g.iterationComparison?.verificationStatus === 'verified' ||
+              g.iterationComparison?.regressionResult === 'improved' ||
+              g.iterationComparison?.regressionResult === 'no_new_failures'
+          ).length,
+          regressedCount: iteratedIssues.filter(
+            (g) =>
+              g.iterationComparison?.verificationStatus === 'failed' ||
+              g.iterationComparison?.regressionResult === 'regressed'
+          ).length,
+          unableToVerifyCount: iteratedIssues.filter(
+            (g) =>
+              g.iterationComparison?.verificationStatus === 'unable_to_verify' ||
+              g.iterationComparison?.regressionResult === 'unable_to_verify'
+          ).length,
+        }
+      : undefined;
 
   const model: ReportModel = {
     schemaVersion: '1.0.0',
@@ -143,6 +199,7 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
       candidateFailCount,
       needsReviewCount,
       priorityCounts,
+      remediationSummary,
     },
     disclaimers: run.fixtureId === 'mvp-contrast-demo' ? ['This MVP report covers Text Contrast only for four controlled cases; other criteria are not included.', ...STANDARD_DISCLAIMERS.slice(1)] : STANDARD_DISCLAIMERS,
     limitations: run.fixtureId === 'mvp-contrast-demo' ? ['MVP viewport: 375 × 667 CSS px. Designer acceptance does not apply a CSS patch or verify a fix.', ...KNOWN_LIMITATIONS.slice(1)] : KNOWN_LIMITATIONS,
