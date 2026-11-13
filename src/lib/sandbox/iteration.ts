@@ -1,37 +1,25 @@
 import { runBrowserAudit, DEFAULT_AUDIT_VIEWPORTS } from '@/lib/audit/browser';
 import { groupUXIssues } from '@/lib/audit/grouping';
 import { saveSandboxSnippet } from './store';
-import { UXIssue, GroupedUXIssue } from '@/lib/schema/ux-issue';
+import { compareRegression, hasMeasurement, measurementKey, type RegressionComparison } from './regression';
+import { UXIssue } from '@/lib/schema/ux-issue';
+export * from './types';
+import type { CandidateCheck, VerificationStatus, CandidateMeasurement, SandboxCandidate } from './types';
 
-export interface CandidateCheck {
-  id: string;
-  label: string;
-  passed: boolean;
-  deltaText: string;
-}
-
-export interface SandboxCandidate {
-  id: string;
-  name: string;
-  badge: string;
-  description: string;
-  code: string;
-  verified: boolean;
-  checks: CandidateCheck[];
-  metrics: {
-    targetSize?: { before: string; after: string; passed: boolean };
-    contrast?: { before: string; after: string; passed: boolean };
-    spacing?: { before: string; after: string; passed: boolean };
-  };
-  summary: {
-    passCount: number;
-    candidateFailCount: number;
-    needsReviewCount: number;
-  };
+function measuredSummary(issues: UXIssue[], ruleId: string): string {
+  const values = issues.filter(issue => issue.ruleId === ruleId).flatMap(issue => {
+    const m = issue.measured;
+    if (ruleId === 'target-size' && typeof m.width === 'number' && Number.isFinite(m.width)
+      && typeof m.height === 'number' && Number.isFinite(m.height)) return [`${m.width} × ${m.height} CSS px`];
+    if (ruleId === 'text-contrast' && typeof m.contrastRatio === 'number' && Number.isFinite(m.contrastRatio))
+      return [`${m.contrastRatio}:1`];
+    return [];
+  });
+  return [...new Set(values)].join('; ') || 'Unable to verify';
 }
 
 /**
- * Intelligent code mutator that produces 3 distinct accessible designs
+ * Template-based code mutator producing three candidate designs for evaluation
  */
 function produceCodeVariants(baselineHtml: string): {
   variant1: string;
@@ -62,7 +50,7 @@ function produceCodeVariants(baselineHtml: string): {
   v2 = v2.replace(/\bbg-(gray|zinc|slate)-(100|200)\b/g, 'bg-slate-50 border border-slate-300');
   v2 = v2.replace(/color:\s*(#[a-fA-F0-9]{3,6}|rgba?\([^)]+\))/gi, 'color: #1e293b');
 
-  // 3. Variant 3: High-Contrast & Focus Priority (Maximizes WCAG AAA conformance)
+  // 3. Variant 3: High-Contrast & Focus candidate (requires measurement)
   let v3 = baselineHtml;
   v3 = v3.replace(/class="([^"]*button[^"]*|[^"]*btn[^"]*)"/gi, (match, cls) => {
     return `class="${cls} min-h-[44px] min-w-[44px] px-4 py-2.5 rounded-md font-semibold border-2 border-slate-900 text-slate-950 bg-white hover:bg-slate-100 inline-flex items-center justify-center"`;
@@ -86,21 +74,21 @@ export async function runMultiCandidateIteration(
       id: 'candidate-opt-1',
       name: 'Option 1: Ergonomic & Luminance',
       badge: 'Recommended',
-      description: 'Preserves your original layout structure while expanding touch targets to 44px and adjusting text luminance to pass WCAG AA.',
+      description: 'Proposes larger targets and darker text. Inspect measured results before accepting.',
       code: variant1,
     },
     {
       id: 'candidate-opt-2',
       name: 'Option 2: Modern Accessible Palette',
       badge: 'Balanced',
-      description: 'Refines typography hierarchy, interactive button margins, and slate tokens for clean brand aesthetics with verified contrast.',
+      description: 'Proposes typography and palette changes. Contrast and layout require evaluation.',
       code: variant2,
     },
     {
       id: 'candidate-opt-3',
-      name: 'Option 3: High-Contrast AAA',
-      badge: 'High Compliance',
-      description: 'Applies strong contrast ratios (≥ 7:1) and tactile focus borders for maximum accessibility across all users.',
+      name: 'Option 3: High-Contrast Candidate',
+      badge: 'Requires Evaluation',
+      description: 'Proposes darker text and stronger borders. Full accessibility and interaction behavior are not verified.',
       code: variant3,
     },
   ];
@@ -113,6 +101,7 @@ export async function runMultiCandidateIteration(
 
     // Re-audit candidate in isolated browser
     let candidateIssues: UXIssue[] = [];
+    const verificationErrors: string[] = [];
     try {
       const auditRes = await runBrowserAudit({
         url: targetUrl,
@@ -121,69 +110,74 @@ export async function runMultiCandidateIteration(
         viewports: DEFAULT_AUDIT_VIEWPORTS,
       });
       candidateIssues = auditRes.issues;
+      verificationErrors.push(...auditRes.errors);
+      if (!candidateIssues.length) verificationErrors.push('Re-audit returned no measurements.');
     } catch {
-      // Fallback
+      verificationErrors.push('Re-audit failed. Retry the audit before relying on this candidate.');
     }
 
+    const auditErrors = [...verificationErrors];
     const grouped = groupUXIssues(candidateIssues);
     const passCount = grouped.filter((g) => g.status === 'pass').length;
     const failCount = grouped.filter((g) => g.status === 'candidateFail').length;
     const reviewCount = grouped.filter((g) => g.status === 'needsReview').length;
 
-    // Evaluate target size improvements
-    const baselineTargetFails = baselineIssues.filter((i) => i.ruleId === 'target-size' && i.status === 'candidateFail');
-    const candidateTargetFails = candidateIssues.filter((i) => i.ruleId === 'target-size' && i.status === 'candidateFail');
-    const targetPassed = candidateTargetFails.length === 0;
-
-    // Evaluate contrast improvements
-    const baselineContrastFails = baselineIssues.filter((i) => i.ruleId.includes('contrast') && i.status === 'candidateFail');
-    const candidateContrastFails = candidateIssues.filter((i) => i.ruleId.includes('contrast') && i.status === 'candidateFail');
-    const contrastPassed = candidateContrastFails.length === 0;
-
+    const candidateByKey = new Map(candidateIssues.map(issue => [measurementKey(issue), issue]));
+    const measurements: CandidateMeasurement[] = baselineIssues.map(issue => {
+      const candidate = candidateByKey.get(measurementKey(issue));
+      return {
+        ruleId: issue.ruleId, selector: issue.selector, viewport: issue.viewport,
+        before: issue.measured, after: candidate?.measured, expected: candidate?.expected || issue.expected,
+        status: candidate?.status || 'unable_to_verify',
+      };
+    });
+    if (!baselineIssues.length) verificationErrors.push('Baseline has no measurements to compare.');
+    if (measurements.some(row => row.status === 'unable_to_verify'))
+      verificationErrors.push('Some baseline elements or viewports were not found in the re-audit.');
+    if (baselineIssues.some(issue => !hasMeasurement(issue)) || candidateIssues.some(issue => !hasMeasurement(issue)))
+      verificationErrors.push('Required measurement values are missing or invalid.');
+    const regression = compareRegression(baselineIssues, candidateIssues, auditErrors);
+    const incomplete = regression.status === 'unable_to_verify' || verificationErrors.length > 0 || candidateIssues.some(issue => issue.status === 'needsReview');
+    const verificationStatus: VerificationStatus = incomplete ? 'unable_to_verify'
+      : failCount > 0 || regression.status === 'regressed' ? 'failed' : 'verified';
+    const familyCheck = (ruleIds: string[]) => {
+      const issues = candidateIssues.filter(issue => ruleIds.includes(issue.ruleId));
+      return !verificationErrors.length && issues.length > 0 && issues.every(issue => issue.status === 'pass')
+        && measurements.filter(row => ruleIds.includes(row.ruleId)).every(row => row.status === 'pass');
+    };
+    const targetPassed = familyCheck(['target-size']);
+    const contrastPassed = familyCheck(['text-contrast']);
     const checks: CandidateCheck[] = [
-      {
-        id: 'target-size-check',
-        label: 'Touch Target Ergonomics (≥ 44px)',
-        passed: targetPassed,
-        deltaText: targetPassed
-          ? 'Touch target expanded to 44×44px (WCAG 2.2 SC 2.5.8 Compliant)'
-          : `${candidateTargetFails.length} elements need size adjustment`,
-      },
-      {
-        id: 'contrast-check',
-        label: 'Color Luminance & Contrast (≥ 4.5:1)',
-        passed: contrastPassed,
-        deltaText: contrastPassed
-          ? 'Color contrast exceeds 4.5:1 ratio (WCAG 2.2 SC 1.4.3 Compliant)'
-          : `${candidateContrastFails.length} text elements have low contrast`,
-      },
-      {
-        id: 'regression-check',
-        label: 'Zero Visual Regression',
-        passed: failCount === 0 || failCount < baselineIssues.filter((i) => i.status === 'candidateFail').length,
-        deltaText: failCount === 0 ? 'All detected accessibility failures resolved' : `${failCount} remaining issues to review`,
-      },
+      { id: 'regression-check', label: 'Occurrence regression comparison',
+        passed: regression.status === 'no_new_failures',
+        deltaText: `${regression.counts.resolved} resolved; ${regression.counts.persistent} persistent; ${regression.counts.new} new; ${regression.counts.unverified} unverified. Selected automated rules only.` },
+      { id: 'target-size-check', label: 'Measured target-size checks', passed: targetPassed,
+        deltaText: `Target size: ${verificationErrors.length ? 'Unable to verify' : measuredSummary(candidateIssues, 'target-size')}` },
+      { id: 'contrast-check', label: 'Measured text-contrast checks', passed: contrastPassed,
+        deltaText: `Text contrast: ${verificationErrors.length ? 'Unable to verify' : measuredSummary(candidateIssues, 'text-contrast')}` },
+      { id: 'audit-check', label: 'Selected automated checks only', passed: verificationStatus === 'verified',
+        deltaText: verificationStatus === 'verified'
+          ? 'Selected automated checks passed. Visual and interaction regressions are not verified.'
+          : verificationErrors.join(' ') || `${failCount} candidate failures; ${reviewCount} findings need human review.` },
     ];
 
-    const isFullyVerified = checks.every((c) => c.passed) || failCount < baselineIssues.filter((i) => i.status === 'candidateFail').length;
-
     results.push({
-      id: cfg.id,
-      name: cfg.name,
-      badge: cfg.badge,
-      description: cfg.description,
-      code: cfg.code,
-      verified: isFullyVerified,
+      ...cfg,
+      verified: verificationStatus === 'verified',
+      verificationStatus,
+      verificationErrors,
+      measurements,
+      regression,
       checks,
       metrics: {
         targetSize: {
-          before: baselineTargetFails.length > 0 ? '< 24px' : '≥ 24px',
-          after: targetPassed ? '44 × 44 px' : '32 × 32 px',
+          before: measuredSummary(baselineIssues, 'target-size'),
+          after: verificationErrors.length ? 'Unable to verify' : measuredSummary(candidateIssues, 'target-size'),
           passed: targetPassed,
         },
         contrast: {
-          before: baselineContrastFails.length > 0 ? '2.1:1' : '≥ 4.5:1',
-          after: contrastPassed ? '9.8:1' : '4.2:1',
+          before: measuredSummary(baselineIssues, 'text-contrast'),
+          after: verificationErrors.length ? 'Unable to verify' : measuredSummary(candidateIssues, 'text-contrast'),
           passed: contrastPassed,
         },
       },

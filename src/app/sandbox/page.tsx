@@ -22,8 +22,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { SandboxCandidate } from '@/lib/sandbox/iteration';
-import { AuditRun, UXIssue } from '@/lib/schema/ux-issue';
+import type { SandboxCandidate } from '@/lib/sandbox/types';
+import type { AuditRun, UXIssue } from '@/lib/schema/ux-issue';
 
 const SAMPLE_ACCESSIBLE_SNIPPET = `<div class="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md space-y-4 border border-zinc-200">
   <div class="flex items-center space-x-3">
@@ -374,7 +374,7 @@ export default function SandboxPage() {
                         {cand.verified && (
                           <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                             <CheckCircle2 className="size-3 text-emerald-600" />
-                            <span>Verified Compliant</span>
+                            <span>Selected checks passed</span>
                           </span>
                         )}
                       </div>
@@ -391,6 +391,26 @@ export default function SandboxPage() {
                           </div>
                         ))}
                       </div>
+
+                      {cand.regression && (
+                        <details className="mb-3 text-[11px] text-zinc-700" onClick={e => e.stopPropagation()}>
+                          <summary className="cursor-pointer font-semibold">Regression evidence: {cand.regression.status.replaceAll('_', ' ')}</summary>
+                          <p className="my-2 text-zinc-500">{cand.regression.scope}</p>
+                          {cand.regression.findings.map(finding => {
+                            const issue = finding.after || finding.before!;
+                            return (
+                              <div key={finding.key} className="border-t border-zinc-200 py-2 break-words">
+                                <strong>{finding.change}: {issue.ruleId}</strong>
+                                <p>{issue.selector} · {issue.viewport.width} × {issue.viewport.height}</p>
+                                <p>{finding.reason}</p>
+                                <p>Before: {finding.before?.status || 'Not measured'} → After: {finding.after?.status || 'Not measured'}</p>
+                                <p>Before measurements: {JSON.stringify(finding.before?.measured || {})}</p>
+                                <p>After measurements: {JSON.stringify(finding.after?.measured || {})}</p>
+                              </div>
+                            );
+                          })}
+                        </details>
+                      )}
 
                       {/* Action buttons inside card */}
                       <div className="flex items-center gap-2 pt-1 border-t border-zinc-200/60">
@@ -426,7 +446,7 @@ export default function SandboxPage() {
             ) : (
               <div className="p-4 rounded-lg border border-dashed border-zinc-200 bg-zinc-50/50 text-center">
                 <p className="text-xs text-zinc-500">
-                  Click <strong>✨ Auto-Iterate</strong> to generate 3 AI-optimized accessible candidates with automatic verification.
+                  Click <strong>✨ Auto-Iterate</strong> to generate 3 template-based candidates and inspect their automated audit results.
                 </p>
               </div>
             )}
@@ -513,7 +533,7 @@ export default function SandboxPage() {
               <div className="p-2.5 rounded-lg border border-zinc-200 bg-zinc-50/50">
                 <span className="text-[10px] text-zinc-400 uppercase font-bold block">Touch Target Spec</span>
                 <strong className="text-xs text-zinc-900 font-semibold block mt-0.5">
-                  {activeCandidate?.metrics.targetSize?.after || (auditRun?.summary.candidateFailCount ? '< 24px (Sub-minimum)' : '≥ 44 × 44 px')}
+                  {activeCandidate?.metrics.targetSize?.after || 'Not measured'}
                 </strong>
                 <span className="text-[10px] text-zinc-500">WCAG 2.2 SC 2.5.8</span>
               </div>
@@ -521,7 +541,7 @@ export default function SandboxPage() {
               <div className="p-2.5 rounded-lg border border-zinc-200 bg-zinc-50/50">
                 <span className="text-[10px] text-zinc-400 uppercase font-bold block">Color Contrast Spec</span>
                 <strong className="text-xs text-zinc-900 font-semibold block mt-0.5">
-                  {activeCandidate?.metrics.contrast?.after || (auditRun?.summary.candidateFailCount ? '2.1:1 (Fails AA)' : '≥ 4.5:1 (Compliant)')}
+                  {activeCandidate?.metrics.contrast?.after || 'Not measured'}
                 </strong>
                 <span className="text-[10px] text-zinc-500">WCAG 2.2 SC 1.4.3</span>
               </div>
@@ -529,9 +549,9 @@ export default function SandboxPage() {
               <div className="p-2.5 rounded-lg border border-zinc-200 bg-zinc-50/50 col-span-2 sm:col-span-1">
                 <span className="text-[10px] text-zinc-400 uppercase font-bold block">Remediation Status</span>
                 <strong className={`text-xs font-semibold block mt-0.5 ${activeCandidate?.verified ? 'text-emerald-700' : 'text-amber-700'}`}>
-                  {activeCandidate?.verified ? '100% Ready to Merge' : 'Candidate Optimization Available'}
+                  {activeCandidate?.verified ? 'Selected checks passed' : activeCandidate?.verificationStatus === 'unable_to_verify' ? 'Unable to verify' : activeCandidate ? 'Candidate needs review' : 'Not evaluated'}
                 </strong>
-                <span className="text-[10px] text-zinc-500">Multi-Role Verified</span>
+                <span className="text-[10px] text-zinc-500">Automated scope only; designer review required</span>
               </div>
             </div>
           </div>
