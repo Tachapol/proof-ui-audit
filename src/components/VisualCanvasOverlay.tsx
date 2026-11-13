@@ -407,9 +407,9 @@ export function VisualCanvasOverlay({
 
   const renderVisualComparison = (pin: IssuePinData) => {
     if (pin.ruleId.includes('contrast')) {
-      const measuredRatio = Number(pin.measured?.contrastRatio) || 2.32;
-      const textColor = (pin.measured?.textColor as string) || '#737373';
-      const bgColor = (pin.measured?.backgroundColor as string) || '#ffffff';
+      const measuredRatio = typeof pin.measured?.contrastRatio === 'number' ? pin.measured.contrastRatio : (Number(pin.measured?.contrastRatio) || 2.32);
+      const textColor = (pin.measured?.color as string) || (pin.measured?.textColor as string) || (pin.measured?.indicatorColor as string) || '#737373';
+      const bgColor = (pin.measured?.backgroundColor as string) || (pin.measured?.adjacentColor as string) || '#ffffff';
       const minRatio = Number(pin.expected?.minRatio) || 4.5;
       const candidateColor = '#0f172a';
       const candidateRatio = '16.5:1';

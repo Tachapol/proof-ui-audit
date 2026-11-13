@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { GroupedUXIssue, DesignerDecision, Priority } from '@/lib/schema/ux-issue';
+import { GroupedUXIssue, DesignerDecision, Priority, extractEvidenceMetrics } from '@/lib/schema/ux-issue';
 import { Icon } from './Icon';
 import { OccurrenceList } from './OccurrenceList';
 import { IssueReview } from './IssueReview';
@@ -760,13 +760,37 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
                 <span style={{ color: 'var(--foreground-muted)' }}>Accessible Name:</span>
                 <div style={{ marginTop: '2px' }}>{rep.accessibleName || '—'}</div>
               </div>
-              <div>
-                <span style={{ color: 'var(--foreground-muted)' }}>Measured Value:</span>
-                <div style={{ marginTop: '2px' }}><code>{JSON.stringify(rep.measured)}</code></div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <span style={{ color: 'var(--foreground-muted)' }}>Measured Evidence:</span>
+                <div className="mt-1.5 flex flex-wrap gap-2">
+                  {extractEvidenceMetrics(rep.ruleId, rep.measured, rep.expected).map((metric) => (
+                    <div
+                      key={metric.key}
+                      className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium border ${
+                        metric.isViolation
+                          ? 'bg-rose-50 text-rose-800 border-rose-200'
+                          : 'bg-zinc-50 text-zinc-700 border-zinc-200'
+                      }`}
+                    >
+                      <span className="font-semibold text-zinc-500">{metric.label}:</span>
+                      <span className="font-mono">{metric.value}{metric.unit && !metric.value.includes(metric.unit) ? ` ${metric.unit}` : ''}</span>
+                    </div>
+                  ))}
+                </div>
+                <details className="mt-2 text-xs text-zinc-500">
+                  <summary className="cursor-pointer hover:text-zinc-800">Raw measurement payload</summary>
+                  <pre className="mt-1 overflow-x-auto rounded bg-zinc-100 p-2 font-mono text-[11px] text-zinc-800">
+                    {JSON.stringify(rep.measured, null, 2)}
+                  </pre>
+                </details>
               </div>
-              <div>
+              <div style={{ gridColumn: '1 / -1' }}>
                 <span style={{ color: 'var(--foreground-muted)' }}>Expected Threshold:</span>
-                <div style={{ marginTop: '2px' }}><code>{JSON.stringify(rep.expected)}</code></div>
+                <div style={{ marginTop: '2px' }} className="text-xs text-zinc-700 font-medium">
+                  {typeof rep.expected?.thresholdDescription === 'string'
+                    ? rep.expected.thresholdDescription
+                    : JSON.stringify(rep.expected)}
+                </div>
               </div>
               <div>
                 <span style={{ color: 'var(--foreground-muted)' }}>WCAG Reference:</span>

@@ -2,6 +2,8 @@ import { ProductContextSchema } from '@/lib/schema/product-context';
 import { z } from 'zod';
 import { AIExplanationResultSchema, AIGenerationRecordSchema } from './ai-response';
 
+export * from './evidence';
+
 export const AuditStatusSchema = z.enum(['pass', 'candidateFail', 'needsReview']);
 export type AuditStatus = z.infer<typeof AuditStatusSchema>;
 

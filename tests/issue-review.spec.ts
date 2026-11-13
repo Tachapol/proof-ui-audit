@@ -49,6 +49,7 @@ test('issue review persists four dispositions and exports evidence without chang
     await page.setViewportSize({ width: 375, height: 812 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   } finally {
+    await page.unrouteAll({ behavior: 'ignoreErrors' }).catch(() => undefined);
     await fs.unlink(file).catch(() => undefined);
   }
 });

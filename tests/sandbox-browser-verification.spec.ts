@@ -3,6 +3,10 @@ import { test, expect } from '@playwright/test';
 test.describe('Sandbox Real Browser Verification: 4 Core Scenarios', () => {
   test.setTimeout(90000);
 
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+  });
+
   test('Case 1: Resolved — fixes touch target & contrast with true measured evidence and Selected checks passed badge', async ({ page }) => {
     const auditPromise = page.waitForResponse(resp => resp.url().includes('/api/sandbox/audit') && resp.status() === 200);
     await page.goto('/sandbox');
