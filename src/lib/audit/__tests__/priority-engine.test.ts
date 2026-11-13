@@ -183,7 +183,33 @@ describe('Priority Engine — Research & Heuristic Verification', () => {
       // NeedsReview must NEVER be elevated to confirmed high severity P1 or P0
       expect(res.priority).toBe('P3');
       expect(res.severityScore).toBeLessThanOrEqual(30);
-      expect(res.rationale).toContain('unconfirmed');
+      expect(res.isDeferredSeverity).toBe(true);
+      expect(res.rationale).toContain('Deferred Severity');
+    });
+
+    it('applies expert weighting configuration when provided', () => {
+      const standard = evaluateIssuePriority({
+        ruleId: 'target-size',
+        status: 'candidateFail',
+        measured: { width: 18, height: 18 },
+        element: 'button',
+      });
+
+      const weighted = evaluateIssuePriority({
+        ruleId: 'target-size',
+        status: 'candidateFail',
+        measured: { width: 18, height: 18 },
+        element: 'button',
+        expertWeights: {
+          version: 'AHP-Expert-v1',
+          deficitMagnitudeWeight: 0.60,
+          elementCriticalityWeight: 0.30,
+          audienceContextWeight: 0.10,
+        },
+      });
+
+      expect(weighted.factors.some(f => f.includes('Expert Consensus Weighting Model'))).toBe(true);
+      expect(typeof weighted.severityScore).toBe('number');
     });
 
     it('handles missing or NaN measurement numbers safely as P3 advisory', () => {

@@ -1,5 +1,6 @@
 import { Priority, AuditStatus, UXIssue } from '@/lib/schema/ux-issue';
 import { ProductContext } from '@/lib/schema/product-context';
+import { ExpertWeightingConfig, calculateWeightedSeverityScore } from '@/lib/research/expert-rubric';
 
 export const PRIORITY_ENGINE_VERSION = '1.0.0';
 
@@ -9,6 +10,7 @@ export interface PriorityEvaluation {
   severityScore: number; // 0 to 100, deterministic and reproducible
   factors: string[];
   ruleEngineVersion: string;
+  isDeferredSeverity?: boolean; // True when status is needsReview (inconclusive / unverified impact)
 }
 
 export interface PriorityMetadata {
@@ -104,8 +106,9 @@ export function evaluateIssuePriority(params: {
   element?: string;
   role?: string;
   productContext?: Partial<ProductContext>;
+  expertWeights?: ExpertWeightingConfig;
 }): PriorityEvaluation {
-  const { ruleId, status, measured = {}, element, role, productContext } = params;
+  const { ruleId, status, measured = {}, element, role, productContext, expertWeights } = params;
   const factors: string[] = [];
 
   // 1. Pass status: Always P3, score 0
@@ -119,14 +122,15 @@ export function evaluateIssuePriority(params: {
     };
   }
 
-  // 2. NeedsReview status: Always P3, score capped at 25 (Never elevated to confirmed severity)
+  // 2. NeedsReview status: Always P3 (Deferred Triage), score capped at 25 (Never elevated to confirmed severity)
   if (status === 'needsReview') {
     return {
       priority: 'P3',
-      rationale: `Project Heuristic P3 (Not WCAG Severity): Finding is unconfirmed and requires designer inspection for contextual or essential exceptions. [Engine v${PRIORITY_ENGINE_VERSION}]`,
+      rationale: `Project Heuristic P3 (Deferred Severity / Inconclusive Evidence): Finding is unconfirmed and requires designer inspection for contextual or essential exceptions. Triage priority is tentatively deferred to P3 without implying low user impact. [Engine v${PRIORITY_ENGINE_VERSION}]`,
       severityScore: 25,
-      factors: ['Requires manual designer review', 'Potential WCAG exception or ambiguous layout'],
+      factors: ['Requires manual designer review', 'Potential WCAG exception or ambiguous layout', 'Deferred triage severity'],
       ruleEngineVersion: PRIORITY_ENGINE_VERSION,
+      isDeferredSeverity: true,
     };
   }
 
@@ -300,12 +304,27 @@ export function evaluateIssuePriority(params: {
     }
   }
 
+  // 5. Expert Consensus Weighting Synthesis (Optional: when expert weights config is supplied)
+  let finalSeverityScore = severityScore;
+  if (expertWeights) {
+    const isInteractive = element === 'button' || role === 'button' || element === 'a' || role === 'link' || element === 'input';
+    const criticalityScore = isInteractive ? 90 : 40;
+    const audienceScore = audience && HIGH_SENSITIVITY_AUDIENCE_REGEX.test(audience) ? 85 : 30;
+
+    finalSeverityScore = calculateWeightedSeverityScore({
+      deficitScore: severityScore,
+      criticalityScore,
+      audienceScore,
+    }, expertWeights);
+    factors.push(`Calculated using Expert Consensus Weighting Model v${expertWeights.version}`);
+  }
+
   const rationale = `Project Heuristic ${priority} (Not WCAG Severity): ${rationaleDetail} Designer reprioritization supported. [Engine v${PRIORITY_ENGINE_VERSION}]`;
 
   return {
     priority,
     rationale,
-    severityScore: Math.min(100, Math.max(0, severityScore)),
+    severityScore: Math.min(100, Math.max(0, finalSeverityScore)),
     factors,
     ruleEngineVersion: PRIORITY_ENGINE_VERSION,
   };
