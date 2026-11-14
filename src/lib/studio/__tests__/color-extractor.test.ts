@@ -167,10 +167,12 @@ describe('Studio Color Extractor & Attribution', () => {
 
   it('5. counts and formats finding scope consistently across 2 frames in export markdown', () => {
     const session: StudioSession = {
+      version: 1,
       id: 'session-multi-frame-test',
       createdAt: new Date().toISOString(),
       model: 'test-model',
       roles: ['ux', 'engineering'],
+      leadSummary: '',
       runs: [
         {
           id: 'run-1',
