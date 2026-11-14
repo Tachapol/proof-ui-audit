@@ -3,7 +3,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { calculateContrastRatioRaw } from '@/lib/audit/color-math';
 import { saveStudio } from './store';
-import { findStudioIssue, type StudioSession, type ColorCandidate, ROLE_NAMES } from './types';
+import { findStudioIssue, type StudioSession, type ColorCandidate } from './types';
+import { extractProposedColors, resolveColorAttribution, toHex6 } from './color-extractor';
+
 export async function previewStudio(session:StudioSession,issueId:string,color:string|undefined,baseUrl:string,sourceLabel?:string){
  const item=session.agenda.find(a=>a.id===issueId);if(!item)throw new Error('Issue not found.');
  const run=session.runs.find(r=>r.id===item.runId)!;const group=findStudioIssue(session,item)!;const rep=group.representative;
@@ -12,47 +14,20 @@ export async function previewStudio(session:StudioSession,issueId:string,color:s
  const background=String(rep.measured.backgroundColor),threshold=Number(rep.expected.minRatio);
  if(!background || !threshold)throw new Error('Missing contrast evidence.');
 
- // Extract hex colors mentioned in role notes to know if AI explicitly recommended one
- const aiRecommendations: Array<{ role: string; color: string }> = [];
- for (const note of item.notes) {
-   const matches = note.recommendation.match(/#[0-9a-fA-F]{6}\b/g) || [];
-   for (const h of matches) {
-     aiRecommendations.push({ role: note.role, color: h.toLowerCase() });
-   }
- }
+ const proposedOptions = extractProposedColors({
+   item,
+   messages: session.messages,
+   themeColor: run.productContext?.themeColor,
+   representative: rep,
+ });
 
- let selected = color;
- let determinedSource = sourceLabel;
-
+ let selected = color ? toHex6(color) : proposedOptions[0]?.color;
  if (!selected) {
-   // 1. If an AI role specifically suggested a color that passes threshold, prioritize it
-   const aiMatch = aiRecommendations.find(r => calculateContrastRatioRaw(r.color, background) >= threshold);
-   if (aiMatch) {
-     selected = aiMatch.color;
-     const roleTitle = ROLE_NAMES[aiMatch.role as keyof typeof ROLE_NAMES] || aiMatch.role;
-     determinedSource = `${roleTitle} recommendation (${selected})`;
-   } else if (run.productContext?.themeColor && calculateContrastRatioRaw(run.productContext.themeColor, background) >= threshold) {
-     // 2. Otherwise try brand token
-     selected = run.productContext.themeColor;
-     determinedSource = `Brand theme token (${selected})`;
-   } else {
-     // 3. Fallback to system high-contrast slate
-     const options = ['#111827', '#000000', '#ffffff'];
-     selected = options.find(c => calculateContrastRatioRaw(c, background) >= threshold) || '#111827';
-     determinedSource = `System high-contrast fallback (${selected})`;
-   }
- } else if (!determinedSource) {
-   // If user provided a color, determine attribution
-   const matchedAi = aiRecommendations.find(r => r.color.toLowerCase() === selected?.toLowerCase());
-   if (matchedAi) {
-     const roleTitle = ROLE_NAMES[matchedAi.role as keyof typeof ROLE_NAMES] || matchedAi.role;
-     determinedSource = `${roleTitle} recommendation (${selected})`;
-   } else if (run.productContext?.themeColor && run.productContext.themeColor.toLowerCase() === selected.toLowerCase()) {
-     determinedSource = `Brand theme token (${selected})`;
-   } else {
-     determinedSource = `Custom designer selection (${selected})`;
-   }
+   const fallbackOptions = ['#111827', '#000000', '#ffffff'];
+   selected = fallbackOptions.find(c => calculateContrastRatioRaw(c, background) >= threshold) || '#111827';
  }
+
+ const determinedSource = resolveColorAttribution(selected, proposedOptions);
 
  if(!/^#[0-9a-f]{6}$/i.test(selected))throw new Error('Use a six-digit hex color.');
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});

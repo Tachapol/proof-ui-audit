@@ -19,7 +19,8 @@ export function formatStudioMarkdown(session: StudioSession): string {
   }
 
   if (session.findingStats) {
-    lines.push(`- **Finding Scope**: Analyzed ${session.findingStats.analyzedCount} of ${session.findingStats.totalCandidateFindings} findings (Priority P0–P3 sorted)${session.findingStats.omittedCount > 0 ? ` — ${session.findingStats.omittedCount} lower-priority findings omitted` : ''}`);
+    const frameText = session.findingStats.frameCount > 1 ? `across ${session.findingStats.frameCount} frames` : 'in 1 frame';
+    lines.push(`- **Finding Scope**: Analyzed ${session.findingStats.analyzedCount} of ${session.findingStats.totalCandidateFindings} findings ${frameText} (Priority P0–P3 sorted)${session.findingStats.omittedCount > 0 ? ` — ${session.findingStats.omittedCount} lower-priority findings omitted` : ''}`);
   }
   lines.push('');
 

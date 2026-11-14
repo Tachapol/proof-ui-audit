@@ -34,6 +34,7 @@ import { ProductContextFields } from '@/components/ProductContextFields';
 import { createSandboxSnippetFromIssue } from '@/lib/sandbox/snippet-builder';
 import { EMPTY_PRODUCT_CONTEXT, ProductContextSchema, type ProductContext } from '@/lib/schema/product-context';
 import { ROLE_NAMES, findStudioIssue, type StudioRole, type StudioSession } from '@/lib/studio/types';
+import { extractProposedColors, resolveColorAttribution, type ProposedColorOption } from '@/lib/studio/color-extractor';
 import { formatStudioMarkdown } from '@/lib/studio/markdown';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -301,17 +302,20 @@ export default function StudioPage() {
   const issue = session && item ? findStudioIssue(session, item) : undefined;
   const candidate = session?.candidates[active];
 
-  const aiSuggestedColors = useMemo(() => {
-    if (!item?.notes) return [];
-    const list: Array<{ role: StudioRole; roleName: string; color: string }> = [];
-    for (const note of item.notes) {
-      const matches = note.recommendation.match(/#[0-9a-fA-F]{6}\b/g) || [];
-      for (const m of matches) {
-        list.push({ role: note.role, roleName: ROLE_NAMES[note.role] || note.role, color: m.toLowerCase() });
-      }
-    }
-    return list;
-  }, [item?.notes]);
+  const proposedColorOptions = useMemo(() => {
+    if (!item || !issue?.representative) return [];
+    return extractProposedColors({
+      item,
+      messages: session?.messages,
+      themeColor: run?.productContext?.themeColor,
+      representative: issue.representative,
+    });
+  }, [item, session?.messages, run?.productContext?.themeColor, issue?.representative]);
+
+  const activeAttribution = useMemo(() => {
+    if (!color) return '';
+    return resolveColorAttribution(color, proposedColorOptions);
+  }, [color, proposedColorOptions]);
 
   useEffect(() => {
     setColor(session?.candidates[active]?.color || '#111827');
@@ -1001,7 +1005,7 @@ export default function StudioPage() {
                 <div className="mx-3 mt-3 p-2.5 rounded-lg border border-zinc-200 bg-zinc-50/80 text-[11px] text-zinc-700 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-zinc-900">
-                      กำลังวิเคราะห์ {session.findingStats.analyzedCount} จากทั้งหมด {session.findingStats.totalCandidateFindings} รายการ
+                      กำลังวิเคราะห์ {session.findingStats.analyzedCount} จากทั้งหมด {session.findingStats.totalCandidateFindings} รายการ ({session.findingStats.frameCount} เฟรม)
                     </span>
                     <Badge variant="outline" className="text-[10px] bg-white border-zinc-300 text-zinc-600 font-normal">
                       คัดตาม Priority P0–P3
@@ -1009,7 +1013,7 @@ export default function StudioPage() {
                   </div>
                   {session.findingStats.omittedCount > 0 && (
                     <p className="text-[10.5px] text-zinc-500 leading-snug">
-                      เลือก 8 รายการที่มีความสำคัญสูงสุดเข้า Agenda วิจารณ์ (ละเว้น {session.findingStats.omittedCount} รายการที่มีความสำคัญรองลงไป)
+                      เลือกสูงสุด 8 รายการจากทั้ง {session.findingStats.frameCount} เฟรม (คัดตาม Priority P0–P3 — อีก {session.findingStats.omittedCount} รายการไม่ได้ถูกรวมในรอบนี้)
                     </p>
                   )}
                 </div>
@@ -1435,7 +1439,7 @@ export default function StudioPage() {
                   </div>
 
                   <div className="space-y-3">
-                    {/* Color Source Options: AI vs Brand vs System */}
+                    {/* Color Source Options: AI Chat vs AI Note vs Brand vs System */}
                     <div className="space-y-1.5 p-2.5 rounded-lg bg-zinc-50 border border-zinc-200/80 text-xs">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-semibold text-zinc-800">
@@ -1444,66 +1448,42 @@ export default function StudioPage() {
                         <span className="text-[10px] text-zinc-500">คลิกเพื่อเลือกทดลอง</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5 pt-1">
-                        {aiSuggestedColors.map((s, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => {
-                              setColor(s.color);
-                              void action('preview', { color: s.color, sourceLabel: `${s.roleName} recommendation (${s.color})` });
-                            }}
-                            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] border transition-all ${
-                              color.toLowerCase() === s.color
-                                ? 'bg-purple-100 text-purple-900 border-purple-400 font-semibold ring-1 ring-purple-400 shadow-2xs'
-                                : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
-                            }`}
-                          >
-                            <span className="size-2.5 rounded-full border border-black/20" style={{ backgroundColor: s.color }} />
-                            <span>{s.roleName}: {s.color}</span>
-                          </button>
-                        ))}
-
-                        {run?.productContext?.themeColor && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const brandCol = run.productContext!.themeColor!;
-                              setColor(brandCol);
-                              void action('preview', { color: brandCol, sourceLabel: `Brand theme token (${brandCol})` });
-                            }}
-                            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] border transition-all ${
-                              color.toLowerCase() === run.productContext.themeColor.toLowerCase()
-                                ? 'bg-blue-100 text-blue-900 border-blue-400 font-semibold ring-1 ring-blue-400 shadow-2xs'
-                                : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
-                            }`}
-                          >
-                            <span className="size-2.5 rounded-full border border-black/20" style={{ backgroundColor: run.productContext.themeColor }} />
-                            <span>Brand Theme: {run.productContext.themeColor}</span>
-                          </button>
-                        )}
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setColor('#111827');
-                            void action('preview', { color: '#111827', sourceLabel: 'System Slate (#111827)' });
-                          }}
-                          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] border transition-all ${
-                            color.toLowerCase() === '#111827'
-                              ? 'bg-zinc-200 text-zinc-900 border-zinc-400 font-semibold shadow-2xs'
-                              : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
-                          }`}
-                        >
-                          <span className="size-2.5 rounded-full border border-black/20 bg-[#111827]" />
-                          <span>System Default: #111827</span>
-                        </button>
+                        {proposedColorOptions.map((opt, idx) => {
+                          const isSelected = color.toLowerCase() === opt.color;
+                          return (
+                            <button
+                              key={opt.color + idx}
+                              type="button"
+                              onClick={() => {
+                                setColor(opt.color);
+                                void action('preview', { color: opt.color, sourceLabel: opt.sourceLabel });
+                              }}
+                              className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] border transition-all ${
+                                isSelected
+                                  ? 'bg-purple-100 text-purple-900 border-purple-400 font-semibold ring-1 ring-purple-400 shadow-2xs'
+                                  : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
+                              }`}
+                            >
+                              <span className="size-2.5 rounded-full border border-black/20" style={{ backgroundColor: opt.color }} />
+                              <span>{opt.sourceLabel}</span>
+                              <span className="text-[10px] text-zinc-500 font-normal">({opt.contrastRatio}:1)</span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label htmlFor="studio-color" className="text-xs font-medium text-zinc-700 block">
-                        Candidate text color (กำหนดเองหรือเลือกจากด้านบน)
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label htmlFor="studio-color" className="text-xs font-medium text-zinc-700 block">
+                          Candidate text color (กำหนดเองหรือเลือกจากด้านบน)
+                        </label>
+                        {activeAttribution && (
+                          <Badge variant="outline" className="text-[10px] border-zinc-300 bg-white text-zinc-700 font-normal">
+                            {activeAttribution}
+                          </Badge>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2">
                         <input
                           id="studio-color"
@@ -1532,7 +1512,7 @@ export default function StudioPage() {
                           disabled={!!busy || !/^#[0-9a-f]{6}$/i.test(color)}
                           onClick={() => {
                             setPanel('preview');
-                            void action('preview', { color });
+                            void action('preview', { color, sourceLabel: activeAttribution });
                           }}
                         >
                           <Eye className="size-3.5" />

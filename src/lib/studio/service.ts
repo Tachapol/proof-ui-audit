@@ -73,11 +73,14 @@ export async function createStudio(runs: AuditRun[], roles: StudioRole[], modelN
    });
  }
 
+ const frameCount = runs.length;
+
  session.findingStats = {
    totalCandidateFindings,
    analyzedCount: session.agenda.length,
    omittedCount,
    maxCap: MAX_AGENDA_CAP,
+   frameCount,
    selectionStrategy: 'priority_order',
  };
 
@@ -109,16 +112,18 @@ export async function createStudio(runs: AuditRun[], roles: StudioRole[], modelN
   const lead=z.object({summary:z.string().min(1).max(3000),orderedIds:z.array(z.string()).max(16)}).parse(await query(`Role: Lead Coordinator. ${rolePurpose.lead} Output {"summary":"short review opening with trade-offs and next steps","orderedIds":["supplied issue IDs in suggested priority order"]}.`,{evidence,roleSummaries:session.roleSummaries,agenda:session.agenda,unavailableRoles:session.roleErrors},chosenModel));
   const ids=[...new Set([...lead.orderedIds,...session.agenda.map(a=>a.id)])];if(ids.some(id=>!session.agenda.some(a=>a.id===id)))throw new Error('Unknown agenda item.');
   session.agenda.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
+  const frameText = frameCount > 1 ? `across ${frameCount} frames` : 'in 1 frame';
   let finalLeadSummary = session.agenda.reduce((text,item,index)=>text.replaceAll(item.id,`finding ${index+1}`),lead.summary);
   if (omittedCount > 0) {
-    finalLeadSummary += `\n\n[Finding Scope]: Analyzing top ${session.agenda.length} of ${totalCandidateFindings} findings sorted by Priority (P0–P3). ${omittedCount} lower-priority findings omitted from critique agenda.`;
+    finalLeadSummary += `\n\n[Finding Scope]: Analyzing top ${session.agenda.length} of ${totalCandidateFindings} findings ${frameText} sorted by Priority (P0–P3). ${omittedCount} lower-priority findings omitted from critique agenda.`;
   }
   session.leadSummary = finalLeadSummary;
  }catch{
   session.roleErrors.lead='Lead synthesis unavailable. Evidence and available role feedback are preserved.';
+  const frameText = frameCount > 1 ? `across ${frameCount} frames` : 'in 1 frame';
   let fallbackLead = 'Review the measured findings and available role feedback below. Lead synthesis is unavailable.';
   if (omittedCount > 0) {
-    fallbackLead += `\n\n[Finding Scope]: Analyzing top ${session.agenda.length} of ${totalCandidateFindings} findings sorted by Priority (P0–P3). ${omittedCount} lower-priority findings omitted from critique agenda.`;
+    fallbackLead += `\n\n[Finding Scope]: Analyzing top ${session.agenda.length} of ${totalCandidateFindings} findings ${frameText} sorted by Priority (P0–P3). ${omittedCount} lower-priority findings omitted from critique agenda.`;
   }
   session.leadSummary = fallbackLead;
  }

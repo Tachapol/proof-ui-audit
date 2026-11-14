@@ -9,6 +9,7 @@ export interface FindingStats {
   analyzedCount: number;
   omittedCount: number;
   maxCap: number;
+  frameCount: number;
   selectionStrategy: 'priority_order';
 }
 

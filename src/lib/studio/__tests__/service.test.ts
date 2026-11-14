@@ -64,6 +64,7 @@ describe('Studio evidence orchestration',()=>{
     analyzedCount: 8,
     omittedCount: 2,
     maxCap: 8,
+    frameCount: 1,
     selectionStrategy: 'priority_order',
   });
 
@@ -74,5 +75,52 @@ describe('Studio evidence orchestration',()=>{
   expect(session.auditWarnings).toContain('Selector #box failed to compute bounding rect');
   expect(session.partialErrors).toContain('Selector #box failed to compute bounding rect');
   expect(session.leadSummary).toContain('Finding Scope');
+ });
+
+ it('caps agenda at 8 findings in total across 2 frames and reports multi-frame findingStats', async () => {
+  const makeIssues = (prefix: string, count: number, priority: 'P0' | 'P1' | 'P2' | 'P3') =>
+    Array.from({ length: count }, (_, i) => ({
+      fingerprint: `${prefix}-fp-${i}`,
+      representative: { ...finding, id: `${prefix}-iss-${i}`, initialPriority: priority },
+      rawOccurrencesCount: 1,
+      occurrences: [{ ...finding, id: `${prefix}-iss-${i}`, initialPriority: priority }],
+      status: 'candidateFail' as const,
+      initialPriority: priority,
+      currentPriority: priority,
+      decisionHistory: [],
+    }));
+
+  const frame1Issues = makeIssues('frame1', 6, 'P0');
+  const frame2Issues = makeIssues('frame2', 6, 'P1');
+
+  const run1: AuditRun = { ...run, id: 'run-f1', fixtureId: 'mvp-contrast-demo', groupedIssues: frame1Issues };
+  const run2: AuditRun = { ...run, id: 'run-f2', fixtureId: 'text-contrast-demo', groupedIssues: frame2Issues };
+
+  const request = vi.fn(async () =>
+    new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ summary: 'Sum', items: [] }) } }] }))
+  );
+  vi.stubGlobal('fetch', request);
+
+  const session = await createStudio([run1, run2], ['ux']);
+
+  // Total findings across 2 frames is 12, capped at 8 total
+  expect(session.agenda).toHaveLength(8);
+  expect(session.findingStats).toEqual({
+    totalCandidateFindings: 12,
+    analyzedCount: 8,
+    omittedCount: 4,
+    maxCap: 8,
+    frameCount: 2,
+    selectionStrategy: 'priority_order',
+  });
+
+  // All 6 P0 issues from frame1 should be included, plus 2 P1 issues from frame2
+  const f1Count = session.agenda.filter(a => a.runId === 'run-f1').length;
+  const f2Count = session.agenda.filter(a => a.runId === 'run-f2').length;
+  expect(f1Count).toBe(6);
+  expect(f2Count).toBe(2);
+
+  expect(session.leadSummary).toContain('across 2 frames');
+  expect(session.leadSummary).toContain('Analyzing top 8 of 12 findings');
  });
 });
