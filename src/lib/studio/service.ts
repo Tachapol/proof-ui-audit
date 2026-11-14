@@ -96,16 +96,32 @@ export async function createStudio(runs: AuditRun[], roles: StudioRole[], modelN
    session.partialErrors = [...new Set(options.partialErrors)];
  }
 
+ const proposalSchema = z.object({
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  targetProperty: z.enum(['color', 'backgroundColor']).default('color'),
+  selector: z.string().max(100).optional(),
+  rationale: z.string().max(300),
+ }).nullable().optional();
+
  if(!session.agenda.length){session.leadSummary='No candidate accessibility issues were found within the selected checks. Passed checks remain available in the frame audit.';await saveStudio(session);return session;}
  const evidence=session.agenda.map(item=>({issueId:item.id,...inputFor(session,item)}));
- const schema=z.object({summary:z.string().min(1).max(2000),items:z.array(z.object({issueId:z.string(),comment:z.string().min(1).max(2000),recommendation:z.string().min(1).max(2000),tradeoff:z.string().max(1000).default('')})).max(16)});
+ const schema=z.object({
+  summary:z.string().min(1).max(2000),
+  items:z.array(z.object({
+    issueId:z.string(),
+    comment:z.string().min(1).max(2000),
+    recommendation:z.string().min(1).max(2000),
+    tradeoff:z.string().max(1000).default(''),
+    proposal:proposalSchema,
+  })).max(16)
+ });
  await Promise.all(roles.map(async role=>{try{
-  const output=schema.parse(await query(`Role: ${ROLE_NAMES[role]}. ${rolePurpose[role]} Output: {"summary":"brief role summary","items":[{"issueId":"supplied ID","comment":"evidence-grounded critique","recommendation":"possible correction","tradeoff":"contextual tension or empty string"}]}. Cover the supplied candidate issues. Keep each comment, recommendation and tradeoff to one short sentence of at most 25 words.`,{evidence},chosenModel));
+  const output=schema.parse(await query(`Role: ${ROLE_NAMES[role]}. ${rolePurpose[role]} Output: {"summary":"brief role summary","items":[{"issueId":"supplied ID","comment":"evidence-grounded critique","recommendation":"possible correction","tradeoff":"contextual tension or empty string","proposal":{"color":"#hex6","targetProperty":"color","rationale":"concise reason"} or null if advising against a color or not proposing a specific color}]}. Cover the supplied candidate issues. Keep each comment, recommendation and tradeoff to one short sentence of at most 25 words.`,{evidence},chosenModel));
   session.roleSummaries[role]=output.summary;
   for(const note of output.items){const item=session.agenda.find(a=>a.id===note.issueId);if(!item)throw new Error('Unknown issue in critique.');const input=inputFor(session,item);
    const valid=validateAIGrounding({explanation:note.comment,recommendation:note.recommendation,requiresDesignerReview:input.status==='needsReview',uncertaintyNote:input.status==='needsReview'?'Context and complex-background uncertainty remain; designer review is required.':undefined},input);
    if(!valid.valid)throw new Error('Critique did not pass evidence checks.');
-   item.notes.push({role,comment:note.comment,recommendation:note.recommendation,tradeoff:note.tradeoff});
+   item.notes.push({role,comment:note.comment,recommendation:note.recommendation,tradeoff:note.tradeoff,proposal:note.proposal || null});
   }
  }catch(error){session.roleErrors[role]=error instanceof Error?error.message:'Role review failed.';}}));
  try{
@@ -133,8 +149,19 @@ export async function discussStudio(session:StudioSession,issueId:string,role:St
  const item=session.agenda.find(a=>a.id===issueId);if(!item)throw new Error('Issue not found.');
  if(role!=='lead' && !session.roles.includes(role))throw new Error('This role is not active in the session.');
  const input=inputFor(session,item);const candidate=session.candidates[issueId];
- const output=z.object({answer:z.string().min(1).max(5000)}).parse(await query(`Role: ${ROLE_NAMES[role]}. ${rolePurpose[role]} Answer the designer's question about the selected finding. Output {"answer":"concise reply"}. A verified candidate is only verified for the listed checks; never claim source files were modified.`,{evidence:input,roleNotes:item.notes,candidate,history:session.messages.filter(m=>m.issueId===issueId).slice(-8),designerQuestion:message},session.model));
+ const chatProposalSchema = z.object({
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  targetProperty: z.enum(['color', 'backgroundColor']).default('color'),
+  selector: z.string().max(100).optional(),
+  rationale: z.string().max(300),
+ }).nullable().optional();
+
+ const output=z.object({answer:z.string().min(1).max(5000),proposal:chatProposalSchema}).parse(await query(`Role: ${ROLE_NAMES[role]}. ${rolePurpose[role]} Answer the designer's question about the selected finding. If proposing a specific color fix for text contrast, supply "proposal":{"color":"#hex6","targetProperty":"color","rationale":"short reason"}. If advising against a color, discussing tradeoffs, or not proposing a color fix, set "proposal": null. Output {"answer":"concise reply","proposal":{...} or null}. A verified candidate is only verified for the listed checks; never claim source files were modified.`,{evidence:input,roleNotes:item.notes,candidate,history:session.messages.filter(m=>m.issueId===issueId).slice(-8),designerQuestion:message},session.model));
  const grounded=validateAIGrounding({explanation:output.answer,recommendation:'Designer review remains required.',requiresDesignerReview:input.status==='needsReview',uncertaintyNote:input.status==='needsReview'?'Evidence remains inconclusive; designer review is required.':undefined},{...input,measured:{...input.measured,...(candidate?{candidateContrastRatio:candidate.afterRatio}: {})}});
  if(!grounded.valid)throw new Error('Reply did not pass evidence checks. Rephrase your question or inspect the evidence.');
- session.messages.push({id:crypto.randomUUID(),issueId,sender:'user',text:message,timestamp:new Date().toISOString()},{id:crypto.randomUUID(),issueId,sender:role,text:session.agenda.reduce((text,item,index)=>text.replaceAll(item.id,`finding ${index+1}`),output.answer),timestamp:new Date().toISOString()});await saveStudio(session);return session;
+ session.messages.push(
+  {id:crypto.randomUUID(),issueId,sender:'user',text:message,timestamp:new Date().toISOString()},
+  {id:crypto.randomUUID(),issueId,sender:role,text:session.agenda.reduce((text,item,index)=>text.replaceAll(item.id,`finding ${index+1}`),output.answer),timestamp:new Date().toISOString(),proposal:output.proposal || null}
+ );
+ await saveStudio(session);return session;
 }

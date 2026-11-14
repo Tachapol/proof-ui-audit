@@ -604,6 +604,13 @@ export default function StudioPage() {
 
                 {inputMode === 'url' ? (
                   <div className="space-y-3 pt-1">
+                    <div className="p-2.5 rounded-lg border border-sky-200 bg-sky-50/80 text-[11px] text-sky-950 flex items-start gap-2">
+                      <span className="font-semibold text-sky-800 shrink-0">ขอบเขตระบบ (Scope):</span>
+                      <span className="leading-relaxed">
+                        เว็บจริงรองรับการ Audit ตรวจวัดเชิงลึก และรัน AI Multi-Role Critique / ถามตอบได้เต็มรูปแบบ สำหรับ Sandbox Preview และการจำลอง Apply Patch อัตโนมัติ ปัจจุบันรองรับเฉพาะ Demo Fixtures เพื่อความปลอดภัยและความเสถียร
+                      </span>
+                    </div>
+
                     <div className="space-y-1.5">
                       <label htmlFor="studio-website" className="text-xs font-medium text-zinc-700">
                         Website URL
@@ -1616,13 +1623,21 @@ export default function StudioPage() {
                 </div>
               ) : (
                 <div className="p-4 border-t border-zinc-200 text-xs text-zinc-500">
-                  <p>
-                    {!run?.fixtureId
-                      ? 'Automatic Apply is available for demo frames only. Use the measured evidence and discussion to guide changes to your website.'
-                      : item?.status === 'needsReview'
-                      ? 'This finding needs contextual designer review. No automatic correction is offered.'
-                      : 'Select a candidate finding to explore a verified color correction.'}
-                  </p>
+                  {!run?.fixtureId ? (
+                    <div className="p-3 rounded-lg border border-amber-200 bg-amber-50/70 text-amber-900 space-y-1">
+                      <div className="flex items-center gap-1.5 font-semibold text-xs">
+                        <AlertTriangle className="size-3.5 text-amber-600 shrink-0" />
+                        <span>ขอบเขตการทำงาน (Live Website Scope)</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-600 leading-relaxed">
+                        คุณกำลังตรวจสอบเว็บจริง การวิเคราะห์ Audit และคำแนะนำจาก AI สามารถใช้อ้างอิงปรับแก้โค้ดจริงในโปรเจกต์ของคุณได้ทันที สำหรับระบบ Sandbox Live Preview และ Apply Patch อัตโนมัติสงวนไว้สำหรับการทดสอบบน Demo Fixtures เพื่อความปลอดภัย
+                      </p>
+                    </div>
+                  ) : item?.status === 'needsReview' ? (
+                    <p className="text-zinc-500">This finding needs contextual designer review. No automatic correction is offered.</p>
+                  ) : (
+                    <p className="text-zinc-500">Select a candidate finding to explore a verified color correction.</p>
+                  )}
                 </div>
               )}
 

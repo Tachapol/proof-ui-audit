@@ -106,6 +106,79 @@ describe('Studio Color Extractor & Attribution', () => {
     expect(colors).not.toContain('#999999');
   });
 
+  it('2.1 filters out colors when AI explicitly advises against them (negative phrases or proposal: null)', () => {
+    const negativeMessages: ChatMessage[] = [
+      {
+        id: 'msg-neg-1',
+        issueId: 'agenda-item-1',
+        sender: 'ux',
+        text: 'อย่าใช้ #595959 เพราะมืดเกินไปสำหรับดีไซน์นี้',
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: 'msg-neg-2',
+        issueId: 'agenda-item-1',
+        sender: 'engineering',
+        text: 'หลีกเลี่ยง #4b5563 บนพื้นผิวนี้',
+        proposal: null, // Explicitly no proposal from AI
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: 'msg-pos-1',
+        issueId: 'agenda-item-1',
+        sender: 'product',
+        text: 'แนะนำให้ใช้สีน้ำเงินเข้ม',
+        proposal: {
+          color: '#1e3a8a',
+          targetProperty: 'color',
+          rationale: 'Strong contrast and aligns with brand vision',
+        },
+        timestamp: new Date().toISOString(),
+      },
+    ];
+
+    const options = extractProposedColors({
+      item: dummyAgendaItem,
+      messages: negativeMessages,
+      representative: dummyRepresentative,
+    });
+
+    const colors = options.map(o => o.color);
+    // Negative mentions must NOT be included
+    expect(colors).not.toContain('#595959');
+    expect(colors).not.toContain('#4b5563');
+    // Structured positive proposal must be included
+    expect(colors).toContain('#1e3a8a');
+    const pos = options.find(o => o.color === '#1e3a8a');
+    expect(pos?.sourceLabel).toContain('Product Vision proposal (#1e3a8a — Strong contrast and aligns with brand vision)');
+  });
+
+  it('2.2 ignores proposals intended for backgroundColor when evaluating text color fixes', () => {
+    const bgProposalMessages: ChatMessage[] = [
+      {
+        id: 'msg-bg',
+        issueId: 'agenda-item-1',
+        sender: 'engineering',
+        text: 'We could invert background',
+        proposal: {
+          color: '#1e293b',
+          targetProperty: 'backgroundColor', // Not for text color!
+          rationale: 'Dark card background',
+        },
+        timestamp: new Date().toISOString(),
+      },
+    ];
+
+    const options = extractProposedColors({
+      item: dummyAgendaItem,
+      messages: bgProposalMessages,
+      representative: dummyRepresentative,
+    });
+
+    const colors = options.map(o => o.color);
+    expect(colors).not.toContain('#1e293b');
+  });
+
   it('3. dynamically attributes custom designer edits without retaining AI role or Brand label', () => {
     const options = extractProposedColors({
       item: dummyAgendaItem,

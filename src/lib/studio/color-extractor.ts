@@ -72,8 +72,24 @@ export function extractProposedColors(params: {
   const relevantMessages = messages.filter(m => m.issueId === item.id && m.sender !== 'user');
   for (const msg of [...relevantMessages].reverse()) {
     const roleTitle = ROLE_NAMES[msg.sender as keyof typeof ROLE_NAMES] || msg.sender;
+
+    // A. Structured Proposal from AI
+    if (msg.proposal !== undefined) {
+      if (msg.proposal && msg.proposal.targetProperty === 'color') {
+        const label = `${roleTitle} proposal (${toHex6(msg.proposal.color)} — ${msg.proposal.rationale || 'Chat proposal'})`;
+        tryAddColor(msg.proposal.color, 'ai_discussion', roleTitle, label);
+      }
+      // If msg.proposal is null, AI explicitly advised against proposing a color or discussed tradeoffs without a fix
+      continue;
+    }
+
+    // B. Legacy unstructured message: filter out negative phrases (e.g. "อย่าใช้ #595959", "avoid #...")
     const hexMatches = msg.text.match(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g) || [];
     for (const h of hexMatches) {
+      const negativePattern = new RegExp(`(?:อย่าใช้|ห้ามใช้|หลีกเลี่ยง|ไม่ควรใช้|don't use|do not use|avoid|fails|failing|too light|too dark)[^.!?\\n]*${h}`, 'i');
+      if (negativePattern.test(msg.text)) {
+        continue;
+      }
       tryAddColor(h, 'ai_discussion', roleTitle, `${roleTitle} (Chat: ${toHex6(h)})`);
     }
   }
@@ -81,8 +97,23 @@ export function extractProposedColors(params: {
   // 2. Scan Role Notes
   for (const note of item.notes) {
     const roleTitle = ROLE_NAMES[note.role] || note.role;
+
+    // A. Structured Proposal from AI
+    if (note.proposal !== undefined) {
+      if (note.proposal && note.proposal.targetProperty === 'color') {
+        const label = `${roleTitle} recommendation (${toHex6(note.proposal.color)} — ${note.proposal.rationale || 'Structured proposal'})`;
+        tryAddColor(note.proposal.color, 'ai_note', roleTitle, label);
+      }
+      continue;
+    }
+
+    // B. Legacy unstructured note
     const hexMatches = note.recommendation.match(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g) || [];
     for (const h of hexMatches) {
+      const negativePattern = new RegExp(`(?:อย่าใช้|ห้ามใช้|หลีกเลี่ยง|ไม่ควรใช้|don't use|do not use|avoid|fails|failing|too light|too dark)[^.!?\\n]*${h}`, 'i');
+      if (negativePattern.test(note.recommendation)) {
+        continue;
+      }
       tryAddColor(h, 'ai_note', roleTitle, `${roleTitle} recommendation (${toHex6(h)})`);
     }
   }
