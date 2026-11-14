@@ -25,7 +25,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import type { SandboxCandidate } from '@/lib/sandbox/types';
+import type { SandboxCandidate, IterationConstraint } from '@/lib/sandbox/types';
+import { cherryPickTargetSizeFix, cherryPickContrastFix } from '@/lib/sandbox/iteration';
 import type { AuditRun, UXIssue } from '@/lib/schema/ux-issue';
 
 function formatMeasuredValue(ruleId: string, m?: Record<string, unknown>): string {
@@ -102,6 +103,11 @@ export default function SandboxPage() {
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [activeCodePreview, setActiveCodePreview] = useState<string>(SAMPLE_ACCESSIBLE_SNIPPET);
+  const [selectedConstraints, setSelectedConstraints] = useState<IterationConstraint[]>([]);
+  const [customDirective, setCustomDirective] = useState('');
+  const [showDirectivesPanel, setShowDirectivesPanel] = useState(false);
+  const [recordingDecision, setRecordingDecision] = useState(false);
+  const [decisionFeedback, setDecisionFeedback] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // Initial audit on load: check if an issue was sent from Visual Canvas or Studio
@@ -147,7 +153,13 @@ export default function SandboxPage() {
     }
   };
 
-  const handleAutoIterate = async () => {
+  const toggleConstraint = (c: IterationConstraint) => {
+    setSelectedConstraints((prev) =>
+      prev.includes(c) ? prev.filter((item) => item !== c) : [...prev, c]
+    );
+  };
+
+  const handleAutoIterate = async (overrideConstraints?: IterationConstraint[]) => {
     if (!auditRun) return;
     setIsIterating(true);
     try {
@@ -158,6 +170,8 @@ export default function SandboxPage() {
           html: code,
           issues: auditRun.rawIssues,
           runId: auditRun.id,
+          constraints: overrideConstraints || (selectedConstraints.length ? selectedConstraints : undefined),
+          customDirective: customDirective.trim() || undefined,
         }),
       });
       const data = await res.json();
@@ -170,6 +184,49 @@ export default function SandboxPage() {
       // Iteration fail fallback
     } finally {
       setIsIterating(false);
+    }
+  };
+
+  const handleDiscardCandidates = () => {
+    setCandidates([]);
+    setSelectedCandidateId(null);
+    setActiveCodePreview(code);
+    setActiveTab('editor');
+  };
+
+  const handleCherryPick = (type: 'target-size' | 'contrast', cand?: SandboxCandidate) => {
+    const newCode = type === 'target-size' ? cherryPickTargetSizeFix(code) : cherryPickContrastFix(code);
+    setCode(newCode);
+    setActiveCodePreview(newCode);
+    setActiveTab('editor');
+    void handleRunAudit(newCode);
+  };
+
+  const handleRecordAcceptedRisk = async () => {
+    if (!auditRun || !auditRun.groupedIssues?.length) return;
+    setRecordingDecision(true);
+    try {
+      let count = 0;
+      for (const group of auditRun.groupedIssues) {
+        await fetch('/api/decisions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            runId: auditRun.id,
+            fingerprint: group.fingerprint,
+            disposition: 'Accepted Risk',
+            reason: 'Auto-generated candidate fixes failed verification or caused visual regressions; baseline maintained under design exemption.',
+            reviewer: 'Designer (Sandbox Fallback)',
+          }),
+        });
+        count++;
+      }
+      setDecisionFeedback(`✓ บันทึกเป็น Accepted Risk เรียบร้อยแล้ว (${count} รายการ)`);
+      setTimeout(() => setDecisionFeedback(null), 5000);
+    } catch {
+      setDecisionFeedback('เกิดข้อผิดพลาดในการบันทึก');
+    } finally {
+      setRecordingDecision(false);
     }
   };
 
@@ -192,6 +249,7 @@ export default function SandboxPage() {
   };
 
   const activeCandidate = candidates.find((c) => c.id === selectedCandidateId);
+  const allCandidatesSuboptimal = candidates.length > 0 && candidates.every((c) => c.verificationStatus !== 'verified');
   const iframeSrc = renderId ? `/api/sandbox/render?id=${renderId}` : '';
 
   // Simple unified diff computation
@@ -405,22 +463,187 @@ export default function SandboxPage() {
           </div>
 
           {/* Auto-Iteration Control & Multi-Candidate Selector Drawer */}
-          <div className="border-t border-zinc-200 bg-zinc-50/70 p-4 space-y-3.5 max-h-[320px] overflow-y-auto">
+          <div className="border-t border-zinc-200 bg-zinc-50/70 p-4 space-y-3.5 max-h-[360px] overflow-y-auto">
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Auto-Remediation</span>
                 <h4 className="text-xs font-semibold text-zinc-900">Multi-Candidate Iteration</h4>
               </div>
-              <Button
-                size="sm"
-                className="h-8 text-xs gap-1.5 bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
-                disabled={isIterating || !auditRun}
-                onClick={handleAutoIterate}
-              >
-                <Sparkles className="size-3.5" />
-                <span>{isIterating ? 'Generating 3 Candidates…' : '✨ Auto-Iterate (3 Proposals)'}</span>
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={`h-8 text-xs gap-1 border-zinc-300 ${showDirectivesPanel ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-700'}`}
+                  onClick={() => setShowDirectivesPanel((prev) => !prev)}
+                  title="Configure constraints for candidate generation"
+                >
+                  <Sliders className="size-3.5 text-zinc-600" />
+                  <span>Constraints</span>
+                  {selectedConstraints.length > 0 && (
+                    <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-blue-600 text-white font-semibold">
+                      {selectedConstraints.length}
+                    </span>
+                  )}
+                </Button>
+
+                <Button
+                  size="sm"
+                  className="h-8 text-xs gap-1.5 bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                  disabled={isIterating || !auditRun}
+                  onClick={() => void handleAutoIterate()}
+                >
+                  <Sparkles className="size-3.5" />
+                  <span>{isIterating ? 'Generating 3 Candidates…' : '✨ Auto-Iterate (3 Proposals)'}</span>
+                </Button>
+              </div>
             </div>
+
+            {/* Custom Directives & Constraints Configuration Panel */}
+            {showDirectivesPanel && (
+              <div className="p-3 rounded-lg bg-zinc-100/90 border border-zinc-200 space-y-2.5 text-xs text-zinc-800">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-[11px] text-zinc-900">กำหนดเงื่อนไข / Fix Constraints:</span>
+                  <span className="text-[10px] text-zinc-500">เลือกข้อจำกัดเพื่อปรับทิศทางของ Candidate</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleConstraint('preserve_colors')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium border transition-colors ${
+                      selectedConstraints.includes('preserve_colors')
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
+                    }`}
+                  >
+                    🎨 คงสีเดิม (Preserve Brand Colors)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleConstraint('target_size_only')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium border transition-colors ${
+                      selectedConstraints.includes('target_size_only')
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
+                    }`}
+                  >
+                    👆 ปรับเฉพาะขนาดปุ่ม (Target Size Only)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleConstraint('contrast_only')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium border transition-colors ${
+                      selectedConstraints.includes('contrast_only')
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
+                    }`}
+                  >
+                    🔤 ปรับเฉพาะ Contrast (Contrast Only)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleConstraint('minimal_invasive')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium border transition-colors ${
+                      selectedConstraints.includes('minimal_invasive')
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
+                    }`}
+                  >
+                    ⚡ ปรับให้น้อยที่สุด (Minimal Invasive)
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="text"
+                    value={customDirective}
+                    onChange={(e) => setCustomDirective(e.target.value)}
+                    placeholder="คำสั่งเฉพาะเจาะจง เช่น 'ห้ามเปลี่ยนขนาดกล่อง', 'ใช้ padding ด้านข้างแทน'..."
+                    className="flex-1 px-2.5 py-1 text-xs rounded border border-zinc-200 bg-white placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  <Button
+                    size="sm"
+                    className="h-7 text-[11px] bg-zinc-900 text-white hover:bg-zinc-800"
+                    disabled={isIterating || !auditRun}
+                    onClick={() => void handleAutoIterate()}
+                  >
+                    🔄 ลองใหม่ตามเงื่อนไข
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Suboptimal Candidates Fallback Alert & Recovery Panel */}
+            {allCandidatesSuboptimal && (
+              <div
+                data-testid="suboptimal-candidates-banner"
+                className="p-3.5 rounded-lg bg-amber-50/90 border border-amber-300 text-amber-950 space-y-3 shadow-xs"
+              >
+                <div className="flex items-start gap-2.5">
+                  <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="flex-1 text-xs">
+                    <strong className="font-semibold block text-amber-900 mb-0.5">
+                      ทางเลือกอัตโนมัติทั้ง 3 แบบยังไม่ผ่านเกณฑ์สมบูรณ์ / All Candidates Suboptimal
+                    </strong>
+                    <p className="text-amber-800 leading-relaxed text-[11px]">
+                      ระบบตรวจพบว่าทุกทางเลือกติดสถานะ <span className="font-semibold">Failed</span> หรือ <span className="font-semibold">Unable to verify</span> (อาจเกิดปัญหาใหม่ หรือไม่พบค่าวัดผลจริง) แนะนำให้ใช้ตัวเลือกด้านล่าง:
+                    </p>
+                  </div>
+                </div>
+
+                {/* Fallback Action Buttons */}
+                <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-amber-200">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-[11px] bg-white border-amber-300 hover:bg-amber-100/70 text-amber-900 gap-1"
+                    onClick={handleDiscardCandidates}
+                  >
+                    <RotateCcw className="size-3 text-amber-700" />
+                    <span>ยกเลิกทั้งหมด & ใช้ Baseline (Discard All)</span>
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-[11px] bg-white border-amber-300 hover:bg-amber-100/70 text-amber-900 gap-1"
+                    onClick={() => {
+                      setActiveTab('editor');
+                      const textarea = document.querySelector('textarea');
+                      textarea?.focus();
+                    }}
+                  >
+                    <Code2 className="size-3 text-amber-700" />
+                    <span>ปรับโค้ดเองใน Editor (Manual Tuning)</span>
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={recordingDecision}
+                    className="h-7 text-[11px] bg-white border-amber-300 hover:bg-amber-100/70 text-amber-900 gap-1"
+                    onClick={() => void handleRecordAcceptedRisk()}
+                  >
+                    <ShieldCheck className="size-3 text-amber-700" />
+                    <span>{recordingDecision ? 'กำลังบันทึก...' : 'บันทึกเป็น Accepted Risk'}</span>
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-[11px] text-amber-900 hover:bg-amber-100/60 gap-1"
+                    onClick={() => setShowDirectivesPanel((prev) => !prev)}
+                  >
+                    <Sliders className="size-3 text-amber-700" />
+                    <span>{showDirectivesPanel ? 'ซ่อนการตั้งเงื่อนไข' : '✨ กำหนดเงื่อนไขแล้วลองใหม่'}</span>
+                  </Button>
+                </div>
+
+                {decisionFeedback && (
+                  <div className="p-2 rounded bg-amber-100 border border-amber-300 text-[11px] text-amber-950 font-medium">
+                    {decisionFeedback}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Candidates Card Grid */}
             {candidates.length > 0 ? (
@@ -544,18 +767,42 @@ export default function SandboxPage() {
                       )}
 
                       {/* Action buttons inside card */}
-                      <div className="flex items-center gap-2 pt-1 border-t border-zinc-200/60">
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-zinc-200/60">
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-7 text-[11px] gap-1 border-zinc-200"
+                          className="h-7 text-[11px] gap-1 border-zinc-200 bg-white hover:bg-zinc-50"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAcceptCandidate(cand);
                           }}
                         >
                           <Check className="size-3 text-emerald-600" />
-                          <span>Accept & Apply to Editor</span>
+                          <span>Accept & Apply Full Code</span>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-[10.5px] text-zinc-600 hover:text-zinc-900 border border-zinc-200/60 bg-white"
+                          title="Apply only target-size padding and min-dimensions without changing colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCherryPick('target-size', cand);
+                          }}
+                        >
+                          <span>👆 Target Size Only</span>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-[10.5px] text-zinc-600 hover:text-zinc-900 border border-zinc-200/60 bg-white"
+                          title="Apply only text contrast improvements without modifying sizes or layout"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCherryPick('contrast', cand);
+                          }}
+                        >
+                          <span>🔤 Contrast Only</span>
                         </Button>
                         <Button
                           size="sm"
@@ -567,7 +814,7 @@ export default function SandboxPage() {
                           }}
                         >
                           <Copy className="size-3" />
-                          <span>Copy Candidate</span>
+                          <span>Copy</span>
                         </Button>
                       </div>
                     </div>

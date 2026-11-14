@@ -1,6 +1,18 @@
 import type { UXIssue } from '@/lib/schema/ux-issue';
 import type { RegressionComparison } from './regression';
 
+export type IterationConstraint =
+  | 'preserve_colors'
+  | 'preserve_layout'
+  | 'target_size_only'
+  | 'contrast_only'
+  | 'minimal_invasive';
+
+export interface IterationOptions {
+  constraints?: IterationConstraint[];
+  customDirective?: string;
+}
+
 export interface CandidateCheck {
   id: string;
   label: string;

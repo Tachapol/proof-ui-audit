@@ -9,6 +9,8 @@ export async function POST(req: NextRequest) {
     const html = typeof body.html === 'string' ? body.html.trim() : '';
     const issues: UXIssue[] = Array.isArray(body.issues) ? body.issues : [];
     const runId = typeof body.runId === 'string' ? body.runId.trim() : '';
+    const constraints = Array.isArray(body.constraints) ? body.constraints : undefined;
+    const customDirective = typeof body.customDirective === 'string' ? body.customDirective.trim() : undefined;
 
     if (!html) {
       return NextResponse.json({ success: false, error: 'HTML snippet is required.' }, { status: 400 });
@@ -31,7 +33,12 @@ export async function POST(req: NextRequest) {
     const port = portMatch ? portMatch[1] : (process.env.PORT || '3123');
     const localOrigin = `http://localhost:${port}`;
 
-    const candidates = await runMultiCandidateIteration(html, baselineIssues, localOrigin);
+    const candidates = await runMultiCandidateIteration(
+      html,
+      baselineIssues,
+      localOrigin,
+      { constraints, customDirective }
+    );
 
     if (runId && candidates.length > 0) {
       try {

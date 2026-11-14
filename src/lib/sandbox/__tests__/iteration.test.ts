@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { UXIssue } from '@/lib/schema/ux-issue';
 import { runBrowserAudit } from '@/lib/audit/browser';
-import { runMultiCandidateIteration } from '../iteration';
+import { runMultiCandidateIteration, cherryPickTargetSizeFix, cherryPickContrastFix } from '../iteration';
 
 vi.mock('@/lib/audit/browser', () => ({
   runBrowserAudit: vi.fn(),
@@ -107,5 +107,49 @@ describe('Sandbox verification evidence', () => {
     audit([issue({ status: 'candidateFail' })]);
     const failedResult = await run();
     expect(failedResult.every(c => c.verified === false && c.verificationStatus === 'failed')).toBe(true);
+  });
+
+  it('supports constraint-based generation (target_size_only / preserve_colors)', async () => {
+    audit([issue({ status: 'pass', measured: { width: 44, height: 44 } })]);
+    const candidates = await runMultiCandidateIteration(
+      '<button class="btn text-gray-400" style="width:18px;height:18px;">Click</button>',
+      [issue()],
+      'http://localhost:3123',
+      { constraints: ['preserve_colors', 'target_size_only'] }
+    );
+
+    expect(candidates).toHaveLength(3);
+    // Colors must remain untouched (text-gray-400 still present)
+    expect(candidates[0].code).toContain('text-gray-400');
+    expect(candidates[0].badge).toBe('Preserve Colors');
+    expect(candidates[0].name).toContain('Colors Untouched');
+  });
+
+  it('supports constraint-based generation (contrast_only / preserve_layout)', async () => {
+    audit([issue({ status: 'pass', measured: { contrastRatio: 7.2 } })]);
+    const candidates = await runMultiCandidateIteration(
+      '<button class="btn text-gray-400" style="width:18px;height:18px;">Click</button>',
+      [issue()],
+      'http://localhost:3123',
+      { constraints: ['contrast_only'] }
+    );
+
+    expect(candidates).toHaveLength(3);
+    // Sizing must remain untouched (width:18px still present)
+    expect(candidates[0].code).toContain('width:18px;height:18px;');
+    // Color was updated
+    expect(candidates[0].code).toContain('text-slate-900');
+    expect(candidates[0].badge).toBe('High Contrast');
+  });
+
+  it('provides standalone cherry-pick helpers for target size and contrast', () => {
+    const raw = '<button class="btn text-gray-400" style="width:18px;height:18px;">Click</button>';
+    const targetFixed = cherryPickTargetSizeFix(raw);
+    expect(targetFixed).toContain('min-h-[44px]');
+    expect(targetFixed).toContain('text-gray-400'); // untouched color
+
+    const contrastFixed = cherryPickContrastFix(raw);
+    expect(contrastFixed).toContain('text-slate-900'); // fixed color
+    expect(contrastFixed).toContain('width:18px;height:18px;'); // untouched size
   });
 });
