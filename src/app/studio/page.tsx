@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -301,6 +301,18 @@ export default function StudioPage() {
   const issue = session && item ? findStudioIssue(session, item) : undefined;
   const candidate = session?.candidates[active];
 
+  const aiSuggestedColors = useMemo(() => {
+    if (!item?.notes) return [];
+    const list: Array<{ role: StudioRole; roleName: string; color: string }> = [];
+    for (const note of item.notes) {
+      const matches = note.recommendation.match(/#[0-9a-fA-F]{6}\b/g) || [];
+      for (const m of matches) {
+        list.push({ role: note.role, roleName: ROLE_NAMES[note.role] || note.role, color: m.toLowerCase() });
+      }
+    }
+    return list;
+  }, [item?.notes]);
+
   useEffect(() => {
     setColor(session?.candidates[active]?.color || '#111827');
   }, [active, session?.candidates]);
@@ -326,6 +338,7 @@ export default function StudioPage() {
       const targets = inputMode === 'url' ? [websiteUrl.trim()] : selectedFrames.map(id => 'fixture://' + id);
       if (!targets[0]) throw new Error('Enter a website URL.');
       const ids: string[] = [];
+      const partialErrorsCollected: string[] = [];
       for (let i = 0; i < targets.length; i++) {
         setBusy(`Measuring frame ${i + 1} of ${targets.length}…`);
         const response = await fetch('/api/audit', {
@@ -340,9 +353,18 @@ export default function StudioPage() {
         const body = await response.json();
         if (!response.ok) throw new Error(body.error || 'Audit failed.');
         ids.push(body.run.id);
+        if (body.partialErrors && Array.isArray(body.partialErrors)) {
+          partialErrorsCollected.push(...body.partialErrors);
+        }
       }
       setBusy('Analyzing findings and preparing agenda…');
-      const next = await post({ action: 'create', runIds: ids, roles, model: selectedModel });
+      const next = await post({
+        action: 'create',
+        runIds: ids,
+        roles,
+        model: selectedModel,
+        partialErrors: partialErrorsCollected.length ? partialErrorsCollected : undefined,
+      });
       acceptSession(next);
       setActive(next.agenda[0]?.id || '');
       setPanel('agenda');
@@ -946,6 +968,24 @@ export default function StudioPage() {
                 </div>
               </div>
 
+              {/* Audit Warnings & Partial Evidence if any */}
+              {session.auditWarnings && session.auditWarnings.length > 0 && (
+                <div className="m-3 p-3 rounded-lg border border-amber-300 bg-amber-50/90 text-xs text-amber-950 space-y-1.5 shadow-xs">
+                  <div className="flex items-center gap-1.5 font-semibold text-amber-900">
+                    <AlertTriangle className="size-4 text-amber-600 shrink-0" />
+                    <span>คำเตือน: หลักฐานการตรวจบางส่วนไม่ครบถ้วน (Audit Warnings)</span>
+                  </div>
+                  <ul className="list-disc list-inside space-y-0.5 text-[11px] text-amber-800">
+                    {session.auditWarnings.map((w, idx) => (
+                      <li key={idx}>{w}</li>
+                    ))}
+                  </ul>
+                  <p className="text-[10px] text-amber-700/90 pt-1 border-t border-amber-200">
+                    คำวิจารณ์ของ AI และตัวเลือกการแก้ไขอิงจากหลักฐานเฉพาะส่วนที่ตรวจวัดสำเร็จเท่านั้น
+                  </p>
+                </div>
+              )}
+
               {/* Role Errors if any */}
               {Object.entries(session.roleErrors).map(([role, msg]) => (
                 <div key={role} className="m-3 p-2.5 rounded-lg border border-amber-200 bg-amber-50 text-xs text-amber-900 flex items-start gap-2">
@@ -955,6 +995,25 @@ export default function StudioPage() {
                   </span>
                 </div>
               ))}
+
+              {/* Finding Scope & Selection Status */}
+              {session.findingStats && (
+                <div className="mx-3 mt-3 p-2.5 rounded-lg border border-zinc-200 bg-zinc-50/80 text-[11px] text-zinc-700 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-zinc-900">
+                      กำลังวิเคราะห์ {session.findingStats.analyzedCount} จากทั้งหมด {session.findingStats.totalCandidateFindings} รายการ
+                    </span>
+                    <Badge variant="outline" className="text-[10px] bg-white border-zinc-300 text-zinc-600 font-normal">
+                      คัดตาม Priority P0–P3
+                    </Badge>
+                  </div>
+                  {session.findingStats.omittedCount > 0 && (
+                    <p className="text-[10.5px] text-zinc-500 leading-snug">
+                      เลือก 8 รายการที่มีความสำคัญสูงสุดเข้า Agenda วิจารณ์ (ละเว้น {session.findingStats.omittedCount} รายการที่มีความสำคัญรองลงไป)
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Agenda Findings List */}
               <div className="p-3">
@@ -1375,44 +1434,111 @@ export default function StudioPage() {
                     </p>
                   </div>
 
-                  <div className="space-y-2">
-                    <label htmlFor="studio-color" className="text-xs font-medium text-zinc-700 block">
-                      Candidate text color
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        id="studio-color"
-                        type="color"
-                        value={/^#[0-9a-f]{6}$/i.test(color) ? color : '#111827'}
-                        onChange={e => setColor(e.target.value)}
-                        disabled={!!busy}
-                        className="h-8 w-9 rounded border border-zinc-200 p-0.5 cursor-pointer"
-                      />
-                      <label className="sr-only" htmlFor="studio-color-hex">
-                        Candidate color hex
+                  <div className="space-y-3">
+                    {/* Color Source Options: AI vs Brand vs System */}
+                    <div className="space-y-1.5 p-2.5 rounded-lg bg-zinc-50 border border-zinc-200/80 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-zinc-800">
+                          แหล่งที่มาของสีที่แนะนำ (Color Source Options):
+                        </span>
+                        <span className="text-[10px] text-zinc-500">คลิกเพื่อเลือกทดลอง</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {aiSuggestedColors.map((s, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              setColor(s.color);
+                              void action('preview', { color: s.color, sourceLabel: `${s.roleName} recommendation (${s.color})` });
+                            }}
+                            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] border transition-all ${
+                              color.toLowerCase() === s.color
+                                ? 'bg-purple-100 text-purple-900 border-purple-400 font-semibold ring-1 ring-purple-400 shadow-2xs'
+                                : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
+                            }`}
+                          >
+                            <span className="size-2.5 rounded-full border border-black/20" style={{ backgroundColor: s.color }} />
+                            <span>{s.roleName}: {s.color}</span>
+                          </button>
+                        ))}
+
+                        {run?.productContext?.themeColor && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const brandCol = run.productContext!.themeColor!;
+                              setColor(brandCol);
+                              void action('preview', { color: brandCol, sourceLabel: `Brand theme token (${brandCol})` });
+                            }}
+                            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] border transition-all ${
+                              color.toLowerCase() === run.productContext.themeColor.toLowerCase()
+                                ? 'bg-blue-100 text-blue-900 border-blue-400 font-semibold ring-1 ring-blue-400 shadow-2xs'
+                                : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
+                            }`}
+                          >
+                            <span className="size-2.5 rounded-full border border-black/20" style={{ backgroundColor: run.productContext.themeColor }} />
+                            <span>Brand Theme: {run.productContext.themeColor}</span>
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setColor('#111827');
+                            void action('preview', { color: '#111827', sourceLabel: 'System Slate (#111827)' });
+                          }}
+                          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] border transition-all ${
+                            color.toLowerCase() === '#111827'
+                              ? 'bg-zinc-200 text-zinc-900 border-zinc-400 font-semibold shadow-2xs'
+                              : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300'
+                          }`}
+                        >
+                          <span className="size-2.5 rounded-full border border-black/20 bg-[#111827]" />
+                          <span>System Default: #111827</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label htmlFor="studio-color" className="text-xs font-medium text-zinc-700 block">
+                        Candidate text color (กำหนดเองหรือเลือกจากด้านบน)
                       </label>
-                      <Input
-                        id="studio-color-hex"
-                        type="text"
-                        value={color}
-                        maxLength={7}
-                        onChange={e => setColor(e.target.value)}
-                        disabled={!!busy}
-                        className="h-8 w-24 text-xs font-mono"
-                      />
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-8 text-xs gap-1.5 ml-auto"
-                        disabled={!!busy || !/^#[0-9a-f]{6}$/i.test(color)}
-                        onClick={() => {
-                          setPanel('preview');
-                          void action('preview', { color });
-                        }}
-                      >
-                        <Eye className="size-3.5" />
-                        <span>Preview & measure</span>
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <input
+                          id="studio-color"
+                          type="color"
+                          value={/^#[0-9a-f]{6}$/i.test(color) ? color : '#111827'}
+                          onChange={e => setColor(e.target.value)}
+                          disabled={!!busy}
+                          className="h-8 w-9 rounded border border-zinc-200 p-0.5 cursor-pointer"
+                        />
+                        <label className="sr-only" htmlFor="studio-color-hex">
+                          Candidate color hex
+                        </label>
+                        <Input
+                          id="studio-color-hex"
+                          type="text"
+                          value={color}
+                          maxLength={7}
+                          onChange={e => setColor(e.target.value)}
+                          disabled={!!busy}
+                          className="h-8 w-24 text-xs font-mono"
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 text-xs gap-1.5 ml-auto"
+                          disabled={!!busy || !/^#[0-9a-f]{6}$/i.test(color)}
+                          onClick={() => {
+                            setPanel('preview');
+                            void action('preview', { color });
+                          }}
+                        >
+                          <Eye className="size-3.5" />
+                          <span>Preview & measure</span>
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
@@ -1424,14 +1550,22 @@ export default function StudioPage() {
                   {candidate && (
                     <Card className="border-zinc-200 shadow-none bg-zinc-50/50">
                       <CardContent className="p-3.5 space-y-3">
-                        <div
-                          className={cn(
-                            'flex items-center gap-2 text-xs font-semibold',
-                            candidate.verified ? 'text-emerald-700' : 'text-red-700'
+                        <div className="flex flex-wrap items-center justify-between gap-1.5">
+                          <div
+                            className={cn(
+                              'flex items-center gap-2 text-xs font-semibold',
+                              candidate.verified ? 'text-emerald-700' : 'text-red-700'
+                            )}
+                          >
+                            {candidate.verified ? <ShieldCheck className="size-4" /> : <CircleHelp className="size-4" />}
+                            <span>{candidate.verified ? 'Selected checks passed' : 'Candidate needs revision'}</span>
+                          </div>
+
+                          {candidate.sourceLabel && (
+                            <Badge variant="outline" className="text-[10px] border-zinc-300 bg-white text-zinc-700 font-normal">
+                              ที่มาของสี: {candidate.sourceLabel}
+                            </Badge>
                           )}
-                        >
-                          {candidate.verified ? <ShieldCheck className="size-4" /> : <CircleHelp className="size-4" />}
-                          <span>{candidate.verified ? 'Selected checks passed' : 'Candidate needs revision'}</span>
                         </div>
 
                         {/* Before / After comparison */}

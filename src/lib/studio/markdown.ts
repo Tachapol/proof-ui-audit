@@ -17,7 +17,19 @@ export function formatStudioMarkdown(session: StudioSession): string {
       lines.push(`  - \`${r.fixtureId ? `${r.fixtureId} (Local Fixture)` : r.targetUrl}\``);
     });
   }
+
+  if (session.findingStats) {
+    lines.push(`- **Finding Scope**: Analyzed ${session.findingStats.analyzedCount} of ${session.findingStats.totalCandidateFindings} findings (Priority P0–P3 sorted)${session.findingStats.omittedCount > 0 ? ` — ${session.findingStats.omittedCount} lower-priority findings omitted` : ''}`);
+  }
   lines.push('');
+
+  // Audit Incomplete Evidence / Warnings
+  if (session.auditWarnings && session.auditWarnings.length > 0) {
+    lines.push('## ⚠️ Audit Warnings & Partial Evidence');
+    session.auditWarnings.forEach(w => lines.push(`- ${w}`));
+    lines.push('*Critique and candidates are based only on successfully measured evidence.*');
+    lines.push('');
+  }
 
   // Product Context
   const context = session.runs[0]?.productContext;
@@ -60,7 +72,8 @@ export function formatStudioMarkdown(session: StudioSession): string {
 
       const candidate = session.candidates[item.id];
       if (candidate) {
-        lines.push(`- **Color Exploration**: \`${candidate.color}\` (Contrast: ${candidate.beforeRatio}:1 ➔ ${candidate.afterRatio}:1, Threshold: ${candidate.threshold}:1)`);
+        const sourceText = candidate.sourceLabel ? ` (Source: ${candidate.sourceLabel})` : '';
+        lines.push(`- **Color Exploration**: \`${candidate.color}\`${sourceText} (Contrast: ${candidate.beforeRatio}:1 ➔ ${candidate.afterRatio}:1, Threshold: ${candidate.threshold}:1)`);
         lines.push(`- **Verified**: ${candidate.verified ? 'Yes' : 'No'} | **Applied**: ${candidate.applied ? 'Yes' : 'No'}`);
       }
       lines.push('');

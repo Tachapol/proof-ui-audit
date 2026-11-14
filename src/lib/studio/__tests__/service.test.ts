@@ -27,4 +27,52 @@ describe('Studio evidence orchestration',()=>{
  it('does not send a question to a role not selected for this session',async()=>{
   vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response('{}',{status:503})));const session=await createStudio([run],['ux']);const request=vi.fn();vi.stubGlobal('fetch',request);await expect(discussStudio(session,session.agenda[0].id,'engineering','Why?')).rejects.toThrow('not active');expect(request).not.toHaveBeenCalled();
  });
+ it('sorts findings by priority, caps agenda at 8, and records findingStats and partialErrors', async () => {
+  const priorities: Array<'P0' | 'P1' | 'P2' | 'P3'> = ['P3', 'P0', 'P2', 'P1', 'P3', 'P0', 'P2', 'P1', 'P3', 'P0'];
+  const tenGrouped = priorities.map((p, idx) => ({
+    fingerprint: `fp-${idx}-${p}`,
+    representative: { ...finding, id: `iss-${idx}`, initialPriority: p },
+    rawOccurrencesCount: 1,
+    occurrences: [{ ...finding, id: `iss-${idx}`, initialPriority: p }],
+    status: 'candidateFail' as const,
+    initialPriority: p,
+    currentPriority: p,
+    decisionHistory: [],
+  }));
+
+  const runWithTen: AuditRun = {
+    ...run,
+    groupedIssues: tenGrouped,
+    auditWarnings: ['Desktop viewport timed out'],
+  };
+
+  const request = vi.fn(async () =>
+    new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ summary: 'Sum', items: [] }) } }] }))
+  );
+  vi.stubGlobal('fetch', request);
+
+  const session = await createStudio(
+    [runWithTen],
+    ['ux'],
+    undefined,
+    { partialErrors: ['Selector #box failed to compute bounding rect'] }
+  );
+
+  expect(session.agenda).toHaveLength(8);
+  expect(session.findingStats).toEqual({
+    totalCandidateFindings: 10,
+    analyzedCount: 8,
+    omittedCount: 2,
+    maxCap: 8,
+    selectionStrategy: 'priority_order',
+  });
+
+  const firstItem = runWithTen.groupedIssues.find(g => g.fingerprint === session.agenda[0].fingerprint);
+  expect(firstItem?.currentPriority).toBe('P0');
+
+  expect(session.auditWarnings).toContain('Desktop viewport timed out');
+  expect(session.auditWarnings).toContain('Selector #box failed to compute bounding rect');
+  expect(session.partialErrors).toContain('Selector #box failed to compute bounding rect');
+  expect(session.leadSummary).toContain('Finding Scope');
+ });
 });

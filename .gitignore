@@ -18,6 +18,7 @@
 /.proofui-data/
 /public/screenshots/*.png
 !/public/screenshots/.gitkeep
+/generated_images/
 
 # Environment files
 .env*.local

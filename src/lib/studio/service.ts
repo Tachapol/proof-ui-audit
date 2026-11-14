@@ -32,10 +32,67 @@ function inputFor(session: StudioSession, item: StudioSession['agenda'][number])
   const run = session.runs.find(r => r.id === item.runId)!; const issue = findStudioIssue(session, item)!; const rep = issue.representative;
   return { ruleId: rep.ruleId as any, wcagCriterion: rep.wcagCriterion, status: issue.status, title: rep.title, description: rep.description, selector: rep.selector, element: rep.element, viewport: rep.viewport, measured: rep.measured, expected: rep.expected, exception: rep.exception, initialPriority: rep.initialPriority, priorityRationale: rep.priorityRationale, productContext: run.productContext };
 }
-export async function createStudio(runs: AuditRun[], roles: StudioRole[], modelName?: string) {
+export async function createStudio(runs: AuditRun[], roles: StudioRole[], modelName?: string, options?: { partialErrors?: string[] }) {
  const chosenModel = modelName?.trim() || process.env.CPE_MODEL || 'gpt-6-luna';
  const session: StudioSession={version:1,id:crypto.randomUUID(),createdAt:new Date().toISOString(),model:chosenModel,runs,roles,agenda:[],roleSummaries:{},leadSummary:'',roleErrors:{},messages:[],candidates:{}};
- for(const run of runs)for(const issue of run.groupedIssues.filter(g=>g.status!=='pass').slice(0,8))session.agenda.push({id:crypto.randomUUID(),runId:run.id,fingerprint:issue.fingerprint,title:issue.representative.title,status:issue.status,notes:[]});
+
+ const PRIORITY_RANK: Record<string, number> = { P0: 0, P1: 1, P2: 2, P3: 3 };
+
+ // Aggregate all non-pass candidate findings across all runs
+ const allCandidateFindings: Array<{ run: AuditRun; issue: AuditRun['groupedIssues'][0] }> = [];
+ for (const run of runs) {
+   for (const issue of run.groupedIssues.filter(g => g.status !== 'pass')) {
+     allCandidateFindings.push({ run, issue });
+   }
+ }
+
+ const totalCandidateFindings = allCandidateFindings.length;
+
+ // Sort candidate findings by Priority: P0 -> P1 -> P2 -> P3, then candidateFail before needsReview
+ allCandidateFindings.sort((a, b) => {
+   const rankA = PRIORITY_RANK[a.issue.currentPriority] ?? 3;
+   const rankB = PRIORITY_RANK[b.issue.currentPriority] ?? 3;
+   if (rankA !== rankB) return rankA - rankB;
+   if (a.issue.status === 'candidateFail' && b.issue.status !== 'candidateFail') return -1;
+   if (b.issue.status === 'candidateFail' && a.issue.status !== 'candidateFail') return 1;
+   return 0;
+ });
+
+ const MAX_AGENDA_CAP = 8;
+ const selectedFindings = allCandidateFindings.slice(0, MAX_AGENDA_CAP);
+ const omittedCount = Math.max(0, totalCandidateFindings - selectedFindings.length);
+
+ for (const item of selectedFindings) {
+   session.agenda.push({
+     id: crypto.randomUUID(),
+     runId: item.run.id,
+     fingerprint: item.issue.fingerprint,
+     title: item.issue.representative.title,
+     status: item.issue.status,
+     notes: [],
+   });
+ }
+
+ session.findingStats = {
+   totalCandidateFindings,
+   analyzedCount: session.agenda.length,
+   omittedCount,
+   maxCap: MAX_AGENDA_CAP,
+   selectionStrategy: 'priority_order',
+ };
+
+ // Collect audit warnings and partial errors
+ const auditWarnings = [
+   ...(options?.partialErrors || []),
+   ...runs.flatMap(r => r.auditWarnings || []),
+ ];
+ if (auditWarnings.length > 0) {
+   session.auditWarnings = [...new Set(auditWarnings)];
+ }
+ if (options?.partialErrors?.length) {
+   session.partialErrors = [...new Set(options.partialErrors)];
+ }
+
  if(!session.agenda.length){session.leadSummary='No candidate accessibility issues were found within the selected checks. Passed checks remain available in the frame audit.';await saveStudio(session);return session;}
  const evidence=session.agenda.map(item=>({issueId:item.id,...inputFor(session,item)}));
  const schema=z.object({summary:z.string().min(1).max(2000),items:z.array(z.object({issueId:z.string(),comment:z.string().min(1).max(2000),recommendation:z.string().min(1).max(2000),tradeoff:z.string().max(1000).default('')})).max(16)});
@@ -51,8 +108,20 @@ export async function createStudio(runs: AuditRun[], roles: StudioRole[], modelN
  try{
   const lead=z.object({summary:z.string().min(1).max(3000),orderedIds:z.array(z.string()).max(16)}).parse(await query(`Role: Lead Coordinator. ${rolePurpose.lead} Output {"summary":"short review opening with trade-offs and next steps","orderedIds":["supplied issue IDs in suggested priority order"]}.`,{evidence,roleSummaries:session.roleSummaries,agenda:session.agenda,unavailableRoles:session.roleErrors},chosenModel));
   const ids=[...new Set([...lead.orderedIds,...session.agenda.map(a=>a.id)])];if(ids.some(id=>!session.agenda.some(a=>a.id===id)))throw new Error('Unknown agenda item.');
-  session.agenda.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));session.leadSummary=session.agenda.reduce((text,item,index)=>text.replaceAll(item.id,`finding ${index+1}`),lead.summary);
- }catch{session.roleErrors.lead='Lead synthesis unavailable. Evidence and available role feedback are preserved.';session.leadSummary='Review the measured findings and available role feedback below. Lead synthesis is unavailable.';}
+  session.agenda.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
+  let finalLeadSummary = session.agenda.reduce((text,item,index)=>text.replaceAll(item.id,`finding ${index+1}`),lead.summary);
+  if (omittedCount > 0) {
+    finalLeadSummary += `\n\n[Finding Scope]: Analyzing top ${session.agenda.length} of ${totalCandidateFindings} findings sorted by Priority (P0–P3). ${omittedCount} lower-priority findings omitted from critique agenda.`;
+  }
+  session.leadSummary = finalLeadSummary;
+ }catch{
+  session.roleErrors.lead='Lead synthesis unavailable. Evidence and available role feedback are preserved.';
+  let fallbackLead = 'Review the measured findings and available role feedback below. Lead synthesis is unavailable.';
+  if (omittedCount > 0) {
+    fallbackLead += `\n\n[Finding Scope]: Analyzing top ${session.agenda.length} of ${totalCandidateFindings} findings sorted by Priority (P0–P3). ${omittedCount} lower-priority findings omitted from critique agenda.`;
+  }
+  session.leadSummary = fallbackLead;
+ }
  await saveStudio(session);return session;
 }
 export async function discussStudio(session:StudioSession,issueId:string,role:StudioRole|'lead',message:string){
