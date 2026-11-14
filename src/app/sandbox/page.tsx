@@ -26,7 +26,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { SandboxCandidate, IterationConstraint } from '@/lib/sandbox/types';
-import { cherryPickTargetSizeFix, cherryPickContrastFix } from '@/lib/sandbox/iteration';
+import { cherryPickTargetSizeFix, cherryPickContrastFix } from '@/lib/sandbox/cherry-pick';
 import type { AuditRun, UXIssue } from '@/lib/schema/ux-issue';
 
 function formatMeasuredValue(ruleId: string, m?: Record<string, unknown>): string {
