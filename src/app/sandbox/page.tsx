@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { SandboxCandidate, IterationConstraint } from '@/lib/sandbox/types';
 import { cherryPickTargetSizeFix, cherryPickContrastFix } from '@/lib/sandbox/cherry-pick';
+import { buildSandboxedDocument } from '@/lib/sandbox/document';
 import type { AuditRun, UXIssue } from '@/lib/schema/ux-issue';
 
 function formatMeasuredValue(ruleId: string, m?: Record<string, unknown>): string {
@@ -108,6 +109,8 @@ export default function SandboxPage() {
   const [showDirectivesPanel, setShowDirectivesPanel] = useState(false);
   const [recordingDecision, setRecordingDecision] = useState(false);
   const [decisionFeedback, setDecisionFeedback] = useState<string | null>(null);
+  const [sandboxError, setSandboxError] = useState<string | null>(null);
+  const [isStaleResult, setIsStaleResult] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // Initial audit on load: check if an issue was sent from Visual Canvas or Studio
@@ -132,22 +135,39 @@ export default function SandboxPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleRunAudit = async (htmlToAudit: string) => {
+  const handleRunAudit = async (
+    htmlToAudit: string,
+    options?: { priorRunId?: string; acceptedCandidate?: SandboxCandidate }
+  ) => {
     setIsAuditing(true);
+    setSandboxError(null);
     try {
       const res = await fetch('/api/sandbox/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html: htmlToAudit }),
+        body: JSON.stringify({
+          html: htmlToAudit,
+          priorRunId: options?.priorRunId,
+          acceptedCandidate: options?.acceptedCandidate
+            ? {
+                id: options.acceptedCandidate.id,
+                name: options.acceptedCandidate.name,
+                code: options.acceptedCandidate.code,
+              }
+            : undefined,
+        }),
       });
       const data = await res.json();
-      if (data.success) {
-        setRenderId(data.snippetId);
-        setAuditRun(data.run);
-        setActiveCodePreview(htmlToAudit);
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Audit execution failed.');
       }
-    } catch {
-      // Audit fail fallback
+      setRenderId(data.snippetId);
+      setAuditRun(data.run);
+      setActiveCodePreview(htmlToAudit);
+      setIsStaleResult(false);
+    } catch (err) {
+      setSandboxError(err instanceof Error ? err.message : 'Audit failed.');
+      setIsStaleResult(true);
     } finally {
       setIsAuditing(false);
     }
@@ -162,6 +182,7 @@ export default function SandboxPage() {
   const handleAutoIterate = async (overrideConstraints?: IterationConstraint[]) => {
     if (!auditRun) return;
     setIsIterating(true);
+    setSandboxError(null);
     try {
       const res = await fetch('/api/sandbox/iterate', {
         method: 'POST',
@@ -175,13 +196,16 @@ export default function SandboxPage() {
         }),
       });
       const data = await res.json();
-      if (data.success && data.candidates?.length > 0) {
-        setCandidates(data.candidates);
-        setSelectedCandidateId(data.candidates[0].id);
-        setActiveCodePreview(data.candidates[0].code);
+      if (!res.ok || !data.success || !data.candidates?.length) {
+        throw new Error(data.error || 'Candidate iteration failed to generate fixes.');
       }
-    } catch {
-      // Iteration fail fallback
+      setCandidates(data.candidates);
+      setSelectedCandidateId(data.candidates[0].id);
+      setActiveCodePreview(data.candidates[0].code);
+      setIsStaleResult(false);
+    } catch (err) {
+      setSandboxError(err instanceof Error ? err.message : 'Iteration failed.');
+      setIsStaleResult(true);
     } finally {
       setIsIterating(false);
     }
@@ -230,16 +254,38 @@ export default function SandboxPage() {
     }
   };
 
-  const handleSelectCandidate = (candidate: SandboxCandidate) => {
+  const handleSelectCandidate = async (candidate: SandboxCandidate) => {
     setSelectedCandidateId(candidate.id);
     setActiveCodePreview(candidate.code);
+    if (auditRun) {
+      try {
+        const res = await fetch('/api/sandbox/iterate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'selectCandidate',
+            runId: auditRun.id,
+            candidate,
+          }),
+        });
+        const data = await res.json();
+        if (data.success && data.run) {
+          setAuditRun(data.run);
+        }
+      } catch {
+        // Non-fatal
+      }
+    }
   };
 
   const handleAcceptCandidate = (candidate: SandboxCandidate) => {
     setCode(candidate.code);
     setActiveCodePreview(candidate.code);
     setActiveTab('editor');
-    void handleRunAudit(candidate.code);
+    void handleRunAudit(candidate.code, {
+      priorRunId: auditRun?.id,
+      acceptedCandidate: candidate,
+    });
   };
 
   const handleCopyCode = (text: string) => {
@@ -361,6 +407,27 @@ export default function SandboxPage() {
           </Button>
         </nav>
       </header>
+
+      {/* Error / Stale Warning Alert */}
+      {sandboxError && (
+        <div className="bg-rose-50 border-b border-rose-200 px-4 py-2.5 text-xs text-rose-900 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="size-4 text-rose-600 shrink-0" />
+            <span>
+              <strong>Error:</strong> {sandboxError}
+              {isStaleResult && <span className="ml-1 text-rose-700">(ผลการวัดที่แสดงอยู่เป็นผลเดิมที่อาจล้าสมัย กรุณาลองใหม่อีกครั้ง)</span>}
+            </span>
+          </div>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-6 text-[11px] px-2 text-rose-700 hover:bg-rose-100"
+            onClick={() => setSandboxError(null)}
+          >
+            ปิด
+          </Button>
+        </div>
+      )}
 
       {/* Main Dual-Pane Sandbox Layout */}
       <div className="flex-1 flex flex-col xl:flex-row h-auto xl:h-[calc(100vh-56px)] overflow-hidden divide-y xl:divide-y-0 xl:divide-x divide-zinc-200">
@@ -883,7 +950,8 @@ export default function SandboxPage() {
               <iframe
                 ref={iframeRef}
                 title="Component Sandbox Preview"
-                srcDoc={activeCodePreview ? `<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"></script><style>body{margin:0;padding:24px;font-family:sans-serif;background:#f8fafc;display:flex;justify-content:center;align-items:center;min-height:100vh;}</style></head><body><div style="width:100%;max-width:480px;">${activeCodePreview}</div></body></html>` : ''}
+                sandbox="allow-scripts"
+                srcDoc={activeCodePreview ? buildSandboxedDocument(activeCodePreview) : ''}
                 className="w-full h-full border-0"
               />
             </div>

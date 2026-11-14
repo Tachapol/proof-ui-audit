@@ -151,5 +151,13 @@ export const AuditRunSchema = z.object({
   rawIssues: z.array(UXIssueSchema),
   groupedIssues: z.array(GroupedUXIssueSchema),
   summary: AuditSummarySchema,
+  priorRunId: z.string().optional(),
+  appliedCandidate: z.object({
+    candidateId: z.string(),
+    candidateName: z.string(),
+    candidateCode: z.string().optional(),
+    appliedAt: z.string(),
+    priorRunId: z.string().optional(),
+  }).optional(),
 });
 export type AuditRun = z.infer<typeof AuditRunSchema>;

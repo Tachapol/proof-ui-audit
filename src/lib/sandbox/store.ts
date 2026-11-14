@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import fs from 'fs';
 import path from 'path';
+export { buildSandboxedDocument } from './document';
 
 export interface SandboxSnippet {
   id: string;
@@ -62,52 +63,5 @@ export function getSandboxSnippet(id: string): SandboxSnippet | undefined {
   }
 
   return undefined;
-}
-
-export function buildSandboxedDocument(snippetHtml: string): string {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProofUI Component Sandbox</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: '#2563EB',
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    body {
-      margin: 0;
-      padding: 24px;
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #f8fafc;
-      color: #0f172a;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .sandbox-container {
-      width: 100%;
-      max-width: 720px;
-      margin: 0 auto;
-    }
-  </style>
-</head>
-<body>
-  <div class="sandbox-container" id="sandbox-root">
-    ${snippetHtml}
-  </div>
-</body>
-</html>`;
 }
 

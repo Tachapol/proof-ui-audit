@@ -34,8 +34,8 @@ export async function POST(req:NextRequest){try{
  const session=await readStudio(data.sessionId);const item=session.agenda.find(a=>a.id===data.issueId);if(!item)throw new Error('Issue not found.');
  if(data.action==='chat')return NextResponse.json({session:await discussStudio(session,data.issueId,data.role,data.message)});
  if(data.action==='preview')return NextResponse.json({session:await previewStudio(session,data.issueId,data.color,req.nextUrl.origin,data.sourceLabel)});
- if(data.action==='apply'){const candidate=session.candidates[data.issueId];if(!candidate?.verified)throw new Error('A verified candidate preview is required before applying.');candidate.applied=true;item.decision='accepted';}
- if(data.action==='revert'){const candidate=session.candidates[data.issueId];if(candidate)candidate.applied=false;item.decision=undefined;}
+ if(data.action==='apply'){const candidate=session.candidates[data.issueId];if(!candidate?.verified)throw new Error('A verified candidate preview is required before applying.');candidate.applied=true;}
+ if(data.action==='revert'){const candidate=session.candidates[data.issueId];if(candidate)candidate.applied=false;}
  if(data.action==='decision')item.decision=data.decision;
  await saveStudio(session);return NextResponse.json({session});});
  }catch(error){return NextResponse.json({error:error instanceof Error?error.message:'Critique operation failed.'},{status:400});}}

@@ -12,6 +12,49 @@ export async function POST(req: NextRequest) {
     const constraints = Array.isArray(body.constraints) ? body.constraints : undefined;
     const customDirective = typeof body.customDirective === 'string' ? body.customDirective.trim() : undefined;
 
+    // Handle immediate candidate selection sync (Issue 3 & Issue 5)
+    if (body.action === 'selectCandidate' && runId && body.candidate) {
+      const run = await getAuditRun(runId);
+      if (!run) {
+        return NextResponse.json({ success: false, error: 'Audit run not found' }, { status: 404 });
+      }
+      const rec = body.candidate;
+      for (const group of run.groupedIssues) {
+        const rep = group.representative;
+        const measurement = rec.measurements?.find(
+          (m: any) =>
+            m.ruleId === rep.ruleId &&
+            m.selector === rep.selector &&
+            (!rep.viewport || (m.viewport?.width === rep.viewport.width && m.viewport?.height === rep.viewport.height))
+        ) || rec.measurements?.find(
+          (m: any) => m.ruleId === rep.ruleId && m.selector === rep.selector
+        );
+        group.iterationComparison = {
+          candidateId: rec.id,
+          candidateName: rec.name,
+          candidateCode: rec.code,
+          viewport: rep.viewport,
+          targetSelector: rep.selector,
+          baselineMeasurement: rep.measured || {},
+          baselineStatus: rep.status,
+          candidateMeasurement: measurement?.after || {},
+          candidateStatus: (measurement?.status === 'unable_to_verify' ? 'unable_to_verify' : measurement?.status) as any,
+          regressionResult:
+            rec.regression?.status === 'regressed'
+              ? 'regressed'
+              : rec.verificationStatus === 'verified'
+              ? 'no_new_failures'
+              : 'unable_to_verify',
+          verificationStatus: rec.verificationStatus,
+          verificationErrors: rec.verificationErrors,
+          regressionCounts: rec.regression?.counts,
+          plainLanguageSummary: rec.description,
+        };
+      }
+      await saveAuditRun(run);
+      return NextResponse.json({ success: true, run });
+    }
+
     if (!html) {
       return NextResponse.json({ success: false, error: 'HTML snippet is required.' }, { status: 400 });
     }
@@ -44,11 +87,17 @@ export async function POST(req: NextRequest) {
       try {
         const run = await getAuditRun(runId);
         if (run) {
-          const rec = candidates[0];
+          const selectedCandidateId = typeof body.selectedCandidateId === 'string' ? body.selectedCandidateId : undefined;
+          const rec = (selectedCandidateId && candidates.find((c) => c.id === selectedCandidateId)) || candidates[0];
           for (const group of run.groupedIssues) {
             const rep = group.representative;
             const measurement = rec.measurements.find(
-              (m) => m.ruleId === rep.ruleId && m.selector === rep.selector
+              (m: any) =>
+                m.ruleId === rep.ruleId &&
+                m.selector === rep.selector &&
+                (!rep.viewport || (m.viewport?.width === rep.viewport.width && m.viewport?.height === rep.viewport.height))
+            ) || rec.measurements.find(
+              (m: any) => m.ruleId === rep.ruleId && m.selector === rep.selector
             );
             group.iterationComparison = {
               candidateId: rec.id,

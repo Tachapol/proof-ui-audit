@@ -127,7 +127,16 @@ export async function createStudio(runs: AuditRun[], roles: StudioRole[], modelN
  try{
   const lead=z.object({summary:z.string().min(1).max(3000),orderedIds:z.array(z.string()).max(16)}).parse(await query(`Role: Lead Coordinator. ${rolePurpose.lead} Output {"summary":"short review opening with trade-offs and next steps","orderedIds":["supplied issue IDs in suggested priority order"]}.`,{evidence,roleSummaries:session.roleSummaries,agenda:session.agenda,unavailableRoles:session.roleErrors},chosenModel));
   const ids=[...new Set([...lead.orderedIds,...session.agenda.map(a=>a.id)])];if(ids.some(id=>!session.agenda.some(a=>a.id===id)))throw new Error('Unknown agenda item.');
-  session.agenda.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
+  // Preserve deterministic priority order (P0 -> P1 -> P2 -> P3); use Lead AI order for sequence within the same tier
+  const idAiOrder = new Map(ids.map((id, idx) => [id, idx]));
+  session.agenda.sort((a, b) => {
+    const issueA = findStudioIssue(session, a);
+    const issueB = findStudioIssue(session, b);
+    const rankA = PRIORITY_RANK[issueA?.currentPriority || 'P3'] ?? 3;
+    const rankB = PRIORITY_RANK[issueB?.currentPriority || 'P3'] ?? 3;
+    if (rankA !== rankB) return rankA - rankB;
+    return (idAiOrder.get(a.id) ?? 0) - (idAiOrder.get(b.id) ?? 0);
+  });
   const frameText = frameCount > 1 ? `across ${frameCount} frames` : 'in 1 frame';
   let finalLeadSummary = session.agenda.reduce((text,item,index)=>text.replaceAll(item.id,`finding ${index+1}`),lead.summary);
   if (omittedCount > 0) {
