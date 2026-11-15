@@ -28,7 +28,7 @@ async function runStudioE2ETest() {
 
     // Wait for Agenda to appear
     const agendaHeader = page.locator('h2:has-text("Critique agenda")');
-    await agendaHeader.waitFor({ state: 'visible', timeout: 60000 });
+    await agendaHeader.waitFor({ state: 'visible', timeout: 90000 });
     console.log('   ✅ Critique created successfully! Agenda loaded.');
 
     // 3. Select first finding

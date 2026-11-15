@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { saveSandboxSnippet } from '@/lib/sandbox/store';
 import { runBrowserAudit, DEFAULT_AUDIT_VIEWPORTS } from '@/lib/audit/browser';
 import { groupUXIssues } from '@/lib/audit/grouping';
-import { getAuditRun, saveAuditRun } from '@/lib/storage/db';
+import { getAuditRun, saveAuditRun, withRunLock } from '@/lib/storage/db';
 import { AuditRun } from '@/lib/schema/ux-issue';
 
 export async function POST(req: NextRequest) {
@@ -37,43 +37,61 @@ export async function POST(req: NextRequest) {
     const reviewCount = grouped.filter((g) => g.status === 'needsReview').length;
 
     // Link and inherit Before/After evidence from prior run if available
-    let priorRun: AuditRun | null = null;
+    let resolvedPriorRunId: string | undefined = undefined;
+    let appliedCandidateMeta: { candidateId: string; candidateName: string; candidateCode?: string; appliedAt: string; priorRunId?: string } | undefined = undefined;
+
     if (priorRunId) {
       try {
-        priorRun = await getAuditRun(priorRunId);
-        if (priorRun) {
-          if (acceptedCandidate) {
-            for (const pg of priorRun.groupedIssues) {
-              if (pg.iterationComparison) {
-                pg.iterationComparison.finalDesignerDecision = 'accept';
-                pg.iterationComparison.approvalTimestamp = new Date().toISOString();
-                pg.iterationComparison.approvalReason = `Accepted candidate fix: ${acceptedCandidate.name || acceptedCandidate.id}`;
-              }
-              pg.decisionHistory = pg.decisionHistory || [];
-              pg.decisionHistory.push({
-                id: crypto.randomUUID(),
-                action: 'accept',
-                reason: `Accepted candidate fix: ${acceptedCandidate.name || acceptedCandidate.id}`,
-                timestamp: new Date().toISOString(),
-                reviewer: 'Designer',
-              });
-            }
-            await saveAuditRun(priorRun);
-          }
+        await withRunLock(priorRunId, async () => {
+          const priorRun = await getAuditRun(priorRunId);
+          if (priorRun) {
+            resolvedPriorRunId = priorRun.id;
+            if (acceptedCandidate) {
+              const acceptedId = acceptedCandidate.id || 'candidate-fix';
+              const serverCand = priorRun.candidates?.find((c: any) => c.id === acceptedId);
+              const candName = serverCand?.name || acceptedCandidate.name || acceptedId;
+              const candCode = serverCand?.code || acceptedCandidate.code;
 
-          // Inherit iteration comparison on corresponding issues in the new run
-          for (const newGroup of grouped) {
-            const matchedPrior = priorRun.groupedIssues.find(
-              (pg) =>
-                pg.fingerprint === newGroup.fingerprint ||
-                (pg.representative.ruleId === newGroup.representative.ruleId &&
-                  pg.representative.selector === newGroup.representative.selector)
-            );
-            if (matchedPrior?.iterationComparison) {
-              newGroup.iterationComparison = matchedPrior.iterationComparison;
+              for (const pg of priorRun.groupedIssues) {
+                if (pg.iterationComparison) {
+                  pg.iterationComparison.finalDesignerDecision = 'accept';
+                  pg.iterationComparison.approvalTimestamp = new Date().toISOString();
+                  pg.iterationComparison.approvalReason = `Accepted candidate fix: ${candName}`;
+                }
+                pg.decisionHistory = pg.decisionHistory || [];
+                pg.decisionHistory.push({
+                  id: crypto.randomUUID(),
+                  action: 'accept',
+                  reason: `Accepted candidate fix: ${candName}`,
+                  timestamp: new Date().toISOString(),
+                  reviewer: 'Designer',
+                });
+              }
+              await saveAuditRun(priorRun);
+
+              appliedCandidateMeta = {
+                candidateId: acceptedId,
+                candidateName: candName,
+                candidateCode: candCode,
+                appliedAt: new Date().toISOString(),
+                priorRunId: priorRun.id,
+              };
+            }
+
+            // Inherit iteration comparison on corresponding issues in the new run
+            for (const newGroup of grouped) {
+              const matchedPrior = priorRun.groupedIssues.find(
+                (pg) =>
+                  pg.fingerprint === newGroup.fingerprint ||
+                  (pg.representative.ruleId === newGroup.representative.ruleId &&
+                    pg.representative.selector === newGroup.representative.selector)
+              );
+              if (matchedPrior?.iterationComparison) {
+                newGroup.iterationComparison = matchedPrior.iterationComparison;
+              }
             }
           }
-        }
+        });
       } catch {
         // Best-effort prior link
       }
@@ -95,16 +113,8 @@ export async function POST(req: NextRequest) {
         needsReviewCount: reviewCount,
       },
       auditWarnings: errors.length > 0 ? errors : undefined,
-      priorRunId: priorRun?.id,
-      appliedCandidate: acceptedCandidate && priorRun
-        ? {
-            candidateId: acceptedCandidate.id,
-            candidateName: acceptedCandidate.name,
-            candidateCode: acceptedCandidate.code,
-            appliedAt: new Date().toISOString(),
-            priorRunId: priorRun.id,
-          }
-        : undefined,
+      priorRunId: resolvedPriorRunId,
+      appliedCandidate: appliedCandidateMeta,
     };
 
     await saveAuditRun(run);

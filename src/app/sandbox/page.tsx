@@ -112,11 +112,48 @@ export default function SandboxPage() {
   const [sandboxError, setSandboxError] = useState<string | null>(null);
   const [isStaleResult, setIsStaleResult] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const selectionAbortControllerRef = useRef<AbortController | null>(null);
+  const selectionSeqRef = useRef<number>(0);
 
-  // Initial audit on load: check if an issue was sent from Visual Canvas or Studio
+  // Initial audit on load: restore prior run if runId in URL, or check if sent from Visual Canvas / Studio
   useEffect(() => {
     let initialCode = code;
     try {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlRunId = urlParams.get('runId');
+        if (urlRunId) {
+          void (async () => {
+            try {
+              setIsAuditing(true);
+              const res = await fetch(`/api/audit?id=${encodeURIComponent(urlRunId)}`);
+              const data = await res.json();
+              if (data.success && data.run) {
+                const run = data.run;
+                setAuditRun(run);
+                if (run.candidates?.length) {
+                  setCandidates(run.candidates);
+                  const selectedId = run.groupedIssues[0]?.iterationComparison?.candidateId;
+                  const active = run.candidates.find((c: any) => c.id === selectedId) || run.candidates[0];
+                  if (active) {
+                    setSelectedCandidateId(active.id);
+                    setActiveCodePreview(active.code);
+                    setCode(active.code);
+                  }
+                }
+                setIsAuditing(false);
+                return;
+              }
+            } catch {
+              // fallback to fresh audit
+            } finally {
+              setIsAuditing(false);
+            }
+          })();
+          return;
+        }
+      }
+
       const stored = sessionStorage.getItem('proofui_sandbox_init');
       if (stored) {
         sessionStorage.removeItem('proofui_sandbox_init');
@@ -165,6 +202,11 @@ export default function SandboxPage() {
       setAuditRun(data.run);
       setActiveCodePreview(htmlToAudit);
       setIsStaleResult(false);
+      if (typeof window !== 'undefined' && data.run?.id) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('runId', data.run.id);
+        window.history.replaceState(null, '', url.toString());
+      }
     } catch (err) {
       setSandboxError(err instanceof Error ? err.message : 'Audit failed.');
       setIsStaleResult(true);
@@ -258,21 +300,32 @@ export default function SandboxPage() {
     setSelectedCandidateId(candidate.id);
     setActiveCodePreview(candidate.code);
     if (auditRun) {
+      if (selectionAbortControllerRef.current) {
+        selectionAbortControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      selectionAbortControllerRef.current = controller;
+      const currentSeq = ++selectionSeqRef.current;
+      const selectionTimestamp = Date.now();
+
       try {
         const res = await fetch('/api/sandbox/iterate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
           body: JSON.stringify({
             action: 'selectCandidate',
             runId: auditRun.id,
-            candidate,
+            candidateId: candidate.id,
+            selectionTimestamp,
           }),
         });
         const data = await res.json();
-        if (data.success && data.run) {
+        if (currentSeq === selectionSeqRef.current && data.success && data.run && !data.stale) {
           setAuditRun(data.run);
         }
-      } catch {
+      } catch (err: any) {
+        if (err?.name === 'AbortError') return;
         // Non-fatal
       }
     }

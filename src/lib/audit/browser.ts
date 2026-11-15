@@ -82,6 +82,14 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{
               (options.localOrigin && parsed.origin === options.localOrigin) ||
               (isLocalHost(host) && isLocalHost(optionsUrl.hostname) && parsed.port === optionsUrl.port);
 
+            // Block any audited page (sandbox snippet or external site) from accessing internal application APIs
+            if (parsed.pathname.startsWith('/api/')) {
+              const isInitialNavigation = route.request().isNavigationRequest() && reqUrl === options.url;
+              if (!isInitialNavigation) {
+                return route.abort('blockedbyclient');
+              }
+            }
+
             // Allow local fixture endpoints if navigated from test server
             const isFixtureRequest =
               optionsUrl.pathname.startsWith('/fixtures/') &&

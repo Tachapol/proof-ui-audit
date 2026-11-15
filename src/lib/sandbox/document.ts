@@ -10,6 +10,7 @@ export function buildSandboxedDocument(snippetHtml: string): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; connect-src 'none';">
   <title>ProofUI Component Sandbox</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>

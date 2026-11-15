@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
       'Content-Type': 'text/html; charset=utf-8',
       'X-Robots-Tag': 'noindex, nofollow',
       'Cache-Control': 'no-store, max-age=0',
+      'Content-Security-Policy': "default-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; connect-src 'none'; frame-ancestors 'self'; sandbox allow-scripts;",
     },
   });
 }

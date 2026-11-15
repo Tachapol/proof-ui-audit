@@ -159,5 +159,7 @@ export const AuditRunSchema = z.object({
     appliedAt: z.string(),
     priorRunId: z.string().optional(),
   }).optional(),
+  candidates: z.array(z.any()).optional(),
+  lastSelectionTimestamp: z.number().optional(),
 });
 export type AuditRun = z.infer<typeof AuditRunSchema>;
