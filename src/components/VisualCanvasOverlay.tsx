@@ -426,7 +426,7 @@ export function VisualCanvasOverlay({
     const pin = pinToZoom || activePin;
     if (!pin || !scrollContainerRef.current) return;
 
-    const targetScale = 1.35;
+    const targetScale = 1.25;
     setZoomScale(targetScale);
 
     setTimeout(() => {
@@ -443,8 +443,19 @@ export function VisualCanvasOverlay({
         top: targetScrollTop,
         behavior: 'smooth',
       });
-    }, 60);
+    }, 50);
   }, [activePin]);
+
+  const handleResetToFit = useCallback(() => {
+    setZoomScale('fit');
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        left: 0,
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
+  }, []);
 
   // Handle Pin Selection and Opening Side Panel
   const handlePinClick = (pin: IssuePinData) => {
@@ -568,47 +579,86 @@ export function VisualCanvasOverlay({
     return `[ProofUI Handoff]\nIssue: ${pin.title}\nElement: ${pin.selector}\nMeasured: ${Math.round(pin.boundingBox.width)}x${Math.round(pin.boundingBox.height)}px\nTarget Spec: min-width: 44px, min-height: 44px, touch-padding: 12px\nWCAG: ${pin.wcagCriterion}`;
   };
 
-  // Stacked Before / After comparison with identical sample text and neutral slate styling
-  const renderVisualComparison = (pin: IssuePinData) => {
+  // Extract authentic element text and typography from deterministic measurements
+  const getElementTextAndTypography = (pin: IssuePinData) => {
+    const rawText =
+      (pin.measured?.textSnippet as string) ||
+      (pin.measured?.accessibleName as string) ||
+      (pin.measured?.textContent as string) ||
+      (pin.groupedIssue?.representative?.accessibleName as string) ||
+      '';
+
+    const cleanText = rawText.trim();
+    const fallbackText = pin.selector ? pin.selector.replace(/^[.#]/, '').replace(/[_-]/g, ' ') : 'Sample Text';
+    const text = cleanText.length > 0 ? cleanText : fallbackText;
+
+    const fontSizePx = Number(pin.measured?.fontSizePx);
+    const fontSize = fontSizePx && !isNaN(fontSizePx)
+      ? `${Math.min(20, Math.max(12, Math.round(fontSizePx)))}px`
+      : '14px';
+
+    const fontWeight = pin.measured?.fontWeight
+      ? String(pin.measured.fontWeight)
+      : '500';
+
+    return { text, fontSize, fontWeight };
+  };
+
+  const getCleanRuleTitle = (pin: IssuePinData): string => {
     if (pin.ruleId.includes('contrast')) {
-      const measuredRatio = typeof pin.measured?.contrastRatio === 'number' ? pin.measured.contrastRatio : (Number(pin.measured?.contrastRatio) || 2.32);
+      return 'Text contrast below threshold';
+    }
+    if (pin.ruleId === 'target-size') {
+      return 'Interactive target below 24×24px threshold';
+    }
+    if (pin.ruleId.includes('text-spacing')) {
+      return 'Text spacing overflow detected';
+    }
+    if (pin.ruleId.includes('reflow')) {
+      return 'Reflow horizontal overflow';
+    }
+    return pin.title.replace(/\s*\([^)]*\)$/, '');
+  };
+
+  // Stacked Before / After comparison with authentic element text and typography
+  const renderVisualComparison = (pin: IssuePinData) => {
+    const { text: actualText, fontSize, fontWeight } = getElementTextAndTypography(pin);
+
+    if (pin.ruleId.includes('contrast')) {
       const textColor = (pin.measured?.color as string) || (pin.measured?.textColor as string) || (pin.measured?.indicatorColor as string) || '#737373';
       const bgColor = (pin.measured?.backgroundColor as string) || (pin.measured?.adjacentColor as string) || '#ffffff';
       const minRatio = Number(pin.expected?.minRatio) || 4.5;
       const candidateColor = '#0f172a';
-      const candidateRatio = '16.5:1';
-      const sampleText = 'Aa Sample Text (Heading)';
 
       return (
         <div className="comparison-stack">
           {/* Before (Current baseline) */}
           <div className="comparison-card card-before">
-            <div className="flex items-center justify-between">
-              <div className="card-badge badge-before">Baseline (Current)</div>
-              <span className="text-[10px] text-rose-700 font-semibold">{measuredRatio.toFixed(2)}:1 Ratio</span>
-            </div>
+            <div className="card-badge badge-before">Baseline (Current)</div>
             <div className="spec-visual-box box-before" style={{ backgroundColor: bgColor }}>
               <div
                 className="contrast-text-sample"
                 style={{
                   color: textColor,
                   backgroundColor: bgColor,
-                  fontSize: '14px',
-                  fontWeight: 650,
+                  fontSize,
+                  fontWeight,
                   padding: '6px 12px',
                   borderRadius: '4px',
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
                 }}
+                title={actualText}
               >
-                {sampleText}
+                {actualText}
               </div>
             </div>
             <div className="spec-details">
               <div className="spec-metric tone-danger">
-                <strong>Measured:</strong> {measuredRatio.toFixed(2)}:1 (Fails SC 1.4.3, requires ≥ {minRatio}:1)
+                <strong>Measured:</strong> Below WCAG AA contrast threshold
               </div>
-              <p className="spec-note">
-                Color <code>{textColor}</code> against <code>{bgColor}</code> lacks required contrast.
-              </p>
             </div>
           </div>
 
@@ -624,22 +674,44 @@ export function VisualCanvasOverlay({
                 style={{
                   color: candidateColor,
                   backgroundColor: bgColor,
-                  fontSize: '14px',
-                  fontWeight: 650,
+                  fontSize,
+                  fontWeight,
                   padding: '6px 12px',
                   borderRadius: '4px',
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
                 }}
+                title={actualText}
               >
-                {sampleText}
+                {actualText}
               </div>
             </div>
             <div className="spec-details">
               <div className="spec-metric tone-success">
-                <strong>Recommended:</strong> {candidateRatio} (Projected)
+                <strong>Recommended:</strong> Projected contrast satisfies WCAG AA (≥ {minRatio}:1)
               </div>
-              <p className="spec-note">
-                Suggested token <code>{candidateColor}</code>. Requires re-audit verification after applying.
-              </p>
+            </div>
+
+            {/* Compact copy actions right inside the suggested fix card */}
+            <div className="card-copy-actions">
+              <button
+                type="button"
+                className="action-btn btn-copy"
+                onClick={() => copyToClipboard(getCssFixSnippet(pin), 'CSS Fix')}
+              >
+                <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={12} />
+                <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
+              </button>
+              <button
+                type="button"
+                className="action-btn btn-copy"
+                onClick={() => copyToClipboard(getSpecNoteSnippet(pin), 'Design Token')}
+              >
+                <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={12} />
+                <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -654,24 +726,22 @@ export function VisualCanvasOverlay({
         <div className="comparison-stack">
           {/* Before (Current baseline) */}
           <div className="comparison-card card-before">
-            <div className="flex items-center justify-between">
-              <div className="card-badge badge-before">Baseline (Current)</div>
-              <span className="text-[10px] text-rose-700 font-semibold">{measuredWidth}×{measuredHeight}px</span>
-            </div>
+            <div className="card-badge badge-before">Baseline (Current)</div>
             <div className="spec-visual-box box-before">
               <div
                 className="measured-box-mock"
                 style={{
-                  width: `${Math.min(measuredWidth, 54)}px`,
-                  height: `${Math.min(measuredHeight, 54)}px`,
+                  width: `${Math.min(measuredWidth, 72)}px`,
+                  height: `${Math.min(measuredHeight, 44)}px`,
                 }}
+                title={actualText}
               >
-                {measuredWidth}×{measuredHeight}
+                {actualText.length <= 12 ? actualText : `${measuredWidth}×${measuredHeight}`}
               </div>
             </div>
             <div className="spec-details">
               <div className="spec-metric tone-danger">
-                <strong>Measured:</strong> {measuredWidth}×{measuredHeight}px (Fails SC 2.5.8, requires ≥ 24×24px)
+                <strong>Measured:</strong> Below 24×24px minimum touch target
               </div>
             </div>
           </div>
@@ -686,21 +756,40 @@ export function VisualCanvasOverlay({
               <div
                 className="candidate-box-mock"
                 style={{
-                  width: '44px',
+                  minWidth: '44px',
                   height: '44px',
+                  padding: '0 12px',
                 }}
+                title={actualText}
               >
-                <span>44×44px</span>
-                <span className="candidate-padding-guide">Touch Target</span>
+                <span>{actualText.length <= 16 ? actualText : '44×44px Target Spec'}</span>
+                <span className="candidate-padding-guide">Touch Target Spec</span>
               </div>
             </div>
             <div className="spec-details">
               <div className="spec-metric tone-success">
                 <strong>Recommended:</strong> 44×44px Target Spec
               </div>
-              <p className="spec-note">
-                Proposed +10px padding expansion. Requires re-audit verification.
-              </p>
+            </div>
+
+            {/* Compact copy actions right inside the suggested fix card */}
+            <div className="card-copy-actions">
+              <button
+                type="button"
+                className="action-btn btn-copy"
+                onClick={() => copyToClipboard(getCssFixSnippet(pin), 'CSS Fix')}
+              >
+                <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={12} />
+                <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
+              </button>
+              <button
+                type="button"
+                className="action-btn btn-copy"
+                onClick={() => copyToClipboard(getSpecNoteSnippet(pin), 'Design Token')}
+              >
+                <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={12} />
+                <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -713,15 +802,14 @@ export function VisualCanvasOverlay({
         <div className="comparison-card card-before">
           <div className="card-badge badge-before">Baseline (Current)</div>
           <div className="spec-visual-box box-before">
-            <div style={{ fontSize: '11px', color: '#b42318', fontWeight: 600 }}>
-              Fixed Height Overflow
+            <div style={{ fontSize: '11px', color: '#b42318', fontWeight: 600, padding: '0 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={actualText}>
+              {actualText.length > 0 ? actualText : 'Fixed Height Overflow'}
             </div>
           </div>
           <div className="spec-details">
             <div className="spec-metric tone-danger">
               <strong>Measured:</strong> Fixed container height clipping text
             </div>
-            <p className="spec-note">Fails SC 1.4.12 Text Spacing adaptation.</p>
           </div>
         </div>
 
@@ -731,15 +819,34 @@ export function VisualCanvasOverlay({
             <span className="unverified-pill">Not re-audited</span>
           </div>
           <div className="spec-visual-box box-after">
-            <div style={{ fontSize: '11px', color: '#334155', fontWeight: 600 }}>
-              Fluid Height Container
+            <div style={{ fontSize: '11px', color: '#334155', fontWeight: 600, padding: '0 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={actualText}>
+              {actualText.length > 0 ? actualText : 'Fluid Height Container'}
             </div>
           </div>
           <div className="spec-details">
             <div className="spec-metric tone-success">
               <strong>Recommended:</strong> <code>height: auto</code> fluid flow
             </div>
-            <p className="spec-note">Dynamic container adapts to line-height expansion.</p>
+          </div>
+
+          {/* Compact copy actions right inside the suggested fix card */}
+          <div className="card-copy-actions">
+            <button
+              type="button"
+              className="action-btn btn-copy"
+              onClick={() => copyToClipboard(getCssFixSnippet(pin), 'CSS Fix')}
+            >
+              <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={12} />
+              <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
+            </button>
+            <button
+              type="button"
+              className="action-btn btn-copy"
+              onClick={() => copyToClipboard(getSpecNoteSnippet(pin), 'Design Token')}
+            >
+              <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={12} />
+              <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -906,8 +1013,8 @@ export function VisualCanvasOverlay({
               <button
                 type="button"
                 className={zoomScale === 'fit' ? 'is-selected' : ''}
-                onClick={() => setZoomScale('fit')}
-                title="Fit to Screen"
+                onClick={handleResetToFit}
+                title="Fit to Screen (Reset View)"
               >
                 Fit ({Math.round(fitScale * 100)}%)
               </button>
@@ -1331,14 +1438,23 @@ export function VisualCanvasOverlay({
 
               {/* 1. Problem & Key Facts on Top (Concise) */}
               <div className="inspector-summary-banner">
+                {optimizationMode === 'optimized' && (
+                  <div className="preview-baseline-notice">
+                    <Icon name="Info" size={13} />
+                    <span>Panel shows Baseline measurements. Suggested preview is visual-only and not re-audited.</span>
+                  </div>
+                )}
+
                 <div className="summary-headline-row">
-                  <h3 id="popup-issue-title" className="summary-rule-title">{activePin.title}</h3>
+                  <h3 id="popup-issue-title" className="summary-rule-title">
+                    {getCleanRuleTitle(activePin)}
+                  </h3>
                   <span className="summary-ratio-pill">
                     {activePin.ruleId.includes('contrast')
-                      ? `${typeof activePin.measured?.contrastRatio === 'number' ? activePin.measured.contrastRatio.toFixed(2) : (Number(activePin.measured?.contrastRatio) || 2.32)}:1 → Req ≥ ${Number(activePin.expected?.minRatio) || 4.5}:1`
+                      ? `Measured ${(Number(activePin.measured?.contrastRatio) || 2.32).toFixed(2)}:1 · Target ≥ ${Number(activePin.expected?.minRatio) || 4.5}:1`
                       : activePin.ruleId === 'target-size'
-                      ? `${Math.round(Number(activePin.measured?.width) || activePin.boundingBox.width)}×${Math.round(Number(activePin.measured?.height) || activePin.boundingBox.height)}px → Req ≥ 24×24px`
-                      : 'Layout Reflow Issue'}
+                      ? `Measured ${Math.round(Number(activePin.measured?.width) || activePin.boundingBox.width)}×${Math.round(Number(activePin.measured?.height) || activePin.boundingBox.height)}px · Target ≥ 24×24px`
+                      : 'Reflow Threshold'}
                   </span>
                 </div>
 
@@ -1354,11 +1470,56 @@ export function VisualCanvasOverlay({
                   </span>
                 </div>
 
-                {/* Collapsible Selector & Technical Details */}
+                {/* Quick Issue Disposition right under problem facts */}
+                <div className="inspector-disposition-row">
+                  <button
+                    type="button"
+                    className="disposition-btn btn-confirm"
+                    disabled={isSavingDecision}
+                    onClick={handleConfirmIssue}
+                    title="Confirm this finding as a valid UX issue for backlog"
+                  >
+                    <Icon name="CheckCircle2" size={13} />
+                    <span>Confirm Issue</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="disposition-btn btn-reject"
+                    disabled={isSavingDecision}
+                    onClick={() => handleQuickDecision('reject')}
+                    title="Dismiss as acceptable design intent or false positive"
+                  >
+                    <Icon name="X" size={13} />
+                    <span>Dismiss (False Positive)</span>
+                  </button>
+                </div>
+
+                {/* Collapsible Selector, RGB Colors & Technical Details */}
                 <details className="inspector-collapsible-meta">
-                  <summary>Technical Details & Selector</summary>
+                  <summary>Technical Details & Element Selector</summary>
                   <div className="collapsible-content">
-                    <code>{activePin.selector}</code>
+                    <div className="tech-meta-item">
+                      <span className="tech-meta-label">Selector:</span>
+                      <code>{activePin.selector}</code>
+                    </div>
+                    {activePin.ruleId.includes('contrast') && (
+                      <div className="tech-meta-item">
+                        <span className="tech-meta-label">Colors:</span>
+                        <span>
+                          Text: <code>{(activePin.measured?.color as string) || (activePin.measured?.textColor as string) || '#737373'}</code>
+                          {' · '}
+                          Background: <code>{(activePin.measured?.backgroundColor as string) || (activePin.measured?.adjacentColor as string) || '#ffffff'}</code>
+                        </span>
+                      </div>
+                    )}
+                    {Boolean(activePin.measured?.fontSizePx) && (
+                      <div className="tech-meta-item">
+                        <span className="tech-meta-label">Typography:</span>
+                        <span>
+                          {Number(activePin.measured?.fontSizePx)}px (weight: {String(activePin.measured?.fontWeight || 'normal')})
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </details>
               </div>
@@ -1393,86 +1554,27 @@ export function VisualCanvasOverlay({
                 </div>
               )}
 
-              {/* 4 & 5. Sticky Actions Footer at the Bottom: Separating Issue Disposition vs Remediation */}
+              {/* 4. Compact Sticky Actions Footer at the Bottom: Only Primary Remediation & Verification */}
               <div className="inspector-actions-footer">
-                {/* Step 1: Issue Disposition */}
-                <div className="action-section">
-                  <div className="action-section-title">1. Issue Disposition</div>
-                  <div className="action-row">
-                    <button
-                      type="button"
-                      className="action-btn btn-confirm"
-                      disabled={isSavingDecision}
-                      onClick={handleConfirmIssue}
-                      title="Confirm this finding as a valid UX issue for backlog"
-                    >
-                      <Icon name="CheckCircle2" size={14} />
-                      <span>Confirm Issue</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="action-btn btn-reject"
-                      disabled={isSavingDecision}
-                      onClick={() => handleQuickDecision('reject')}
-                      title="Dismiss as acceptable design intent or false positive"
-                    >
-                      <Icon name="X" size={14} />
-                      <span>Dismiss (False Positive)</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Step 2: Proposed Remediation & Sandbox Re-audit */}
-                <div className="action-section">
-                  <div className="action-section-title">2. Remediation & Verification</div>
-                  <div className="action-row">
-                    <button
-                      type="button"
-                      className="action-btn btn-accept"
-                      disabled={isSavingDecision}
-                      onClick={() => handleQuickDecision('accept')}
-                      title="Accept proposed remediation fix into design spec"
-                    >
-                      <Icon name="Check" size={14} />
-                      <span>Accept Fix into Spec</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="action-btn btn-sandbox-fix"
-                      onClick={() => handleOpenInSandbox(activePin)}
-                      style={{
-                        background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                        color: '#ffffff',
-                        fontWeight: 600,
-                        border: 'none',
-                      }}
-                      title="Open in Sandbox editor to experiment and run automated re-audit verification"
-                    >
-                      <Icon name="Sparkles" size={14} />
-                      <span>Sandbox & Re-audit →</span>
-                    </button>
-                  </div>
-
-                  <div className="action-row-secondary">
-                    <button
-                      type="button"
-                      className="action-btn btn-copy"
-                      onClick={() => copyToClipboard(getCssFixSnippet(activePin), 'CSS Fix')}
-                    >
-                      <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={13} />
-                      <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      className="action-btn btn-copy"
-                      onClick={() => copyToClipboard(getSpecNoteSnippet(activePin), 'Design Token')}
-                    >
-                      <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={13} />
-                      <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
-                    </button>
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  className="action-btn btn-accept"
+                  disabled={isSavingDecision}
+                  onClick={() => handleQuickDecision('accept')}
+                  title="Accept proposed remediation fix into design spec"
+                >
+                  <Icon name="Check" size={14} />
+                  <span>Accept Fix into Spec</span>
+                </button>
+                <button
+                  type="button"
+                  className="action-btn btn-sandbox-fix"
+                  onClick={() => handleOpenInSandbox(activePin)}
+                  title="Open in Sandbox editor to experiment and run automated re-audit verification"
+                >
+                  <Icon name="Sparkles" size={14} />
+                  <span>Sandbox & Re-audit →</span>
+                </button>
               </div>
             </div>
           </aside>
