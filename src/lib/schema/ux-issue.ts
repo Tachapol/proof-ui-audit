@@ -161,5 +161,7 @@ export const AuditRunSchema = z.object({
   }).optional(),
   candidates: z.array(z.any()).optional(),
   lastSelectionTimestamp: z.number().optional(),
+  codeSnippet: z.string().optional(),
+  codeVersion: z.string().optional(),
 });
 export type AuditRun = z.infer<typeof AuditRunSchema>;

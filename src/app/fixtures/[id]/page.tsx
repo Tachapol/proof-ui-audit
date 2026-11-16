@@ -1,3 +1,4 @@
+import { PilotUIFixture } from '@/fixtures/components/PilotUIFixture';
 import { readStudio } from '@/lib/studio/store';
 import { notFound } from 'next/navigation';
 import { MvpContrastFixture } from '@/fixtures/components/MvpContrastFixture';
@@ -54,7 +55,7 @@ export default async function FixturePage({ params, searchParams }: FixturePageP
     <div style={{ padding: '16px', maxWidth: '100%', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
       <header style={{ marginBottom: '24px', borderBottom: '1px solid #dededb', paddingBottom: '16px' }}>
         <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#676767' }}>
-          ProofUI Test Fixture: {fixture.category}
+          {id.startsWith('pilot-ui-') ? 'Interface study' : 'ProofUI Test Fixture: ' + fixture.category}
         </span>
         <h1 style={{ fontSize: '20px', fontWeight: 600, color: '#202123', marginTop: '4px' }}>
           {fixture.name}
@@ -66,6 +67,7 @@ export default async function FixturePage({ params, searchParams }: FixturePageP
 
       <style>{sessionCss}</style>
       <main id="fixture-content">
+        {/^pilot-ui-\d{2}$/.test(id) && <PilotUIFixture caseNumber={Number(id.slice(-2))} />}
         {fixture.id === 'mvp-contrast-demo' && <MvpContrastFixture />}
         {fixture.id === 'target-size-demo' && <TargetSizeFixture />}
         {fixture.id === 'text-contrast-demo' && <ContrastFixture />}

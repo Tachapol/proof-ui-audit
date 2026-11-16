@@ -33,6 +33,11 @@ export type IconName =
   | 'Users'
   | 'Layers'
   | 'Sparkles'
+  | 'Globe'
+  | 'Upload'
+  | 'Code'
+  | 'FileCode'
+  | 'Eye'
   | 'LoaderCircle';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {

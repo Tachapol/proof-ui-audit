@@ -114,6 +114,18 @@ export async function validateAndNormalizeAuditUrl(
     };
   }
 
+  // Handle uploaded or pasted code snippet identifier
+  if (trimmed.startsWith('snippet://')) {
+    const snippetId = trimmed.replace('snippet://', '').trim();
+    return {
+      valid: true,
+      normalizedUrl: `${devServerBaseUrl}/api/sandbox/render?id=${encodeURIComponent(snippetId)}`,
+      isFixture: false,
+      fixtureId: `snippet-${snippetId}`,
+      localOrigin: devOrigin,
+    };
+  }
+
   // Handle local fixture URL path
   if (trimmed.startsWith('/fixtures/')) {
     const fixtureId = trimmed.replace('/fixtures/', '').split('/')[0].split('?')[0];

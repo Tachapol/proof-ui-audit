@@ -178,4 +178,22 @@ describe('Explicit localhost audit opt-in', () => {
   expect((await validateAndNormalizeAuditUrl('http://localhost:3210')).valid).toBe(false);
   expect((await validateAndNormalizeAuditUrl('http://user:password@localhost:3210','http://localhost:3123',undefined,{allowLocalhost:true})).valid).toBe(false);
  });
+
+ it('normalizes snippet:// identifiers to the local sandboxed render endpoint', async () => {
+   const res = await validateAndNormalizeAuditUrl('snippet://snip-test123', 'http://localhost:3123');
+   expect(res.valid).toBe(true);
+   expect(res.normalizedUrl).toBe('http://localhost:3123/api/sandbox/render?id=snip-test123');
+   expect(res.isFixture).toBe(false);
+ });
+
+ it('resolves all 12 pilot UI benchmark fixtures (pilot-ui-01 through 12)', async () => {
+   for (let i = 1; i <= 12; i++) {
+     const id = `pilot-ui-${String(i).padStart(2, '0')}`;
+     const res = await validateAndNormalizeAuditUrl(`fixture://${id}`, 'http://localhost:3123');
+     expect(res.valid).toBe(true);
+     expect(res.isFixture).toBe(true);
+     expect(res.fixtureId).toBe(id);
+     expect(res.normalizedUrl).toBe(`http://localhost:3123/fixtures/${id}`);
+   }
+ });
 });

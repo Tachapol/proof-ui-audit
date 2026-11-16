@@ -3,13 +3,29 @@ import { validateAndNormalizeAuditUrl } from '@/lib/audit/url-validator';
 import { runBrowserAudit, DEFAULT_AUDIT_VIEWPORTS } from '@/lib/audit/browser';
 import { groupUXIssues, calculateAuditSummary } from '@/lib/audit/grouping';
 import { saveAuditRun, getAuditRun, listAuditRuns } from '@/lib/storage/db';
+import { saveSandboxSnippet, getSandboxSnippet } from '@/lib/sandbox/store';
 import { AuditRun } from '@/lib/schema/ux-issue';
 import { ProductContext, ProductContextSchema } from '@/lib/schema/product-context';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const target = body.target;
+    let target = body.target;
+    const rawHtml = typeof body.html === 'string' ? body.html.trim() : '';
+    let snippetId: string | undefined = undefined;
+
+    if (rawHtml) {
+      const snip = saveSandboxSnippet(rawHtml);
+      snippetId = snip.id;
+      target = `snippet://${snip.id}`;
+    } else if (typeof target === 'string' && target.startsWith('snippet://')) {
+      snippetId = target.replace('snippet://', '').trim();
+      const existing = getSandboxSnippet(snippetId);
+      if (existing) {
+        // preserve rawHtml
+      }
+    }
+
     const context = ProductContextSchema.optional().safeParse(body.productContext);
     if (!context.success) return NextResponse.json({ success: false, error: context.error.issues[0].message }, { status: 400 });
 
@@ -113,6 +129,8 @@ export async function POST(req: Request) {
       rawIssues: issues,
       groupedIssues,
       summary,
+      codeSnippet: rawHtml || (snippetId ? getSandboxSnippet(snippetId)?.html : undefined),
+      codeVersion: snippetId,
     };
 
     // 4. Atomic local persistence (DATA-05)

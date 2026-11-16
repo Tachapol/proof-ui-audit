@@ -56,7 +56,7 @@ export default function HomePage() {
 
   const handleTargetChange = useCallback((target: string) => setPendingTarget(target), []);
 
-  const handleRunAudit = async (target: string, productContext?: ProductContext, autoDetectContext?: boolean) => {
+  const handleRunAudit = async (target: string, productContext?: ProductContext, autoDetectContext?: boolean, htmlSnippet?: string) => {
     if (isLoading) return;
     setIsLoading(true);
     setError(null);
@@ -69,7 +69,7 @@ export default function HomePage() {
       const response = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target, productContext, autoDetectContext }),
+        body: JSON.stringify({ target, productContext, autoDetectContext, html: htmlSnippet }),
       });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.error || 'Failed to complete audit.');
@@ -115,8 +115,8 @@ export default function HomePage() {
   const pendingFixtureDef = pendingFixtureId ? FIXTURES.find((f) => f.id === pendingFixtureId) : undefined;
 
   const displayTarget = currentRun
-    ? (currentFixtureDef ? `${currentFixtureDef.name} (Local Fixture)` : currentRun.targetUrl)
-    : (pendingFixtureDef ? `${pendingFixtureDef.name} (Local Fixture)` : pendingTarget);
+    ? (currentFixtureDef ? `${currentFixtureDef.name} (Sample UI)` : currentRun.codeVersion ? `HTML Component (${currentRun.codeVersion})` : currentRun.targetUrl)
+    : (pendingFixtureDef ? `${pendingFixtureDef.name} (Sample UI)` : pendingTarget.startsWith('snippet://') ? 'HTML / CSS Component' : pendingTarget);
   const viewportLabel = currentRun ? currentRun.viewports.map((viewport) => `${viewport.width}px`).join(' · ') : '320 · 375 · 1440px';
 
   return (
