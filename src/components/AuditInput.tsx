@@ -411,7 +411,7 @@ export function AuditInput({
             </div>
 
             {/* Developer & Benchmark Suites (Pass/Fail Debug) */}
-            <details className="group rounded-lg border border-zinc-200 bg-zinc-50/60 p-3 text-xs">
+            <details open className="group rounded-lg border border-zinc-200 bg-zinc-50/60 p-3 text-xs">
               <summary className="flex items-center justify-between font-medium text-zinc-700 cursor-pointer select-none">
                 <div className="flex items-center gap-2">
                   <Icon name="FlaskConical" size={14} className="text-zinc-500" />
@@ -424,6 +424,7 @@ export function AuditInput({
                   Isolated pass/fail assertion cases for algorithm verification and engine regression tests.
                 </p>
                 <select
+                  id="fixture-select"
                   value={selectedFixture}
                   onChange={(e) => setSelectedFixture(e.target.value)}
                   disabled={isLoading}

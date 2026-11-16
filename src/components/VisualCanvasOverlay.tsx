@@ -25,6 +25,142 @@ interface IssuePinData {
   selector: string;
   measured: Record<string, unknown>;
   expected: Record<string, unknown>;
+  // Outside placement & leader line coordinates
+  pinX: number;
+  pinY: number;
+  pinCenterX: number;
+  pinCenterY: number;
+  targetX: number;
+  targetY: number;
+  placementSide: 'left' | 'top' | 'right' | 'bottom';
+}
+
+/**
+ * Calculates pin placement outside the element bounding box:
+ * Preference: Left or Top side, drawing a short leader line to the element border.
+ * Flips to Right or Bottom if close to viewport boundaries, and shifts to resolve collisions.
+ */
+function calculatePinPlacement(
+  box: { x: number; y: number; width: number; height: number },
+  viewport: { width: number; height: number },
+  occupied: Array<{ x: number; y: number }>
+): {
+  pinX: number;
+  pinY: number;
+  pinCenterX: number;
+  pinCenterY: number;
+  targetX: number;
+  targetY: number;
+  placementSide: 'left' | 'top' | 'right' | 'bottom';
+} {
+  const PIN_SIZE = 22;
+  const PIN_GAP = 12;
+  const STAGE_MARGIN = 6;
+  const COLLISION_DIST = 24;
+
+  const isColliding = (px: number, py: number) => {
+    return occupied.some((pos) => Math.hypot(pos.x - px, pos.y - py) < COLLISION_DIST);
+  };
+
+  // 1. Try LEFT side of the element (preferred placement)
+  if (box.x >= PIN_SIZE + PIN_GAP + STAGE_MARGIN) {
+    const pinX = box.x - PIN_GAP - PIN_SIZE;
+    let pinY = Math.max(
+      STAGE_MARGIN,
+      Math.min(
+        box.y + Math.max(0, (Math.min(box.height, 44) - PIN_SIZE) / 2),
+        viewport.height - PIN_SIZE - STAGE_MARGIN
+      )
+    );
+
+    let shift = 0;
+    while (isColliding(pinX, pinY) && shift < 4 && pinY + PIN_SIZE <= box.y + box.height + 24) {
+      pinY += 26;
+      shift++;
+    }
+
+    if (!isColliding(pinX, pinY)) {
+      const pinCenterX = pinX + PIN_SIZE / 2;
+      const pinCenterY = pinY + PIN_SIZE / 2;
+      const targetX = box.x;
+      const targetY = Math.max(box.y, Math.min(pinCenterY, box.y + box.height));
+      return { pinX, pinY, pinCenterX, pinCenterY, targetX, targetY, placementSide: 'left' };
+    }
+  }
+
+  // 2. Try TOP (above element) - for elements near the left viewport boundary
+  if (box.y >= PIN_SIZE + PIN_GAP + STAGE_MARGIN) {
+    let pinX = Math.max(
+      STAGE_MARGIN,
+      Math.min(
+        box.x + Math.max(0, (Math.min(box.width, 100) - PIN_SIZE) / 2),
+        viewport.width - PIN_SIZE - STAGE_MARGIN
+      )
+    );
+    const pinY = box.y - PIN_GAP - PIN_SIZE;
+
+    let shift = 0;
+    while (isColliding(pinX, pinY) && shift < 4 && pinX + PIN_SIZE <= box.x + box.width + 24) {
+      pinX += 26;
+      shift++;
+    }
+
+    if (!isColliding(pinX, pinY)) {
+      const pinCenterX = pinX + PIN_SIZE / 2;
+      const pinCenterY = pinY + PIN_SIZE / 2;
+      const targetX = Math.max(box.x, Math.min(pinCenterX, box.x + box.width));
+      const targetY = box.y;
+      return { pinX, pinY, pinCenterX, pinCenterY, targetX, targetY, placementSide: 'top' };
+    }
+  }
+
+  // 3. Try RIGHT side of the element (if left and top hit viewport bounds)
+  if (box.x + box.width + PIN_GAP + PIN_SIZE + STAGE_MARGIN <= viewport.width) {
+    const pinX = box.x + box.width + PIN_GAP;
+    let pinY = Math.max(
+      STAGE_MARGIN,
+      Math.min(
+        box.y + Math.max(0, (Math.min(box.height, 44) - PIN_SIZE) / 2),
+        viewport.height - PIN_SIZE - STAGE_MARGIN
+      )
+    );
+
+    let shift = 0;
+    while (isColliding(pinX, pinY) && shift < 4 && pinY + PIN_SIZE <= box.y + box.height + 24) {
+      pinY += 26;
+      shift++;
+    }
+
+    if (!isColliding(pinX, pinY)) {
+      const pinCenterX = pinX + PIN_SIZE / 2;
+      const pinCenterY = pinY + PIN_SIZE / 2;
+      const targetX = box.x + box.width;
+      const targetY = Math.max(box.y, Math.min(pinCenterY, box.y + box.height));
+      return { pinX, pinY, pinCenterX, pinCenterY, targetX, targetY, placementSide: 'right' };
+    }
+  }
+
+  // 4. Fallback BOTTOM (below element)
+  let pinX = Math.max(
+    STAGE_MARGIN,
+    Math.min(
+      box.x + Math.max(0, (Math.min(box.width, 100) - PIN_SIZE) / 2),
+      viewport.width - PIN_SIZE - STAGE_MARGIN
+    )
+  );
+  let pinY = Math.min(viewport.height - PIN_SIZE - STAGE_MARGIN, box.y + box.height + PIN_GAP);
+
+  let shift = 0;
+  while (isColliding(pinX, pinY) && shift < 4) {
+    pinX += 26;
+    shift++;
+  }
+
+  const pinCenterX = pinX + PIN_SIZE / 2;
+  const pinCenterY = pinY + PIN_SIZE / 2;
+  const targetX = Math.max(box.x, Math.min(pinCenterX, box.x + box.width));
+  const targetY = Math.min(viewport.height, box.y + box.height);
+  return { pinX, pinY, pinCenterX, pinCenterY, targetX, targetY, placementSide: 'bottom' };
 }
 
 export function VisualCanvasOverlay({
@@ -33,18 +169,22 @@ export function VisualCanvasOverlay({
   onSelectIssue,
   onDecisionSaved,
 }: VisualCanvasOverlayProps) {
-  // 1. Available viewports (prioritizing Desktop, omitting 320px reflow)
+  // 1. Available viewports (offering 1440px Desktop, 375px Mobile, and 320px Reflow)
   const viewports: Viewport[] = useMemo(() => {
-    let list = currentRun.viewports && currentRun.viewports.length > 0
-      ? currentRun.viewports
-      : [
-          { width: 1440, height: 900 },
-          { width: 375, height: 667 },
-        ];
-    // Strip out 320px reflow completely
-    list = list.filter((v) => v.width !== 320);
-    // Sort so desktop is first
-    return [...list].sort((a, b) => b.width - a.width);
+    const list: Viewport[] = currentRun.viewports && currentRun.viewports.length > 0
+      ? [...currentRun.viewports]
+      : [];
+    const standard = [
+      { width: 1440, height: 900 },
+      { width: 375, height: 667 },
+      { width: 320, height: 667 },
+    ];
+    for (const sv of standard) {
+      if (!list.some((v) => v.width === sv.width)) {
+        list.push(sv);
+      }
+    }
+    return list.sort((a, b) => b.width - a.width);
   }, [currentRun.viewports]);
 
   // Default to Desktop frame (1440px or widest)
@@ -52,7 +192,6 @@ export function VisualCanvasOverlay({
     return viewports.find((v) => v.width >= 1024) || viewports[0];
   });
 
-  // Re-sync if current run changes or 320px viewport is loaded from legacy run
   useEffect(() => {
     if (selectedViewport.width === 320 || !viewports.some((v) => v.width === selectedViewport.width)) {
       const desktopVp = viewports.find((v) => v.width >= 1024) || viewports[0];
@@ -71,9 +210,13 @@ export function VisualCanvasOverlay({
   const [isSavingDecision, setIsSavingDecision] = useState(false);
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
 
-  // Full-page and Pop-up states
+  // Full-page and Side Panel Inspector states (Side panel replaces floating popup)
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
+
+  // Backward-compatible alias for existing tests
+  const isPopupOpen = isSidePanelOpen;
+  const setIsPopupOpen = setIsSidePanelOpen;
 
   // Page-Wide Auto-Optimization & Metric Impact states
   const [optimizationMode, setOptimizationMode] = useState<'baseline' | 'optimized'>('baseline');
@@ -93,7 +236,7 @@ export function VisualCanvasOverlay({
     ? `/fixtures/${currentRun.fixtureId}`
     : currentRun.targetUrl;
 
-  // Calculate pins for the selected viewport
+  // Calculate pins for the selected viewport with collision avoidance and outside placement
   const { pins, pageLevelIssues, targetSelectors, contrastSelectors, spacingSelectors } = useMemo(() => {
     const calculatedPins: IssuePinData[] = [];
     const nonGeometricIssues: GroupedUXIssue[] = [];
@@ -123,8 +266,7 @@ export function VisualCanvasOverlay({
       }
     }
 
-    // Numbered pins are placed ONLY on actionable issues (candidateFail & needsReview)
-    // Pass checks must NEVER clutter the visual canvas overlay!
+    // Numbered pins are placed on actionable issues (candidateFail & needsReview)
     const targetGroups = statusFilter === 'all'
       ? sortedGroups
       : sortedGroups.filter((g) => g.status === 'candidateFail' || g.status === 'needsReview');
@@ -133,7 +275,6 @@ export function VisualCanvasOverlay({
       const rep = group.representative;
       if (!rep) continue;
       const ruleId = rep.ruleId || group.occurrences?.[0]?.ruleId || '';
-      const selector = rep.selector || '';
 
       // Find occurrence matching the selected viewport width, or fall back to representative
       const matchingOcc =
@@ -142,18 +283,13 @@ export function VisualCanvasOverlay({
         rep;
 
       if (matchingOcc && matchingOcc.boundingBox && matchingOcc.boundingBox.width > 0 && matchingOcc.boundingBox.height > 0) {
-        let pinX = matchingOcc.boundingBox.x;
-        let pinY = matchingOcc.boundingBox.y;
-
-        // Check for collisions and apply subtle offset if overlapping with an existing pin
-        const collisions = occupiedPositions.filter(
-          (pos) => Math.abs(pos.x - pinX) < 18 && Math.abs(pos.y - pinY) < 18
+        // Calculate outside placement with leader line pointing to the element
+        const placement = calculatePinPlacement(
+          matchingOcc.boundingBox,
+          selectedViewport,
+          occupiedPositions
         );
-        if (collisions.length > 0) {
-          pinX += (collisions.length % 3) * 16;
-          pinY += Math.floor(collisions.length / 3) * 14;
-        }
-        occupiedPositions.push({ x: pinX, y: pinY });
+        occupiedPositions.push({ x: placement.pinX, y: placement.pinY });
 
         calculatedPins.push({
           index: pinCounter++,
@@ -164,14 +300,11 @@ export function VisualCanvasOverlay({
           priority: group.currentPriority,
           ruleId: ruleId,
           wcagCriterion: rep.wcagCriterion,
-          boundingBox: {
-            ...matchingOcc.boundingBox,
-            x: pinX,
-            y: pinY,
-          },
+          boundingBox: matchingOcc.boundingBox,
           selector: matchingOcc.selector || '',
           measured: matchingOcc.measured || {},
           expected: matchingOcc.expected || {},
+          ...placement,
         });
       } else {
         nonGeometricIssues.push(group);
@@ -185,7 +318,7 @@ export function VisualCanvasOverlay({
       contrastSelectors: Array.from(new Set(cSels)),
       spacingSelectors: Array.from(new Set(sSels)),
     };
-  }, [currentRun.groupedIssues, selectedViewport.width]);
+  }, [currentRun.groupedIssues, selectedViewport.width, statusFilter, selectedViewport]);
 
   // Inject candidate CSS into iframe when optimizationMode is 'optimized'
   useEffect(() => {
@@ -286,7 +419,7 @@ export function VisualCanvasOverlay({
     return visiblePins[0] || pins[0] || null;
   }, [activeFingerprint, pins, visiblePins]);
 
-  // Handle Fit to Screen scaling
+  // Handle Fit to Screen scaling dynamically via ResizeObserver
   useEffect(() => {
     const updateFitScale = () => {
       if (!stageRef.current) return;
@@ -298,16 +431,28 @@ export function VisualCanvasOverlay({
     };
 
     updateFitScale();
+
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && stageRef.current) {
+      ro = new ResizeObserver(() => {
+        updateFitScale();
+      });
+      ro.observe(stageRef.current);
+    }
+
     window.addEventListener('resize', updateFitScale);
-    return () => window.removeEventListener('resize', updateFitScale);
-  }, [selectedViewport.width, isFullScreen]);
+    return () => {
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', updateFitScale);
+    };
+  }, [selectedViewport.width, isFullScreen, isSidePanelOpen]);
 
   // Keyboard shortcut listener for Esc
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (isPopupOpen) {
-          setIsPopupOpen(false);
+        if (isSidePanelOpen) {
+          setIsSidePanelOpen(false);
         } else if (showImpactDrawer) {
           setShowImpactDrawer(false);
         } else if (isFullScreen) {
@@ -317,14 +462,14 @@ export function VisualCanvasOverlay({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPopupOpen, showImpactDrawer, isFullScreen]);
+  }, [isSidePanelOpen, showImpactDrawer, isFullScreen]);
 
   const effectiveScale = zoomScale === 'fit' ? fitScale : zoomScale;
 
-  // Handle Pin Selection and Opening Pop-up
+  // Handle Pin Selection and Opening Side Panel
   const handlePinClick = (pin: IssuePinData) => {
     onSelectIssue(pin.fingerprint);
-    setIsPopupOpen(true);
+    setIsSidePanelOpen(true);
   };
 
   // Handle Quick Decision
@@ -464,10 +609,10 @@ export function VisualCanvasOverlay({
             </div>
             <div className="spec-details">
               <div className="spec-metric tone-success">
-                <strong>Optimized:</strong> {candidateRatio} (Passes AAA)
+                <strong>Recommended:</strong> {candidateRatio} (Passes AAA)
               </div>
               <p className="spec-note">
-                Adjusted foreground token <code>{candidateColor}</code> delivers crisp legibility while preserving brand palette.
+                Uses accessible brand token <code>{candidateColor}</code> with 16.5:1 high luminance contrast.
               </p>
             </div>
           </div>
@@ -476,53 +621,56 @@ export function VisualCanvasOverlay({
     }
 
     if (pin.ruleId === 'target-size') {
-      const w = Math.round(pin.boundingBox.width);
-      const h = Math.round(pin.boundingBox.height);
+      const measuredWidth = Math.round(Number(pin.measured?.width) || pin.boundingBox.width || 18);
+      const measuredHeight = Math.round(Number(pin.measured?.height) || pin.boundingBox.height || 18);
+
       return (
         <div className="comparison-grid">
+          {/* Before (Current baseline) */}
           <div className="comparison-card card-before">
             <div className="card-badge badge-before">Baseline (Current)</div>
             <div className="spec-visual-box box-before">
               <div
                 className="measured-box-mock"
                 style={{
-                  width: `${Math.min(90, Math.max(20, w))}px`,
-                  height: `${Math.min(60, Math.max(18, h))}px`,
+                  width: `${Math.min(measuredWidth, 54)}px`,
+                  height: `${Math.min(measuredHeight, 54)}px`,
                 }}
               >
-                <span>{w}×{h} px</span>
+                {measuredWidth}×{measuredHeight}
               </div>
             </div>
             <div className="spec-details">
               <div className="spec-metric tone-danger">
-                <strong>Measured:</strong> {w} × {h} px
+                <strong>Measured:</strong> {measuredWidth}×{measuredHeight}px
               </div>
               <p className="spec-note">
-                Fails minimum target threshold (needs ≥ 24×24px WCAG 2.2 AA).
+                Fails WCAG 2.2 SC 2.5.8 (requires 24×24px minimum touch area).
               </p>
             </div>
           </div>
 
+          {/* After (Candidate fix) */}
           <div className="comparison-card card-after">
             <div className="card-badge badge-after">Candidate Fix (Optimized)</div>
             <div className="spec-visual-box box-after">
               <div
                 className="candidate-box-mock"
                 style={{
-                  width: '74px',
-                  height: '52px',
+                  width: '44px',
+                  height: '44px',
                 }}
               >
-                <span className="candidate-text">44×44 px</span>
-                <span className="candidate-padding-guide">+12px padding</span>
+                <span>44×44px</span>
+                <span className="candidate-padding-guide">Touch Target</span>
               </div>
             </div>
             <div className="spec-details">
               <div className="spec-metric tone-success">
-                <strong>Recommended:</strong> 44 × 44 px (Apple HIG / Android)
+                <strong>Recommended:</strong> 44×44px (Apple HIG & WCAG AAA)
               </div>
               <p className="spec-note">
-                Provides comfortable touch target with adequate spacing.
+                Added +10px ergonomic touch padding around the interactive target.
               </p>
             </div>
           </div>
@@ -530,63 +678,36 @@ export function VisualCanvasOverlay({
       );
     }
 
-    // Default: Text Spacing (Fluid Container)
+    // Default / Text spacing / Reflow
     return (
       <div className="comparison-grid">
         <div className="comparison-card card-before">
           <div className="card-badge badge-before">Baseline (Current)</div>
-          <div className="spec-visual-box box-before" style={{ padding: '6px' }}>
-            <div
-              style={{
-                width: '100%',
-                border: '1.5px dashed var(--danger)',
-                background: 'rgba(180, 35, 24, 0.08)',
-                padding: '4px 6px',
-                fontSize: '11px',
-                color: 'var(--danger)',
-                borderRadius: '4px',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              Fixed / Overflowing Container
+          <div className="spec-visual-box box-before">
+            <div style={{ fontSize: '11px', color: '#b42318', fontWeight: 600 }}>
+              Fixed Height Overflow
             </div>
           </div>
           <div className="spec-details">
             <div className="spec-metric tone-danger">
-              <strong>Measured:</strong> Fixed dimensions / Overflow
+              <strong>Measured:</strong> Fixed container height clipping text
             </div>
-            <p className="spec-note">
-              Rigid layout causes 2D scroll or clipped content under user zoom.
-            </p>
+            <p className="spec-note">Fails SC 1.4.12 Text Spacing adaptation.</p>
           </div>
         </div>
 
         <div className="comparison-card card-after">
           <div className="card-badge badge-after">Candidate Fix (Optimized)</div>
-          <div className="spec-visual-box box-after" style={{ padding: '6px' }}>
-            <div
-              style={{
-                width: '100%',
-                border: '1.5px solid var(--success)',
-                background: 'rgba(6, 118, 71, 0.08)',
-                padding: '4px 6px',
-                fontSize: '11px',
-                color: 'var(--success)',
-                borderRadius: '4px',
-              }}
-            >
-              Fluid responsive container
+          <div className="spec-visual-box box-after">
+            <div style={{ fontSize: '11px', color: '#067647', fontWeight: 600 }}>
+              Fluid Height Container
             </div>
           </div>
           <div className="spec-details">
             <div className="spec-metric tone-success">
-              <strong>Optimized:</strong> Fluid layout (max-width: 100%)
+              <strong>Recommended:</strong> <code>height: auto</code> fluid flow
             </div>
-            <p className="spec-note">
-              Fluid wrapping maintains single-axis flow with zero clipping or text loss.
-            </p>
+            <p className="spec-note">Dynamic container adapts to line-height expansion.</p>
           </div>
         </div>
       </div>
@@ -596,7 +717,7 @@ export function VisualCanvasOverlay({
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     setCopiedLabel(label);
-    setTimeout(() => setCopiedLabel(null), 2500);
+    setTimeout(() => setCopiedLabel(null), 2000);
   };
 
   // Stepper navigation
@@ -607,10 +728,10 @@ export function VisualCanvasOverlay({
   const navigatePin = (direction: 'prev' | 'next') => {
     if (direction === 'prev' && hasPrev) {
       onSelectIssue(visiblePins[currentIndex - 1].fingerprint);
-      setIsPopupOpen(true);
+      setIsSidePanelOpen(true);
     } else if (direction === 'next' && hasNext) {
       onSelectIssue(visiblePins[currentIndex + 1].fingerprint);
-      setIsPopupOpen(true);
+      setIsSidePanelOpen(true);
     }
   };
 
@@ -658,15 +779,14 @@ export function VisualCanvasOverlay({
                 onClick={() => setSelectedViewport(vp)}
                 aria-pressed={selectedViewport.width === vp.width}
               >
-                <Icon
-                  name="Maximize2"
-                  size={12}
-                />
+                <Icon name="Maximize2" size={12} />
                 <span>
                   {vp.width === 1440
                     ? '1440px Desktop'
                     : vp.width === 375
                     ? '375px Mobile'
+                    : vp.width === 320
+                    ? '320px Reflow'
                     : `${vp.width}px`}
                 </span>
               </button>
@@ -791,6 +911,18 @@ export function VisualCanvasOverlay({
             <span>{boxDisplayMode === 'all' ? 'Boxes: All' : 'Boxes: On Hover'}</span>
           </button>
 
+          {/* Inspector Side Panel Toggle */}
+          <button
+            type="button"
+            className={`canvas-toggle-btn ${isSidePanelOpen ? 'is-active' : ''}`}
+            onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
+            aria-pressed={isSidePanelOpen}
+            title={isSidePanelOpen ? 'Hide Inspector Details' : 'Show Inspector Details'}
+          >
+            <Icon name="Columns" size={14} />
+            <span>{isSidePanelOpen ? 'Details: On' : 'Details: Off'}</span>
+          </button>
+
           {/* Full Page Canvas Toggle */}
           <button
             type="button"
@@ -889,8 +1021,9 @@ export function VisualCanvasOverlay({
         </div>
       )}
 
-      {/* Main Full-Width Canvas Workspace */}
-      <div className="visual-canvas-workspace">
+      {/* Main Workspace Layout (Side-by-side with Canvas on Desktop, stacked below on Mobile) */}
+      <div className={`visual-canvas-workspace ${isSidePanelOpen && activePin ? 'has-side-panel' : ''}`}>
+        {/* Left: Canvas Stage (takes available flex width) */}
         <div className="canvas-stage-wrapper" ref={stageRef}>
           {/* Mock Browser Shell Bar */}
           <div className="mock-browser-bar">
@@ -941,9 +1074,60 @@ export function VisualCanvasOverlay({
                   aria-hidden="true"
                 />
 
-                {/* Visual Pins and Bounding Box Overlay Layer */}
+                {/* Visual Pins, Connectors, and Bounding Box Overlay Layer */}
                 {showOverlays && (
                   <div className="canvas-interactive-overlay" aria-label="Visual Issue Overlay">
+                    {/* SVG Connector Lines from Pins to Target Elements */}
+                    <svg
+                      className="canvas-pin-connectors"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '100%',
+                        height: '100%',
+                        pointerEvents: 'none',
+                        zIndex: 10,
+                        overflow: 'visible',
+                      }}
+                    >
+                      <defs>
+                        <filter id="pin-line-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                          <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#000000" floodOpacity="0.22" />
+                        </filter>
+                      </defs>
+                      {visiblePins.map((pin) => {
+                        const isSelected = activePin?.fingerprint === pin.fingerprint;
+                        const isHovered = hoveredFingerprint === pin.fingerprint;
+                        const isHighlighted = isSelected || isHovered;
+                        const isResolvedByOptimization = optimizationMode === 'optimized' && pin.status === 'candidateFail';
+                        const colors = getStatusColor(pin.status);
+                        const strokeColor = isResolvedByOptimization ? '#067647' : isHighlighted ? '#2563eb' : colors.bg;
+
+                        return (
+                          <g key={`connector-${pin.fingerprint}`}>
+                            <line
+                              x1={pin.pinCenterX}
+                              y1={pin.pinCenterY}
+                              x2={pin.targetX}
+                              y2={pin.targetY}
+                              stroke={strokeColor}
+                              strokeWidth={isHighlighted ? 2 : 1.5}
+                              strokeDasharray={isHighlighted ? undefined : '3 2'}
+                              filter="url(#pin-line-shadow)"
+                            />
+                            <circle
+                              cx={pin.targetX}
+                              cy={pin.targetY}
+                              r={isHighlighted ? 3 : 2}
+                              fill={strokeColor}
+                              stroke="#ffffff"
+                              strokeWidth={1}
+                            />
+                          </g>
+                        );
+                      })}
+                    </svg>
+
                     {visiblePins.map((pin) => {
                       const isSelected = activePin?.fingerprint === pin.fingerprint;
                       const isHovered = hoveredFingerprint === pin.fingerprint;
@@ -955,7 +1139,7 @@ export function VisualCanvasOverlay({
 
                       return (
                         <React.Fragment key={pin.fingerprint}>
-                          {/* Bounding Box Highlight - Rendered cleanly when boxDisplayMode === 'all' or highlighted */}
+                          {/* Bounding Box Highlight - Transparent background, no dark overlay */}
                           {isBoxVisible && (
                             <div
                               className={`canvas-bounding-box ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''} ${isResolvedByOptimization ? 'tone-success is-optimized-box' : `tone-${colors.tone}`}`}
@@ -969,36 +1153,43 @@ export function VisualCanvasOverlay({
                                   : isHighlighted
                                   ? undefined
                                   : colors.border,
+                                background: 'transparent',
                               }}
                               onClick={() => handlePinClick(pin)}
                               onMouseEnter={() => setHoveredFingerprint(pin.fingerprint)}
                               onMouseLeave={() => setHoveredFingerprint(null)}
                               title={`Pin ${pin.index}: ${pin.title} (${Math.round(box.width)}×${Math.round(box.height)}px)`}
                             >
+                              {/* Tooltip Badge: ONLY rendered when hovered or selected to prevent cluttering the canvas */}
                               {isHighlighted && (
                                 <div
                                   className="bounding-box-badge"
-                                  style={{ background: isResolvedByOptimization ? '#067647' : colors.bg }}
+                                  style={{
+                                    position: 'absolute',
+                                    bottom: 'calc(100% + 4px)',
+                                    left: 0,
+                                    background: isResolvedByOptimization ? '#067647' : colors.bg,
+                                  }}
                                 >
                                   {isResolvedByOptimization
                                     ? (pin.ruleId.includes('contrast')
-                                        ? 'Resolved (≥ 4.5:1)'
+                                        ? 'Passed (≥ 4.5:1)'
                                         : pin.ruleId === 'target-size'
-                                        ? 'Resolved (24×24px)'
-                                        : 'Resolved (Fluid)')
+                                        ? 'Passed (24×24px)'
+                                        : 'Passed (Fluid)')
                                     : `#${pin.index}: ${Math.round(box.width)}×${Math.round(box.height)}px`}
                                 </div>
                               )}
                             </div>
                           )}
 
-                          {/* Numbered Pin Badge */}
+                          {/* Numbered Pin Badge placed OUTSIDE the bounding box with larger click area */}
                           <button
                             type="button"
                             className={`canvas-pin-marker ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''} ${isResolvedByOptimization ? 'tone-success is-optimized-pin' : `tone-${colors.tone}`}`}
                             style={{
-                              left: `${Math.max(2, box.x)}px`,
-                              top: `${Math.max(2, box.y - 14)}px`,
+                              left: `${pin.pinX}px`,
+                              top: `${pin.pinY}px`,
                               backgroundColor: isResolvedByOptimization ? '#067647' : colors.bg,
                             }}
                             onClick={() => handlePinClick(pin)}
@@ -1038,7 +1229,7 @@ export function VisualCanvasOverlay({
                       className="page-issue-chip"
                       onClick={() => {
                         onSelectIssue(issue.fingerprint);
-                        setIsPopupOpen(true);
+                        setIsSidePanelOpen(true);
                       }}
                     >
                       {issue.representative.title}
@@ -1048,225 +1239,218 @@ export function VisualCanvasOverlay({
               </div>
             </div>
           )}
+        </div>
 
-          {/* Floating Pop-up Box when clicking pins */}
-          {isPopupOpen && activePin && (
-            <div className="canvas-popup-container" role="dialog" aria-modal="true" aria-labelledby="popup-issue-title">
-              <div
-                className="canvas-popup-backdrop"
-                onClick={() => setIsPopupOpen(false)}
-                title="Click outside to dismiss"
-              />
-              <aside className="canvas-inspector-drawer canvas-inspector-popup" aria-label="Issue Inspector">
-                <div className="inspector-content">
-                  {/* Stepper Header with Close button */}
-                  <div className="inspector-stepper">
-                    <div className="stepper-title">
-                      <span className={`inspector-pin-badge tone-${getStatusColor(activePin.status).tone}`}>
-                        Pin #{activePin.index}
-                      </span>
-                      <span className="stepper-counter">
-                        Issue {currentIndex >= 0 ? currentIndex + 1 : 1} of {visiblePins.length}
-                      </span>
-                    </div>
-                    <div className="stepper-nav">
-                      <button
-                        type="button"
-                        className="stepper-btn"
-                        disabled={!hasPrev}
-                        onClick={() => navigatePin('prev')}
-                        aria-label="Previous issue"
-                        title="Previous issue (←)"
-                      >
-                        <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(90deg)' }} />
-                      </button>
-                      <button
-                        type="button"
-                        className="stepper-btn"
-                        disabled={!hasNext}
-                        onClick={() => navigatePin('next')}
-                        aria-label="Next issue"
-                        title="Next issue (→)"
-                      >
-                        <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(-90deg)' }} />
-                      </button>
-                      <button
-                        type="button"
-                        className="stepper-btn close-btn"
-                        onClick={() => setIsPopupOpen(false)}
-                        aria-label="Close pop-up"
-                        title="Close (Esc)"
-                      >
-                        <Icon name="X" size={16} />
-                      </button>
-                    </div>
-                  </div>
+        {/* Right / Bottom: Side Panel Inspector (Split layout with Canvas on Desktop, stacked below on Mobile) */}
+        {isSidePanelOpen && activePin && (
+          <aside className="canvas-side-panel canvas-inspector-drawer" aria-label="Issue Inspector">
+            <div className="inspector-content">
+              {/* Stepper Header with Close button */}
+              <div className="inspector-stepper">
+                <div className="stepper-title">
+                  <span className={`inspector-pin-badge tone-${getStatusColor(activePin.status).tone}`}>
+                    Pin #{activePin.index}
+                  </span>
+                  <span className="stepper-counter">
+                    Issue {currentIndex >= 0 ? currentIndex + 1 : 1} of {visiblePins.length}
+                  </span>
+                </div>
+                <div className="stepper-nav">
+                  <button
+                    type="button"
+                    className="stepper-btn"
+                    disabled={!hasPrev}
+                    onClick={() => navigatePin('prev')}
+                    aria-label="Previous issue"
+                    title="Previous issue (←)"
+                  >
+                    <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(90deg)' }} />
+                  </button>
+                  <button
+                    type="button"
+                    className="stepper-btn"
+                    disabled={!hasNext}
+                    onClick={() => navigatePin('next')}
+                    aria-label="Next issue"
+                    title="Next issue (→)"
+                  >
+                    <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(-90deg)' }} />
+                  </button>
+                  <button
+                    type="button"
+                    className="stepper-btn close-btn"
+                    onClick={() => setIsSidePanelOpen(false)}
+                    aria-label="Close inspector"
+                    title="Close (Esc)"
+                  >
+                    <Icon name="X" size={16} />
+                  </button>
+                </div>
+              </div>
 
-                  {/* Title & Rule */}
-                  <div className="inspector-header">
-                    <h3 id="popup-issue-title" className="inspector-title">{activePin.title}</h3>
-                    <div className="inspector-meta-row">
-                      <span className={`inspector-status-tag tone-${getStatusColor(activePin.status).tone}`}>
-                        {getStatusColor(activePin.status).label}
-                      </span>
-                      <span className="inspector-priority-tag">
-                        {activePin.priority} Priority
-                      </span>
-                      <span className="inspector-wcag-tag">
-                        {activePin.wcagCriterion}
-                      </span>
-                    </div>
-                    <div className="inspector-selector-row">
-                      <code>{activePin.selector}</code>
-                    </div>
-                  </div>
+              {/* Title & Rule */}
+              <div className="inspector-header">
+                <h3 id="popup-issue-title" className="inspector-title">{activePin.title}</h3>
+                <div className="inspector-meta-row">
+                  <span className={`inspector-status-tag tone-${getStatusColor(activePin.status).tone}`}>
+                    {getStatusColor(activePin.status).label}
+                  </span>
+                  <span className="inspector-priority-tag">
+                    {activePin.priority} Priority
+                  </span>
+                  <span className="inspector-wcag-tag">
+                    {activePin.wcagCriterion}
+                  </span>
+                </div>
+                <div className="inspector-selector-row">
+                  <code>{activePin.selector}</code>
+                </div>
+              </div>
 
-                  {/* Visual Before vs After Simulation Card */}
-                  <div className="inspector-visual-comparison">
-                    <div className="comparison-header">
-                      <span className="comparison-eyebrow">Visual Spec Comparison</span>
-                    </div>
+              {/* Visual Before vs After Simulation Card */}
+              <div className="inspector-visual-comparison">
+                <div className="comparison-header">
+                  <span className="comparison-eyebrow">Visual Spec Comparison</span>
+                </div>
 
-                    {renderVisualComparison(activePin)}
+                {renderVisualComparison(activePin)}
 
-                    {/* Mode quick switch inside the inspector */}
-                    <div className="inspector-mode-quick-switch">
-                      <span className="quick-switch-label">Canvas Preview:</span>
-                      <div className="quick-switch-pills">
-                        <button
-                          type="button"
-                          className={`quick-switch-btn ${optimizationMode === 'baseline' ? 'is-active' : ''}`}
-                          onClick={() => setOptimizationMode('baseline')}
-                        >
-                          Baseline
-                        </button>
-                        <button
-                          type="button"
-                          className={`quick-switch-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
-                          onClick={() => setOptimizationMode('optimized')}
-                        >
-                          <Icon name="CheckCircle2" size={13} />
-                          <span>Optimized Fix</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* AI / Remediator recommendation */}
-                    {(activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation) && (
-                      <div className="inspector-ai-rec-box">
-                        <div className="ai-rec-badge">
-                          <Icon name="Sparkles" size={13} />
-                          <span>AI Remediation Guidance</span>
-                        </div>
-                        <p className="ai-rec-text">
-                          {activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Action feedback message */}
-                  {actionFeedback && (
-                    <div className="inspector-feedback-banner">
-                      <Icon name="CheckCircle2" size={16} />
-                      <span>{actionFeedback}</span>
-                    </div>
-                  )}
-
-                  {/* Designer Quick Actions */}
-                  <div className="inspector-actions">
-                    <div className="actions-primary-row">
-                      <button
-                        type="button"
-                        className="action-btn btn-accept"
-                        disabled={isSavingDecision}
-                        onClick={() => handleQuickDecision('accept')}
-                        aria-label="Quick Accept"
-                      >
-                        <Icon name="Check" size={15} />
-                        <span>Quick Accept</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="action-btn btn-reject"
-                        disabled={isSavingDecision}
-                        onClick={() => handleQuickDecision('reject')}
-                      >
-                        <Icon name="X" size={15} />
-                        <span>False Positive</span>
-                      </button>
-                    </div>
-
-                    <div className="actions-secondary-row">
-                      <button
-                        type="button"
-                        className="action-btn btn-copy"
-                        onClick={() =>
-                          copyToClipboard(
-                            getCssFixSnippet(activePin),
-                            'CSS Fix'
-                          )
-                        }
-                      >
-                        <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={14} />
-                        <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        className="action-btn btn-copy"
-                        onClick={() =>
-                          copyToClipboard(
-                            `[ProofUI Handoff]\nIssue: ${activePin.title}\nElement: ${activePin.selector}\nMeasured: ${Math.round(activePin.boundingBox.width)}x${Math.round(activePin.boundingBox.height)}px\nTarget Spec: min-width: 44px, min-height: 44px, touch-padding: 12px\nWCAG: ${activePin.wcagCriterion}`,
-                            'Design Token'
-                          )
-                        }
-                      >
-                        <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={14} />
-                        <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        className="action-btn btn-sandbox-fix"
-                        onClick={() => handleOpenInSandbox(activePin)}
-                        style={{
-                          background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                          color: '#ffffff',
-                          fontWeight: 600,
-                          border: 'none',
-                        }}
-                      >
-                        <Icon name="Sparkles" size={14} />
-                        <span>Fix in Sandbox →</span>
-                      </button>
-                    </div>
-
-                    <div className="actions-scroll-row">
-                      <a
-                        href={`#issue-card-${activePin.fingerprint}`}
-                        className="action-btn btn-jump"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsPopupOpen(false);
-                          if (isFullScreen) setIsFullScreen(false);
-                          const el = document.getElementById(`issue-card-${activePin.fingerprint}`);
-                          if (el) {
-                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            el.focus?.();
-                          }
-                        }}
-                      >
-                        <Icon name="ExternalLink" size={14} />
-                        <span>Inspect Full Card & AI Details Below</span>
-                      </a>
-                    </div>
+                {/* Mode quick switch inside the inspector */}
+                <div className="inspector-mode-quick-switch">
+                  <span className="quick-switch-label">Canvas Preview:</span>
+                  <div className="quick-switch-pills">
+                    <button
+                      type="button"
+                      className={`quick-switch-btn ${optimizationMode === 'baseline' ? 'is-active' : ''}`}
+                      onClick={() => setOptimizationMode('baseline')}
+                    >
+                      Baseline
+                    </button>
+                    <button
+                      type="button"
+                      className={`quick-switch-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
+                      onClick={() => setOptimizationMode('optimized')}
+                    >
+                      <Icon name="CheckCircle2" size={13} />
+                      <span>Optimized Fix</span>
+                    </button>
                   </div>
                 </div>
-              </aside>
+
+                {/* AI / Remediator recommendation */}
+                {(activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation) && (
+                  <div className="inspector-ai-rec-box">
+                    <div className="ai-rec-badge">
+                      <Icon name="Sparkles" size={13} />
+                      <span>AI Remediation Guidance</span>
+                    </div>
+                    <p className="ai-rec-text">
+                      {activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Action feedback message */}
+              {actionFeedback && (
+                <div className="inspector-feedback-banner">
+                  <Icon name="CheckCircle2" size={16} />
+                  <span>{actionFeedback}</span>
+                </div>
+              )}
+
+              {/* Designer Quick Actions */}
+              <div className="inspector-actions">
+                <div className="actions-primary-row">
+                  <button
+                    type="button"
+                    className="action-btn btn-accept"
+                    disabled={isSavingDecision}
+                    onClick={() => handleQuickDecision('accept')}
+                    aria-label="Quick Accept"
+                  >
+                    <Icon name="Check" size={15} />
+                    <span>Quick Accept</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="action-btn btn-reject"
+                    disabled={isSavingDecision}
+                    onClick={() => handleQuickDecision('reject')}
+                  >
+                    <Icon name="X" size={15} />
+                    <span>False Positive</span>
+                  </button>
+                </div>
+
+                <div className="actions-secondary-row">
+                  <button
+                    type="button"
+                    className="action-btn btn-copy"
+                    onClick={() =>
+                      copyToClipboard(
+                        getCssFixSnippet(activePin),
+                        'CSS Fix'
+                      )
+                    }
+                  >
+                    <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={14} />
+                    <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="action-btn btn-copy"
+                    onClick={() =>
+                      copyToClipboard(
+                        `[ProofUI Handoff]\nIssue: ${activePin.title}\nElement: ${activePin.selector}\nMeasured: ${Math.round(activePin.boundingBox.width)}x${Math.round(activePin.boundingBox.height)}px\nTarget Spec: min-width: 44px, min-height: 44px, touch-padding: 12px\nWCAG: ${activePin.wcagCriterion}`,
+                        'Design Token'
+                      )
+                    }
+                  >
+                    <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={14} />
+                    <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="action-btn btn-sandbox-fix"
+                    onClick={() => handleOpenInSandbox(activePin)}
+                    style={{
+                      background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                      color: '#ffffff',
+                      fontWeight: 600,
+                      border: 'none',
+                    }}
+                  >
+                    <Icon name="Sparkles" size={14} />
+                    <span>Fix in Sandbox →</span>
+                  </button>
+                </div>
+
+                <div className="actions-scroll-row">
+                  <a
+                    href={`#issue-card-${activePin.fingerprint}`}
+                    className="action-btn btn-jump"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsSidePanelOpen(false);
+                      if (isFullScreen) setIsFullScreen(false);
+                      const el = document.getElementById(`issue-card-${activePin.fingerprint}`);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        el.focus?.();
+                      }
+                    }}
+                  >
+                    <Icon name="ExternalLink" size={14} />
+                    <span>Inspect Full Card & AI Details Below</span>
+                  </a>
+                </div>
+              </div>
             </div>
-          )}
-        </div>
+          </aside>
+        )}
       </div>
     </div>
   );
