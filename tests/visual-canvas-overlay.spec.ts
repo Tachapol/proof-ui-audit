@@ -53,12 +53,12 @@ test.describe('Visual Canvas Overlay Feature', () => {
     await expect(inspector.locator('.inspector-pin-badge')).toContainText('Pin #1');
     await expect(inspector.locator('.comparison-eyebrow')).toHaveText('Visual Spec Comparison');
 
-    // Requirement 2: 3-Column Metric Display (Measured | Threshold | Projected)
+    // Requirement 2: 3-Column Metric Display (Measured | Required | Estimated - Short names, no truncation)
     const metricCols = inspector.locator('.metric-three-columns');
     await expect(metricCols).toBeVisible();
-    await expect(metricCols.locator('.cell-measured .metric-cell-label')).toHaveText('Measured (Actual)');
-    await expect(metricCols.locator('.cell-threshold .metric-cell-label')).toHaveText('Threshold (Target)');
-    await expect(metricCols.locator('.cell-projected .metric-cell-label')).toHaveText('Projected (Estimate)');
+    await expect(metricCols.locator('.cell-measured .metric-cell-label')).toHaveText('Measured');
+    await expect(metricCols.locator('.cell-threshold .metric-cell-label')).toHaveText('Required');
+    await expect(metricCols.locator('.cell-projected .metric-cell-label')).toHaveText('Estimated');
 
     // Requirement 5: 3-way disposition buttons (Confirm, Dismiss, Leave for Review)
     const confirmBtn = inspector.locator('.disposition-btn.btn-confirm');
@@ -99,7 +99,15 @@ test.describe('Visual Canvas Overlay Feature', () => {
     await firstPin.click();
     await expect(inspector).toBeVisible();
 
-    // 8. Test Full Page Canvas toggle
+    // 8. Test Toggle Panel button (Collapses panel to give 100% canvas room)
+    const togglePanelBtn = canvasComponent.locator('.btn-toggle-panel');
+    await expect(togglePanelBtn).toBeVisible();
+    await togglePanelBtn.click();
+    await expect(inspector).not.toBeVisible();
+    await togglePanelBtn.click();
+    await expect(inspector).toBeVisible();
+
+    // 9. Test Full Page Canvas toggle
     const fullPageBtn = canvasComponent.locator('.btn-fullpage');
     await expect(fullPageBtn).toBeVisible();
     await fullPageBtn.click();
@@ -109,7 +117,13 @@ test.describe('Visual Canvas Overlay Feature', () => {
     await fullPageBtn.click();
     await expect(canvasComponent).not.toHaveClass(/is-fullpage/);
 
-    // 9. Test switching viewport to 1440px Desktop
+    // 10. Test Zoom to Issue magnifies to 150% actual scale for readability
+    const zoomToIssueBtn = canvasComponent.locator('.btn-zoom-to-issue');
+    await expect(zoomToIssueBtn).toBeVisible();
+    await zoomToIssueBtn.click();
+    await expect(canvasComponent.locator('.browser-viewport-tag')).toContainText('150%');
+
+    // 11. Test switching viewport to 1440px Desktop
     await desktopPill.click();
     await expect(desktopPill).toHaveClass(/is-active/);
     await expect(canvasComponent.locator('.browser-viewport-tag')).toContainText('1440');

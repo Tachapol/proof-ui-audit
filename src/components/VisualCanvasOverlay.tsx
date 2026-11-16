@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { AuditRun, GroupedUXIssue, Viewport, DesignerDecision } from '@/lib/schema/ux-issue';
 import { createSandboxSnippetFromIssue } from '@/lib/sandbox/snippet-builder';
+import { calculateContrastRatioRaw, parseColor } from '@/lib/audit/color-math';
 import { Icon } from './Icon';
 
 interface VisualCanvasOverlayProps {
@@ -403,7 +404,7 @@ export function VisualCanvasOverlay({
 
     const handleMouseMove = (e: MouseEvent) => {
       const delta = resizeStartXRef.current - e.clientX;
-      const nextWidth = Math.max(320, Math.min(540, resizeStartWidthRef.current + delta));
+      const nextWidth = Math.max(260, Math.min(560, resizeStartWidthRef.current + delta));
       setPanelWidth(nextWidth);
     };
 
@@ -421,12 +422,12 @@ export function VisualCanvasOverlay({
 
   const effectiveScale = zoomScale === 'fit' ? fitScale : zoomScale;
 
-  // Zoom into active issue bounding box without changing audited viewport
+  // Zoom into active issue bounding box without changing audited viewport (1.5x for clear legibility)
   const handleZoomToIssue = useCallback((pinToZoom?: IssuePinData) => {
     const pin = pinToZoom || activePin;
     if (!pin || !scrollContainerRef.current) return;
 
-    const targetScale = 1.25;
+    const targetScale = 1.5;
     setZoomScale(targetScale);
 
     setTimeout(() => {
@@ -608,12 +609,47 @@ export function VisualCanvasOverlay({
     window.location.href = '/sandbox?from=canvas';
   };
 
+  // Deterministic single source of truth for contrast candidate calculations & consistency
+  const getContrastRemediation = (pin: IssuePinData) => {
+    const textColor = (pin.measured?.color as string) || (pin.measured?.textColor as string) || (pin.measured?.indicatorColor as string) || '#737373';
+    const rawBgColor = (pin.measured?.backgroundColor as string) || (pin.measured?.adjacentColor as string) || '#ffffff';
+    const isTransparent = rawBgColor === 'transparent' || rawBgColor.startsWith('rgba(0, 0, 0, 0)') || rawBgColor.startsWith('rgba(0,0,0,0)');
+    const effectiveBg = isTransparent ? '#ffffff' : rawBgColor;
+
+    const bgRgba = parseColor(effectiveBg) || { r: 255, g: 255, b: 255, a: 1 };
+    const isDarkBg = (bgRgba.r * 299 + bgRgba.g * 587 + bgRgba.b * 114) / 1000 < 128;
+    const candidateColor = isDarkBg ? '#ffffff' : '#0f172a';
+
+    let candidateRatio = 4.5;
+    try {
+      candidateRatio = calculateContrastRatioRaw(candidateColor, effectiveBg);
+    } catch {
+      candidateRatio = isDarkBg ? 16.5 : 17.85;
+    }
+
+    const hasComplexBg = Boolean(pin.measured?.hasComplexBackground);
+    const hasTransparency = Boolean(pin.measured?.hasUnresolvedTransparency) || isTransparent;
+
+    return {
+      textColor,
+      rawBgColor,
+      effectiveBg,
+      isTransparent,
+      hasComplexBg,
+      hasTransparency,
+      isCompositeOrComplex: hasComplexBg || hasTransparency,
+      candidateColor,
+      candidateRatio,
+    };
+  };
+
   const getCssFixSnippet = (pin: IssuePinData): string => {
     if (pin.ruleId === 'target-size') {
       return `/* WCAG 2.2 SC 2.5.8 Target Size (44px HIG / 24px WCAG AA) */\n${pin.selector} {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 10px 14px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n}`;
     }
     if (pin.ruleId.includes('contrast')) {
-      return `/* WCAG 2.2 SC 1.4.3 Minimum Contrast (≥ 4.5:1) */\n${pin.selector} {\n  color: #0f172a !important;\n}`;
+      const { candidateColor, candidateRatio } = getContrastRemediation(pin);
+      return `/* WCAG 2.2 SC 1.4.3 Minimum Contrast (Projected: ${candidateRatio.toFixed(2)}:1) */\n${pin.selector} {\n  color: ${candidateColor} !important;\n}`;
     }
     if (pin.ruleId.includes('text-spacing')) {
       return `/* WCAG 2.2 SC 1.4.12 Text Spacing (Fluid Container) */\n${pin.selector} {\n  height: auto !important;\n  min-height: fit-content !important;\n  overflow: visible !important;\n}`;
@@ -622,6 +658,10 @@ export function VisualCanvasOverlay({
   };
 
   const getSpecNoteSnippet = (pin: IssuePinData): string => {
+    if (pin.ruleId.includes('contrast')) {
+      const { candidateColor, candidateRatio, effectiveBg } = getContrastRemediation(pin);
+      return `[ProofUI Handoff]\nIssue: ${pin.title}\nElement: ${pin.selector}\nMeasured Ratio: ${(Number(pin.measured?.contrastRatio) || 2.32).toFixed(2)}:1\nProposed Color: ${candidateColor}\nBackground: ${effectiveBg}\nProjected Ratio: ${candidateRatio.toFixed(2)}:1\nWCAG: ${pin.wcagCriterion}`;
+    }
     return `[ProofUI Handoff]\nIssue: ${pin.title}\nElement: ${pin.selector}\nMeasured: ${Math.round(pin.boundingBox.width)}x${Math.round(pin.boundingBox.height)}px\nTarget Spec: min-width: 44px, min-height: 44px, touch-padding: 12px\nWCAG: ${pin.wcagCriterion}`;
   };
 
@@ -668,28 +708,28 @@ export function VisualCanvasOverlay({
     return pin.title.replace(/\s*\([^)]*\)$/, '');
   };
 
-  // 3-Column Deterministic Metric Cards: Measured (Actual) | Threshold (Target) | Projected (Estimate)
+  // 3-Column Deterministic Metric Cards: Measured | Required | Estimated (Short names, zero truncation)
   const renderMetricThreeColumns = (pin: IssuePinData) => {
     if (pin.ruleId.includes('contrast')) {
       const measuredRatio = Number(pin.measured?.contrastRatio) || 2.32;
       const targetRatio = Number(pin.expected?.minRatio) || 4.5;
-      const projectedRatio = '~7.10';
+      const { candidateRatio } = getContrastRemediation(pin);
 
       return (
         <div className="metric-three-columns">
           <div className="metric-cell cell-measured">
-            <span className="metric-cell-label">Measured (Actual)</span>
+            <span className="metric-cell-label">Measured</span>
             <span className="metric-cell-value">{measuredRatio.toFixed(2)}:1</span>
             <span className="metric-cell-meta">Below threshold</span>
           </div>
           <div className="metric-cell cell-threshold">
-            <span className="metric-cell-label">Threshold (Target)</span>
+            <span className="metric-cell-label">Required</span>
             <span className="metric-cell-value">≥ {targetRatio.toFixed(1)}:1</span>
             <span className="metric-cell-meta">WCAG AA spec</span>
           </div>
           <div className="metric-cell cell-projected">
-            <span className="metric-cell-label">Projected (Estimate)</span>
-            <span className="metric-cell-value">{projectedRatio}:1</span>
+            <span className="metric-cell-label">Estimated</span>
+            <span className="metric-cell-value">~{candidateRatio.toFixed(2)}:1</span>
             <span className="metric-cell-meta">Draft simulation</span>
           </div>
         </div>
@@ -703,17 +743,17 @@ export function VisualCanvasOverlay({
       return (
         <div className="metric-three-columns">
           <div className="metric-cell cell-measured">
-            <span className="metric-cell-label">Measured (Actual)</span>
+            <span className="metric-cell-label">Measured</span>
             <span className="metric-cell-value">{measuredW}×{measuredH}px</span>
             <span className="metric-cell-meta">Below minimum</span>
           </div>
           <div className="metric-cell cell-threshold">
-            <span className="metric-cell-label">Threshold (Target)</span>
+            <span className="metric-cell-label">Required</span>
             <span className="metric-cell-value">≥ 24×24px</span>
             <span className="metric-cell-meta">WCAG 2.5.8 spec</span>
           </div>
           <div className="metric-cell cell-projected">
-            <span className="metric-cell-label">Projected (Estimate)</span>
+            <span className="metric-cell-label">Estimated</span>
             <span className="metric-cell-value">44×44px</span>
             <span className="metric-cell-meta">Draft simulation</span>
           </div>
@@ -725,34 +765,38 @@ export function VisualCanvasOverlay({
     return (
       <div className="metric-three-columns">
         <div className="metric-cell cell-measured">
-          <span className="metric-cell-label">Measured (Actual)</span>
+          <span className="metric-cell-label">Measured</span>
           <span className="metric-cell-value">Fixed layout</span>
           <span className="metric-cell-meta">Clipping/overflow</span>
         </div>
         <div className="metric-cell cell-threshold">
-          <span className="metric-cell-label">Threshold (Target)</span>
+          <span className="metric-cell-label">Required</span>
           <span className="metric-cell-value">0px overflow</span>
           <span className="metric-cell-meta">Fluid reflow spec</span>
         </div>
         <div className="metric-cell cell-projected">
-          <span className="metric-cell-label">Projected (Estimate)</span>
-          <span className="metric-cell-value">Fluid (auto)</span>
+          <span className="metric-cell-label">Estimated</span>
+          <span className="metric-cell-value">Fluid auto</span>
           <span className="metric-cell-meta">Draft simulation</span>
         </div>
       </div>
     );
   };
 
-  // Stacked Before / After comparison with authentic element text and typography
+  // Stacked Before / After comparison with authentic element text, line wrapping, and dynamic background handling
   const renderVisualComparison = (pin: IssuePinData) => {
     const { text: actualText, fontSize, fontWeight, isSimulatedFont } = getElementTextAndTypography(pin);
     const elementBg = (pin.measured?.backgroundColor as string) || (pin.measured?.adjacentColor as string) || '#ffffff';
 
     if (pin.ruleId.includes('contrast')) {
-      const textColor = (pin.measured?.color as string) || (pin.measured?.textColor as string) || (pin.measured?.indicatorColor as string) || '#737373';
-      const bgColor = elementBg;
-      const minRatio = Number(pin.expected?.minRatio) || 4.5;
-      const candidateColor = '#0f172a';
+      const {
+        textColor,
+        effectiveBg,
+        candidateColor,
+        candidateRatio,
+        isTransparent,
+        isCompositeOrComplex,
+      } = getContrastRemediation(pin);
 
       return (
         <div className="comparison-stack">
@@ -767,26 +811,29 @@ export function VisualCanvasOverlay({
               )}
             </div>
             {/* Swatch box strictly preserves authentic element background without card tint bleeding */}
-            <div className="spec-visual-box box-before" style={{ backgroundColor: bgColor }}>
+            <div
+              className={`spec-visual-box box-before ${isTransparent ? 'is-transparent-bg' : ''}`}
+              style={{ backgroundColor: isTransparent ? undefined : effectiveBg }}
+            >
               <div
                 className="contrast-text-sample"
                 style={{
                   color: textColor,
-                  backgroundColor: bgColor,
+                  backgroundColor: isTransparent ? 'transparent' : effectiveBg,
                   fontSize,
                   fontWeight,
-                  padding: '6px 12px',
-                  borderRadius: '4px',
-                  maxWidth: '100%',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
                 }}
                 title={actualText}
               >
                 {actualText}
               </div>
             </div>
+            {isCompositeOrComplex && (
+              <div className="bg-limitation-pill" title="Element has non-solid or transparent background context. Preview swatch shows solid fallback.">
+                <Icon name="Info" size={11} />
+                <span>Composite/Transparent BG · Refer to live Canvas</span>
+              </div>
+            )}
             <div className="spec-details">
               <div className="spec-metric tone-danger">
                 <strong>Measured:</strong> Below WCAG AA contrast threshold
@@ -801,20 +848,17 @@ export function VisualCanvasOverlay({
               <span className="unverified-pill">Not re-audited</span>
             </div>
             {/* Swatch box strictly preserves authentic element background without card tint bleeding */}
-            <div className="spec-visual-box box-after" style={{ backgroundColor: bgColor }}>
+            <div
+              className={`spec-visual-box box-after ${isTransparent ? 'is-transparent-bg' : ''}`}
+              style={{ backgroundColor: isTransparent ? undefined : effectiveBg }}
+            >
               <div
                 className="contrast-text-sample"
                 style={{
                   color: candidateColor,
-                  backgroundColor: bgColor,
+                  backgroundColor: isTransparent ? 'transparent' : effectiveBg,
                   fontSize,
                   fontWeight,
-                  padding: '6px 12px',
-                  borderRadius: '4px',
-                  maxWidth: '100%',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
                 }}
                 title={actualText}
               >
@@ -823,7 +867,7 @@ export function VisualCanvasOverlay({
             </div>
             <div className="spec-details">
               <div className="spec-metric tone-success">
-                <strong>Recommended:</strong> Projected contrast satisfies WCAG AA (≥ {minRatio}:1)
+                <strong>Recommended:</strong> Projected contrast satisfies WCAG AA (~{candidateRatio.toFixed(2)}:1)
               </div>
             </div>
 
@@ -949,7 +993,18 @@ export function VisualCanvasOverlay({
             )}
           </div>
           <div className="spec-visual-box box-before" style={{ backgroundColor: elementBg }}>
-            <div style={{ fontSize: '11px', color: '#b42318', fontWeight: 600, padding: '0 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={actualText}>
+            <div
+              style={{
+                fontSize: '11px',
+                color: '#b42318',
+                fontWeight: 600,
+                padding: '0 10px',
+                wordBreak: 'break-word',
+                whiteSpace: 'pre-wrap',
+                lineHeight: 1.4,
+              }}
+              title={actualText}
+            >
               {actualText.length > 0 ? actualText : 'Fixed Height Overflow'}
             </div>
           </div>
@@ -966,7 +1021,18 @@ export function VisualCanvasOverlay({
             <span className="unverified-pill">Not re-audited</span>
           </div>
           <div className="spec-visual-box box-after" style={{ backgroundColor: elementBg }}>
-            <div style={{ fontSize: '11px', color: '#334155', fontWeight: 600, padding: '0 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={actualText}>
+            <div
+              style={{
+                fontSize: '11px',
+                color: '#334155',
+                fontWeight: 600,
+                padding: '0 10px',
+                wordBreak: 'break-word',
+                whiteSpace: 'pre-wrap',
+                lineHeight: 1.4,
+              }}
+              title={actualText}
+            >
               {actualText.length > 0 ? actualText : 'Fluid Height Container'}
             </div>
           </div>
@@ -1082,6 +1148,18 @@ export function VisualCanvasOverlay({
           </div>
 
           <div className="toolbar-cluster">
+            {/* Toggle Panel Button (Allows collapsing panel to expand Canvas) */}
+            <button
+              type="button"
+              className={`canvas-toggle-btn btn-toggle-panel ${isSidePanelOpen ? 'is-active' : ''}`}
+              onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
+              aria-pressed={isSidePanelOpen}
+              title={isSidePanelOpen ? 'Collapse Inspector (More room for Canvas)' : 'Open Details Inspector'}
+            >
+              <Icon name="Columns" size={14} />
+              <span>{isSidePanelOpen ? 'Hide Panel' : 'Show Panel'}</span>
+            </button>
+
             {/* Full Page Button */}
             <button
               type="button"
@@ -1323,7 +1401,7 @@ export function VisualCanvasOverlay({
               {optimizationMode === 'optimized' && (
                 <span className="optimized-live-badge">Suggested Preview (Not re-audited)</span>
               )}
-              {selectedViewport.width} × {selectedViewport.height} px
+              {selectedViewport.width} × {selectedViewport.height} px · {Math.round(effectiveScale * 100)}%
             </div>
           </div>
 
@@ -1530,100 +1608,125 @@ export function VisualCanvasOverlay({
               title="Drag to resize details panel"
             />
 
-            <div className="inspector-content">
-              {/* Stepper Header with Close button */}
-              <div className="inspector-stepper">
-                <div className="stepper-title">
-                  <span className={`inspector-pin-badge tone-${getStatusColor(activePin.status).tone}`}>
-                    Pin #{activePin.index}
-                  </span>
-                  <span className="stepper-counter">
-                    Issue {currentIndex >= 0 ? currentIndex + 1 : 1} of {visiblePins.length}
-                  </span>
+            {/* 1. Header: Fixed non-scrollable top bar */}
+            <header className="inspector-header">
+              <div className="stepper-title">
+                <span className={`inspector-pin-badge tone-${getStatusColor(activePin.status).tone}`}>
+                  Pin #{activePin.index}
+                </span>
+                <span className="stepper-counter">
+                  Issue {currentIndex >= 0 ? currentIndex + 1 : 1} of {visiblePins.length}
+                </span>
+              </div>
+              <div className="stepper-nav">
+                <button
+                  type="button"
+                  className="stepper-btn"
+                  onClick={() => handleZoomToIssue(activePin)}
+                  title="Zoom into this issue"
+                  aria-label="Zoom into issue"
+                >
+                  <Icon name="Target" size={14} />
+                </button>
+                <button
+                  type="button"
+                  className="stepper-btn"
+                  disabled={!hasPrev}
+                  onClick={() => navigatePin('prev')}
+                  aria-label="Previous issue"
+                  title="Previous issue (←)"
+                >
+                  <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(90deg)' }} />
+                </button>
+                <button
+                  type="button"
+                  className="stepper-btn"
+                  disabled={!hasNext}
+                  onClick={() => navigatePin('next')}
+                  aria-label="Next issue"
+                  title="Next issue (→)"
+                >
+                  <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(-90deg)' }} />
+                </button>
+                <button
+                  type="button"
+                  className="stepper-btn close-btn"
+                  onClick={() => setIsSidePanelOpen(false)}
+                  aria-label="Close inspector"
+                  title="Close (Esc)"
+                >
+                  <Icon name="X" size={16} />
+                </button>
+              </div>
+            </header>
+
+            {/* 2. Scrollable Body: Content scrolls freely without being blocked by footer */}
+            <div className="inspector-body-scroll">
+              {/* Short Baseline Notice (Condensed) */}
+              {optimizationMode === 'optimized' && (
+                <div className="preview-baseline-notice">
+                  <Icon name="Info" size={12} />
+                  <span>Measured values reflect Baseline.</span>
                 </div>
-                <div className="stepper-nav">
-                  <button
-                    type="button"
-                    className="stepper-btn"
-                    onClick={() => handleZoomToIssue(activePin)}
-                    title="Zoom into this issue"
-                    aria-label="Zoom into issue"
-                  >
-                    <Icon name="Target" size={14} />
-                  </button>
-                  <button
-                    type="button"
-                    className="stepper-btn"
-                    disabled={!hasPrev}
-                    onClick={() => navigatePin('prev')}
-                    aria-label="Previous issue"
-                    title="Previous issue (←)"
-                  >
-                    <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(90deg)' }} />
-                  </button>
-                  <button
-                    type="button"
-                    className="stepper-btn"
-                    disabled={!hasNext}
-                    onClick={() => navigatePin('next')}
-                    aria-label="Next issue"
-                    title="Next issue (→)"
-                  >
-                    <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(-90deg)' }} />
-                  </button>
-                  <button
-                    type="button"
-                    className="stepper-btn close-btn"
-                    onClick={() => setIsSidePanelOpen(false)}
-                    aria-label="Close inspector"
-                    title="Close (Esc)"
-                  >
-                    <Icon name="X" size={16} />
-                  </button>
-                </div>
+              )}
+
+              {/* Title & Key Facts */}
+              <div className="summary-headline-row">
+                <h3 id="popup-issue-title" className="summary-rule-title">
+                  {getCleanRuleTitle(activePin)}
+                </h3>
               </div>
 
-              {/* 1. Problem & Key Facts on Top (Concise) */}
-              <div className="inspector-summary-banner">
-                {optimizationMode === 'optimized' && (
-                  <div className="preview-baseline-notice">
-                    <Icon name="Info" size={13} />
-                    <span>Panel shows Baseline measurements. Suggested preview is visual-only and not re-audited.</span>
+              <div className="inspector-meta-row">
+                <span className={`inspector-status-tag tone-${getStatusColor(activePin.status).tone}`}>
+                  {getStatusColor(activePin.status).label}
+                </span>
+                <span className="inspector-priority-tag">
+                  {activePin.priority} Priority
+                </span>
+                <span className="inspector-wcag-tag">
+                  {activePin.wcagCriterion}
+                </span>
+              </div>
+
+              {/* 3-Column Metric Display: Measured | Required | Estimated */}
+              {renderMetricThreeColumns(activePin)}
+
+              {/* EVIDENCE FIRST: Visual Before vs After Simulation Cards */}
+              <div className="inspector-visual-comparison">
+                <div className="comparison-header">
+                  <span className="comparison-eyebrow">Visual Spec Comparison</span>
+                </div>
+
+                {renderVisualComparison(activePin)}
+
+                {/* AI / Remediator recommendation */}
+                {(activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation) && (
+                  <div className="inspector-ai-rec-box">
+                    <div className="ai-rec-badge">
+                      <Icon name="Sparkles" size={13} />
+                      <span>Remediation Guidance</span>
+                    </div>
+                    <p className="ai-rec-text">
+                      {activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation}
+                    </p>
                   </div>
                 )}
+              </div>
 
-                <div className="summary-headline-row">
-                  <h3 id="popup-issue-title" className="summary-rule-title">
-                    {getCleanRuleTitle(activePin)}
-                  </h3>
-                </div>
+              {/* TRIAGE AFTER EVIDENCE: Confirm | Dismiss | Leave for Review */}
+              {(() => {
+                const effectiveDisposition =
+                  activePin.groupedIssue.reviewDisposition ||
+                  (activePin.groupedIssue.designerDecision === 'accept'
+                    ? 'confirmed_issue'
+                    : activePin.groupedIssue.designerDecision === 'reject'
+                    ? 'false_positive'
+                    : 'needs_review');
 
-                <div className="inspector-meta-row">
-                  <span className={`inspector-status-tag tone-${getStatusColor(activePin.status).tone}`}>
-                    {getStatusColor(activePin.status).label}
-                  </span>
-                  <span className="inspector-priority-tag">
-                    {activePin.priority} Priority
-                  </span>
-                  <span className="inspector-wcag-tag">
-                    {activePin.wcagCriterion}
-                  </span>
-                </div>
-
-                {/* 3-Column Metric Display: Measured (Actual) | Threshold (Target) | Projected (Estimate) */}
-                {renderMetricThreeColumns(activePin)}
-
-                {/* Quick Issue Disposition right under problem facts: Confirm | Dismiss | Leave for Review */}
-                {(() => {
-                  const effectiveDisposition =
-                    activePin.groupedIssue.reviewDisposition ||
-                    (activePin.groupedIssue.designerDecision === 'accept'
-                      ? 'confirmed_issue'
-                      : activePin.groupedIssue.designerDecision === 'reject'
-                      ? 'false_positive'
-                      : 'needs_review');
-
-                  return (
+                return (
+                  <div className="inspector-triage-section">
+                    <span className="triage-section-label">Issue Triage Decision</span>
                     <div className="inspector-disposition-row">
                       <button
                         type="button"
@@ -1656,67 +1759,45 @@ export function VisualCanvasOverlay({
                         <span>Leave for Review</span>
                       </button>
                     </div>
-                  );
-                })()}
+                  </div>
+                );
+              })()}
 
-                {/* Collapsible Selector, RGB Colors & Technical Details */}
-                <details className="inspector-collapsible-meta">
-                  <summary>Technical Details & Element Selector</summary>
-                  <div className="collapsible-content">
+              {/* Collapsible Selector, RGB Colors & Technical Details */}
+              <details className="inspector-collapsible-meta">
+                <summary>Technical Details & Element Selector</summary>
+                <div className="collapsible-content">
+                  <div className="tech-meta-item">
+                    <span className="tech-meta-label">Selector:</span>
+                    <code>{activePin.selector}</code>
+                  </div>
+                  {activePin.ruleId.includes('contrast') && (
                     <div className="tech-meta-item">
-                      <span className="tech-meta-label">Selector:</span>
-                      <code>{activePin.selector}</code>
-                    </div>
-                    {activePin.ruleId.includes('contrast') && (
-                      <div className="tech-meta-item">
-                        <span className="tech-meta-label">Colors:</span>
-                        <span>
-                          Text: <code>{(activePin.measured?.color as string) || (activePin.measured?.textColor as string) || '#737373'}</code>
-                          {' · '}
-                          Background: <code>{(activePin.measured?.backgroundColor as string) || (activePin.measured?.adjacentColor as string) || '#ffffff'}</code>
-                        </span>
-                      </div>
-                    )}
-                    <div className="tech-meta-item">
-                      <span className="tech-meta-label">Typography:</span>
+                      <span className="tech-meta-label">Colors:</span>
                       <span>
-                        {Boolean(activePin.measured?.fontSizePx) ? (
-                          `${Number(activePin.measured?.fontSizePx)}px (weight: ${String(activePin.measured?.fontWeight || 'normal')})`
-                        ) : (
-                          <>
-                            <span>14px (weight: 500)</span>
-                            <span className="simulated-font-badge" title="Font size was not deterministically measured in DOM; rendered at standard 14px size">
-                              [Simulated typography]
-                            </span>
-                          </>
-                        )}
+                        Text: <code>{(activePin.measured?.color as string) || (activePin.measured?.textColor as string) || '#737373'}</code>
+                        {' · '}
+                        Background: <code>{(activePin.measured?.backgroundColor as string) || (activePin.measured?.adjacentColor as string) || '#ffffff'}</code>
                       </span>
                     </div>
+                  )}
+                  <div className="tech-meta-item">
+                    <span className="tech-meta-label">Typography:</span>
+                    <span>
+                      {Boolean(activePin.measured?.fontSizePx) ? (
+                        `${Number(activePin.measured?.fontSizePx)}px (weight: ${String(activePin.measured?.fontWeight || 'normal')})`
+                      ) : (
+                        <>
+                          <span>14px (weight: 500)</span>
+                          <span className="simulated-font-badge" title="Font size was not deterministically measured in DOM; rendered at standard 14px size">
+                            [Simulated typography]
+                          </span>
+                        </>
+                      )}
+                    </span>
                   </div>
-                </details>
-              </div>
-
-              {/* 2 & 3. Visual Before vs After Simulation Cards (Stacked Vertically, Neutral Slate for Suggested) */}
-              <div className="inspector-visual-comparison">
-                <div className="comparison-header">
-                  <span className="comparison-eyebrow">Visual Spec Comparison</span>
                 </div>
-
-                {renderVisualComparison(activePin)}
-
-                {/* AI / Remediator recommendation */}
-                {(activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation) && (
-                  <div className="inspector-ai-rec-box">
-                    <div className="ai-rec-badge">
-                      <Icon name="Sparkles" size={13} />
-                      <span>Remediation Guidance</span>
-                    </div>
-                    <p className="ai-rec-text">
-                      {activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation}
-                    </p>
-                  </div>
-                )}
-              </div>
+              </details>
 
               {/* Action feedback message */}
               {actionFeedback && (
@@ -1725,30 +1806,30 @@ export function VisualCanvasOverlay({
                   <span>{actionFeedback}</span>
                 </div>
               )}
-
-              {/* 4. Fluid Sticky Actions Footer: Content-driven height, wrapping, scroll padding offset */}
-              <div className="inspector-actions-footer">
-                <button
-                  type="button"
-                  className="action-btn btn-accept"
-                  disabled={isSavingDecision}
-                  onClick={handleAcceptFixIntoSpec}
-                  title="Accept proposed remediation fix into design spec. Status remains unverified until re-audited in Sandbox."
-                >
-                  <Icon name="Check" size={14} />
-                  <span>Accept Fix into Spec</span>
-                </button>
-                <button
-                  type="button"
-                  className="action-btn btn-sandbox-fix"
-                  onClick={() => handleOpenInSandbox(activePin)}
-                  title="Open in Sandbox editor to experiment and run automated re-audit verification"
-                >
-                  <Icon name="Sparkles" size={14} />
-                  <span>Sandbox & Re-audit →</span>
-                </button>
-              </div>
             </div>
+
+            {/* 3. Footer: Fixed solid block outside the scroll area, NEVER overlaying content */}
+            <footer className="inspector-actions-footer">
+              <button
+                type="button"
+                className="action-btn btn-accept"
+                disabled={isSavingDecision}
+                onClick={handleAcceptFixIntoSpec}
+                title="Accept proposed remediation fix into design spec. Status remains unverified until re-audited in Sandbox."
+              >
+                <Icon name="Check" size={14} />
+                <span>Accept Fix into Spec</span>
+              </button>
+              <button
+                type="button"
+                className="action-btn btn-sandbox-fix"
+                onClick={() => handleOpenInSandbox(activePin)}
+                title="Open in Sandbox editor to experiment and run automated re-audit verification"
+              >
+                <Icon name="Sparkles" size={14} />
+                <span>Sandbox & Re-audit →</span>
+              </button>
+            </footer>
           </aside>
         )}
       </div>
