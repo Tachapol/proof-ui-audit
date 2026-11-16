@@ -75,7 +75,7 @@ test.describe('Visual Canvas Overlay Feature', () => {
     await expect(inspector).not.toBeVisible();
 
     // Re-open by clicking a pin again
-    await firstPin.click({ force: true });
+    await firstPin.click();
     await expect(inspector).toBeVisible();
 
     // 8. Test Full Page Canvas toggle

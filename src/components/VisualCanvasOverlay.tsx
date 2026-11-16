@@ -66,7 +66,7 @@ export function VisualCanvasOverlay({
   });
 
   useEffect(() => {
-    if (selectedViewport.width === 320 || !viewports.some((v) => v.width === selectedViewport.width)) {
+    if (!viewports.some((v) => v.width === selectedViewport.width)) {
       const desktopVp = viewports.find((v) => v.width >= 1024) || viewports[0];
       if (desktopVp) {
         setSelectedViewport(desktopVp);
@@ -87,13 +87,13 @@ export function VisualCanvasOverlay({
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
   const viewMenuRef = useRef<HTMLDivElement>(null);
 
-  // Floating Details Panel states (Elevated Card with Drag-to-Resize)
+  // Side-by-Side 2-Column Inspector Drawer states (360-420px resizable)
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
-  const [panelWidth, setPanelWidth] = useState(330);
+  const [panelWidth, setPanelWidth] = useState(380);
   const [isResizing, setIsResizing] = useState(false);
   const resizeStartXRef = useRef(0);
-  const resizeStartWidthRef = useRef(330);
+  const resizeStartWidthRef = useRef(380);
 
   // Backward-compatible alias for existing tests
   const isPopupOpen = isSidePanelOpen;
@@ -358,7 +358,7 @@ export function VisualCanvasOverlay({
       if (ro) ro.disconnect();
       window.removeEventListener('resize', updateFitScale);
     };
-  }, [selectedViewport.width, isFullScreen]);
+  }, [selectedViewport.width, isFullScreen, panelWidth, isSidePanelOpen]);
 
   // Keyboard shortcut listener for Esc and outside click listener for View menu
   useEffect(() => {
@@ -390,7 +390,7 @@ export function VisualCanvasOverlay({
     };
   }, [isViewMenuOpen, isSidePanelOpen, showImpactDrawer, isFullScreen]);
 
-  // Resizable floating panel mouse drag handlers
+  // Resizable drawer drag handlers
   const handleStartResize = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
@@ -403,7 +403,7 @@ export function VisualCanvasOverlay({
 
     const handleMouseMove = (e: MouseEvent) => {
       const delta = resizeStartXRef.current - e.clientX;
-      const nextWidth = Math.max(280, Math.min(500, resizeStartWidthRef.current + delta));
+      const nextWidth = Math.max(320, Math.min(540, resizeStartWidthRef.current + delta));
       setPanelWidth(nextWidth);
     };
 
@@ -421,7 +421,7 @@ export function VisualCanvasOverlay({
 
   const effectiveScale = zoomScale === 'fit' ? fitScale : zoomScale;
 
-  // Zoom to active issue bounding box without changing audited viewport
+  // Zoom into active issue bounding box without changing audited viewport
   const handleZoomToIssue = useCallback((pinToZoom?: IssuePinData) => {
     const pin = pinToZoom || activePin;
     if (!pin || !scrollContainerRef.current) return;
@@ -446,13 +446,44 @@ export function VisualCanvasOverlay({
     }, 60);
   }, [activePin]);
 
-  // Handle Pin Selection and Opening Floating Panel
+  // Handle Pin Selection and Opening Side Panel
   const handlePinClick = (pin: IssuePinData) => {
     onSelectIssue(pin.fingerprint);
     setIsSidePanelOpen(true);
   };
 
-  // Handle Quick Decision with explicit labels
+  // Step 1: Confirm Issue into Backlog
+  const handleConfirmIssue = async () => {
+    if (!activePin || isSavingDecision) return;
+    setIsSavingDecision(true);
+    setActionFeedback(null);
+
+    try {
+      const res = await fetch('/api/decisions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          runId: currentRun.id,
+          fingerprint: activePin.fingerprint,
+          decision: 'reprioritize',
+          reason: 'Confirmed as verified issue for backlog remediation',
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Failed to confirm');
+
+      setActionFeedback('Confirmed as verified issue (queued for backlog)');
+      if (onDecisionSaved) onDecisionSaved(data.updatedGroup);
+      setTimeout(() => setActionFeedback(null), 3500);
+    } catch (err: unknown) {
+      setActionFeedback(err instanceof Error ? err.message : 'Failed to confirm');
+    } finally {
+      setIsSavingDecision(false);
+    }
+  };
+
+  // Step 2: Accept Fix or Dismiss
   const handleQuickDecision = async (decision: DesignerDecision) => {
     if (!activePin || isSavingDecision) return;
     setIsSavingDecision(true);
@@ -520,7 +551,6 @@ export function VisualCanvasOverlay({
     window.location.href = '/sandbox?from=canvas';
   };
 
-  // Generate CSS snippet for quick copy
   const getCssFixSnippet = (pin: IssuePinData): string => {
     if (pin.ruleId === 'target-size') {
       return `/* WCAG 2.2 SC 2.5.8 Target Size (44px HIG / 24px WCAG AA) */\n${pin.selector} {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 10px 14px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n}`;
@@ -534,6 +564,11 @@ export function VisualCanvasOverlay({
     return `/* WCAG Responsive Remediation */\n${pin.selector} {\n  max-width: 100% !important;\n}`;
   };
 
+  const getSpecNoteSnippet = (pin: IssuePinData): string => {
+    return `[ProofUI Handoff]\nIssue: ${pin.title}\nElement: ${pin.selector}\nMeasured: ${Math.round(pin.boundingBox.width)}x${Math.round(pin.boundingBox.height)}px\nTarget Spec: min-width: 44px, min-height: 44px, touch-padding: 12px\nWCAG: ${pin.wcagCriterion}`;
+  };
+
+  // Stacked Before / After comparison with identical sample text and neutral slate styling
   const renderVisualComparison = (pin: IssuePinData) => {
     if (pin.ruleId.includes('contrast')) {
       const measuredRatio = typeof pin.measured?.contrastRatio === 'number' ? pin.measured.contrastRatio : (Number(pin.measured?.contrastRatio) || 2.32);
@@ -542,39 +577,43 @@ export function VisualCanvasOverlay({
       const minRatio = Number(pin.expected?.minRatio) || 4.5;
       const candidateColor = '#0f172a';
       const candidateRatio = '16.5:1';
+      const sampleText = 'Aa Sample Text (Heading)';
 
       return (
-        <div className="comparison-grid">
+        <div className="comparison-stack">
           {/* Before (Current baseline) */}
           <div className="comparison-card card-before">
-            <div className="card-badge badge-before">Baseline (Current)</div>
+            <div className="flex items-center justify-between">
+              <div className="card-badge badge-before">Baseline (Current)</div>
+              <span className="text-[10px] text-rose-700 font-semibold">{measuredRatio.toFixed(2)}:1 Ratio</span>
+            </div>
             <div className="spec-visual-box box-before" style={{ backgroundColor: bgColor }}>
               <div
                 className="contrast-text-sample"
                 style={{
                   color: textColor,
                   backgroundColor: bgColor,
-                  fontSize: '15px',
+                  fontSize: '14px',
                   fontWeight: 650,
-                  padding: '8px 14px',
+                  padding: '6px 12px',
                   borderRadius: '4px',
                 }}
               >
-                Aa Sample Text
+                {sampleText}
               </div>
             </div>
             <div className="spec-details">
               <div className="spec-metric tone-danger">
-                <strong>Measured:</strong> {measuredRatio.toFixed(2)}:1 Ratio
+                <strong>Measured:</strong> {measuredRatio.toFixed(2)}:1 (Fails SC 1.4.3, requires ≥ {minRatio}:1)
               </div>
               <p className="spec-note">
-                Fails SC 1.4.3 (requires ≥ {minRatio}:1). Text color <code>{textColor}</code> has low luminance.
+                Color <code>{textColor}</code> against <code>{bgColor}</code> lacks required contrast.
               </p>
             </div>
           </div>
 
-          {/* After (Suggested preview - Unverified) */}
-          <div className="comparison-card card-after">
+          {/* After (Suggested preview - Neutral slate styling, NOT green) */}
+          <div className="comparison-card card-after card-suggested">
             <div className="flex items-center justify-between">
               <div className="card-badge badge-after">Suggested Fix (Preview)</div>
               <span className="unverified-pill">Not re-audited</span>
@@ -585,13 +624,13 @@ export function VisualCanvasOverlay({
                 style={{
                   color: candidateColor,
                   backgroundColor: bgColor,
-                  fontSize: '15px',
+                  fontSize: '14px',
                   fontWeight: 650,
-                  padding: '8px 14px',
+                  padding: '6px 12px',
                   borderRadius: '4px',
                 }}
               >
-                Aa Sample Text
+                {sampleText}
               </div>
             </div>
             <div className="spec-details">
@@ -612,10 +651,13 @@ export function VisualCanvasOverlay({
       const measuredHeight = Math.round(Number(pin.measured?.height) || pin.boundingBox.height || 18);
 
       return (
-        <div className="comparison-grid">
+        <div className="comparison-stack">
           {/* Before (Current baseline) */}
           <div className="comparison-card card-before">
-            <div className="card-badge badge-before">Baseline (Current)</div>
+            <div className="flex items-center justify-between">
+              <div className="card-badge badge-before">Baseline (Current)</div>
+              <span className="text-[10px] text-rose-700 font-semibold">{measuredWidth}×{measuredHeight}px</span>
+            </div>
             <div className="spec-visual-box box-before">
               <div
                 className="measured-box-mock"
@@ -629,16 +671,13 @@ export function VisualCanvasOverlay({
             </div>
             <div className="spec-details">
               <div className="spec-metric tone-danger">
-                <strong>Measured:</strong> {measuredWidth}×{measuredHeight}px
+                <strong>Measured:</strong> {measuredWidth}×{measuredHeight}px (Fails SC 2.5.8, requires ≥ 24×24px)
               </div>
-              <p className="spec-note">
-                Fails WCAG 2.2 SC 2.5.8 (requires 24×24px minimum touch area).
-              </p>
             </div>
           </div>
 
-          {/* After (Suggested preview - Unverified) */}
-          <div className="comparison-card card-after">
+          {/* After (Suggested preview - Neutral styling) */}
+          <div className="comparison-card card-after card-suggested">
             <div className="flex items-center justify-between">
               <div className="card-badge badge-after">Suggested Fix (Preview)</div>
               <span className="unverified-pill">Not re-audited</span>
@@ -670,7 +709,7 @@ export function VisualCanvasOverlay({
 
     // Default / Text spacing / Reflow
     return (
-      <div className="comparison-grid">
+      <div className="comparison-stack">
         <div className="comparison-card card-before">
           <div className="card-badge badge-before">Baseline (Current)</div>
           <div className="spec-visual-box box-before">
@@ -686,13 +725,13 @@ export function VisualCanvasOverlay({
           </div>
         </div>
 
-        <div className="comparison-card card-after">
+        <div className="comparison-card card-after card-suggested">
           <div className="flex items-center justify-between">
             <div className="card-badge badge-after">Suggested Fix (Preview)</div>
             <span className="unverified-pill">Not re-audited</span>
           </div>
           <div className="spec-visual-box box-after">
-            <div style={{ fontSize: '11px', color: '#067647', fontWeight: 600 }}>
+            <div style={{ fontSize: '11px', color: '#334155', fontWeight: 600 }}>
               Fluid Height Container
             </div>
           </div>
@@ -730,7 +769,6 @@ export function VisualCanvasOverlay({
     }
   };
 
-  // Status visual attributes
   const getStatusColor = (status: 'pass' | 'candidateFail' | 'needsReview') => {
     switch (status) {
       case 'candidateFail':
@@ -753,7 +791,7 @@ export function VisualCanvasOverlay({
     >
       {/* Compact 2-Row Toolbar */}
       <div className="visual-canvas-toolbar">
-        {/* Row 1: Primary Navigation & Status */}
+        {/* Row 1: Primary Title + Viewport Selector + Full Page */}
         <div className="toolbar-row">
           <div className="toolbar-cluster">
             <span className="canvas-badge">
@@ -790,29 +828,6 @@ export function VisualCanvasOverlay({
           </div>
 
           <div className="toolbar-cluster">
-            {/* Suggested Preview vs Baseline Switcher */}
-            <div className="canvas-optimization-control" role="group" aria-label="Design iteration comparison">
-              <button
-                type="button"
-                className={`mode-btn ${optimizationMode === 'baseline' ? 'is-active' : ''}`}
-                onClick={() => setOptimizationMode('baseline')}
-                aria-pressed={optimizationMode === 'baseline'}
-              >
-                Baseline
-              </button>
-              <button
-                type="button"
-                className={`mode-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
-                onClick={() => setOptimizationMode('optimized')}
-                aria-pressed={optimizationMode === 'optimized'}
-                title="Suggested preview of proposed fixes (Unverified · Not re-audited)"
-              >
-                <Icon name="Sparkles" size={13} />
-                <span>Suggested Preview</span>
-                <span className="mode-sub-badge">Not re-audited</span>
-              </button>
-            </div>
-
             {/* Full Page Button */}
             <button
               type="button"
@@ -827,7 +842,7 @@ export function VisualCanvasOverlay({
           </div>
         </div>
 
-        {/* Row 2: Filters, Zoom, and View Options Menu */}
+        {/* Row 2: Status Filters + Baseline/Suggested Preview + Zoom + View Menu */}
         <div className="toolbar-row">
           <div className="toolbar-cluster">
             {/* Issue Filter Pills */}
@@ -858,6 +873,29 @@ export function VisualCanvasOverlay({
                   <span>Review ({reviewCount})</span>
                 </button>
               )}
+            </div>
+
+            {/* Baseline vs Suggested Preview Switcher (Single place on Toolbar) */}
+            <div className="canvas-optimization-control" role="group" aria-label="Design iteration comparison">
+              <button
+                type="button"
+                className={`mode-btn ${optimizationMode === 'baseline' ? 'is-active' : ''}`}
+                onClick={() => setOptimizationMode('baseline')}
+                aria-pressed={optimizationMode === 'baseline'}
+              >
+                Baseline
+              </button>
+              <button
+                type="button"
+                className={`mode-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
+                onClick={() => setOptimizationMode('optimized')}
+                aria-pressed={optimizationMode === 'optimized'}
+                title="Suggested preview of proposed fixes (Unverified · Not re-audited)"
+              >
+                <Icon name="Sparkles" size={13} />
+                <span>Suggested Preview</span>
+                <span className="mode-sub-badge">Not re-audited</span>
+              </button>
             </div>
           </div>
 
@@ -903,7 +941,7 @@ export function VisualCanvasOverlay({
                 title="View options and overlay display toggles"
               >
                 <Icon name="Sliders" size={14} />
-                <span>View</span>
+                <span>View Options</span>
                 <Icon name="ChevronDown" size={12} className={isViewMenuOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
               </button>
 
@@ -967,7 +1005,6 @@ export function VisualCanvasOverlay({
             </button>
           </div>
 
-          {/* Metric Toggles */}
           <div className="metric-toggle-pills">
             <label className={`metric-toggle-label ${activeMetrics.targetSize ? 'is-checked' : ''}`}>
               <input
@@ -1008,33 +1045,12 @@ export function VisualCanvasOverlay({
               <span>Fluid Containers: Text Spacing Adaptation</span>
             </label>
           </div>
-
-          {/* Research Findings & Impact Scorecard */}
-          <div className="impact-scorecard-grid">
-            <div className="scorecard-tile">
-              <div className="scorecard-metric">Target Size Impact</div>
-              <div className="scorecard-delta tone-success">+45% Touch Area</div>
-              <p className="scorecard-note">100% compliant with Apple HIG touch targets. Container height +8px headroom.</p>
-            </div>
-
-            <div className="scorecard-tile">
-              <div className="scorecard-metric">Color Contrast Impact</div>
-              <div className="scorecard-delta tone-success">2.8:1 &rarr; 12.5:1</div>
-              <p className="scorecard-note">Passes WCAG AAA. Text luminance adjusted while preserving brand palette harmony.</p>
-            </div>
-
-            <div className="scorecard-tile">
-              <div className="scorecard-metric">Layout Adaptation</div>
-              <div className="scorecard-delta tone-success">100% Fluid Text Flow</div>
-              <p className="scorecard-note">No text clipping or truncation under expanded line heights and letter spacing.</p>
-            </div>
-          </div>
         </div>
       )}
 
-      {/* Main Workspace Layout */}
+      {/* Main 2-Column Split Workspace (Both Normal & Full Page modes) */}
       <div className="visual-canvas-workspace">
-        {/* Canvas Stage */}
+        {/* Left Column: Canvas Stage */}
         <div className="canvas-stage-wrapper" ref={stageRef}>
           {/* Mock Browser Shell Bar */}
           <div className="mock-browser-bar">
@@ -1057,7 +1073,7 @@ export function VisualCanvasOverlay({
             </div>
           </div>
 
-          {/* Viewport Frame with Zoom Scaling & Outside Left Gutter for Pins */}
+          {/* Viewport Frame with Outside Left Gutter for Pins */}
           <div className="canvas-scroll-container" ref={scrollContainerRef}>
             <div
               className="canvas-scaled-frame"
@@ -1075,10 +1091,10 @@ export function VisualCanvasOverlay({
                   transformOrigin: 'top left',
                 }}
               >
-                {/* Dedicated Left Rail / Gutter (Outside the UI page, so pins NEVER cover headers or text) */}
+                {/* Left Gutter Rail: Keeps pins completely outside page content */}
                 <div className="canvas-left-gutter" aria-hidden="true" />
 
-                {/* Live Page Iframe (Shifted by LEFT_GUTTER so the UI begins at x = LEFT_GUTTER) */}
+                {/* Page Iframe */}
                 <iframe
                   ref={iframeRef}
                   title="Audit Page Live Render"
@@ -1096,10 +1112,10 @@ export function VisualCanvasOverlay({
                   aria-hidden="true"
                 />
 
-                {/* Visual Pins, Leader Lines, and Bounding Box Overlay Layer */}
+                {/* Overlay with Leader Lines and Bounding Boxes */}
                 {showOverlays && (
                   <div className="canvas-interactive-overlay" aria-label="Visual Issue Overlay">
-                    {/* SVG Connector Lines from Gutter Pins across to Target Elements */}
+                    {/* SVG Connector Lines from Gutter Pins across to Elements */}
                     <svg
                       className="canvas-pin-connectors"
                       style={{
@@ -1121,13 +1137,11 @@ export function VisualCanvasOverlay({
                         const isSelected = activePin?.fingerprint === pin.fingerprint;
                         const isHovered = hoveredFingerprint === pin.fingerprint;
                         const isHighlighted = isSelected || isHovered;
-                        const isResolvedByOptimization = optimizationMode === 'optimized' && pin.status === 'candidateFail';
                         const colors = getStatusColor(pin.status);
-                        const strokeColor = isResolvedByOptimization ? '#067647' : isHighlighted ? '#2563eb' : colors.bg;
+                        const strokeColor = isHighlighted ? '#2563eb' : colors.bg;
 
                         return (
                           <g key={`connector-${pin.fingerprint}`}>
-                            {/* Crisp horizontal leader line from left gutter to element edge */}
                             <line
                               x1={pin.pinCenterX}
                               y1={pin.pinCenterY}
@@ -1138,7 +1152,6 @@ export function VisualCanvasOverlay({
                               strokeDasharray={isHighlighted ? undefined : '3 2'}
                               filter="url(#pin-line-shadow)"
                             />
-                            {/* Anchor dot right at the element border */}
                             <circle
                               cx={pin.targetX}
                               cy={pin.targetY}
@@ -1155,28 +1168,22 @@ export function VisualCanvasOverlay({
                     {visiblePins.map((pin) => {
                       const isSelected = activePin?.fingerprint === pin.fingerprint;
                       const isHovered = hoveredFingerprint === pin.fingerprint;
-                      const isHighlighted = isSelected || isHovered;
-                      const isBoxVisible = boxDisplayMode === 'all' || isHighlighted;
+                      const isBoxVisible = boxDisplayMode === 'all' || isSelected || isHovered;
                       const colors = getStatusColor(pin.status);
                       const box = pin.boundingBox;
-                      const isResolvedByOptimization = optimizationMode === 'optimized' && pin.status === 'candidateFail';
 
                       return (
                         <React.Fragment key={pin.fingerprint}>
-                          {/* Bounding Box Highlight - Completely transparent, offset by LEFT_GUTTER */}
+                          {/* Bounding Box Highlight - Transparent background, offset by LEFT_GUTTER */}
                           {isBoxVisible && (
                             <div
-                              className={`canvas-bounding-box ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''} ${isResolvedByOptimization ? 'tone-success is-optimized-box' : `tone-${colors.tone}`}`}
+                              className={`canvas-bounding-box ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''} tone-${colors.tone}`}
                               style={{
                                 left: `${LEFT_GUTTER + box.x}px`,
                                 top: `${box.y}px`,
                                 width: `${box.width}px`,
                                 height: `${box.height}px`,
-                                borderColor: isResolvedByOptimization
-                                  ? '#12b76a'
-                                  : isHighlighted
-                                  ? undefined
-                                  : colors.border,
+                                borderColor: isSelected || isHovered ? undefined : colors.border,
                                 background: 'transparent',
                               }}
                               onClick={() => handlePinClick(pin)}
@@ -1184,48 +1191,38 @@ export function VisualCanvasOverlay({
                               onMouseLeave={() => setHoveredFingerprint(null)}
                               title={`Pin ${pin.index}: ${pin.title} (${Math.round(box.width)}×${Math.round(box.height)}px)`}
                             >
-                              {/* Tooltip Badge: ONLY rendered on hover or selection */}
-                              {isHighlighted && (
+                              {/* Dimension Badge: ONLY shown on hover to prevent permanently obscuring headers */}
+                              {isHovered && (
                                 <div
                                   className="bounding-box-badge"
                                   style={{
                                     position: 'absolute',
                                     bottom: 'calc(100% + 4px)',
                                     left: 0,
-                                    background: isResolvedByOptimization ? '#067647' : colors.bg,
+                                    background: colors.bg,
                                   }}
                                 >
-                                  {isResolvedByOptimization
-                                    ? (pin.ruleId.includes('contrast')
-                                        ? 'Suggested: ≥ 4.5:1'
-                                        : pin.ruleId === 'target-size'
-                                        ? 'Suggested: 24×24px'
-                                        : 'Suggested: Fluid')
-                                    : `#${pin.index}: ${Math.round(box.width)}×${Math.round(box.height)}px`}
+                                  <span>#{pin.index}: {Math.round(box.width)}×{Math.round(box.height)}px</span>
                                 </div>
                               )}
                             </div>
                           )}
 
-                          {/* Numbered Pin Badge placed in the LEFT GUTTER OUTSIDE the UI */}
+                          {/* Pin Button in the Left Gutter */}
                           <button
                             type="button"
-                            className={`canvas-pin-marker ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''} ${isResolvedByOptimization ? 'tone-success is-optimized-pin' : `tone-${colors.tone}`}`}
+                            className={`canvas-pin-marker ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''} tone-${colors.tone}`}
                             style={{
                               left: `${pin.pinX}px`,
                               top: `${pin.pinY}px`,
-                              backgroundColor: isResolvedByOptimization ? '#067647' : colors.bg,
+                              backgroundColor: colors.bg,
                             }}
                             onClick={() => handlePinClick(pin)}
                             onMouseEnter={() => setHoveredFingerprint(pin.fingerprint)}
                             onMouseLeave={() => setHoveredFingerprint(null)}
                             aria-label={`Pin ${pin.index}: ${pin.title}`}
                           >
-                            {isResolvedByOptimization ? (
-                              <Icon name="Check" size={12} color="#ffffff" />
-                            ) : (
-                              <span className="pin-number">{pin.index}</span>
-                            )}
+                            <span className="pin-number">{pin.index}</span>
                           </button>
                         </React.Fragment>
                       );
@@ -1236,7 +1233,7 @@ export function VisualCanvasOverlay({
             </div>
           </div>
 
-          {/* Page-level issues notice (if any) */}
+          {/* Page-level issues notice */}
           {pageLevelIssues.length > 0 && (
             <div className="canvas-global-notice">
               <span className="notice-icon">
@@ -1265,10 +1262,10 @@ export function VisualCanvasOverlay({
           )}
         </div>
 
-        {/* Floating Elevated Inspector Panel (Nice shadow, rounded corners, resizable, NO backdrop) */}
+        {/* Right Column: Real 2-Column Details Inspector Drawer (360-420px Resizable) */}
         {isSidePanelOpen && activePin && (
           <aside
-            className="canvas-floating-inspector canvas-inspector-drawer"
+            className="canvas-inspector-drawer"
             style={{ width: `${panelWidth}px` }}
             aria-label="Issue Inspector"
           >
@@ -1280,7 +1277,7 @@ export function VisualCanvasOverlay({
             />
 
             <div className="inspector-content">
-              {/* Stepper Header with Zoom to Issue and Close buttons */}
+              {/* Stepper Header with Close button */}
               <div className="inspector-stepper">
                 <div className="stepper-title">
                   <span className={`inspector-pin-badge tone-${getStatusColor(activePin.status).tone}`}>
@@ -1332,9 +1329,19 @@ export function VisualCanvasOverlay({
                 </div>
               </div>
 
-              {/* Title & Rule */}
-              <div className="inspector-header">
-                <h3 id="popup-issue-title" className="inspector-title">{activePin.title}</h3>
+              {/* 1. Problem & Key Facts on Top (Concise) */}
+              <div className="inspector-summary-banner">
+                <div className="summary-headline-row">
+                  <h3 id="popup-issue-title" className="summary-rule-title">{activePin.title}</h3>
+                  <span className="summary-ratio-pill">
+                    {activePin.ruleId.includes('contrast')
+                      ? `${typeof activePin.measured?.contrastRatio === 'number' ? activePin.measured.contrastRatio.toFixed(2) : (Number(activePin.measured?.contrastRatio) || 2.32)}:1 → Req ≥ ${Number(activePin.expected?.minRatio) || 4.5}:1`
+                      : activePin.ruleId === 'target-size'
+                      ? `${Math.round(Number(activePin.measured?.width) || activePin.boundingBox.width)}×${Math.round(Number(activePin.measured?.height) || activePin.boundingBox.height)}px → Req ≥ 24×24px`
+                      : 'Layout Reflow Issue'}
+                  </span>
+                </div>
+
                 <div className="inspector-meta-row">
                   <span className={`inspector-status-tag tone-${getStatusColor(activePin.status).tone}`}>
                     {getStatusColor(activePin.status).label}
@@ -1346,12 +1353,17 @@ export function VisualCanvasOverlay({
                     {activePin.wcagCriterion}
                   </span>
                 </div>
-                <div className="inspector-selector-row">
-                  <code>{activePin.selector}</code>
-                </div>
+
+                {/* Collapsible Selector & Technical Details */}
+                <details className="inspector-collapsible-meta">
+                  <summary>Technical Details & Selector</summary>
+                  <div className="collapsible-content">
+                    <code>{activePin.selector}</code>
+                  </div>
+                </details>
               </div>
 
-              {/* Visual Before vs After Simulation Card */}
+              {/* 2 & 3. Visual Before vs After Simulation Cards (Stacked Vertically, Neutral Slate for Suggested) */}
               <div className="inspector-visual-comparison">
                 <div className="comparison-header">
                   <span className="comparison-eyebrow">Visual Spec Comparison</span>
@@ -1359,34 +1371,12 @@ export function VisualCanvasOverlay({
 
                 {renderVisualComparison(activePin)}
 
-                {/* Mode quick switch inside the inspector */}
-                <div className="inspector-mode-quick-switch">
-                  <span className="quick-switch-label">Canvas Preview:</span>
-                  <div className="quick-switch-pills">
-                    <button
-                      type="button"
-                      className={`quick-switch-btn ${optimizationMode === 'baseline' ? 'is-active' : ''}`}
-                      onClick={() => setOptimizationMode('baseline')}
-                    >
-                      Baseline
-                    </button>
-                    <button
-                      type="button"
-                      className={`quick-switch-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
-                      onClick={() => setOptimizationMode('optimized')}
-                    >
-                      <Icon name="Sparkles" size={13} />
-                      <span>Suggested Preview</span>
-                    </button>
-                  </div>
-                </div>
-
                 {/* AI / Remediator recommendation */}
                 {(activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation) && (
                   <div className="inspector-ai-rec-box">
                     <div className="ai-rec-badge">
                       <Icon name="Sparkles" size={13} />
-                      <span>AI Remediation Guidance</span>
+                      <span>Remediation Guidance</span>
                     </div>
                     <p className="ai-rec-text">
                       {activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation}
@@ -1403,95 +1393,85 @@ export function VisualCanvasOverlay({
                 </div>
               )}
 
-              {/* Designer Decisions: Explicitly clarified between accepting fix vs dismissing */}
-              <div className="inspector-actions">
-                <div className="actions-primary-row">
-                  <button
-                    type="button"
-                    className="action-btn btn-accept"
-                    disabled={isSavingDecision}
-                    onClick={() => handleQuickDecision('accept')}
-                    aria-label="Accept Proposed Fix"
-                    title="Accept this proposed fix and add to decision history"
-                  >
-                    <Icon name="Check" size={15} />
-                    <span>Accept Proposed Fix</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="action-btn btn-reject"
-                    disabled={isSavingDecision}
-                    onClick={() => handleQuickDecision('reject')}
-                    title="Dismiss finding as an acceptable design intent or false positive"
-                  >
-                    <Icon name="X" size={15} />
-                    <span>Dismiss (False Positive)</span>
-                  </button>
+              {/* 4 & 5. Sticky Actions Footer at the Bottom: Separating Issue Disposition vs Remediation */}
+              <div className="inspector-actions-footer">
+                {/* Step 1: Issue Disposition */}
+                <div className="action-section">
+                  <div className="action-section-title">1. Issue Disposition</div>
+                  <div className="action-row">
+                    <button
+                      type="button"
+                      className="action-btn btn-confirm"
+                      disabled={isSavingDecision}
+                      onClick={handleConfirmIssue}
+                      title="Confirm this finding as a valid UX issue for backlog"
+                    >
+                      <Icon name="CheckCircle2" size={14} />
+                      <span>Confirm Issue</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="action-btn btn-reject"
+                      disabled={isSavingDecision}
+                      onClick={() => handleQuickDecision('reject')}
+                      title="Dismiss as acceptable design intent or false positive"
+                    >
+                      <Icon name="X" size={14} />
+                      <span>Dismiss (False Positive)</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="actions-secondary-row">
-                  <button
-                    type="button"
-                    className="action-btn btn-copy"
-                    onClick={() =>
-                      copyToClipboard(
-                        getCssFixSnippet(activePin),
-                        'CSS Fix'
-                      )
-                    }
-                  >
-                    <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={14} />
-                    <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
-                  </button>
+                {/* Step 2: Proposed Remediation & Sandbox Re-audit */}
+                <div className="action-section">
+                  <div className="action-section-title">2. Remediation & Verification</div>
+                  <div className="action-row">
+                    <button
+                      type="button"
+                      className="action-btn btn-accept"
+                      disabled={isSavingDecision}
+                      onClick={() => handleQuickDecision('accept')}
+                      title="Accept proposed remediation fix into design spec"
+                    >
+                      <Icon name="Check" size={14} />
+                      <span>Accept Fix into Spec</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="action-btn btn-sandbox-fix"
+                      onClick={() => handleOpenInSandbox(activePin)}
+                      style={{
+                        background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                        color: '#ffffff',
+                        fontWeight: 600,
+                        border: 'none',
+                      }}
+                      title="Open in Sandbox editor to experiment and run automated re-audit verification"
+                    >
+                      <Icon name="Sparkles" size={14} />
+                      <span>Sandbox & Re-audit →</span>
+                    </button>
+                  </div>
 
-                  <button
-                    type="button"
-                    className="action-btn btn-copy"
-                    onClick={() =>
-                      copyToClipboard(
-                        `[ProofUI Handoff]\nIssue: ${activePin.title}\nElement: ${activePin.selector}\nMeasured: ${Math.round(activePin.boundingBox.width)}x${Math.round(activePin.boundingBox.height)}px\nTarget Spec: min-width: 44px, min-height: 44px, touch-padding: 12px\nWCAG: ${activePin.wcagCriterion}`,
-                        'Design Token'
-                      )
-                    }
-                  >
-                    <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={14} />
-                    <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
-                  </button>
+                  <div className="action-row-secondary">
+                    <button
+                      type="button"
+                      className="action-btn btn-copy"
+                      onClick={() => copyToClipboard(getCssFixSnippet(activePin), 'CSS Fix')}
+                    >
+                      <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={13} />
+                      <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
+                    </button>
 
-                  <button
-                    type="button"
-                    className="action-btn btn-sandbox-fix"
-                    onClick={() => handleOpenInSandbox(activePin)}
-                    style={{
-                      background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                      color: '#ffffff',
-                      fontWeight: 600,
-                      border: 'none',
-                    }}
-                  >
-                    <Icon name="Sparkles" size={14} />
-                    <span>Fix in Sandbox →</span>
-                  </button>
-                </div>
-
-                <div className="actions-scroll-row">
-                  <a
-                    href={`#issue-card-${activePin.fingerprint}`}
-                    className="action-btn btn-jump"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsSidePanelOpen(false);
-                      if (isFullScreen) setIsFullScreen(false);
-                      const el = document.getElementById(`issue-card-${activePin.fingerprint}`);
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        el.focus?.();
-                      }
-                    }}
-                  >
-                    <Icon name="ExternalLink" size={14} />
-                    <span>Inspect Full Card & AI Details Below</span>
-                  </a>
+                    <button
+                      type="button"
+                      className="action-btn btn-copy"
+                      onClick={() => copyToClipboard(getSpecNoteSnippet(activePin), 'Design Token')}
+                    >
+                      <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={13} />
+                      <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
