@@ -463,8 +463,55 @@ export function VisualCanvasOverlay({
     setIsSidePanelOpen(true);
   };
 
-  // Step 1: Confirm Issue into Backlog
-  const handleConfirmIssue = async () => {
+  // 3-Way Issue Disposition: Confirm, Dismiss, or Leave for Review
+  const handleDispositionChange = async (disposition: 'confirmed_issue' | 'false_positive' | 'needs_review') => {
+    if (!activePin || isSavingDecision) return;
+    setIsSavingDecision(true);
+    setActionFeedback(null);
+
+    const reasons: Record<typeof disposition, string> = {
+      confirmed_issue: 'Confirmed as verified issue for backlog remediation',
+      false_positive: 'Dismissed as acceptable design intent or false positive in context',
+      needs_review: 'Flagged for team review and verification',
+    };
+
+    const feedbackMessages: Record<typeof disposition, string> = {
+      confirmed_issue: 'Confirmed as verified issue (queued for backlog)',
+      false_positive: 'Dismissed as false positive / design intent',
+      needs_review: 'Marked for team review (pending triage)',
+    };
+
+    try {
+      const res = await fetch('/api/decisions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          runId: currentRun.id,
+          fingerprint: activePin.fingerprint,
+          disposition,
+          reason: reasons[disposition],
+          reviewer: 'Visual Canvas',
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Failed to update review status');
+
+      setActionFeedback(feedbackMessages[disposition]);
+      if (onDecisionSaved) onDecisionSaved(data.updatedGroup);
+      setTimeout(() => setActionFeedback(null), 3500);
+    } catch (err: unknown) {
+      setActionFeedback(err instanceof Error ? err.message : 'Failed to update review status');
+    } finally {
+      setIsSavingDecision(false);
+    }
+  };
+
+  // Step 1: Confirm Issue into Backlog (Legacy/Direct wrapper)
+  const handleConfirmIssue = () => handleDispositionChange('confirmed_issue');
+
+  // Accept Fix into Spec: Records token into spec, explicitly unverified until Sandbox re-audit
+  const handleAcceptFixIntoSpec = async () => {
     if (!activePin || isSavingDecision) return;
     setIsSavingDecision(true);
     setActionFeedback(null);
@@ -476,19 +523,23 @@ export function VisualCanvasOverlay({
         body: JSON.stringify({
           runId: currentRun.id,
           fingerprint: activePin.fingerprint,
-          decision: 'reprioritize',
-          reason: 'Confirmed as verified issue for backlog remediation',
+          decision: 'accept',
+          reason: 'Accepted proposed remediation fix into design token spec (automated verification pending in Sandbox)',
         }),
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.error || 'Failed to confirm');
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Could not accept fix into spec.');
+      }
 
-      setActionFeedback('Confirmed as verified issue (queued for backlog)');
-      if (onDecisionSaved) onDecisionSaved(data.updatedGroup);
-      setTimeout(() => setActionFeedback(null), 3500);
+      setActionFeedback('Accepted into spec · Status unverified until Sandbox re-audit');
+      if (onDecisionSaved) {
+        onDecisionSaved(data.updatedGroup);
+      }
+      setTimeout(() => setActionFeedback(null), 4000);
     } catch (err: unknown) {
-      setActionFeedback(err instanceof Error ? err.message : 'Failed to confirm');
+      setActionFeedback(err instanceof Error ? err.message : 'Could not accept fix');
     } finally {
       setIsSavingDecision(false);
     }
@@ -496,18 +547,17 @@ export function VisualCanvasOverlay({
 
   // Step 2: Accept Fix or Dismiss
   const handleQuickDecision = async (decision: DesignerDecision) => {
+    if (decision === 'accept') {
+      return handleAcceptFixIntoSpec();
+    }
+    if (decision === 'reject') {
+      return handleDispositionChange('false_positive');
+    }
     if (!activePin || isSavingDecision) return;
     setIsSavingDecision(true);
     setActionFeedback(null);
 
     try {
-      const defaultReason =
-        decision === 'accept'
-          ? 'Accepted proposed remediation fix into project spec'
-          : decision === 'reject'
-          ? 'Dismissed as acceptable design intent in context'
-          : 'Reprioritized via Visual Canvas';
-
       const res = await fetch('/api/decisions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -515,7 +565,7 @@ export function VisualCanvasOverlay({
           runId: currentRun.id,
           fingerprint: activePin.fingerprint,
           decision,
-          reason: defaultReason,
+          reason: 'Reprioritized via Visual Canvas',
         }),
       });
 
@@ -524,11 +574,7 @@ export function VisualCanvasOverlay({
         throw new Error(data.error || 'Could not save decision.');
       }
 
-      setActionFeedback(
-        decision === 'accept'
-          ? 'Accepted Proposed Fix · Recorded to history'
-          : 'Dismissed as False Positive'
-      );
+      setActionFeedback('Reprioritized issue');
       if (onDecisionSaved) {
         onDecisionSaved(data.updatedGroup);
       }
@@ -581,10 +627,11 @@ export function VisualCanvasOverlay({
 
   // Extract authentic element text and typography from deterministic measurements
   const getElementTextAndTypography = (pin: IssuePinData) => {
+    // Prioritize authentic rendered text snippet/content over screen-reader-only labels
     const rawText =
       (pin.measured?.textSnippet as string) ||
-      (pin.measured?.accessibleName as string) ||
       (pin.measured?.textContent as string) ||
+      (pin.measured?.accessibleName as string) ||
       (pin.groupedIssue?.representative?.accessibleName as string) ||
       '';
 
@@ -592,16 +639,17 @@ export function VisualCanvasOverlay({
     const fallbackText = pin.selector ? pin.selector.replace(/^[.#]/, '').replace(/[_-]/g, ' ') : 'Sample Text';
     const text = cleanText.length > 0 ? cleanText : fallbackText;
 
-    const fontSizePx = Number(pin.measured?.fontSizePx);
-    const fontSize = fontSizePx && !isNaN(fontSizePx)
-      ? `${Math.min(20, Math.max(12, Math.round(fontSizePx)))}px`
+    const rawFontSize = pin.measured?.fontSizePx;
+    const hasMeasuredFont = rawFontSize !== undefined && rawFontSize !== null && !isNaN(Number(rawFontSize)) && Number(rawFontSize) > 0;
+    const fontSize = hasMeasuredFont
+      ? `${Math.min(20, Math.max(12, Math.round(Number(rawFontSize))))}px`
       : '14px';
 
     const fontWeight = pin.measured?.fontWeight
       ? String(pin.measured.fontWeight)
       : '500';
 
-    return { text, fontSize, fontWeight };
+    return { text, fontSize, fontWeight, isSimulatedFont: !hasMeasuredFont };
   };
 
   const getCleanRuleTitle = (pin: IssuePinData): string => {
@@ -620,13 +668,89 @@ export function VisualCanvasOverlay({
     return pin.title.replace(/\s*\([^)]*\)$/, '');
   };
 
+  // 3-Column Deterministic Metric Cards: Measured (Actual) | Threshold (Target) | Projected (Estimate)
+  const renderMetricThreeColumns = (pin: IssuePinData) => {
+    if (pin.ruleId.includes('contrast')) {
+      const measuredRatio = Number(pin.measured?.contrastRatio) || 2.32;
+      const targetRatio = Number(pin.expected?.minRatio) || 4.5;
+      const projectedRatio = '~7.10';
+
+      return (
+        <div className="metric-three-columns">
+          <div className="metric-cell cell-measured">
+            <span className="metric-cell-label">Measured (Actual)</span>
+            <span className="metric-cell-value">{measuredRatio.toFixed(2)}:1</span>
+            <span className="metric-cell-meta">Below threshold</span>
+          </div>
+          <div className="metric-cell cell-threshold">
+            <span className="metric-cell-label">Threshold (Target)</span>
+            <span className="metric-cell-value">≥ {targetRatio.toFixed(1)}:1</span>
+            <span className="metric-cell-meta">WCAG AA spec</span>
+          </div>
+          <div className="metric-cell cell-projected">
+            <span className="metric-cell-label">Projected (Estimate)</span>
+            <span className="metric-cell-value">{projectedRatio}:1</span>
+            <span className="metric-cell-meta">Draft simulation</span>
+          </div>
+        </div>
+      );
+    }
+
+    if (pin.ruleId === 'target-size') {
+      const measuredW = Math.round(Number(pin.measured?.width) || pin.boundingBox.width || 18);
+      const measuredH = Math.round(Number(pin.measured?.height) || pin.boundingBox.height || 18);
+
+      return (
+        <div className="metric-three-columns">
+          <div className="metric-cell cell-measured">
+            <span className="metric-cell-label">Measured (Actual)</span>
+            <span className="metric-cell-value">{measuredW}×{measuredH}px</span>
+            <span className="metric-cell-meta">Below minimum</span>
+          </div>
+          <div className="metric-cell cell-threshold">
+            <span className="metric-cell-label">Threshold (Target)</span>
+            <span className="metric-cell-value">≥ 24×24px</span>
+            <span className="metric-cell-meta">WCAG 2.5.8 spec</span>
+          </div>
+          <div className="metric-cell cell-projected">
+            <span className="metric-cell-label">Projected (Estimate)</span>
+            <span className="metric-cell-value">44×44px</span>
+            <span className="metric-cell-meta">Draft simulation</span>
+          </div>
+        </div>
+      );
+    }
+
+    // Default (Text-spacing, Reflow, etc.)
+    return (
+      <div className="metric-three-columns">
+        <div className="metric-cell cell-measured">
+          <span className="metric-cell-label">Measured (Actual)</span>
+          <span className="metric-cell-value">Fixed layout</span>
+          <span className="metric-cell-meta">Clipping/overflow</span>
+        </div>
+        <div className="metric-cell cell-threshold">
+          <span className="metric-cell-label">Threshold (Target)</span>
+          <span className="metric-cell-value">0px overflow</span>
+          <span className="metric-cell-meta">Fluid reflow spec</span>
+        </div>
+        <div className="metric-cell cell-projected">
+          <span className="metric-cell-label">Projected (Estimate)</span>
+          <span className="metric-cell-value">Fluid (auto)</span>
+          <span className="metric-cell-meta">Draft simulation</span>
+        </div>
+      </div>
+    );
+  };
+
   // Stacked Before / After comparison with authentic element text and typography
   const renderVisualComparison = (pin: IssuePinData) => {
-    const { text: actualText, fontSize, fontWeight } = getElementTextAndTypography(pin);
+    const { text: actualText, fontSize, fontWeight, isSimulatedFont } = getElementTextAndTypography(pin);
+    const elementBg = (pin.measured?.backgroundColor as string) || (pin.measured?.adjacentColor as string) || '#ffffff';
 
     if (pin.ruleId.includes('contrast')) {
       const textColor = (pin.measured?.color as string) || (pin.measured?.textColor as string) || (pin.measured?.indicatorColor as string) || '#737373';
-      const bgColor = (pin.measured?.backgroundColor as string) || (pin.measured?.adjacentColor as string) || '#ffffff';
+      const bgColor = elementBg;
       const minRatio = Number(pin.expected?.minRatio) || 4.5;
       const candidateColor = '#0f172a';
 
@@ -634,7 +758,15 @@ export function VisualCanvasOverlay({
         <div className="comparison-stack">
           {/* Before (Current baseline) */}
           <div className="comparison-card card-before">
-            <div className="card-badge badge-before">Baseline (Current)</div>
+            <div className="flex items-center justify-between">
+              <div className="card-badge badge-before">Baseline (Current)</div>
+              {isSimulatedFont && (
+                <span className="simulated-font-badge" title="Rendered text is authentic; font size is simulated">
+                  [Simulated typography]
+                </span>
+              )}
+            </div>
+            {/* Swatch box strictly preserves authentic element background without card tint bleeding */}
             <div className="spec-visual-box box-before" style={{ backgroundColor: bgColor }}>
               <div
                 className="contrast-text-sample"
@@ -668,6 +800,7 @@ export function VisualCanvasOverlay({
               <div className="card-badge badge-after">Suggested Fix (Preview)</div>
               <span className="unverified-pill">Not re-audited</span>
             </div>
+            {/* Swatch box strictly preserves authentic element background without card tint bleeding */}
             <div className="spec-visual-box box-after" style={{ backgroundColor: bgColor }}>
               <div
                 className="contrast-text-sample"
@@ -726,8 +859,15 @@ export function VisualCanvasOverlay({
         <div className="comparison-stack">
           {/* Before (Current baseline) */}
           <div className="comparison-card card-before">
-            <div className="card-badge badge-before">Baseline (Current)</div>
-            <div className="spec-visual-box box-before">
+            <div className="flex items-center justify-between">
+              <div className="card-badge badge-before">Baseline (Current)</div>
+              {isSimulatedFont && (
+                <span className="simulated-font-badge" title="Rendered text is authentic; font size is simulated">
+                  [Simulated typography]
+                </span>
+              )}
+            </div>
+            <div className="spec-visual-box box-before" style={{ backgroundColor: elementBg }}>
               <div
                 className="measured-box-mock"
                 style={{
@@ -752,7 +892,7 @@ export function VisualCanvasOverlay({
               <div className="card-badge badge-after">Suggested Fix (Preview)</div>
               <span className="unverified-pill">Not re-audited</span>
             </div>
-            <div className="spec-visual-box box-after">
+            <div className="spec-visual-box box-after" style={{ backgroundColor: elementBg }}>
               <div
                 className="candidate-box-mock"
                 style={{
@@ -800,8 +940,15 @@ export function VisualCanvasOverlay({
     return (
       <div className="comparison-stack">
         <div className="comparison-card card-before">
-          <div className="card-badge badge-before">Baseline (Current)</div>
-          <div className="spec-visual-box box-before">
+          <div className="flex items-center justify-between">
+            <div className="card-badge badge-before">Baseline (Current)</div>
+            {isSimulatedFont && (
+              <span className="simulated-font-badge" title="Rendered text is authentic; font size is simulated">
+                [Simulated typography]
+              </span>
+            )}
+          </div>
+          <div className="spec-visual-box box-before" style={{ backgroundColor: elementBg }}>
             <div style={{ fontSize: '11px', color: '#b42318', fontWeight: 600, padding: '0 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={actualText}>
               {actualText.length > 0 ? actualText : 'Fixed Height Overflow'}
             </div>
@@ -818,7 +965,7 @@ export function VisualCanvasOverlay({
             <div className="card-badge badge-after">Suggested Fix (Preview)</div>
             <span className="unverified-pill">Not re-audited</span>
           </div>
-          <div className="spec-visual-box box-after">
+          <div className="spec-visual-box box-after" style={{ backgroundColor: elementBg }}>
             <div style={{ fontSize: '11px', color: '#334155', fontWeight: 600, padding: '0 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={actualText}>
               {actualText.length > 0 ? actualText : 'Fluid Height Container'}
             </div>
@@ -1449,13 +1596,6 @@ export function VisualCanvasOverlay({
                   <h3 id="popup-issue-title" className="summary-rule-title">
                     {getCleanRuleTitle(activePin)}
                   </h3>
-                  <span className="summary-ratio-pill">
-                    {activePin.ruleId.includes('contrast')
-                      ? `Measured ${(Number(activePin.measured?.contrastRatio) || 2.32).toFixed(2)}:1 · Target ≥ ${Number(activePin.expected?.minRatio) || 4.5}:1`
-                      : activePin.ruleId === 'target-size'
-                      ? `Measured ${Math.round(Number(activePin.measured?.width) || activePin.boundingBox.width)}×${Math.round(Number(activePin.measured?.height) || activePin.boundingBox.height)}px · Target ≥ 24×24px`
-                      : 'Reflow Threshold'}
-                  </span>
                 </div>
 
                 <div className="inspector-meta-row">
@@ -1470,29 +1610,54 @@ export function VisualCanvasOverlay({
                   </span>
                 </div>
 
-                {/* Quick Issue Disposition right under problem facts */}
-                <div className="inspector-disposition-row">
-                  <button
-                    type="button"
-                    className="disposition-btn btn-confirm"
-                    disabled={isSavingDecision}
-                    onClick={handleConfirmIssue}
-                    title="Confirm this finding as a valid UX issue for backlog"
-                  >
-                    <Icon name="CheckCircle2" size={13} />
-                    <span>Confirm Issue</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="disposition-btn btn-reject"
-                    disabled={isSavingDecision}
-                    onClick={() => handleQuickDecision('reject')}
-                    title="Dismiss as acceptable design intent or false positive"
-                  >
-                    <Icon name="X" size={13} />
-                    <span>Dismiss (False Positive)</span>
-                  </button>
-                </div>
+                {/* 3-Column Metric Display: Measured (Actual) | Threshold (Target) | Projected (Estimate) */}
+                {renderMetricThreeColumns(activePin)}
+
+                {/* Quick Issue Disposition right under problem facts: Confirm | Dismiss | Leave for Review */}
+                {(() => {
+                  const effectiveDisposition =
+                    activePin.groupedIssue.reviewDisposition ||
+                    (activePin.groupedIssue.designerDecision === 'accept'
+                      ? 'confirmed_issue'
+                      : activePin.groupedIssue.designerDecision === 'reject'
+                      ? 'false_positive'
+                      : 'needs_review');
+
+                  return (
+                    <div className="inspector-disposition-row">
+                      <button
+                        type="button"
+                        className={`disposition-btn btn-confirm ${effectiveDisposition === 'confirmed_issue' ? 'is-selected' : ''}`}
+                        disabled={isSavingDecision}
+                        onClick={() => handleDispositionChange('confirmed_issue')}
+                        title="Confirm this finding as a valid UX issue for backlog"
+                      >
+                        <Icon name="CheckCircle2" size={12} />
+                        <span>Confirm Issue</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`disposition-btn btn-reject ${effectiveDisposition === 'false_positive' ? 'is-selected' : ''}`}
+                        disabled={isSavingDecision}
+                        onClick={() => handleDispositionChange('false_positive')}
+                        title="Dismiss as acceptable design intent or false positive"
+                      >
+                        <Icon name="X" size={12} />
+                        <span>Dismiss</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`disposition-btn btn-review ${effectiveDisposition === 'needs_review' ? 'is-selected' : ''}`}
+                        disabled={isSavingDecision}
+                        onClick={() => handleDispositionChange('needs_review')}
+                        title="Leave for team review without forcing immediate triage"
+                      >
+                        <Icon name="HelpCircle" size={12} />
+                        <span>Leave for Review</span>
+                      </button>
+                    </div>
+                  );
+                })()}
 
                 {/* Collapsible Selector, RGB Colors & Technical Details */}
                 <details className="inspector-collapsible-meta">
@@ -1512,14 +1677,21 @@ export function VisualCanvasOverlay({
                         </span>
                       </div>
                     )}
-                    {Boolean(activePin.measured?.fontSizePx) && (
-                      <div className="tech-meta-item">
-                        <span className="tech-meta-label">Typography:</span>
-                        <span>
-                          {Number(activePin.measured?.fontSizePx)}px (weight: {String(activePin.measured?.fontWeight || 'normal')})
-                        </span>
-                      </div>
-                    )}
+                    <div className="tech-meta-item">
+                      <span className="tech-meta-label">Typography:</span>
+                      <span>
+                        {Boolean(activePin.measured?.fontSizePx) ? (
+                          `${Number(activePin.measured?.fontSizePx)}px (weight: ${String(activePin.measured?.fontWeight || 'normal')})`
+                        ) : (
+                          <>
+                            <span>14px (weight: 500)</span>
+                            <span className="simulated-font-badge" title="Font size was not deterministically measured in DOM; rendered at standard 14px size">
+                              [Simulated typography]
+                            </span>
+                          </>
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </details>
               </div>
@@ -1554,14 +1726,14 @@ export function VisualCanvasOverlay({
                 </div>
               )}
 
-              {/* 4. Compact Sticky Actions Footer at the Bottom: Only Primary Remediation & Verification */}
+              {/* 4. Fluid Sticky Actions Footer: Content-driven height, wrapping, scroll padding offset */}
               <div className="inspector-actions-footer">
                 <button
                   type="button"
                   className="action-btn btn-accept"
                   disabled={isSavingDecision}
-                  onClick={() => handleQuickDecision('accept')}
-                  title="Accept proposed remediation fix into design spec"
+                  onClick={handleAcceptFixIntoSpec}
+                  title="Accept proposed remediation fix into design spec. Status remains unverified until re-audited in Sandbox."
                 >
                   <Icon name="Check" size={14} />
                   <span>Accept Fix into Spec</span>

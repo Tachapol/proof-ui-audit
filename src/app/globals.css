@@ -1111,15 +1111,18 @@ summary:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
   background: var(--surface);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   max-height: 720px;
 }
 
 .inspector-content {
-  padding: 16px;
+  padding: 16px 16px 32px 16px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  overflow-y: auto;
+  scroll-padding-bottom: 110px;
+  flex: 1;
 }
 
 .inspector-stepper {
@@ -1406,50 +1409,178 @@ summary:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
   white-space: nowrap;
 }
 
-/* Issue Disposition Section (Directly under issue facts) */
+/* 3-Column Deterministic Metric Cards (Measured | Threshold | Projected) */
+.metric-three-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 10px 0 6px 0;
+}
+
+.metric-cell {
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  min-width: 0;
+}
+
+.metric-cell.cell-measured {
+  background: #fff5f5;
+  border-color: #fecdd3;
+}
+
+.metric-cell.cell-threshold {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.metric-cell.cell-projected {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.metric-cell-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metric-cell.cell-measured .metric-cell-label {
+  color: #be123c;
+}
+
+.metric-cell.cell-threshold .metric-cell-label {
+  color: #475569;
+}
+
+.metric-cell.cell-projected .metric-cell-label {
+  color: #b45309;
+}
+
+.metric-cell-value {
+  font-size: 13px;
+  font-weight: 750;
+  color: #0f172a;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.metric-cell.cell-measured .metric-cell-value {
+  color: #b42318;
+}
+
+.metric-cell.cell-threshold .metric-cell-value {
+  color: #1e293b;
+}
+
+.metric-cell.cell-projected .metric-cell-value {
+  color: #b45309;
+}
+
+.metric-cell-meta {
+  font-size: 9.5px;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+.metric-cell.cell-measured .metric-cell-meta {
+  color: #991b1b;
+}
+
+.metric-cell.cell-projected .metric-cell-meta {
+  color: #92400e;
+}
+
+/* Issue Disposition Section (3-way: Confirm, Dismiss, Leave for Review) */
 .inspector-disposition-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .disposition-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   min-height: 32px;
-  padding: 4px 8px;
+  padding: 4px 6px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
   cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--foreground);
   transition: all 120ms ease;
   user-select: none;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.disposition-btn:hover:not(:disabled) {
+  background: var(--surface-hover);
 }
 
 .disposition-btn.btn-confirm {
-  background: var(--surface);
   color: var(--foreground);
-  border: 1px solid var(--border);
 }
 
 .disposition-btn.btn-confirm:hover:not(:disabled) {
-  background: var(--surface-hover);
-  border-color: #94a3b8;
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.disposition-btn.btn-confirm.is-selected {
+  background: #f0fdf4;
+  border-color: #22c55e;
+  color: #15803d;
+  font-weight: 700;
 }
 
 .disposition-btn.btn-reject {
-  background: var(--surface);
   color: var(--foreground-muted);
-  border: 1px solid var(--border);
 }
 
 .disposition-btn.btn-reject:hover:not(:disabled) {
   background: var(--danger-surface);
   color: var(--danger);
   border-color: var(--danger);
+}
+
+.disposition-btn.btn-reject.is-selected {
+  background: #fef2f2;
+  border-color: #f87171;
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.disposition-btn.btn-review {
+  color: var(--foreground-muted);
+}
+
+.disposition-btn.btn-review:hover:not(:disabled) {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.disposition-btn.btn-review.is-selected {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #b45309;
+  font-weight: 700;
 }
 
 .inspector-collapsible-meta {
@@ -1499,6 +1630,21 @@ summary:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
   overflow-wrap: anywhere;
 }
 
+.simulated-font-badge {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+}
+
 /* Copy Actions integrated inside the suggested fix card */
 .card-copy-actions {
   display: flex;
@@ -1530,22 +1676,28 @@ summary:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
   border-color: #94a3b8;
 }
 
-/* Compact Sticky Action Footer at Bottom: Only Primary Remediation & Verification */
+/* Fluid Sticky Action Footer at Bottom: Never hardcoded to 42px, content-driven height with wrapping */
 .inspector-actions-footer {
   margin-top: auto;
-  padding: 8px 0 2px 0;
+  padding: 10px 14px;
   border-top: 1px solid var(--border);
   position: sticky;
   bottom: 0;
   background: var(--surface);
   z-index: 15;
-  display: grid;
-  grid-template-columns: 1fr 1.15fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+  min-height: fit-content;
+  height: auto;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04);
 }
 
 .inspector-actions-footer .btn-accept {
-  min-height: 38px;
+  flex: 1 1 140px;
+  min-height: 40px;
+  height: auto;
+  padding: 8px 12px;
   background: #0f172a;
   color: #ffffff;
   border: none;
@@ -1557,6 +1709,9 @@ summary:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
   justify-content: center;
   gap: 6px;
   cursor: pointer;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
   transition: all 120ms ease;
 }
 
@@ -1565,7 +1720,10 @@ summary:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 }
 
 .inspector-actions-footer .btn-sandbox-fix {
-  min-height: 38px;
+  flex: 1 1 140px;
+  min-height: 40px;
+  height: auto;
+  padding: 8px 12px;
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #ffffff;
   border: none;
@@ -1577,6 +1735,9 @@ summary:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
   justify-content: center;
   gap: 6px;
   cursor: pointer;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
   transition: all 120ms ease;
 }
 

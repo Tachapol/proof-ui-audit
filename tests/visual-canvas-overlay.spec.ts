@@ -53,20 +53,41 @@ test.describe('Visual Canvas Overlay Feature', () => {
     await expect(inspector.locator('.inspector-pin-badge')).toContainText('Pin #1');
     await expect(inspector.locator('.comparison-eyebrow')).toHaveText('Visual Spec Comparison');
 
+    // Requirement 2: 3-Column Metric Display (Measured | Threshold | Projected)
+    const metricCols = inspector.locator('.metric-three-columns');
+    await expect(metricCols).toBeVisible();
+    await expect(metricCols.locator('.cell-measured .metric-cell-label')).toHaveText('Measured (Actual)');
+    await expect(metricCols.locator('.cell-threshold .metric-cell-label')).toHaveText('Threshold (Target)');
+    await expect(metricCols.locator('.cell-projected .metric-cell-label')).toHaveText('Projected (Estimate)');
+
+    // Requirement 5: 3-way disposition buttons (Confirm, Dismiss, Leave for Review)
+    const confirmBtn = inspector.locator('.disposition-btn.btn-confirm');
+    const dismissBtn = inspector.locator('.disposition-btn.btn-reject');
+    const reviewBtn = inspector.locator('.disposition-btn.btn-review');
+    await expect(confirmBtn).toBeVisible();
+    await expect(dismissBtn).toBeVisible();
+    await expect(reviewBtn).toBeVisible();
+
     // Visual spec comparison cards
     await expect(inspector.locator('.card-before')).toBeVisible();
     await expect(inspector.locator('.card-after')).toBeVisible();
     await expect(inspector.locator('.card-before .spec-metric')).toContainText('Measured:');
     await expect(inspector.locator('.card-after .spec-metric')).toContainText('Recommended:');
 
-    // Quick designer actions
-    const acceptBtn = inspector.locator('.btn-accept');
-    const rejectBtn = inspector.locator('.btn-reject');
+    // Requirement 1 & 5: Fluid Actions Footer with Accept Fix into Spec and Copy actions
+    const footer = inspector.locator('.inspector-actions-footer');
+    await expect(footer).toBeVisible();
+    const acceptBtn = footer.locator('.btn-accept');
+    const sandboxBtn = footer.locator('.btn-sandbox-fix');
     const copyCssBtn = inspector.locator('.btn-copy', { hasText: 'Copy CSS Fix' });
 
     await expect(acceptBtn).toBeVisible();
-    await expect(rejectBtn).toBeVisible();
+    await expect(sandboxBtn).toBeVisible();
     await expect(copyCssBtn).toBeVisible();
+
+    // Test Accept Fix into Spec feedback semantics (does not claim verified)
+    await acceptBtn.click();
+    await expect(inspector.locator('.inspector-feedback-banner')).toContainText('unverified until Sandbox re-audit');
 
     // 7. Test closing the pop-up box
     const closeBtn = inspector.locator('.stepper-btn.close-btn');
