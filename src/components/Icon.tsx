@@ -39,6 +39,7 @@ export type IconName =
   | 'FileCode'
   | 'Eye'
   | 'Columns'
+  | 'Copy'
   | 'LoaderCircle';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {

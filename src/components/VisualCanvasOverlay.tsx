@@ -77,6 +77,7 @@ export function VisualCanvasOverlay({
 
   const [zoomScale, setZoomScale] = useState<number | 'fit'>('fit');
   const [showOverlays, setShowOverlays] = useState(true);
+  const [autoFocusEnabled, setAutoFocusEnabled] = useState(true);
   const [statusFilter, setStatusFilter] = useState<'issues' | 'candidateFail' | 'needsReview' | 'all'>('issues');
   const [boxDisplayMode, setBoxDisplayMode] = useState<'hover_focus' | 'all'>('hover_focus');
   const [hoveredFingerprint, setHoveredFingerprint] = useState<string | null>(null);
@@ -458,10 +459,44 @@ export function VisualCanvasOverlay({
     }
   }, []);
 
+  // Smart Pin Focus: Scroll to element only if not comfortably visible in container, without altering zoom
+  const smartFocusPin = useCallback((pin: IssuePinData) => {
+    if (!autoFocusEnabled || !scrollContainerRef.current) return;
+    const container = scrollContainerRef.current;
+
+    const elemLeft = (LEFT_GUTTER + pin.boundingBox.x) * effectiveScale;
+    const elemTop = pin.boundingBox.y * effectiveScale;
+    const elemWidth = pin.boundingBox.width * effectiveScale;
+    const elemHeight = pin.boundingBox.height * effectiveScale;
+
+    const pad = 24;
+    const isHorizontallyVisible =
+      elemLeft >= container.scrollLeft + pad &&
+      (elemLeft + elemWidth) <= (container.scrollLeft + container.clientWidth - pad);
+    const isVerticallyVisible =
+      elemTop >= container.scrollTop + pad &&
+      (elemTop + elemHeight) <= (container.scrollTop + container.clientHeight - pad);
+
+    // If already visible clearly, do NOT change zoom and do NOT scroll!
+    if (isHorizontallyVisible && isVerticallyVisible) {
+      return;
+    }
+
+    const targetScrollLeft = Math.max(0, elemLeft + elemWidth / 2 - container.clientWidth / 2);
+    const targetScrollTop = Math.max(0, elemTop + elemHeight / 2 - container.clientHeight / 2);
+
+    container.scrollTo({
+      left: targetScrollLeft,
+      top: targetScrollTop,
+      behavior: 'smooth',
+    });
+  }, [autoFocusEnabled, effectiveScale]);
+
   // Handle Pin Selection and Opening Side Panel
   const handlePinClick = (pin: IssuePinData) => {
     onSelectIssue(pin.fingerprint);
     setIsSidePanelOpen(true);
+    smartFocusPin(pin);
   };
 
   // 3-Way Issue Disposition: Confirm, Dismiss, or Leave for Review
@@ -630,6 +665,10 @@ export function VisualCanvasOverlay({
     const hasComplexBg = Boolean(pin.measured?.hasComplexBackground);
     const hasTransparency = Boolean(pin.measured?.hasUnresolvedTransparency) || isTransparent;
 
+    const baselineTextToken = isDarkBg ? 'var(--color-text-muted-dark)' : 'var(--color-text-muted)';
+    const candidateTextToken = isDarkBg ? 'var(--color-neutral-50)' : 'var(--color-neutral-900)';
+    const bgToken = isDarkBg ? 'var(--color-bg-dark)' : 'var(--color-bg-canvas)';
+
     return {
       textColor,
       rawBgColor,
@@ -640,6 +679,9 @@ export function VisualCanvasOverlay({
       isCompositeOrComplex: hasComplexBg || hasTransparency,
       candidateColor,
       candidateRatio,
+      baselineTextToken,
+      candidateTextToken,
+      bgToken,
     };
   };
 
@@ -796,6 +838,9 @@ export function VisualCanvasOverlay({
         candidateRatio,
         isTransparent,
         isCompositeOrComplex,
+        baselineTextToken,
+        candidateTextToken,
+        bgToken,
       } = getContrastRemediation(pin);
 
       return (
@@ -834,6 +879,41 @@ export function VisualCanvasOverlay({
                 <span>Composite/Transparent BG · Refer to live Canvas</span>
               </div>
             )}
+
+            {/* Color HEX breakdown with tokens and dedicated inline Copy HEX buttons */}
+            <div className="card-color-breakdown">
+              <div className="color-code-item">
+                <span className="color-prop-label">Text:</span>
+                <span className="color-swatch-chip" style={{ backgroundColor: textColor }} />
+                <code className="color-hex-val">{textColor}</code>
+                <span className="token-tag">{baselineTextToken}</span>
+                <button
+                  type="button"
+                  className="btn-copy-hex"
+                  onClick={() => copyToClipboard(textColor, `HEX ${textColor}`)}
+                  title={`Copy HEX ${textColor}`}
+                >
+                  <Icon name={copiedLabel === `HEX ${textColor}` ? 'Check' : 'Copy'} size={11} />
+                  <span>{copiedLabel === `HEX ${textColor}` ? 'Copied' : 'Copy HEX'}</span>
+                </button>
+              </div>
+              <div className="color-code-item">
+                <span className="color-prop-label">Background:</span>
+                <span className="color-swatch-chip" style={{ backgroundColor: effectiveBg }} />
+                <code className="color-hex-val">{effectiveBg}</code>
+                <span className="token-tag">{bgToken}</span>
+                <button
+                  type="button"
+                  className="btn-copy-hex"
+                  onClick={() => copyToClipboard(effectiveBg, `HEX ${effectiveBg}`)}
+                  title={`Copy HEX ${effectiveBg}`}
+                >
+                  <Icon name={copiedLabel === `HEX ${effectiveBg}` ? 'Check' : 'Copy'} size={11} />
+                  <span>{copiedLabel === `HEX ${effectiveBg}` ? 'Copied' : 'Copy HEX'}</span>
+                </button>
+              </div>
+            </div>
+
             <div className="spec-details">
               <div className="spec-metric tone-danger">
                 <strong>Measured:</strong> Below WCAG AA contrast threshold
@@ -847,6 +927,24 @@ export function VisualCanvasOverlay({
               <div className="card-badge badge-after">Suggested Fix (Preview)</div>
               <span className="unverified-pill">Not re-audited</span>
             </div>
+
+            {/* Header Action Row: Projected Ratio + Draft Simulation tag + Preview on Canvas toggle */}
+            <div className="suggested-card-header-actions">
+              <div className="projected-ratio-badge">
+                <strong>Estimated: ~{candidateRatio.toFixed(2)}:1</strong>
+                <span className="draft-simulation-tag">Draft Simulation · Not Re-audited</span>
+              </div>
+              <button
+                type="button"
+                className={`card-preview-canvas-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
+                onClick={() => setOptimizationMode(optimizationMode === 'optimized' ? 'baseline' : 'optimized')}
+                title="Toggle live candidate preview on Canvas"
+              >
+                <Icon name={optimizationMode === 'optimized' ? 'Check' : 'Sparkles'} size={12} />
+                <span>{optimizationMode === 'optimized' ? 'Previewing on Canvas' : 'Preview on Canvas'}</span>
+              </button>
+            </div>
+
             {/* Swatch box strictly preserves authentic element background without card tint bleeding */}
             <div
               className={`spec-visual-box box-after ${isTransparent ? 'is-transparent-bg' : ''}`}
@@ -865,13 +963,48 @@ export function VisualCanvasOverlay({
                 {actualText}
               </div>
             </div>
+
+            {/* Color HEX breakdown for candidate with tokens and dedicated inline Copy HEX buttons */}
+            <div className="card-color-breakdown">
+              <div className="color-code-item">
+                <span className="color-prop-label">Suggested:</span>
+                <span className="color-swatch-chip" style={{ backgroundColor: candidateColor }} />
+                <code className="color-hex-val">{candidateColor}</code>
+                <span className="token-tag">{candidateTextToken}</span>
+                <button
+                  type="button"
+                  className="btn-copy-hex"
+                  onClick={() => copyToClipboard(candidateColor, `HEX ${candidateColor}`)}
+                  title={`Copy HEX ${candidateColor}`}
+                >
+                  <Icon name={copiedLabel === `HEX ${candidateColor}` ? 'Check' : 'Copy'} size={11} />
+                  <span>{copiedLabel === `HEX ${candidateColor}` ? 'Copied' : 'Copy HEX'}</span>
+                </button>
+              </div>
+              <div className="color-code-item">
+                <span className="color-prop-label">Background:</span>
+                <span className="color-swatch-chip" style={{ backgroundColor: effectiveBg }} />
+                <code className="color-hex-val">{effectiveBg}</code>
+                <span className="token-tag">{bgToken}</span>
+                <button
+                  type="button"
+                  className="btn-copy-hex"
+                  onClick={() => copyToClipboard(effectiveBg, `HEX ${effectiveBg}`)}
+                  title={`Copy HEX ${effectiveBg}`}
+                >
+                  <Icon name={copiedLabel === `HEX ${effectiveBg}` ? 'Check' : 'Copy'} size={11} />
+                  <span>{copiedLabel === `HEX ${effectiveBg}` ? 'Copied' : 'Copy HEX'}</span>
+                </button>
+              </div>
+            </div>
+
             <div className="spec-details">
               <div className="spec-metric tone-success">
                 <strong>Recommended:</strong> Projected contrast satisfies WCAG AA (~{candidateRatio.toFixed(2)}:1)
               </div>
             </div>
 
-            {/* Compact copy actions right inside the suggested fix card */}
+            {/* Compact secondary copy actions inside the suggested fix card */}
             <div className="card-copy-actions">
               <button
                 type="button"
@@ -923,6 +1056,24 @@ export function VisualCanvasOverlay({
                 {actualText.length <= 12 ? actualText : `${measuredWidth}×${measuredHeight}`}
               </div>
             </div>
+
+            <div className="card-color-breakdown">
+              <div className="color-code-item">
+                <span className="color-prop-label">Measured:</span>
+                <code className="color-hex-val">{measuredWidth}×{measuredHeight}px</code>
+                <span className="token-tag">var(--size-touch-target-baseline)</span>
+                <button
+                  type="button"
+                  className="btn-copy-hex"
+                  onClick={() => copyToClipboard(`${measuredWidth}x${measuredHeight}px`, 'Baseline Spec')}
+                  title="Copy baseline dimensions"
+                >
+                  <Icon name={copiedLabel === 'Baseline Spec' ? 'Check' : 'Copy'} size={11} />
+                  <span>{copiedLabel === 'Baseline Spec' ? 'Copied' : 'Copy Spec'}</span>
+                </button>
+              </div>
+            </div>
+
             <div className="spec-details">
               <div className="spec-metric tone-danger">
                 <strong>Measured:</strong> Below 24×24px minimum touch target
@@ -936,6 +1087,24 @@ export function VisualCanvasOverlay({
               <div className="card-badge badge-after">Suggested Fix (Preview)</div>
               <span className="unverified-pill">Not re-audited</span>
             </div>
+
+            {/* Header Action Row: Projected Spec + Draft Simulation tag + Preview on Canvas toggle */}
+            <div className="suggested-card-header-actions">
+              <div className="projected-ratio-badge">
+                <strong>Estimated: 44×44px Target Spec</strong>
+                <span className="draft-simulation-tag">Draft Simulation · Not Re-audited</span>
+              </div>
+              <button
+                type="button"
+                className={`card-preview-canvas-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
+                onClick={() => setOptimizationMode(optimizationMode === 'optimized' ? 'baseline' : 'optimized')}
+                title="Toggle live candidate preview on Canvas"
+              >
+                <Icon name={optimizationMode === 'optimized' ? 'Check' : 'Sparkles'} size={12} />
+                <span>{optimizationMode === 'optimized' ? 'Previewing on Canvas' : 'Preview on Canvas'}</span>
+              </button>
+            </div>
+
             <div className="spec-visual-box box-after" style={{ backgroundColor: elementBg }}>
               <div
                 className="candidate-box-mock"
@@ -950,13 +1119,31 @@ export function VisualCanvasOverlay({
                 <span className="candidate-padding-guide">Touch Target Spec</span>
               </div>
             </div>
+
+            <div className="card-color-breakdown">
+              <div className="color-code-item">
+                <span className="color-prop-label">Recommended:</span>
+                <code className="color-hex-val">44×44px</code>
+                <span className="token-tag">var(--size-touch-target-min)</span>
+                <button
+                  type="button"
+                  className="btn-copy-hex"
+                  onClick={() => copyToClipboard('44px', 'Target Token')}
+                  title="Copy token size"
+                >
+                  <Icon name={copiedLabel === 'Target Token' ? 'Check' : 'Copy'} size={11} />
+                  <span>{copiedLabel === 'Target Token' ? 'Copied' : 'Copy Token'}</span>
+                </button>
+              </div>
+            </div>
+
             <div className="spec-details">
               <div className="spec-metric tone-success">
                 <strong>Recommended:</strong> 44×44px Target Spec
               </div>
             </div>
 
-            {/* Compact copy actions right inside the suggested fix card */}
+            {/* Compact secondary copy actions right inside the suggested fix card */}
             <div className="card-copy-actions">
               <button
                 type="button"
@@ -1020,6 +1207,23 @@ export function VisualCanvasOverlay({
             <div className="card-badge badge-after">Suggested Fix (Preview)</div>
             <span className="unverified-pill">Not re-audited</span>
           </div>
+
+          <div className="suggested-card-header-actions">
+            <div className="projected-ratio-badge">
+              <strong>Estimated: Fluid auto</strong>
+              <span className="draft-simulation-tag">Draft Simulation · Not Re-audited</span>
+            </div>
+            <button
+              type="button"
+              className={`card-preview-canvas-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
+              onClick={() => setOptimizationMode(optimizationMode === 'optimized' ? 'baseline' : 'optimized')}
+              title="Toggle live candidate preview on Canvas"
+            >
+              <Icon name={optimizationMode === 'optimized' ? 'Check' : 'Sparkles'} size={12} />
+              <span>{optimizationMode === 'optimized' ? 'Previewing on Canvas' : 'Preview on Canvas'}</span>
+            </button>
+          </div>
+
           <div className="spec-visual-box box-after" style={{ backgroundColor: elementBg }}>
             <div
               style={{
@@ -1042,7 +1246,7 @@ export function VisualCanvasOverlay({
             </div>
           </div>
 
-          {/* Compact copy actions right inside the suggested fix card */}
+          {/* Compact secondary copy actions right inside the suggested fix card */}
           <div className="card-copy-actions">
             <button
               type="button"
@@ -1082,10 +1286,12 @@ export function VisualCanvasOverlay({
       const targetPin = visiblePins[currentIndex - 1];
       onSelectIssue(targetPin.fingerprint);
       setIsSidePanelOpen(true);
+      smartFocusPin(targetPin);
     } else if (direction === 'next' && hasNext) {
       const targetPin = visiblePins[currentIndex + 1];
       onSelectIssue(targetPin.fingerprint);
       setIsSidePanelOpen(true);
+      smartFocusPin(targetPin);
     }
   };
 
@@ -1226,6 +1432,9 @@ export function VisualCanvasOverlay({
               >
                 <Icon name="Sparkles" size={13} />
                 <span>Suggested Preview</span>
+                {optimizationMode === 'optimized' && activePin && (
+                  <span className="mode-pin-tag">Pin #{activePin.index}</span>
+                )}
                 <span className="mode-sub-badge">Not re-audited</span>
               </button>
             </div>
@@ -1279,6 +1488,14 @@ export function VisualCanvasOverlay({
 
               {isViewMenuOpen && (
                 <div className="view-menu-dropdown" role="menu">
+                  <label className="view-menu-item">
+                    <input
+                      type="checkbox"
+                      checked={autoFocusEnabled}
+                      onChange={(e) => setAutoFocusEnabled(e.target.checked)}
+                    />
+                    <span>Auto-focus on Pin</span>
+                  </label>
                   <label className="view-menu-item">
                     <input
                       type="checkbox"
@@ -1399,7 +1616,9 @@ export function VisualCanvasOverlay({
             </div>
             <div className="browser-viewport-tag">
               {optimizationMode === 'optimized' && (
-                <span className="optimized-live-badge">Suggested Preview (Not re-audited)</span>
+                <span className="optimized-live-badge">
+                  Suggested Preview: Pin #{activePin?.index || 1} (Not re-audited)
+                </span>
               )}
               {selectedViewport.width} × {selectedViewport.height} px · {Math.round(effectiveScale * 100)}%
             </div>
@@ -1810,25 +2029,160 @@ export function VisualCanvasOverlay({
 
             {/* 3. Footer: Fixed solid block outside the scroll area, NEVER overlaying content */}
             <footer className="inspector-actions-footer">
-              <button
-                type="button"
-                className="action-btn btn-accept"
-                disabled={isSavingDecision}
-                onClick={handleAcceptFixIntoSpec}
-                title="Accept proposed remediation fix into design spec. Status remains unverified until re-audited in Sandbox."
-              >
-                <Icon name="Check" size={14} />
-                <span>Accept Fix into Spec</span>
-              </button>
-              <button
-                type="button"
-                className="action-btn btn-sandbox-fix"
-                onClick={() => handleOpenInSandbox(activePin)}
-                title="Open in Sandbox editor to experiment and run automated re-audit verification"
-              >
-                <Icon name="Sparkles" size={14} />
-                <span>Sandbox & Re-audit →</span>
-              </button>
+              {(() => {
+                const iterComp = activePin.groupedIssue.iterationComparison;
+                const isVerifiedPass =
+                  iterComp?.verificationStatus === 'verified' ||
+                  iterComp?.regressionResult === 'improved' ||
+                  iterComp?.regressionResult === 'no_new_failures';
+                const isFailedRegression =
+                  iterComp?.verificationStatus === 'failed' ||
+                  iterComp?.regressionResult === 'regressed';
+                const isUnverifiable =
+                  iterComp?.verificationStatus === 'unable_to_verify' ||
+                  iterComp?.regressionResult === 'unable_to_verify';
+
+                // State 2: Verified Pass in Sandbox
+                if (isVerifiedPass) {
+                  return (
+                    <>
+                      <div className="footer-verification-banner state-verified">
+                        <Icon name="CheckCircle2" size={14} />
+                        <div className="verification-text">
+                          <strong>ตรวจซ้ำผ่านแล้วใน Sandbox (Verified Pass)</strong>
+                          <span>{iterComp?.plainLanguageSummary || 'Contrast Ratio ≥ 4.5:1 · ไม่พบบั๊กใหม่'}</span>
+                        </div>
+                      </div>
+                      <div className="footer-buttons-row">
+                        <button
+                          type="button"
+                          className="action-btn btn-accept is-verified"
+                          disabled={isSavingDecision}
+                          onClick={handleAcceptFixIntoSpec}
+                          title="Accept verified candidate into design system spec"
+                        >
+                          <Icon name="Check" size={14} />
+                          <span>ยอมรับวิธีแก้ที่ตรวจแล้ว (Accept Verified Fix)</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="action-btn btn-sandbox-fix"
+                          onClick={() => handleOpenInSandbox(activePin)}
+                          title="Open Sandbox to inspect verification results"
+                        >
+                          <Icon name="ExternalLink" size={14} />
+                          <span>เปิดดูใน Sandbox</span>
+                        </button>
+                      </div>
+                    </>
+                  );
+                }
+
+                // State 3: Failed / New Regression
+                if (isFailedRegression) {
+                  return (
+                    <>
+                      <div className="footer-verification-banner state-failed">
+                        <Icon name="AlertTriangle" size={14} />
+                        <div className="verification-text">
+                          <strong>ตรวจซ้ำไม่ผ่าน (Regression Detected)</strong>
+                          <span>{iterComp?.plainLanguageSummary || 'ยังไม่ผ่านเกณฑ์ หรือพบ layout overflow ใหม่'}</span>
+                        </div>
+                      </div>
+                      <div className="footer-buttons-row">
+                        <button
+                          type="button"
+                          className="action-btn btn-sandbox-fix is-warning"
+                          onClick={() => handleOpenInSandbox(activePin)}
+                          title="Adjust code fix in Sandbox and re-test"
+                        >
+                          <Icon name="RefreshCw" size={14} />
+                          <span>ปรับวิธีแก้และตรวจใหม่ (Adjust Fix & Re-test)</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="action-btn btn-accept btn-reject-candidate"
+                          disabled={isSavingDecision}
+                          onClick={() => handleQuickDecision('reject')}
+                          title="Reject this candidate fix"
+                        >
+                          <Icon name="X" size={14} />
+                          <span>ปฏิเสธวิธีแก้นี้ (Reject Candidate)</span>
+                        </button>
+                      </div>
+                    </>
+                  );
+                }
+
+                // State 4: Unverifiable / Error
+                if (isUnverifiable) {
+                  return (
+                    <>
+                      <div className="footer-verification-banner state-unverifiable">
+                        <Icon name="HelpCircle" size={14} />
+                        <div className="verification-text">
+                          <strong>ไม่สามารถตรวจซ้ำอัตโนมัติได้ (Verification Error)</strong>
+                          <span>{iterComp?.verificationErrors?.[0] || 'Selector Dynamic หรือ DOM Unreachable'}</span>
+                        </div>
+                      </div>
+                      <div className="footer-buttons-row">
+                        <button
+                          type="button"
+                          className="action-btn btn-sandbox-fix"
+                          onClick={() => handleOpenInSandbox(activePin)}
+                          title="Retry verification in Sandbox"
+                        >
+                          <Icon name="RefreshCw" size={14} />
+                          <span>ลองตรวจซ้ำอีกครั้ง (Retry Verification)</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="action-btn btn-accept"
+                          disabled={isSavingDecision}
+                          onClick={handleAcceptFixIntoSpec}
+                          title="Save note for manual verification"
+                        >
+                          <Icon name="Check" size={14} />
+                          <span>บันทึกสำหรับตรวจด้วยตนเอง (Manual Review)</span>
+                        </button>
+                      </div>
+                    </>
+                  );
+                }
+
+                // State 1: Unverified / Not Re-audited (Default Initial State)
+                return (
+                  <>
+                    <div className="footer-verification-banner state-unverified">
+                      <Icon name="Info" size={13} />
+                      <div className="verification-text">
+                        <span>ยังไม่ตรวจซ้ำใน Sandbox · สถานะ Spec ร่างจำลอง</span>
+                      </div>
+                    </div>
+                    <div className="footer-buttons-row">
+                      <button
+                        type="button"
+                        className="action-btn btn-sandbox-fix btn-primary-cta"
+                        onClick={() => handleOpenInSandbox(activePin)}
+                        title="Open in Sandbox editor to experiment and run automated re-audit verification"
+                      >
+                        <Icon name="Sparkles" size={14} />
+                        <span>ทดลองแก้และตรวจซ้ำ (Sandbox & Re-audit →)</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="action-btn btn-accept"
+                        disabled={isSavingDecision}
+                        onClick={handleAcceptFixIntoSpec}
+                        title="Accept proposed remediation fix into design spec. Status remains unverified until re-audited in Sandbox."
+                      >
+                        <Icon name="Check" size={14} />
+                        <span>บันทึกเป็น Spec ร่าง (Accept Fix into Spec)</span>
+                      </button>
+                    </div>
+                  </>
+                );
+              })()}
             </footer>
           </aside>
         )}
