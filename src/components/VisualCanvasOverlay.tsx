@@ -392,6 +392,18 @@ export function VisualCanvasOverlay({
     };
   }, [isViewMenuOpen, isSidePanelOpen, showImpactDrawer, isFullScreen]);
 
+  // Synchronize full page body class to eliminate gaps and hide header in full page mode
+  useEffect(() => {
+    if (isFullScreen) {
+      document.body.classList.add('canvas-fullpage-active');
+    } else {
+      document.body.classList.remove('canvas-fullpage-active');
+    }
+    return () => {
+      document.body.classList.remove('canvas-fullpage-active');
+    };
+  }, [isFullScreen]);
+
   // Resizable drawer drag handlers
   const handleStartResize = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -2049,8 +2061,8 @@ export function VisualCanvasOverlay({
                       <div className="footer-verification-banner state-verified">
                         <Icon name="CheckCircle2" size={14} />
                         <div className="verification-text">
-                          <strong>ตรวจซ้ำผ่านแล้วใน Sandbox (Verified Pass)</strong>
-                          <span>{iterComp?.plainLanguageSummary || 'Contrast Ratio ≥ 4.5:1 · ไม่พบบั๊กใหม่'}</span>
+                          <strong>Verified Pass in Sandbox</strong>
+                          <span>{iterComp?.plainLanguageSummary || 'Contrast Ratio ≥ 4.5:1 · No regressions found'}</span>
                         </div>
                       </div>
                       <div className="footer-buttons-row">
@@ -2062,7 +2074,7 @@ export function VisualCanvasOverlay({
                           title="Accept verified candidate into design system spec"
                         >
                           <Icon name="Check" size={14} />
-                          <span>ยอมรับวิธีแก้ที่ตรวจแล้ว (Accept Verified Fix)</span>
+                          <span>Accept Verified Fix</span>
                         </button>
                         <button
                           type="button"
@@ -2071,7 +2083,7 @@ export function VisualCanvasOverlay({
                           title="Open Sandbox to inspect verification results"
                         >
                           <Icon name="ExternalLink" size={14} />
-                          <span>เปิดดูใน Sandbox</span>
+                          <span>View in Sandbox</span>
                         </button>
                       </div>
                     </>
@@ -2085,8 +2097,8 @@ export function VisualCanvasOverlay({
                       <div className="footer-verification-banner state-failed">
                         <Icon name="AlertTriangle" size={14} />
                         <div className="verification-text">
-                          <strong>ตรวจซ้ำไม่ผ่าน (Regression Detected)</strong>
-                          <span>{iterComp?.plainLanguageSummary || 'ยังไม่ผ่านเกณฑ์ หรือพบ layout overflow ใหม่'}</span>
+                          <strong>Regression Detected</strong>
+                          <span>{iterComp?.plainLanguageSummary || 'Threshold not met or new layout overflow detected'}</span>
                         </div>
                       </div>
                       <div className="footer-buttons-row">
@@ -2097,7 +2109,7 @@ export function VisualCanvasOverlay({
                           title="Adjust code fix in Sandbox and re-test"
                         >
                           <Icon name="RefreshCw" size={14} />
-                          <span>ปรับวิธีแก้และตรวจใหม่ (Adjust Fix & Re-test)</span>
+                          <span>Adjust Fix & Re-test</span>
                         </button>
                         <button
                           type="button"
@@ -2107,7 +2119,7 @@ export function VisualCanvasOverlay({
                           title="Reject this candidate fix"
                         >
                           <Icon name="X" size={14} />
-                          <span>ปฏิเสธวิธีแก้นี้ (Reject Candidate)</span>
+                          <span>Reject Candidate</span>
                         </button>
                       </div>
                     </>
@@ -2121,8 +2133,8 @@ export function VisualCanvasOverlay({
                       <div className="footer-verification-banner state-unverifiable">
                         <Icon name="HelpCircle" size={14} />
                         <div className="verification-text">
-                          <strong>ไม่สามารถตรวจซ้ำอัตโนมัติได้ (Verification Error)</strong>
-                          <span>{iterComp?.verificationErrors?.[0] || 'Selector Dynamic หรือ DOM Unreachable'}</span>
+                          <strong>Automated Verification Error</strong>
+                          <span>{iterComp?.verificationErrors?.[0] || 'Dynamic selector or DOM unreachable'}</span>
                         </div>
                       </div>
                       <div className="footer-buttons-row">
@@ -2133,7 +2145,7 @@ export function VisualCanvasOverlay({
                           title="Retry verification in Sandbox"
                         >
                           <Icon name="RefreshCw" size={14} />
-                          <span>ลองตรวจซ้ำอีกครั้ง (Retry Verification)</span>
+                          <span>Retry Verification</span>
                         </button>
                         <button
                           type="button"
@@ -2143,7 +2155,7 @@ export function VisualCanvasOverlay({
                           title="Save note for manual verification"
                         >
                           <Icon name="Check" size={14} />
-                          <span>บันทึกสำหรับตรวจด้วยตนเอง (Manual Review)</span>
+                          <span>Save for Manual Review</span>
                         </button>
                       </div>
                     </>
@@ -2156,7 +2168,7 @@ export function VisualCanvasOverlay({
                     <div className="footer-verification-banner state-unverified">
                       <Icon name="Info" size={13} />
                       <div className="verification-text">
-                        <span>ยังไม่ตรวจซ้ำใน Sandbox · สถานะ Spec ร่างจำลอง</span>
+                        <span>Not re-audited in Sandbox · Draft Spec</span>
                       </div>
                     </div>
                     <div className="footer-buttons-row">
@@ -2167,7 +2179,7 @@ export function VisualCanvasOverlay({
                         title="Open in Sandbox editor to experiment and run automated re-audit verification"
                       >
                         <Icon name="Sparkles" size={14} />
-                        <span>ทดลองแก้และตรวจซ้ำ (Sandbox & Re-audit →)</span>
+                        <span>Sandbox & Re-audit →</span>
                       </button>
                       <button
                         type="button"
@@ -2177,7 +2189,7 @@ export function VisualCanvasOverlay({
                         title="Accept proposed remediation fix into design spec. Status remains unverified until re-audited in Sandbox."
                       >
                         <Icon name="Check" size={14} />
-                        <span>บันทึกเป็น Spec ร่าง (Accept Fix into Spec)</span>
+                        <span>Accept Fix into Spec</span>
                       </button>
                     </div>
                   </>
