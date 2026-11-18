@@ -78,6 +78,9 @@ function formatIssueSection(issue: ReportGroupedIssue, index: number): string {
   lines.push(`- **Rule ID**: ${safeInlineCode(issue.ruleId)}`);
   lines.push(`- **WCAG Criterion**: ${safeInlineCode(issue.wcagCriterion)}`);
   lines.push(`- **Status**: \`${issue.status}\``);
+  if (issue.metric) {
+    lines.push(`- **Metric**: ${issue.metric.metricId} v${issue.metric.metricVersion}; ${issue.metric.unit}; ${issue.metric.executionStatus}; ${issue.metric.applicability}; project advisory`);
+  }
   lines.push(`- **Project Priority**: **${issue.currentPriority}** (Initial: ${issue.initialPriority})`);
   lines.push(`- **Priority Rationale**: ${escapeHtml(sanitizeMarkdownProse(issue.priorityRationale))}`);
   lines.push(`- **Occurrence Count**: ${issue.occurrenceCount} across ${issue.viewports.map((v) => `${v.width}×${v.height}`).join(', ')}`);
@@ -136,6 +139,14 @@ function formatIssueSection(issue: ReportGroupedIssue, index: number): string {
     lines.push('');
   }
 
+  if (issue.proposedFix) {
+    lines.push('#### Saved proposed fix');
+    lines.push('Unverified draft — not re-audited.');
+    lines.push('Selector: ' + escapeHtml(issue.proposedFix.selector));
+    lines.push('Viewport: ' + issue.proposedFix.viewport.width + '×' + issue.proposedFix.viewport.height);
+    lines.push('<pre>' + escapeHtml(issue.proposedFix.css) + '</pre>');
+    lines.push('');
+  }
   // Remediation & Iteration Proof
   if (issue.iterationComparison) {
     const iter = issue.iterationComparison;
@@ -244,6 +255,17 @@ export function generateMarkdownReport(report: ReportModel): string {
       if (value) sections.push(`- **${escapeHtml(key)}**: ${escapeHtml(sanitizeMarkdownProse(value))}`);
     }
     sections.push('');
+  }
+
+  if (report.audit.metricResults?.length) {
+    sections.push('## Pilot Metric Evidence', '');
+    sections.push('Project advisories only. Execution status and applicability are independent of the inspection outcome. null means unmeasured or unavailable, never zero.', '');
+    for (const metric of report.audit.metricResults) {
+      sections.push(`### ${metric.metricId} v${metric.metricVersion} — ${metric.viewport.width}×${metric.viewport.height}`, '');
+      sections.push(`- **Execution**: ${metric.executionStatus}; **Applicability**: ${metric.applicability}; **Outcome**: ${metric.outcome ?? 'null'}; **Unit**: ${metric.unit}`);
+      sections.push(escapeHtml(sanitizeMarkdownProse(metric.reason)), '');
+      sections.push(safeCodeFence(JSON.stringify(metric, null, 2), 'json'), '');
+    }
   }
 
   // 3. Scope and Disclaimers

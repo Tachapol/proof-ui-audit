@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { updateDesignerDecision, updateReviewDisposition } from '@/lib/storage/db';
-import { DesignerDecisionSchema, PrioritySchema, ReviewDispositionSchema } from '@/lib/schema/ux-issue';
+import { updateDesignerDecision, updateReviewDisposition, saveProposedFix } from '@/lib/storage/db';
+import { ProposedFixSchema, DesignerDecisionSchema, PrioritySchema, ReviewDispositionSchema } from '@/lib/schema/ux-issue';
 
 const LegacyDecisionRequestSchema = z.object({
   runId: z.string().min(1, 'runId is required'),
@@ -18,13 +18,13 @@ const ReviewRequestSchema = z.object({
   reason: z.string().trim().min(3).max(2000),
   reviewer: z.string().trim().min(1).max(120),
 });
-const DecisionRequestSchema = z.union([ReviewRequestSchema, LegacyDecisionRequestSchema]);
+const DecisionRequestSchema = z.union([z.object({ runId: z.string().min(1), fingerprint: z.string().min(1), proposal: ProposedFixSchema }), ReviewRequestSchema, LegacyDecisionRequestSchema]);
 
 export async function POST(req: Request) {
   try {
     const rawBody = await req.json();
-    if (rawBody.disposition !== undefined && rawBody.decision !== undefined) {
-      return NextResponse.json({ success: false, error: 'Choose one operation: disposition or decision.' }, { status: 400 });
+    if (['disposition', 'decision', 'proposal'].filter(key => rawBody[key] !== undefined).length > 1) {
+      return NextResponse.json({ success: false, error: 'Choose one operation: disposition, decision or proposal.' }, { status: 400 });
     }
     const parseResult = DecisionRequestSchema.safeParse(rawBody);
 
@@ -37,7 +37,9 @@ export async function POST(req: Request) {
 
     try {
       const payload = parseResult.data;
-      const updated = 'disposition' in payload
+      const updated = 'proposal' in payload
+        ? await saveProposedFix(runId, fingerprint, payload.proposal)
+        : 'disposition' in payload
         ? await updateReviewDisposition(runId, fingerprint, payload.disposition, payload.reason, payload.reviewer)
         : await updateDesignerDecision(runId, fingerprint, payload.decision, payload.reason, payload.newPriority, payload.editedRecommendation);
 

@@ -1,0 +1,4595 @@
+{
+  "id": "pilot-pilot-metrics-heading-b25bdf52-4b86-4437-aaf5-73bedbc5bd53",
+  "fixtureId": "pilot-metrics-heading",
+  "targetUrl": "http://localhost:3123/fixtures/pilot-metrics-heading",
+  "timestamp": "2026-11-16T22:10:00.756Z",
+  "viewports": [
+    {
+      "width": 320,
+      "height": 640
+    },
+    {
+      "width": 375,
+      "height": 812
+    },
+    {
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "rawIssues": [
+    {
+      "id": "reflow-529757757",
+      "ruleId": "reflow",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+      "status": "pass",
+      "title": "Content reflows without 2D scrolling at 320px",
+      "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#fixture-content",
+      "element": "html",
+      "measured": {
+        "scrollWidth": 288,
+        "clientWidth": 288,
+        "horizontalOverflowPx": 0,
+        "overflowingElementsCount": 0,
+        "metricVersion": "1.1.0",
+        "unit": "CSS px",
+        "scopeSelector": "#fixture-content",
+        "rawHorizontalOverflowPx": 0,
+        "rawDocumentScrollWidth": 320,
+        "rawDocumentClientWidth": 320,
+        "rawScopeScrollWidth": 288,
+        "decorativeElementsExcludedCount": 2
+      },
+      "expected": {
+        "maxOverflowPx": 1,
+        "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 164.171875,
+        "width": 288,
+        "height": 148.78125
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px."
+    },
+    {
+      "id": "heading-hierarchy-320-100bce40-bd93-4b71-ab47-c1178252d53c",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#heading-skip",
+      "element": "h4",
+      "accessibleName": "Deeper subsection",
+      "boundingBox": {
+        "x": 16,
+        "y": 263.359375,
+        "width": 288,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#heading-skip",
+        "element": "h4",
+        "accessibleName": "Deeper subsection",
+        "boundingBox": {
+          "x": 16,
+          "y": 263.359375,
+          "width": 288,
+          "height": 24.796875
+        },
+        "level": 4,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 1,
+        "previousHeading": {
+          "level": 2,
+          "selector": "#heading-start"
+        },
+        "skippedLevels": 1,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Heading level skip requires context review",
+      "description": "Heading level 2 → 4 in DOM order. Review the section and component parent context; this is not an automatic WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "heading-hierarchy-320-c4a48c35-9bd0-43ef-9939-eaba8f97800d",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#heading-return",
+      "element": "h2",
+      "accessibleName": "Next overview",
+      "boundingBox": {
+        "x": 16,
+        "y": 238.5625,
+        "width": 288,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#heading-return",
+        "element": "h2",
+        "accessibleName": "Next overview",
+        "boundingBox": {
+          "x": 16,
+          "y": 238.5625,
+          "width": 288,
+          "height": 24.796875
+        },
+        "level": 2,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 2,
+        "previousHeading": {
+          "level": 4,
+          "selector": "#heading-skip"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 4 → 2 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "heading-hierarchy-320-8adaeb2a-550d-472e-93dc-8e07af046d86",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#aria-heading",
+      "element": "div",
+      "accessibleName": "ARIA subsection",
+      "boundingBox": {
+        "x": 16,
+        "y": 213.765625,
+        "width": 288,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#aria-heading",
+        "element": "div",
+        "accessibleName": "ARIA subsection",
+        "boundingBox": {
+          "x": 16,
+          "y": 213.765625,
+          "width": 288,
+          "height": 24.796875
+        },
+        "level": 3,
+        "rawAriaLevel": "3",
+        "source": "aria",
+        "domIndex": 3,
+        "previousHeading": {
+          "level": 2,
+          "selector": "#heading-return"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "heading-hierarchy-320-cee0227e-6082-4458-a7e9-4bc5b8235dbe",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#heading-peer",
+      "element": "h3",
+      "accessibleName": "Peer section",
+      "boundingBox": {
+        "x": 16,
+        "y": 188.96875,
+        "width": 288,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#heading-peer",
+        "element": "h3",
+        "accessibleName": "Peer section",
+        "boundingBox": {
+          "x": 16,
+          "y": 188.96875,
+          "width": 288,
+          "height": 24.796875
+        },
+        "level": 3,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 4,
+        "previousHeading": {
+          "level": 3,
+          "selector": "#aria-heading"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 3 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "text-contrast-707705564",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"ProofUI Test Fixture: pilot-metrics\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "ProofUI Test Fixture: pilot-metrics",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 258.390625,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-2081925914",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"Pilot Metrics: heading\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "Pilot Metrics: heading",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 288,
+        "height": 31
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-410873440",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Controlled heading evidence for the two \" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Controlled heading evidence for the two pilot proj",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 79.796875,
+        "width": 288,
+        "height": 43.375
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1451991246",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#heading-start",
+      "element": "h2",
+      "accessibleName": "Overview",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 288.15625,
+        "width": 288,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1575790781",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Deeper subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#heading-skip",
+      "element": "h4",
+      "accessibleName": "Deeper subsection",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 263.359375,
+        "width": 288,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-178014322",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Next overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#heading-return",
+      "element": "h2",
+      "accessibleName": "Next overview",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 238.5625,
+        "width": 288,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1873302289",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"ARIA subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#aria-heading",
+      "element": "div",
+      "role": "heading",
+      "accessibleName": "ARIA subsection",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 213.765625,
+        "width": 288,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1876914880",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Peer section\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#heading-peer",
+      "element": "h3",
+      "accessibleName": "Peer section",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 188.96875,
+        "width": 288,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "heading-hierarchy-375-5c29a9c8-e115-4a36-878b-c76134d8dd7f",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#heading-skip",
+      "element": "h4",
+      "accessibleName": "Deeper subsection",
+      "boundingBox": {
+        "x": 16,
+        "y": 263.359375,
+        "width": 343,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#heading-skip",
+        "element": "h4",
+        "accessibleName": "Deeper subsection",
+        "boundingBox": {
+          "x": 16,
+          "y": 263.359375,
+          "width": 343,
+          "height": 24.796875
+        },
+        "level": 4,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 1,
+        "previousHeading": {
+          "level": 2,
+          "selector": "#heading-start"
+        },
+        "skippedLevels": 1,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Heading level skip requires context review",
+      "description": "Heading level 2 → 4 in DOM order. Review the section and component parent context; this is not an automatic WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "heading-hierarchy-375-913a9642-9b36-4c88-a7c6-6cc4dee372ec",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#heading-return",
+      "element": "h2",
+      "accessibleName": "Next overview",
+      "boundingBox": {
+        "x": 16,
+        "y": 238.5625,
+        "width": 343,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#heading-return",
+        "element": "h2",
+        "accessibleName": "Next overview",
+        "boundingBox": {
+          "x": 16,
+          "y": 238.5625,
+          "width": 343,
+          "height": 24.796875
+        },
+        "level": 2,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 2,
+        "previousHeading": {
+          "level": 4,
+          "selector": "#heading-skip"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 4 → 2 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "heading-hierarchy-375-31fbdaec-3351-47e1-bad5-6c353123da8e",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#aria-heading",
+      "element": "div",
+      "accessibleName": "ARIA subsection",
+      "boundingBox": {
+        "x": 16,
+        "y": 213.765625,
+        "width": 343,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#aria-heading",
+        "element": "div",
+        "accessibleName": "ARIA subsection",
+        "boundingBox": {
+          "x": 16,
+          "y": 213.765625,
+          "width": 343,
+          "height": 24.796875
+        },
+        "level": 3,
+        "rawAriaLevel": "3",
+        "source": "aria",
+        "domIndex": 3,
+        "previousHeading": {
+          "level": 2,
+          "selector": "#heading-return"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "heading-hierarchy-375-7c0082e7-ca30-4ef0-a26a-783550d98f12",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#heading-peer",
+      "element": "h3",
+      "accessibleName": "Peer section",
+      "boundingBox": {
+        "x": 16,
+        "y": 188.96875,
+        "width": 343,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#heading-peer",
+        "element": "h3",
+        "accessibleName": "Peer section",
+        "boundingBox": {
+          "x": 16,
+          "y": 188.96875,
+          "width": 343,
+          "height": 24.796875
+        },
+        "level": 3,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 4,
+        "previousHeading": {
+          "level": 3,
+          "selector": "#aria-heading"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 3 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "text-contrast-707705564",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"ProofUI Test Fixture: pilot-metrics\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "ProofUI Test Fixture: pilot-metrics",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 258.390625,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-2081925914",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"Pilot Metrics: heading\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "Pilot Metrics: heading",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 343,
+        "height": 31
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-410873440",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Controlled heading evidence for the two \" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Controlled heading evidence for the two pilot proj",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 79.796875,
+        "width": 343,
+        "height": 43.375
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1451991246",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#heading-start",
+      "element": "h2",
+      "accessibleName": "Overview",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 288.15625,
+        "width": 343,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1575790781",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Deeper subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#heading-skip",
+      "element": "h4",
+      "accessibleName": "Deeper subsection",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 263.359375,
+        "width": 343,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-178014322",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Next overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#heading-return",
+      "element": "h2",
+      "accessibleName": "Next overview",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 238.5625,
+        "width": 343,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1873302289",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"ARIA subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#aria-heading",
+      "element": "div",
+      "role": "heading",
+      "accessibleName": "ARIA subsection",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 213.765625,
+        "width": 343,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1876914880",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Peer section\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#heading-peer",
+      "element": "h3",
+      "accessibleName": "Peer section",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 188.96875,
+        "width": 343,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "heading-hierarchy-1440-972f41c8-d4cb-417d-b42d-dd4f90703490",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#heading-skip",
+      "element": "h4",
+      "accessibleName": "Deeper subsection",
+      "boundingBox": {
+        "x": 16,
+        "y": 241.671875,
+        "width": 1408,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#heading-skip",
+        "element": "h4",
+        "accessibleName": "Deeper subsection",
+        "boundingBox": {
+          "x": 16,
+          "y": 241.671875,
+          "width": 1408,
+          "height": 24.796875
+        },
+        "level": 4,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 1,
+        "previousHeading": {
+          "level": 2,
+          "selector": "#heading-start"
+        },
+        "skippedLevels": 1,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Heading level skip requires context review",
+      "description": "Heading level 2 → 4 in DOM order. Review the section and component parent context; this is not an automatic WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "heading-hierarchy-1440-1149253d-df2f-454d-8987-b691b8343e2b",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#heading-return",
+      "element": "h2",
+      "accessibleName": "Next overview",
+      "boundingBox": {
+        "x": 16,
+        "y": 216.875,
+        "width": 1408,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#heading-return",
+        "element": "h2",
+        "accessibleName": "Next overview",
+        "boundingBox": {
+          "x": 16,
+          "y": 216.875,
+          "width": 1408,
+          "height": 24.796875
+        },
+        "level": 2,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 2,
+        "previousHeading": {
+          "level": 4,
+          "selector": "#heading-skip"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 4 → 2 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "heading-hierarchy-1440-b1ee4307-28d2-4e7f-bc3f-196742feedf1",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#aria-heading",
+      "element": "div",
+      "accessibleName": "ARIA subsection",
+      "boundingBox": {
+        "x": 16,
+        "y": 192.078125,
+        "width": 1408,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#aria-heading",
+        "element": "div",
+        "accessibleName": "ARIA subsection",
+        "boundingBox": {
+          "x": 16,
+          "y": 192.078125,
+          "width": 1408,
+          "height": 24.796875
+        },
+        "level": 3,
+        "rawAriaLevel": "3",
+        "source": "aria",
+        "domIndex": 3,
+        "previousHeading": {
+          "level": 2,
+          "selector": "#heading-return"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "heading-hierarchy-1440-4eccbdcb-83b8-4257-9e5f-01566a2455eb",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#heading-peer",
+      "element": "h3",
+      "accessibleName": "Peer section",
+      "boundingBox": {
+        "x": 16,
+        "y": 167.28125,
+        "width": 1408,
+        "height": 24.796875
+      },
+      "measured": {
+        "selector": "#heading-peer",
+        "element": "h3",
+        "accessibleName": "Peer section",
+        "boundingBox": {
+          "x": 16,
+          "y": 167.28125,
+          "width": 1408,
+          "height": 24.796875
+        },
+        "level": 3,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 4,
+        "previousHeading": {
+          "level": 3,
+          "selector": "#aria-heading"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 3 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "text-contrast-707705564",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"ProofUI Test Fixture: pilot-metrics\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "ProofUI Test Fixture: pilot-metrics",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 258.390625,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-2081925914",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"Pilot Metrics: heading\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "Pilot Metrics: heading",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 1408,
+        "height": 31
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-410873440",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Controlled heading evidence for the two \" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Controlled heading evidence for the two pilot proj",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 79.796875,
+        "width": 1408,
+        "height": 21.6875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1451991246",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#heading-start",
+      "element": "h2",
+      "accessibleName": "Overview",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 266.46875,
+        "width": 1408,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1575790781",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Deeper subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#heading-skip",
+      "element": "h4",
+      "accessibleName": "Deeper subsection",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 241.671875,
+        "width": 1408,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-178014322",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Next overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#heading-return",
+      "element": "h2",
+      "accessibleName": "Next overview",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 216.875,
+        "width": 1408,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1873302289",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"ARIA subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#aria-heading",
+      "element": "div",
+      "role": "heading",
+      "accessibleName": "ARIA subsection",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 192.078125,
+        "width": 1408,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1876914880",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (19.06:1)",
+      "description": "The text \"Peer section\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#heading-peer",
+      "element": "h3",
+      "accessibleName": "Peer section",
+      "measured": {
+        "contrastRatio": 19.06,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(9, 9, 11)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 167.28125,
+        "width": 1408,
+        "height": 24.796875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+    }
+  ],
+  "groupedIssues": [
+    {
+      "fingerprint": "reflow::#fixture-content::scroll-288-overflow-0",
+      "representative": {
+        "id": "reflow-529757757",
+        "ruleId": "reflow",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+        "status": "pass",
+        "title": "Content reflows without 2D scrolling at 320px",
+        "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#fixture-content",
+        "element": "html",
+        "measured": {
+          "scrollWidth": 288,
+          "clientWidth": 288,
+          "horizontalOverflowPx": 0,
+          "overflowingElementsCount": 0,
+          "metricVersion": "1.1.0",
+          "unit": "CSS px",
+          "scopeSelector": "#fixture-content",
+          "rawHorizontalOverflowPx": 0,
+          "rawDocumentScrollWidth": 320,
+          "rawDocumentClientWidth": 320,
+          "rawScopeScrollWidth": 288,
+          "decorativeElementsExcludedCount": 2
+        },
+        "expected": {
+          "maxOverflowPx": 1,
+          "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 164.171875,
+          "width": 288,
+          "height": 148.78125
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px."
+      },
+      "rawOccurrencesCount": 1,
+      "occurrences": [
+        {
+          "id": "reflow-529757757",
+          "ruleId": "reflow",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+          "status": "pass",
+          "title": "Content reflows without 2D scrolling at 320px",
+          "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#fixture-content",
+          "element": "html",
+          "measured": {
+            "scrollWidth": 288,
+            "clientWidth": 288,
+            "horizontalOverflowPx": 0,
+            "overflowingElementsCount": 0,
+            "metricVersion": "1.1.0",
+            "unit": "CSS px",
+            "scopeSelector": "#fixture-content",
+            "rawHorizontalOverflowPx": 0,
+            "rawDocumentScrollWidth": 320,
+            "rawDocumentClientWidth": 320,
+            "rawScopeScrollWidth": 288,
+            "decorativeElementsExcludedCount": 2
+          },
+          "expected": {
+            "maxOverflowPx": 1,
+            "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 164.171875,
+            "width": 288,
+            "height": 148.78125
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "heading-hierarchy::#heading-skip::{\"version\":\"1.0.0\",\"level\":4,\"previousHeading\":{\"level\":2,\"selector\":\"#heading-start\"},\"skippedLevels\":1}",
+      "representative": {
+        "id": "heading-hierarchy-320-100bce40-bd93-4b71-ab47-c1178252d53c",
+        "ruleId": "heading-hierarchy",
+        "wcagCriterion": "Project advisory — no automatic WCAG failure",
+        "metric": {
+          "metricId": "heading-hierarchy",
+          "metricVersion": "1.0.0",
+          "unit": "heading level",
+          "executionStatus": "completed",
+          "applicability": "applicable",
+          "basis": "project-advisory"
+        },
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#heading-skip",
+        "element": "h4",
+        "accessibleName": "Deeper subsection",
+        "boundingBox": {
+          "x": 16,
+          "y": 263.359375,
+          "width": 288,
+          "height": 24.796875
+        },
+        "measured": {
+          "selector": "#heading-skip",
+          "element": "h4",
+          "accessibleName": "Deeper subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 263.359375,
+            "width": 288,
+            "height": 24.796875
+          },
+          "level": 4,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 1,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#heading-start"
+          },
+          "skippedLevels": 1,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        "expected": {
+          "maxDeeperStep": 1,
+          "upwardTransitionsAllowed": true,
+          "basis": "project-advisory"
+        },
+        "status": "needsReview",
+        "title": "Heading level skip requires context review",
+        "description": "Heading level 2 → 4 in DOM order. Review the section and component parent context; this is not an automatic WCAG failure.",
+        "initialPriority": "P3",
+        "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "heading-hierarchy-320-100bce40-bd93-4b71-ab47-c1178252d53c",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#heading-skip",
+          "element": "h4",
+          "accessibleName": "Deeper subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 263.359375,
+            "width": 288,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#heading-skip",
+            "element": "h4",
+            "accessibleName": "Deeper subsection",
+            "boundingBox": {
+              "x": 16,
+              "y": 263.359375,
+              "width": 288,
+              "height": 24.796875
+            },
+            "level": 4,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 1,
+            "previousHeading": {
+              "level": 2,
+              "selector": "#heading-start"
+            },
+            "skippedLevels": 1,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Heading level skip requires context review",
+          "description": "Heading level 2 → 4 in DOM order. Review the section and component parent context; this is not an automatic WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "heading-hierarchy-375-5c29a9c8-e115-4a36-878b-c76134d8dd7f",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#heading-skip",
+          "element": "h4",
+          "accessibleName": "Deeper subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 263.359375,
+            "width": 343,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#heading-skip",
+            "element": "h4",
+            "accessibleName": "Deeper subsection",
+            "boundingBox": {
+              "x": 16,
+              "y": 263.359375,
+              "width": 343,
+              "height": 24.796875
+            },
+            "level": 4,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 1,
+            "previousHeading": {
+              "level": 2,
+              "selector": "#heading-start"
+            },
+            "skippedLevels": 1,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Heading level skip requires context review",
+          "description": "Heading level 2 → 4 in DOM order. Review the section and component parent context; this is not an automatic WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "heading-hierarchy-1440-972f41c8-d4cb-417d-b42d-dd4f90703490",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#heading-skip",
+          "element": "h4",
+          "accessibleName": "Deeper subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 241.671875,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#heading-skip",
+            "element": "h4",
+            "accessibleName": "Deeper subsection",
+            "boundingBox": {
+              "x": 16,
+              "y": 241.671875,
+              "width": 1408,
+              "height": 24.796875
+            },
+            "level": 4,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 1,
+            "previousHeading": {
+              "level": 2,
+              "selector": "#heading-start"
+            },
+            "skippedLevels": 1,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Heading level skip requires context review",
+          "description": "Heading level 2 → 4 in DOM order. Review the section and component parent context; this is not an automatic WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        }
+      ],
+      "status": "needsReview",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "heading-hierarchy::#heading-return::{\"version\":\"1.0.0\",\"level\":2,\"previousHeading\":{\"level\":4,\"selector\":\"#heading-skip\"},\"skippedLevels\":0}",
+      "representative": {
+        "id": "heading-hierarchy-320-c4a48c35-9bd0-43ef-9939-eaba8f97800d",
+        "ruleId": "heading-hierarchy",
+        "wcagCriterion": "Project advisory — no automatic WCAG failure",
+        "metric": {
+          "metricId": "heading-hierarchy",
+          "metricVersion": "1.0.0",
+          "unit": "heading level",
+          "executionStatus": "completed",
+          "applicability": "applicable",
+          "basis": "project-advisory"
+        },
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#heading-return",
+        "element": "h2",
+        "accessibleName": "Next overview",
+        "boundingBox": {
+          "x": 16,
+          "y": 238.5625,
+          "width": 288,
+          "height": 24.796875
+        },
+        "measured": {
+          "selector": "#heading-return",
+          "element": "h2",
+          "accessibleName": "Next overview",
+          "boundingBox": {
+            "x": 16,
+            "y": 238.5625,
+            "width": 288,
+            "height": 24.796875
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 2,
+          "previousHeading": {
+            "level": 4,
+            "selector": "#heading-skip"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        "expected": {
+          "maxDeeperStep": 1,
+          "upwardTransitionsAllowed": true,
+          "basis": "project-advisory"
+        },
+        "status": "pass",
+        "title": "Heading transition follows DOM hierarchy advisory",
+        "description": "Heading level 4 → 2 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+        "initialPriority": "P3",
+        "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "heading-hierarchy-320-c4a48c35-9bd0-43ef-9939-eaba8f97800d",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#heading-return",
+          "element": "h2",
+          "accessibleName": "Next overview",
+          "boundingBox": {
+            "x": 16,
+            "y": 238.5625,
+            "width": 288,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#heading-return",
+            "element": "h2",
+            "accessibleName": "Next overview",
+            "boundingBox": {
+              "x": 16,
+              "y": 238.5625,
+              "width": 288,
+              "height": 24.796875
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 2,
+            "previousHeading": {
+              "level": 4,
+              "selector": "#heading-skip"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 4 → 2 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "heading-hierarchy-375-913a9642-9b36-4c88-a7c6-6cc4dee372ec",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#heading-return",
+          "element": "h2",
+          "accessibleName": "Next overview",
+          "boundingBox": {
+            "x": 16,
+            "y": 238.5625,
+            "width": 343,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#heading-return",
+            "element": "h2",
+            "accessibleName": "Next overview",
+            "boundingBox": {
+              "x": 16,
+              "y": 238.5625,
+              "width": 343,
+              "height": 24.796875
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 2,
+            "previousHeading": {
+              "level": 4,
+              "selector": "#heading-skip"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 4 → 2 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "heading-hierarchy-1440-1149253d-df2f-454d-8987-b691b8343e2b",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#heading-return",
+          "element": "h2",
+          "accessibleName": "Next overview",
+          "boundingBox": {
+            "x": 16,
+            "y": 216.875,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#heading-return",
+            "element": "h2",
+            "accessibleName": "Next overview",
+            "boundingBox": {
+              "x": 16,
+              "y": 216.875,
+              "width": 1408,
+              "height": 24.796875
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 2,
+            "previousHeading": {
+              "level": 4,
+              "selector": "#heading-skip"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 4 → 2 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "heading-hierarchy::#aria-heading::{\"version\":\"1.0.0\",\"level\":3,\"previousHeading\":{\"level\":2,\"selector\":\"#heading-return\"},\"skippedLevels\":0}",
+      "representative": {
+        "id": "heading-hierarchy-320-8adaeb2a-550d-472e-93dc-8e07af046d86",
+        "ruleId": "heading-hierarchy",
+        "wcagCriterion": "Project advisory — no automatic WCAG failure",
+        "metric": {
+          "metricId": "heading-hierarchy",
+          "metricVersion": "1.0.0",
+          "unit": "heading level",
+          "executionStatus": "completed",
+          "applicability": "applicable",
+          "basis": "project-advisory"
+        },
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#aria-heading",
+        "element": "div",
+        "accessibleName": "ARIA subsection",
+        "boundingBox": {
+          "x": 16,
+          "y": 213.765625,
+          "width": 288,
+          "height": 24.796875
+        },
+        "measured": {
+          "selector": "#aria-heading",
+          "element": "div",
+          "accessibleName": "ARIA subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 213.765625,
+            "width": 288,
+            "height": 24.796875
+          },
+          "level": 3,
+          "rawAriaLevel": "3",
+          "source": "aria",
+          "domIndex": 3,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#heading-return"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        "expected": {
+          "maxDeeperStep": 1,
+          "upwardTransitionsAllowed": true,
+          "basis": "project-advisory"
+        },
+        "status": "pass",
+        "title": "Heading transition follows DOM hierarchy advisory",
+        "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+        "initialPriority": "P3",
+        "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "heading-hierarchy-320-8adaeb2a-550d-472e-93dc-8e07af046d86",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#aria-heading",
+          "element": "div",
+          "accessibleName": "ARIA subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 213.765625,
+            "width": 288,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#aria-heading",
+            "element": "div",
+            "accessibleName": "ARIA subsection",
+            "boundingBox": {
+              "x": 16,
+              "y": 213.765625,
+              "width": 288,
+              "height": 24.796875
+            },
+            "level": 3,
+            "rawAriaLevel": "3",
+            "source": "aria",
+            "domIndex": 3,
+            "previousHeading": {
+              "level": 2,
+              "selector": "#heading-return"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "heading-hierarchy-375-31fbdaec-3351-47e1-bad5-6c353123da8e",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#aria-heading",
+          "element": "div",
+          "accessibleName": "ARIA subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 213.765625,
+            "width": 343,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#aria-heading",
+            "element": "div",
+            "accessibleName": "ARIA subsection",
+            "boundingBox": {
+              "x": 16,
+              "y": 213.765625,
+              "width": 343,
+              "height": 24.796875
+            },
+            "level": 3,
+            "rawAriaLevel": "3",
+            "source": "aria",
+            "domIndex": 3,
+            "previousHeading": {
+              "level": 2,
+              "selector": "#heading-return"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "heading-hierarchy-1440-b1ee4307-28d2-4e7f-bc3f-196742feedf1",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#aria-heading",
+          "element": "div",
+          "accessibleName": "ARIA subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 192.078125,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#aria-heading",
+            "element": "div",
+            "accessibleName": "ARIA subsection",
+            "boundingBox": {
+              "x": 16,
+              "y": 192.078125,
+              "width": 1408,
+              "height": 24.796875
+            },
+            "level": 3,
+            "rawAriaLevel": "3",
+            "source": "aria",
+            "domIndex": 3,
+            "previousHeading": {
+              "level": 2,
+              "selector": "#heading-return"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "heading-hierarchy::#heading-peer::{\"version\":\"1.0.0\",\"level\":3,\"previousHeading\":{\"level\":3,\"selector\":\"#aria-heading\"},\"skippedLevels\":0}",
+      "representative": {
+        "id": "heading-hierarchy-320-cee0227e-6082-4458-a7e9-4bc5b8235dbe",
+        "ruleId": "heading-hierarchy",
+        "wcagCriterion": "Project advisory — no automatic WCAG failure",
+        "metric": {
+          "metricId": "heading-hierarchy",
+          "metricVersion": "1.0.0",
+          "unit": "heading level",
+          "executionStatus": "completed",
+          "applicability": "applicable",
+          "basis": "project-advisory"
+        },
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#heading-peer",
+        "element": "h3",
+        "accessibleName": "Peer section",
+        "boundingBox": {
+          "x": 16,
+          "y": 188.96875,
+          "width": 288,
+          "height": 24.796875
+        },
+        "measured": {
+          "selector": "#heading-peer",
+          "element": "h3",
+          "accessibleName": "Peer section",
+          "boundingBox": {
+            "x": 16,
+            "y": 188.96875,
+            "width": 288,
+            "height": 24.796875
+          },
+          "level": 3,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 4,
+          "previousHeading": {
+            "level": 3,
+            "selector": "#aria-heading"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        "expected": {
+          "maxDeeperStep": 1,
+          "upwardTransitionsAllowed": true,
+          "basis": "project-advisory"
+        },
+        "status": "pass",
+        "title": "Heading transition follows DOM hierarchy advisory",
+        "description": "Heading level 3 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+        "initialPriority": "P3",
+        "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "heading-hierarchy-320-cee0227e-6082-4458-a7e9-4bc5b8235dbe",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#heading-peer",
+          "element": "h3",
+          "accessibleName": "Peer section",
+          "boundingBox": {
+            "x": 16,
+            "y": 188.96875,
+            "width": 288,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#heading-peer",
+            "element": "h3",
+            "accessibleName": "Peer section",
+            "boundingBox": {
+              "x": 16,
+              "y": 188.96875,
+              "width": 288,
+              "height": 24.796875
+            },
+            "level": 3,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 4,
+            "previousHeading": {
+              "level": 3,
+              "selector": "#aria-heading"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 3 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "heading-hierarchy-375-7c0082e7-ca30-4ef0-a26a-783550d98f12",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#heading-peer",
+          "element": "h3",
+          "accessibleName": "Peer section",
+          "boundingBox": {
+            "x": 16,
+            "y": 188.96875,
+            "width": 343,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#heading-peer",
+            "element": "h3",
+            "accessibleName": "Peer section",
+            "boundingBox": {
+              "x": 16,
+              "y": 188.96875,
+              "width": 343,
+              "height": 24.796875
+            },
+            "level": 3,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 4,
+            "previousHeading": {
+              "level": 3,
+              "selector": "#aria-heading"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 3 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "heading-hierarchy-1440-4eccbdcb-83b8-4257-9e5f-01566a2455eb",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#heading-peer",
+          "element": "h3",
+          "accessibleName": "Peer section",
+          "boundingBox": {
+            "x": 16,
+            "y": 167.28125,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "measured": {
+            "selector": "#heading-peer",
+            "element": "h3",
+            "accessibleName": "Peer section",
+            "boundingBox": {
+              "x": 16,
+              "y": 167.28125,
+              "width": 1408,
+              "height": 24.796875
+            },
+            "level": 3,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 4,
+            "previousHeading": {
+              "level": 3,
+              "selector": "#aria-heading"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 3 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::span::ratio-5.4",
+      "representative": {
+        "id": "text-contrast-707705564",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (5.42:1)",
+        "description": "The text \"ProofUI Test Fixture: pilot-metrics\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "span",
+        "element": "span",
+        "accessibleName": "ProofUI Test Fixture: pilot-metrics",
+        "measured": {
+          "contrastRatio": 5.42,
+          "fontSizePx": 12,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(103, 103, 103)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 22,
+          "width": 258.390625,
+          "height": 15
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-707705564",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"ProofUI Test Fixture: pilot-metrics\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "ProofUI Test Fixture: pilot-metrics",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 258.390625,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-707705564",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"ProofUI Test Fixture: pilot-metrics\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "ProofUI Test Fixture: pilot-metrics",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 258.390625,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-707705564",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"ProofUI Test Fixture: pilot-metrics\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "ProofUI Test Fixture: pilot-metrics",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 258.390625,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::h1::ratio-15.4",
+      "representative": {
+        "id": "text-contrast-2081925914",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (15.44:1)",
+        "description": "The text \"Pilot Metrics: heading\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "h1",
+        "element": "h1",
+        "accessibleName": "Pilot Metrics: heading",
+        "measured": {
+          "contrastRatio": 15.44,
+          "fontSizePx": 20,
+          "fontWeight": 600,
+          "isLargeText": false,
+          "color": "rgb(32, 33, 35)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 44.796875,
+          "width": 288,
+          "height": 31
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-2081925914",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"Pilot Metrics: heading\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "Pilot Metrics: heading",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 288,
+            "height": 31
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-2081925914",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"Pilot Metrics: heading\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "Pilot Metrics: heading",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 343,
+            "height": 31
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-2081925914",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"Pilot Metrics: heading\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "Pilot Metrics: heading",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 1408,
+            "height": 31
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::p::ratio-5.4",
+      "representative": {
+        "id": "text-contrast-410873440",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (5.42:1)",
+        "description": "The text \"Controlled heading evidence for the two \" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "p",
+        "element": "p",
+        "accessibleName": "Controlled heading evidence for the two pilot proj",
+        "measured": {
+          "contrastRatio": 5.42,
+          "fontSizePx": 14,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(103, 103, 103)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 79.796875,
+          "width": 288,
+          "height": 43.375
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-410873440",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Controlled heading evidence for the two \" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Controlled heading evidence for the two pilot proj",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 79.796875,
+            "width": 288,
+            "height": 43.375
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-410873440",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Controlled heading evidence for the two \" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Controlled heading evidence for the two pilot proj",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 79.796875,
+            "width": 343,
+            "height": 43.375
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-410873440",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Controlled heading evidence for the two \" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Controlled heading evidence for the two pilot proj",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 79.796875,
+            "width": 1408,
+            "height": 21.6875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::#heading-start::ratio-19.1",
+      "representative": {
+        "id": "text-contrast-1451991246",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (19.06:1)",
+        "description": "The text \"Overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#heading-start",
+        "element": "h2",
+        "accessibleName": "Overview",
+        "measured": {
+          "contrastRatio": 19.06,
+          "fontSizePx": 16,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(9, 9, 11)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 288.15625,
+          "width": 288,
+          "height": 24.796875
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1451991246",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#heading-start",
+          "element": "h2",
+          "accessibleName": "Overview",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 288.15625,
+            "width": 288,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1451991246",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#heading-start",
+          "element": "h2",
+          "accessibleName": "Overview",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 288.15625,
+            "width": 343,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1451991246",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#heading-start",
+          "element": "h2",
+          "accessibleName": "Overview",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 266.46875,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::#heading-skip::ratio-19.1",
+      "representative": {
+        "id": "text-contrast-1575790781",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (19.06:1)",
+        "description": "The text \"Deeper subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#heading-skip",
+        "element": "h4",
+        "accessibleName": "Deeper subsection",
+        "measured": {
+          "contrastRatio": 19.06,
+          "fontSizePx": 16,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(9, 9, 11)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 263.359375,
+          "width": 288,
+          "height": 24.796875
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1575790781",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Deeper subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#heading-skip",
+          "element": "h4",
+          "accessibleName": "Deeper subsection",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 263.359375,
+            "width": 288,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1575790781",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Deeper subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#heading-skip",
+          "element": "h4",
+          "accessibleName": "Deeper subsection",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 263.359375,
+            "width": 343,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1575790781",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Deeper subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#heading-skip",
+          "element": "h4",
+          "accessibleName": "Deeper subsection",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 241.671875,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::#heading-return::ratio-19.1",
+      "representative": {
+        "id": "text-contrast-178014322",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (19.06:1)",
+        "description": "The text \"Next overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#heading-return",
+        "element": "h2",
+        "accessibleName": "Next overview",
+        "measured": {
+          "contrastRatio": 19.06,
+          "fontSizePx": 16,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(9, 9, 11)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 238.5625,
+          "width": 288,
+          "height": 24.796875
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-178014322",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Next overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#heading-return",
+          "element": "h2",
+          "accessibleName": "Next overview",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 238.5625,
+            "width": 288,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-178014322",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Next overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#heading-return",
+          "element": "h2",
+          "accessibleName": "Next overview",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 238.5625,
+            "width": 343,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-178014322",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Next overview\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#heading-return",
+          "element": "h2",
+          "accessibleName": "Next overview",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 216.875,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::#aria-heading::ratio-19.1",
+      "representative": {
+        "id": "text-contrast-1873302289",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (19.06:1)",
+        "description": "The text \"ARIA subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#aria-heading",
+        "element": "div",
+        "role": "heading",
+        "accessibleName": "ARIA subsection",
+        "measured": {
+          "contrastRatio": 19.06,
+          "fontSizePx": 16,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(9, 9, 11)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 213.765625,
+          "width": 288,
+          "height": 24.796875
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1873302289",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"ARIA subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#aria-heading",
+          "element": "div",
+          "role": "heading",
+          "accessibleName": "ARIA subsection",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 213.765625,
+            "width": 288,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1873302289",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"ARIA subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#aria-heading",
+          "element": "div",
+          "role": "heading",
+          "accessibleName": "ARIA subsection",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 213.765625,
+            "width": 343,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1873302289",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"ARIA subsection\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#aria-heading",
+          "element": "div",
+          "role": "heading",
+          "accessibleName": "ARIA subsection",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 192.078125,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::#heading-peer::ratio-19.1",
+      "representative": {
+        "id": "text-contrast-1876914880",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (19.06:1)",
+        "description": "The text \"Peer section\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#heading-peer",
+        "element": "h3",
+        "accessibleName": "Peer section",
+        "measured": {
+          "contrastRatio": 19.06,
+          "fontSizePx": 16,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(9, 9, 11)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 188.96875,
+          "width": 288,
+          "height": 24.796875
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1876914880",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Peer section\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#heading-peer",
+          "element": "h3",
+          "accessibleName": "Peer section",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 188.96875,
+            "width": 288,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1876914880",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Peer section\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#heading-peer",
+          "element": "h3",
+          "accessibleName": "Peer section",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 188.96875,
+            "width": 343,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1876914880",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (19.06:1)",
+          "description": "The text \"Peer section\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 19.06:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#heading-peer",
+          "element": "h3",
+          "accessibleName": "Peer section",
+          "measured": {
+            "contrastRatio": 19.06,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(9, 9, 11)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 167.28125,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 19.06:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    }
+  ],
+  "summary": {
+    "totalRawFindings": 37,
+    "totalGroupedIssues": 13,
+    "passCount": 12,
+    "candidateFailCount": 0,
+    "needsReviewCount": 1
+  },
+  "metricResults": [
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "skipped",
+      "applicability": "not_applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+      "measurements": [],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "needsReview",
+      "reason": "DOM heading order within the designated UI; deeper skips request context review. Returning to a higher rank is allowed.",
+      "measurements": [
+        {
+          "selector": "#heading-start",
+          "element": "h2",
+          "accessibleName": "Overview",
+          "boundingBox": {
+            "x": 16,
+            "y": 288.15625,
+            "width": 288,
+            "height": 24.796875
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        },
+        {
+          "selector": "#heading-skip",
+          "element": "h4",
+          "accessibleName": "Deeper subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 263.359375,
+            "width": 288,
+            "height": 24.796875
+          },
+          "level": 4,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 1,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#heading-start"
+          },
+          "skippedLevels": 1,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "selector": "#heading-return",
+          "element": "h2",
+          "accessibleName": "Next overview",
+          "boundingBox": {
+            "x": 16,
+            "y": 238.5625,
+            "width": 288,
+            "height": 24.796875
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 2,
+          "previousHeading": {
+            "level": 4,
+            "selector": "#heading-skip"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        {
+          "selector": "#aria-heading",
+          "element": "div",
+          "accessibleName": "ARIA subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 213.765625,
+            "width": 288,
+            "height": 24.796875
+          },
+          "level": 3,
+          "rawAriaLevel": "3",
+          "source": "aria",
+          "domIndex": 3,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#heading-return"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        {
+          "selector": "#heading-peer",
+          "element": "h3",
+          "accessibleName": "Peer section",
+          "boundingBox": {
+            "x": 16,
+            "y": 188.96875,
+            "width": 288,
+            "height": 24.796875
+          },
+          "level": 3,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 4,
+          "previousHeading": {
+            "level": 3,
+            "selector": "#aria-heading"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "skipped",
+      "applicability": "not_applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+      "measurements": [],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "needsReview",
+      "reason": "DOM heading order within the designated UI; deeper skips request context review. Returning to a higher rank is allowed.",
+      "measurements": [
+        {
+          "selector": "#heading-start",
+          "element": "h2",
+          "accessibleName": "Overview",
+          "boundingBox": {
+            "x": 16,
+            "y": 288.15625,
+            "width": 343,
+            "height": 24.796875
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        },
+        {
+          "selector": "#heading-skip",
+          "element": "h4",
+          "accessibleName": "Deeper subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 263.359375,
+            "width": 343,
+            "height": 24.796875
+          },
+          "level": 4,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 1,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#heading-start"
+          },
+          "skippedLevels": 1,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "selector": "#heading-return",
+          "element": "h2",
+          "accessibleName": "Next overview",
+          "boundingBox": {
+            "x": 16,
+            "y": 238.5625,
+            "width": 343,
+            "height": 24.796875
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 2,
+          "previousHeading": {
+            "level": 4,
+            "selector": "#heading-skip"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        {
+          "selector": "#aria-heading",
+          "element": "div",
+          "accessibleName": "ARIA subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 213.765625,
+            "width": 343,
+            "height": 24.796875
+          },
+          "level": 3,
+          "rawAriaLevel": "3",
+          "source": "aria",
+          "domIndex": 3,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#heading-return"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        {
+          "selector": "#heading-peer",
+          "element": "h3",
+          "accessibleName": "Peer section",
+          "boundingBox": {
+            "x": 16,
+            "y": 188.96875,
+            "width": 343,
+            "height": 24.796875
+          },
+          "level": 3,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 4,
+          "previousHeading": {
+            "level": 3,
+            "selector": "#aria-heading"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "skipped",
+      "applicability": "not_applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+      "measurements": [],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-metrics-heading",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "needsReview",
+      "reason": "DOM heading order within the designated UI; deeper skips request context review. Returning to a higher rank is allowed.",
+      "measurements": [
+        {
+          "selector": "#heading-start",
+          "element": "h2",
+          "accessibleName": "Overview",
+          "boundingBox": {
+            "x": 16,
+            "y": 266.46875,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        },
+        {
+          "selector": "#heading-skip",
+          "element": "h4",
+          "accessibleName": "Deeper subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 241.671875,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "level": 4,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 1,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#heading-start"
+          },
+          "skippedLevels": 1,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "selector": "#heading-return",
+          "element": "h2",
+          "accessibleName": "Next overview",
+          "boundingBox": {
+            "x": 16,
+            "y": 216.875,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 2,
+          "previousHeading": {
+            "level": 4,
+            "selector": "#heading-skip"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        {
+          "selector": "#aria-heading",
+          "element": "div",
+          "accessibleName": "ARIA subsection",
+          "boundingBox": {
+            "x": 16,
+            "y": 192.078125,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "level": 3,
+          "rawAriaLevel": "3",
+          "source": "aria",
+          "domIndex": 3,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#heading-return"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        {
+          "selector": "#heading-peer",
+          "element": "h3",
+          "accessibleName": "Peer section",
+          "boundingBox": {
+            "x": 16,
+            "y": 167.28125,
+            "width": 1408,
+            "height": 24.796875
+          },
+          "level": 3,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 4,
+          "previousHeading": {
+            "level": 3,
+            "selector": "#aria-heading"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    }
+  ],
+  "pageScreenshots": [
+    {
+      "width": 320,
+      "height": 640,
+      "path": "/screenshots/page-320-254a0aca-7b7a-4744-ae54-c6761a5a7ab0.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "path": "/screenshots/page-375-43e661f7-687e-4706-9fc3-947e67679fc6.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "path": "/screenshots/page-1440-d8250b7f-a4d7-4d80-b373-5e9c39b0ed2a.png"
+    }
+  ]
+}

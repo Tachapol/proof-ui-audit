@@ -1,6 +1,8 @@
 import { ProductContextSchema } from '@/lib/schema/product-context';
 import { z } from 'zod';
+import { PilotMetricMetadataSchema, PilotMetricResultSchema } from '@/lib/schema/pilot-metric';
 import {
+  ProposedFixSchema,
   AuditStatusSchema,
   PrioritySchema,
   DesignerDecisionSchema,
@@ -24,6 +26,7 @@ export function sanitizePath(rawPath?: string | null): string | undefined {
 }
 
 export const ReportOccurrenceSchema = z.object({
+  metric: PilotMetricMetadataSchema.optional(),
   id: z.string(),
   ruleId: z.string(),
   wcagCriterion: z.string(),
@@ -93,6 +96,7 @@ export const ReportIterationComparisonSchema = z.object({
 export type ReportIterationComparison = z.infer<typeof ReportIterationComparisonSchema>;
 
 export const ReportGroupedIssueSchema = z.object({
+  metric: PilotMetricMetadataSchema.optional(),
   fingerprint: z.string(),
   ruleId: z.string(),
   wcagCriterion: z.string(),
@@ -128,12 +132,14 @@ export const ReportGroupedIssueSchema = z.object({
   editedRecommendation: z.string().optional(),
   decisionHistory: z.array(DecisionRecordSchema).optional(),
   // Remediation & Iteration Proof
+  proposedFix: ProposedFixSchema.extend({ savedAt: z.string().datetime() }).optional(),
   iterationComparison: ReportIterationComparisonSchema.optional(),
   // Occurrences
   occurrences: z.array(ReportOccurrenceSchema),
 });
 
 export const ReportMetadataSchema = z.object({
+  metricResults: z.array(PilotMetricResultSchema).optional(),
   productContext: ProductContextSchema.optional(),
   runId: z.string(),
   timestamp: z.string(),

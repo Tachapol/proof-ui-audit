@@ -1,3 +1,4 @@
+import { captureIssueEvidence } from './screenshot-evidence';
 import { chromium, Browser, Page, BrowserContext } from '@playwright/test';
 import path from 'path';
 import fs from 'fs/promises';
@@ -5,24 +6,33 @@ import { TargetMeasurement, evaluateTargetSize, checkSpacingAlternative } from '
 import { TextContrastMeasurement, evaluateTextContrast } from './rules/text-contrast';
 import { NonTextContrastMeasurement, evaluateNonTextContrast } from './rules/non-text-contrast';
 import { evaluateTextSpacing } from './rules/text-spacing';
+import { evaluateReflow } from './rules/reflow';
+import { extractReflowMeasurement } from './reflow-extraction';
 import { compositeLayers, blendColors, applyElementOpacity, parseColor } from './color-math';
 import { isPrivateOrReservedIP } from './url-validator';
 import { UXIssue, Viewport } from '@/lib/schema/ux-issue';
 import { ProductContext } from '@/lib/schema/product-context';
+import type { PilotScope, PilotMetricResult } from '@/lib/schema/pilot-metric';
+import { extractPilotFromPage } from './pilot-browser';
+import { evaluateTouchTargetSpacing, evaluateHeadingHierarchy, unavailablePilotMetric, PILOT_METRIC_IDS } from './pilot-metrics';
 
 const SCREENSHOTS_DIR = path.resolve(process.cwd(), 'public/screenshots');
 
 export interface AuditOptions {
+  pilotScope?: PilotScope;
+  enablePilotMetrics?: boolean;
   url: string;
   viewports?: Viewport[];
   timeoutMs?: number;
   captureScreenshots?: boolean;
+  captureIssueScreenshots?: boolean;
   localOrigin?: string;
 }
 
 export const DEFAULT_AUDIT_VIEWPORTS: Viewport[] = [
   { width: 1440, height: 900 },  // Desktop (Default)
   { width: 375, height: 667 },   // Mobile
+  { width: 320, height: 640 },   // Reflow boundary; evaluate Reflow only at this width.
 ];
 
 async function ensureScreenshotDir() {
@@ -34,10 +44,12 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{
   errors: string[];
   pageScreenshots: Array<{ width: number; height: number; path: string }>;
   detectedContext?: Partial<ProductContext>;
+  metricResults: PilotMetricResult[];
 }> {
   await ensureScreenshotDir();
   const issues: UXIssue[] = [];
   const errors: string[] = [];
+  const metricResults: PilotMetricResult[] = [];
   const pageScreenshots: Array<{ width: number; height: number; path: string }> = [];
   let detectedContext: Partial<ProductContext> | undefined = undefined;
   const viewports = options.viewports || DEFAULT_AUDIT_VIEWPORTS;
@@ -154,6 +166,35 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{
 
         await page.waitForTimeout(300);
 
+        if (viewport.width === 320) {
+          try {
+            const measurement = await page.evaluate(extractReflowMeasurement, { viewport, selector: options.pilotScope?.selector });
+            issues.push(...evaluateReflow(measurement, options.url));
+          } catch (error) {
+            errors.push(`Reflow extraction at 320px failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          }
+        }
+
+        // Pilot metrics share one immutable snapshot, before text-spacing overrides.
+        if (options.enablePilotMetrics !== false) {
+          try {
+            const snapshot = await extractPilotFromPage(page, options.pilotScope);
+            for (const evaluate of [evaluateTouchTargetSpacing, evaluateHeadingHierarchy]) {
+              const evaluation = evaluate(snapshot, options.url, viewport);
+              metricResults.push(evaluation.result);
+              issues.push(...evaluation.issues);
+            }
+          } catch (err) {
+            const message = err instanceof Error ? err.message : 'Pilot extraction failed.';
+            for (const id of PILOT_METRIC_IDS) {
+              if (!metricResults.some(r => r.metricId === id && r.viewport.width === viewport.width && r.viewport.height === viewport.height)) {
+                metricResults.push(unavailablePilotMetric(id, options.url, viewport, 'error', message, options.pilotScope?.selector));
+              }
+            }
+            errors.push(`Pilot metrics at ${viewport.width}px: ${message}`);
+          }
+        }
+
         if (!detectedContext) {
           try {
             detectedContext = await page.evaluate(() => {
@@ -220,26 +261,12 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{
           pageScreenshots.push({width:viewport.width,height:viewport.height,path:`/screenshots/${filename}`});
         }
 
-        // Helper to capture screenshots safely
-        const captureIssueScreenshot = async (issue: UXIssue) => {
-          if (issue.status === 'pass' || options.captureScreenshots === false || !issue.boundingBox) return;
-          try {
-            const filename = `issue-${viewport.width}-${issue.id}.png`;
-            const filepath = path.join(SCREENSHOTS_DIR, filename);
-            const clip = {
-              x: Math.max(0, issue.boundingBox.x - 12),
-              y: Math.max(0, issue.boundingBox.y - 12),
-              width: Math.min(viewport.width, issue.boundingBox.width + 24),
-              height: Math.min(viewport.height, issue.boundingBox.height + 24),
-            };
-            if (clip.width > 0 && clip.height > 0) {
-              await page!.screenshot({ path: filepath, clip });
-              issue.screenshotPath = `/screenshots/${filename}`;
-            }
-          } catch {
-            // non-fatal screenshot error
-          }
-        };
+        const captureIssueScreenshot = (issue: UXIssue) =>
+          captureIssueEvidence(page!, issue, SCREENSHOTS_DIR, options.captureScreenshots !== false && options.captureIssueScreenshots !== false);
+
+        for (const issue of issues.filter(issue => (issue.metric || issue.ruleId === 'reflow') && issue.viewport.width === viewport.width && issue.viewport.height === viewport.height)) {
+          await captureIssueScreenshot(issue);
+        }
 
         // 1. Measure Target Size candidates
         const rawTargets: TargetMeasurement[] = await page.evaluate(() => {
@@ -821,5 +848,14 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{
     }
   }
 
-  return { issues, errors, pageScreenshots, detectedContext };
+  for (const viewport of viewports) {
+    for (const id of PILOT_METRIC_IDS) {
+      if (!metricResults.some(r => r.metricId === id && r.viewport.width === viewport.width && r.viewport.height === viewport.height)) {
+        metricResults.push(unavailablePilotMetric(id, options.url, viewport,
+          options.enablePilotMetrics === false ? 'skipped' : 'error',
+          options.enablePilotMetrics === false ? 'Pilot metrics excluded from this audit scope.' : 'Browser or navigation failed before pilot extraction.', options.pilotScope?.selector));
+      }
+    }
+  }
+  return { issues, errors, pageScreenshots, detectedContext, metricResults };
 }

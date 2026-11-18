@@ -1,7 +1,7 @@
 export interface FixtureDefinition {
   id: string;
   name: string;
-  category: 'target-size' | 'contrast' | 'reflow' | 'text-spacing';
+  category: 'target-size' | 'contrast' | 'reflow' | 'text-spacing' | 'pilot-metrics';
   description: string;
   path: string;
 }
@@ -95,6 +95,10 @@ export const PILOT_UI_FIXTURES: FixtureDefinition[] = [
 
 export const FIXTURES: FixtureDefinition[] = [
   ...PILOT_UI_FIXTURES,
+  ...['spacing', 'heading', 'context', 'exceptions', 'invalid', 'single', 'empty'].map(variant => ({
+    id: `pilot-metrics-${variant}`, name: `Pilot Metrics: ${variant}`, category: 'pilot-metrics' as const,
+    description: `Controlled ${variant} evidence for the two pilot project advisory metrics.`, path: `/fixtures/pilot-metrics-${variant}`,
+  })),
   { id: 'mvp-contrast-demo', name: 'Text Contrast MVP — Happy Path', category: 'contrast',
     description: 'Four controlled text cases: code measures, CPE LLM critiques one candidate issue, designer reviews.', path: '/fixtures/mvp-contrast-demo' },
   {

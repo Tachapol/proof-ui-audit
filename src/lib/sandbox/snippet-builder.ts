@@ -36,7 +36,7 @@ export function createSandboxSnippetFromIssue(issue: {
   <div class="pt-3 border-t border-zinc-100 flex items-center justify-between">
     <span class="text-xs text-zinc-400 font-medium">Element Action</span>
     <!-- Fails WCAG 2.2 SC 2.5.8 Target Size: Measured ${width}×${height}px (requires ≥ 24×24px) -->
-    <${element} class="btn bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded inline-flex items-center justify-center font-medium" style="width: ${width}px; height: ${height}px;">
+    <${element} data-canvas-target="true" class="btn bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded inline-flex items-center justify-center font-medium" style="width: ${width}px; height: ${height}px;">
       ${escapeHtml(label.slice(0, 30))}
     </${element}>
   </div>
@@ -60,7 +60,7 @@ export function createSandboxSnippetFromIssue(issue: {
     </div>
 
     <!-- Fails WCAG 2.2 SC 1.4.3: Contrast ratio is ${ratio}:1 (requires ≥ ${minRatio}:1) -->
-    <${element} class="text-xs leading-relaxed" style="color: ${textColor}; background-color: ${bgColor};">
+    <${element} data-canvas-target="true" class="text-xs leading-relaxed" style="color: ${textColor}; background-color: ${bgColor};">
       ${escapeHtml(label || 'This sample text does not provide adequate color contrast against its background.')}
     </${element}>
   </div>
@@ -82,7 +82,7 @@ export function createSandboxSnippetFromIssue(issue: {
   </div>
 
   <div class="p-3 rounded-lg bg-zinc-50 border border-zinc-200 text-xs">
-    <${element} class="text-xs text-zinc-700">
+    <${element} data-canvas-target="true" class="text-xs text-zinc-700">
       ${escapeHtml(label)}
     </${element}>
   </div>

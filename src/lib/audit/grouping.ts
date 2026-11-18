@@ -5,6 +5,10 @@ export function createMeasurementSignature(issue: UXIssue): string {
   const measured = issue.measured || {};
 
   switch (issue.ruleId) {
+    case 'touch-target-spacing':
+      return JSON.stringify({ version: issue.metric?.metricVersion, nearestSelector: (measured.nearestTarget as { selector?: string } | null)?.selector ?? null, distance: measured.distance, overlap: measured.overlap });
+    case 'heading-hierarchy':
+      return JSON.stringify({ version: issue.metric?.metricVersion, level: measured.level, previousHeading: measured.previousHeading, skippedLevels: measured.skippedLevels });
     case 'target-size': {
       const w = Math.round(Number(measured.width || 0));
       const h = Math.round(Number(measured.height || 0));
@@ -58,7 +62,7 @@ export function createMeasurementSignature(issue: UXIssue): string {
 }
 
 export function computeIssueFingerprint(issue: UXIssue): string {
-  const normSelector = issue.selector.trim().toLowerCase().replace(/\s+/g, ' ');
+  const normSelector = issue.metric ? issue.selector.trim() : issue.selector.trim().toLowerCase().replace(/\s+/g, ' ');
   const sig = createMeasurementSignature(issue);
   return `${issue.ruleId}::${normSelector}::${sig}`;
 }

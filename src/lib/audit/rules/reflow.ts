@@ -62,6 +62,11 @@ export interface ClippedControlInfo {
 }
 
 export interface ReflowMeasurement {
+  scopeSelector?: string;
+  scopeBoundingBox?: BoundingBox;
+  rawDocumentScrollWidth?: number;
+  rawDocumentClientWidth?: number;
+  rawScopeScrollWidth?: number;
   viewport: { width: number; height: number };
   scrollWidth: number;
   clientWidth: number;
@@ -201,6 +206,7 @@ export function evaluateReflow(
         accessibleName: nested.accessibleName,
         measured: {
           scrollWidth: nested.scrollWidth,
+          isNestedScroll: true,
           clientWidth: nested.clientWidth,
           horizontalOverflowPx: nested.overflowPx,
           isEssential2D: true,
@@ -231,6 +237,7 @@ export function evaluateReflow(
         accessibleName: nested.accessibleName,
         measured: {
           scrollWidth: nested.scrollWidth,
+          isNestedScroll: true,
           clientWidth: nested.clientWidth,
           horizontalOverflowPx: nested.overflowPx,
           computedStyles: nested.computedStyles,
@@ -343,6 +350,20 @@ export function evaluateReflow(
     });
   }
 
+  for (const issue of issues) {
+    issue.measured = { ...issue.measured, metricVersion: '1.1.0', unit: 'CSS px',
+      scopeSelector: measurement.scopeSelector || 'html',
+      rawHorizontalOverflowPx: measurement.horizontalOverflowPx,
+      rawDocumentScrollWidth: measurement.rawDocumentScrollWidth,
+      rawDocumentClientWidth: measurement.rawDocumentClientWidth,
+      rawScopeScrollWidth: measurement.rawScopeScrollWidth,
+      decorativeElementsExcludedCount: measurement.decorativeElementsExcludedCount || 0 };
+    if (issue.status === 'pass' && measurement.scopeSelector) {
+      issue.selector = measurement.scopeSelector;
+      issue.boundingBox = measurement.scopeBoundingBox;
+    }
+    issue.description += ` Measurement scope: ${measurement.scopeSelector || 'html'}.`;
+  }
   return issues;
 }
 

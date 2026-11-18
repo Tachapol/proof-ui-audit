@@ -70,8 +70,24 @@ export const TextSpacingEvidenceSchema = z.object({
 }).passthrough();
 export type TextSpacingEvidence = z.infer<typeof TextSpacingEvidenceSchema>;
 
+export const TouchTargetSpacingEvidenceSchema = z.object({
+  target: z.object({ selector: z.string(), boundingBox: z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() }) }).passthrough(),
+  nearestTarget: z.object({ selector: z.string() }).passthrough().nullable(),
+  distance: z.number().nonnegative().nullable(), overlap: z.boolean().nullable(),
+  overlapArea: z.number().nonnegative().nullable(),
+  unit: z.literal('CSS px'), metricVersion: z.literal('1.0.0'),
+}).passthrough();
+export const HeadingHierarchyEvidenceSchema = z.object({
+  level: z.number().int().positive().nullable(), domIndex: z.number().int().nonnegative(),
+  previousHeading: z.object({ level: z.number().int().positive(), selector: z.string().nullable() }).nullable(),
+  skippedLevels: z.number().int().nonnegative().nullable(),
+  unit: z.literal('heading level'), metricVersion: z.literal('1.0.0'),
+}).passthrough();
+
 // Map ruleId to its evidence schema
 export const RULE_EVIDENCE_SCHEMAS = {
+  'touch-target-spacing': TouchTargetSpacingEvidenceSchema,
+  'heading-hierarchy': HeadingHierarchyEvidenceSchema,
   'target-size': TargetSizeEvidenceSchema,
   'text-contrast': TextContrastEvidenceSchema,
   'non-text-contrast': NonTextContrastEvidenceSchema,
@@ -158,6 +174,18 @@ export function extractEvidenceMetrics(
   const metrics: FormattedMetric[] = [];
 
   switch (ruleId) {
+    case 'touch-target-spacing': {
+      metrics.push({ key: 'distance', label: 'Nearest edge gap (project advisory)', value: measured.distance === null ? 'No pair (null)' : String(measured.distance), unit: 'CSS px', rawValue: measured.distance });
+      metrics.push({ key: 'nearestTarget', label: 'Nearest target', value: (measured.nearestTarget as { selector?: string } | null)?.selector ?? 'None', rawValue: measured.nearestTarget });
+      metrics.push({ key: 'overlap', label: 'Overlap', value: measured.overlap === null ? 'Not measured' : String(measured.overlap), rawValue: measured.overlap });
+      break;
+    }
+    case 'heading-hierarchy': {
+      const previous = measured.previousHeading as { level: number } | null;
+      metrics.push({ key: 'levels', label: 'DOM heading transition (context review)', value: `${previous?.level ?? '?'} → ${measured.level ?? '?'}`, unit: 'heading level', rawValue: { previous, level: measured.level } });
+      metrics.push({ key: 'domIndex', label: 'DOM index', value: String(measured.domIndex), rawValue: measured.domIndex });
+      break;
+    }
     case 'target-size': {
       const w = typeof measured.width === 'number' ? Math.round(measured.width) : undefined;
       const h = typeof measured.height === 'number' ? Math.round(measured.height) : undefined;
@@ -374,6 +402,10 @@ export function getRuleEvidenceSummary(
   expected?: Record<string, unknown>
 ): string {
   switch (ruleId) {
+    case 'touch-target-spacing':
+      return measured.distance == null ? 'No nearest pair (null); project advisory not assessed' : `Nearest edge gap: ${measured.distance} CSS px (8 CSS px project advisory; overlap: ${measured.overlap})`;
+    case 'heading-hierarchy':
+      return `DOM heading level ${(measured.previousHeading as { level?: number } | null)?.level ?? '?'} → ${measured.level ?? '?'} (context review; no automatic WCAG failure)`;
     case 'target-size': {
       const w = measured.width !== undefined ? Math.round(Number(measured.width)) : '?';
       const h = measured.height !== undefined ? Math.round(Number(measured.height)) : '?';

@@ -44,9 +44,9 @@ export function AuditSummary({ summary, targetUrl, timestamp, runId, fixtureId }
   const metrics = [
     { label: 'Raw findings', value: summary.totalRawFindings, id: 'summary-raw-findings-count', tone: 'neutral' },
     { label: 'Grouped issues', value: summary.totalGroupedIssues, tone: 'neutral' },
-    { label: 'Pass', value: summary.passCount, tone: 'success' },
     { label: 'Candidate fail', value: summary.candidateFailCount, tone: 'danger' },
     { label: 'Needs review', value: summary.needsReviewCount, tone: 'warning' },
+    { label: 'Pass', value: summary.passCount, tone: 'success' },
   ];
 
   const metricStyles: Record<string, { card: string; dt: string; dd: string }> = {
@@ -97,14 +97,13 @@ export function AuditSummary({ summary, targetUrl, timestamp, runId, fixtureId }
           <p className="text-xs text-zinc-400">Completed at {formattedDate}</p>
         </div>
         {runId && (
-          <div className="export-actions flex flex-wrap items-center gap-2 shrink-0" aria-label="Report exports">
+          <div className="export-actions flex flex-wrap items-center gap-2 shrink-0" role="group" aria-label="Audit result actions">
             <Link
               href={`/studio?runId=${encodeURIComponent(runId)}`}
-              className="inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 transition-colors shadow-xs"
-              title="Open all findings and screenshots in Multi-Role Critique Studio"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 transition-colors shadow-xs"
             >
               <Icon name="Users" size={13} />
-              <span>Critique in Studio</span>
+              <span>Open in Critique Studio</span>
               <Icon name="ArrowRight" size={12} />
             </Link>
             <button

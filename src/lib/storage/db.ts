@@ -19,9 +19,8 @@ async function atomicWriteFile(filePath: string, data: string): Promise<void> {
 
 export async function saveAuditRun(run: AuditRun): Promise<void> {
   await ensureDirs();
-  const validated = AuditRunSchema.parse(run);
-  const filePath = path.join(RUNS_DIR, `${validated.id}.json`);
-  await atomicWriteFile(filePath, JSON.stringify(validated, null, 2));
+  const filePath = path.join(RUNS_DIR, `${run.id}.json`);
+  await atomicWriteFile(filePath, JSON.stringify(run, null, 2));
 }
 
 // In-process per-run mutex queue for serialized atomic updates
@@ -79,32 +78,28 @@ export async function listAuditRuns(): Promise<
   Array<{ id: string; targetUrl: string; fixtureId?: string; timestamp: string; summary: AuditRun['summary'] }>
 > {
   await ensureDirs();
-  try {
-    const files = await fs.readdir(RUNS_DIR);
-    const runs = [];
+  const files = await fs.readdir(RUNS_DIR);
+  const runs = [];
 
-    for (const file of files) {
-      if (file.endsWith('.json')) {
-        try {
-          const raw = await fs.readFile(path.join(RUNS_DIR, file), 'utf-8');
-          const run = AuditRunSchema.parse(JSON.parse(raw));
-          runs.push({
-            id: run.id,
-            targetUrl: run.targetUrl,
-            fixtureId: run.fixtureId,
-            timestamp: run.timestamp,
-            summary: run.summary,
-          });
-        } catch {
-          // ignore corrupted or unvalidated file in listing
-        }
+  for (const file of files) {
+    if (file.endsWith('.json')) {
+      try {
+        const raw = await fs.readFile(path.join(RUNS_DIR, file), 'utf-8');
+        const run = AuditRunSchema.parse(JSON.parse(raw));
+        runs.push({
+          id: run.id,
+          targetUrl: run.targetUrl,
+          fixtureId: run.fixtureId,
+          timestamp: run.timestamp,
+          summary: run.summary,
+        });
+      } catch {
+        // Skip unreadable or invalid records.
       }
     }
-
-    return runs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  } catch {
-    return [];
   }
+
+  return runs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
 export async function getLatestAuditRun(): Promise<AuditRun | null> {
@@ -307,6 +302,21 @@ export async function updateReviewDisposition(
     Object.assign(group.representative, review);
     group.decisionHistory.push({ id: crypto.randomUUID(), timestamp, action: 'review_disposition',
       reason: trimmedReason, reviewer: trimmedReviewer, previousDisposition, newDisposition: parsed });
+    await saveAuditRun(run);
+    return group;
+  });
+}
+
+/** Save an unverified draft independently of issue disposition and verification. */
+export async function saveProposedFix(runId: string, fingerprint: string, proposal: import('zod').z.infer<typeof import('@/lib/schema/ux-issue').ProposedFixSchema>) {
+  return withRunLock(runId, async () => {
+    const run = await getAuditRun(runId);
+    const group = run?.groupedIssues.find(g => g.fingerprint === fingerprint);
+    if (!run || !group) return null;
+    if (!group.occurrences.some(o => o.selector === proposal.selector && o.viewport.width === proposal.viewport.width && o.viewport.height === proposal.viewport.height)) {
+      throw new Error('Proposal does not match an audited occurrence.');
+    }
+    group.proposedFix = { ...proposal, savedAt: new Date().toISOString() };
     await saveAuditRun(run);
     return group;
   });

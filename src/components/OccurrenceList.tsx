@@ -110,7 +110,7 @@ export function OccurrenceList({ occurrences, fingerprint }: OccurrenceListProps
                         fontWeight: 600,
                       }}
                     >
-                      {badge.label}
+                      {occ.metric && occ.status === 'pass' ? 'Project advisory checked' : badge.label}
                     </span>
                   </div>
                   <span

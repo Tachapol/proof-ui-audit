@@ -12,8 +12,9 @@ test.describe('Critique Studio Integration & Summary Export', () => {
     // Wait for audit results
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
-    // Verify "Critique in Studio" button is present and links to /studio?runId=...
-    const studioLink = page.locator('a', { hasText: 'Critique in Studio' }).first();
+    const studioLink = page.getByRole('region', { name: 'Audit Result Summary' })
+      .getByRole('link', { name: 'Open in Critique Studio', exact: true });
+    await expect(page.locator('a[href^="/studio"]')).toHaveCount(1);
     await expect(studioLink).toBeVisible();
     const href = await studioLink.getAttribute('href');
     expect(href).toMatch(/^\/studio\?runId=/);

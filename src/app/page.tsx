@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { AuditInput } from '@/components/AuditInput';
 import { AuditSummary } from '@/components/AuditSummary';
 import { IssueCard } from '@/components/IssueCard';
@@ -9,25 +8,114 @@ import { VisualCanvasOverlay } from '@/components/VisualCanvasOverlay';
 import { NavigationRail } from '@/components/NavigationRail';
 import { StateView } from '@/components/StateViews';
 import { AuditUiStatus, TopBar } from '@/components/TopBar';
-import { AuditRun, AuditStatus } from '@/lib/schema/ux-issue';
+import { AuditRun, AuditStatus, GroupedUXIssue } from '@/lib/schema/ux-issue';
 import { Icon } from '@/components/Icon';
 import { FIXTURES } from '@/fixtures/fixture-registry';
 import { ProductContext } from '@/lib/schema/product-context';
+import { PilotMetricEvidence } from '@/components/PilotMetricEvidence';
+
+type ReviewStatus = Exclude<AuditStatus, 'pass'>;
+const reviewStatuses = [
+  { id: 'candidateFail', label: 'Candidate fail', tone: 'bg-rose-50 text-rose-700 border-rose-200' },
+  { id: 'needsReview', label: 'Needs review', tone: 'bg-amber-50 text-amber-700 border-amber-200' },
+] as const;
 
 export default function HomePage() {
   const [currentRun, setCurrentRun] = useState<AuditRun | null>(null);
+  const [isUnsavedRun, setIsUnsavedRun] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pipelineMessage, setPipelineMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [partialMessage, setPartialMessage] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | AuditStatus>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | ReviewStatus>('all');
   const [auditStatus, setAuditStatus] = useState<AuditUiStatus>('ready');
   const [pendingTarget, setPendingTarget] = useState('fixture://target-size-demo');
   const [activeFingerprint, setActiveFingerprint] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [hasInputValidationError, setHasInputValidationError] = useState(false);
+  const [showAuditForm, setShowAuditForm] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const runningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const restoreScrollRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('proofui_sidebar_collapsed');
+      if (saved === 'true') {
+        setSidebarCollapsed(true);
+      }
+    } catch { }
+  }, []);
+
+  const handleToggleSidebar = useCallback(() => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      setSidebarCollapsed((prev) => {
+        const next = !prev;
+        try {
+          localStorage.setItem('proofui_sidebar_collapsed', String(next));
+        } catch { }
+        return next;
+      });
+    } else {
+      setDrawerOpen((prev) => !prev);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        handleToggleSidebar();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleToggleSidebar]);
+
+  // Keep review navigation local to this tab and isolated by audit run.
+  useEffect(() => {
+    if (!currentRun) return;
+    const key = `proofui_audit_review:${currentRun.id}`;
+    let restoring = restoreScrollRef.current !== null;
+    let leaving = false;
+    const save = () => {
+      if (restoring || leaving) return;
+      try {
+        sessionStorage.setItem(key, JSON.stringify({ statusFilter, activeFingerprint, scrollY: window.scrollY }));
+      } catch { /* Review navigation still works when storage is unavailable. */ }
+    };
+    const frame = requestAnimationFrame(() => {
+      if (restoreScrollRef.current !== null) {
+        window.scrollTo({ top: restoreScrollRef.current, behavior: 'instant' });
+        restoreScrollRef.current = null;
+      }
+      restoring = false;
+      save();
+    });
+    window.addEventListener('scroll', save, { passive: true });
+    window.addEventListener('pagehide', save);
+    // Capture before Next.js resets the scroll position during navigation.
+    const onNavigate = (event: MouseEvent) => {
+      save();
+      const link = event.target instanceof Element ? event.target.closest('a') : null;
+      if (link && !link.hasAttribute('download') && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && link.target !== '_blank') {
+        const destination = new URL(link.href, window.location.href);
+        leaving = destination.pathname !== window.location.pathname;
+      }
+    };
+    document.addEventListener('click', onNavigate, true);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', save);
+      window.removeEventListener('pagehide', save);
+      document.removeEventListener('click', onNavigate, true);
+    };
+  }, [currentRun?.id, statusFilter, activeFingerprint]);
 
   useEffect(() => () => {
     if (runningTimerRef.current) clearTimeout(runningTimerRef.current);
@@ -36,16 +124,33 @@ export default function HomePage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const runId = params.get('runId');
-    if (!runId) return;
+    if (!runId) {
+      setShowAuditForm(true);
+      return;
+    }
+    setShowAuditForm(false);
     setIsLoading(true);
     setAuditStatus('queued');
     fetch(`/api/audit?id=${encodeURIComponent(runId)}`)
       .then((response) => response.json())
       .then((data) => {
         if (!data.success || !data.run) throw new Error(data.error || 'Saved audit run could not be loaded.');
+        try {
+          const saved = JSON.parse(sessionStorage.getItem(`proofui_audit_review:${runId}`) || 'null');
+          if (saved) {
+            if (['all', 'candidateFail', 'needsReview'].includes(saved.statusFilter)) setStatusFilter(saved.statusFilter);
+            if (data.run.groupedIssues.some((group: { fingerprint: string }) => group.fingerprint === saved.activeFingerprint)) {
+              setActiveFingerprint(saved.activeFingerprint);
+            }
+            if (Number.isFinite(saved.scrollY) && saved.scrollY >= 0) restoreScrollRef.current = saved.scrollY;
+          }
+        } catch { /* Ignore unavailable storage or outdated navigation state. */ }
         setCurrentRun(data.run);
+        setIsUnsavedRun(false);
         setPendingTarget(data.run.fixtureId ? `fixture://${data.run.fixtureId}` : data.run.targetUrl);
-        setAuditStatus('completed');
+        const warnings = data.run.auditWarnings;
+        setPartialMessage(warnings?.length ? `The audit completed with limited coverage: ${warnings.join('; ')}` : null);
+        setAuditStatus(warnings?.length ? 'partial' : 'completed');
       })
       .catch((caught: unknown) => {
         setError(caught instanceof Error ? caught.message : 'Saved audit run could not be loaded.');
@@ -72,13 +177,15 @@ export default function HomePage() {
         body: JSON.stringify({ target, productContext, autoDetectContext, html: htmlSnippet }),
       });
       const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.error || 'Failed to complete audit.');
+      const unsaved = data.saved === false && !!data.run;
+      if (!unsaved && (!response.ok || !data.success || !data.run)) throw new Error(data.error || 'Failed to complete audit.');
+      setIsUnsavedRun(unsaved);
       if (data.run.fixtureId === 'mvp-contrast-demo') {
         data.run.groupedIssues.sort((a: { status: string }, b: { status: string }) => Number(b.status === 'candidateFail') - Number(a.status === 'candidateFail'));
         setCurrentRun(data.run);
         setPipelineMessage('Step 2/3: Requesting LLM critique from measured evidence…');
         const candidate = data.run.groupedIssues.find((group: { status: string }) => group.status === 'candidateFail');
-        if (candidate) {
+        if (candidate && !unsaved) {
           try {
             const explained = await fetch('/api/explain', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ runId: data.run.id, fingerprint: candidate.fingerprint }) });
             const answer = await explained.json();
@@ -88,18 +195,27 @@ export default function HomePage() {
           } catch {
             setPipelineMessage('Measurements complete. Critique unavailable. Use Request Explanation on the candidate issue to retry.');
           }
-        } else setPipelineMessage('Measurements complete. No candidate issue requires critique.');
+        } else setPipelineMessage(unsaved ? 'Measurements complete. The run could not be saved.' : 'Measurements complete. No candidate issue requires critique.');
       }
       setCurrentRun({ ...data.run });
+      setShowAuditForm(false);
       setStatusFilter('all');
-      if (data.partialErrors?.length) {
-        setPartialMessage(`The audit completed with limited coverage: ${data.partialErrors.join('; ')}`);
+      setActiveFingerprint(null);
+      const warnings = data.partialErrors ?? data.run.auditWarnings;
+      if (warnings?.length) {
+        setPartialMessage(`The audit completed with limited coverage: ${warnings.join('; ')}`);
         setAuditStatus('partial');
       } else {
         setAuditStatus('completed');
       }
-      window.history.replaceState(null, '', `?runId=${encodeURIComponent(data.run.id)}`);
-      localStorage.setItem('proofui_last_run_id', data.run.id);
+      const url = new URL(window.location.href);
+      if (unsaved) {
+        url.searchParams.delete('runId');
+      } else {
+        url.searchParams.set('runId', data.run.id);
+        try { localStorage.setItem('proofui_last_run_id', data.run.id); } catch { /* Optional shortcut. */ }
+      }
+      window.history.replaceState(null, '', url);
     } catch (caught: unknown) {
       setError(caught instanceof Error ? caught.message : 'Audit execution error.');
       setAuditStatus('failed');
@@ -109,63 +225,194 @@ export default function HomePage() {
     }
   };
 
-  const filteredIssues = (currentRun?.groupedIssues || []).filter((issue) => statusFilter === 'all' || issue.status === statusFilter);
+  const groupedIssues = currentRun?.groupedIssues ?? [];
+  const reviewGroups = reviewStatuses.map(status => ({
+    ...status,
+    issues: groupedIssues.filter(issue => issue.status === status.id),
+  }));
+  const passedChecks = groupedIssues.filter(issue => issue.status === 'pass');
+  const reviewCount = groupedIssues.length - passedChecks.length;
+  const hasPartialResults = auditStatus === 'partial' || !!currentRun?.auditWarnings?.length;
+  const resultStatusLabel = hasPartialResults ? 'Partial results' : 'Audit completed';
+  const visibleReviewGroups = reviewGroups.filter(group =>
+    statusFilter === 'all' ? group.issues.length > 0 : group.id === statusFilter);
+
+  function openReviewGroup(status: ReviewStatus) {
+    setStatusFilter(status);
+    requestAnimationFrame(() => {
+      const heading = document.getElementById(`review-${status}`);
+      heading?.focus({ preventScroll: true });
+      heading?.scrollIntoView({ block: 'start' });
+    });
+  }
+
+  function handleDecisionSaved(updated: GroupedUXIssue) {
+    setCurrentRun(previous => previous ? {
+      ...previous,
+      groupedIssues: previous.groupedIssues.map(group => group.fingerprint === updated.fingerprint ? updated : group),
+    } : null);
+  }
   const currentFixtureDef = currentRun?.fixtureId ? FIXTURES.find((f) => f.id === currentRun.fixtureId) : undefined;
   const pendingFixtureId = pendingTarget.startsWith('fixture://') ? pendingTarget.replace('fixture://', '') : undefined;
   const pendingFixtureDef = pendingFixtureId ? FIXTURES.find((f) => f.id === pendingFixtureId) : undefined;
 
+  const fixtureShortCode = currentFixtureDef
+    ? (currentFixtureDef.name.includes(':') ? currentFixtureDef.name.split(':')[0].trim() : currentFixtureDef.name)
+    : (currentRun?.codeVersion ? `HTML Component (${currentRun.codeVersion})` : currentRun?.targetUrl || 'Audit');
+
   const displayTarget = currentRun
     ? (currentFixtureDef ? `${currentFixtureDef.name} (Sample UI)` : currentRun.codeVersion ? `HTML Component (${currentRun.codeVersion})` : currentRun.targetUrl)
     : (pendingFixtureDef ? `${pendingFixtureDef.name} (Sample UI)` : pendingTarget.startsWith('snippet://') ? 'HTML / CSS Component' : pendingTarget);
-  const viewportLabel = currentRun ? currentRun.viewports.map((viewport) => `${viewport.width}px`).join(' · ') : '320 · 375 · 1440px';
 
   return (
-    <div className="application-shell min-h-screen bg-zinc-50/50 text-zinc-950 font-sans antialiased">
+    <div className={`application-shell min-h-screen bg-zinc-50/50 text-zinc-950 font-sans antialiased${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
       <a className="skip-link" href="#main-content">Skip to main content</a>
-      <NavigationRail isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} currentRunId={currentRun?.id} currentFixtureId={currentRun?.fixtureId} triggerRef={menuButtonRef} />
+      <NavigationRail
+        isOpen={drawerOpen}
+        isCollapsed={sidebarCollapsed}
+        onClose={() => setDrawerOpen(false)}
+        onToggleCollapse={handleToggleSidebar}
+        currentRun={currentRun}
+        isUnsavedRun={isUnsavedRun}
+        triggerRef={menuButtonRef}
+      />
 
       <div className="workspace">
-        <TopBar menuButtonRef={menuButtonRef} onOpenNavigation={() => setDrawerOpen(true)} target={displayTarget} status={auditStatus} viewportLabel={viewportLabel} />
+        <TopBar
+          menuButtonRef={menuButtonRef}
+          onOpenNavigation={handleToggleSidebar}
+          target={displayTarget}
+          status={auditStatus}
+          isSidebarCollapsed={sidebarCollapsed}
+        />
         <div className="workspace-content max-w-5xl mx-auto px-4 py-6 md:px-8 md:py-8" inert={drawerOpen ? true : undefined} aria-hidden={drawerOpen ? true : undefined}>
           <main id="main-content" tabIndex={-1} className="outline-none space-y-6">
-            <header className="page-intro flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-zinc-200">
+            <header className="page-intro pb-4 border-b border-zinc-200">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl font-bold tracking-tight text-zinc-900">ProofUI Audit PoC</h1>
                   <span className="text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200 px-2 py-0.5 rounded-full">v1.0</span>
                 </div>
                 <p className="text-xs text-zinc-500">
-                  Deterministic accessibility measurements and evidence collection for WCAG 2.1 conformance.
+                  Checks selected WCAG 2.2 criteria and collects evidence for review.
                 </p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <Link
-                  href="/sandbox"
-                  className="inline-flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100 hover:border-blue-300 transition-colors"
-                >
-                  <Icon name="Layers" size={14} />
-                  <span>Component Sandbox</span>
-                </Link>
-                <Link
-                  href="/studio"
-                  className="inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3.5 py-2 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 transition-colors"
-                >
-                  <Icon name="Users" size={14} />
-                  <span>Open Critique Studio</span>
-                  <Icon name="ArrowRight" size={13} />
-                </Link>
               </div>
             </header>
 
-            <AuditInput
-              currentContext={currentRun?.productContext}
-              currentFixtureId={currentRun?.fixtureId}
-              onRunAudit={handleRunAudit}
-              onTargetChange={handleTargetChange}
-              onValidationStateChange={setHasInputValidationError}
-              isLoading={isLoading}
-              error={error}
-            />
+            {/* Run Results Header Banner when viewing an audit */}
+            {currentRun && (
+              <div
+                id="audit-run-banner"
+                className="audit-run-banner rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+              >
+                <div className="space-y-1.5 min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-base sm:text-lg font-bold tracking-tight text-zinc-900 break-all">
+                      {fixtureShortCode} · {resultStatusLabel}
+                    </h2>
+                    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${hasPartialResults
+                      ? 'border-amber-200 bg-amber-50 text-amber-800'
+                      : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`}>
+                      <Icon name={hasPartialResults ? 'AlertTriangle' : 'CheckCircle2'} size={12} />
+                      {resultStatusLabel}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-zinc-600">
+                    {reviewGroups.map(({ id, label, tone, issues }) => (
+                      <button key={id} type="button" onClick={() => openReviewGroup(id)}
+                        className={`inline-flex items-center gap-1.5 rounded-md border px-2 font-semibold hover:underline focus-visible:ring-2 focus-visible:ring-blue-600 ${tone}`}>
+                        {issues.length} {label}
+                        <Icon name="ChevronDown" size={12} aria-hidden="true" />
+                      </button>
+                    ))}
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 font-semibold">
+                      {passedChecks.length} Pass
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    id="new-audit-button"
+                    onClick={() => setShowAuditForm((prev) => !prev)}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all border shadow-2xs ${
+                      showAuditForm
+                        ? 'bg-zinc-900 text-white border-zinc-900 hover:bg-zinc-800'
+                        : 'bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900'
+                    }`}
+                    aria-expanded={showAuditForm}
+                    aria-controls="audit-setup-section"
+                  >
+                    <Icon name={showAuditForm ? 'ChevronUp' : 'Plus'} size={13} />
+                    <span>{showAuditForm ? 'Hide setup form' : 'New audit'}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Inline Setup Form ONLY when no audit run exists */}
+            {!currentRun && (
+              <div id="audit-setup-section" className="audit-setup-section space-y-4">
+                <AuditInput
+                  onRunAudit={handleRunAudit}
+                  onTargetChange={handleTargetChange}
+                  onValidationStateChange={setHasInputValidationError}
+                  isLoading={isLoading}
+                  error={error}
+                />
+              </div>
+            )}
+
+            {/* Modal Dialog for New Audit when viewing an existing audit run (does not push evidence down) */}
+            {currentRun && (
+              <div
+                className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-zinc-950/50 backdrop-blur-xs ${showAuditForm ? 'flex' : 'hidden'}`}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="new-audit-modal-title"
+                aria-hidden={!showAuditForm}
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) setShowAuditForm(false);
+                }}
+              >
+                <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-zinc-200 p-5 sm:p-6 space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
+                    <div>
+                      <h2 id="new-audit-modal-title" className="text-base font-bold text-zinc-900">
+                        Configure new audit
+                      </h2>
+                      <p className="text-xs text-zinc-500">
+                        Select a fixture or enter a target URL with product context to run a new audit.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAuditForm(false)}
+                      className="rounded-lg p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
+                      aria-label="Close setup modal"
+                    >
+                      <Icon name="X" size={18} />
+                    </button>
+                  </div>
+
+                  <div id="audit-setup-section" className={`audit-setup-section ${showAuditForm ? 'block' : 'hidden'}`}>
+                    <AuditInput
+                      currentContext={currentRun ? currentRun.productContext : undefined}
+                      currentFixtureId={currentRun ? currentRun.fixtureId : undefined}
+                      onRunAudit={async (target, context, autoDetect, html) => {
+                        setShowAuditForm(false);
+                        await handleRunAudit(target, context, autoDetect, html);
+                      }}
+                      onTargetChange={handleTargetChange}
+                      onValidationStateChange={setHasInputValidationError}
+                      isLoading={isLoading}
+                      error={error}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {pipelineMessage && (
               <div className="flex items-center gap-2.5 text-xs font-medium text-zinc-700 bg-zinc-100/90 border border-zinc-200/80 px-3.5 py-2.5 rounded-lg" role="status" aria-live="polite">
@@ -216,15 +463,6 @@ export default function HomePage() {
                     <span className="text-xs font-medium text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200/60 font-mono">
                       {currentRun.groupedIssues.length} grouped {currentRun.groupedIssues.length === 1 ? 'issue' : 'issues'}
                     </span>
-                    <Link
-                      href={`/studio?runId=${encodeURIComponent(currentRun.id)}`}
-                      className="hidden sm:inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 transition-colors"
-                      title="Open this audit in Critique Studio"
-                    >
-                      <Icon name="Users" size={13} />
-                      <span>Open in Studio</span>
-                      <Icon name="ArrowRight" size={12} />
-                    </Link>
                   </div>
                 </div>
 
@@ -252,37 +490,32 @@ export default function HomePage() {
                   summary={currentRun.summary}
                   targetUrl={currentRun.targetUrl}
                   timestamp={currentRun.timestamp}
-                  runId={currentRun.id}
+                  runId={isUnsavedRun ? undefined : currentRun.id}
                   fixtureId={currentRun.fixtureId}
                 />
+                {isUnsavedRun && (
+                  <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                    <strong>Unsaved run.</strong> The measurements are available for this visit. Run the audit again to save a new result.
+                  </p>
+                )}
+
+                <PilotMetricEvidence results={currentRun.metricResults} />
 
                 {/* Designer Visual Canvas Overlay */}
                 <VisualCanvasOverlay
                   currentRun={currentRun}
+                  readOnly={isUnsavedRun}
                   activeFingerprint={activeFingerprint}
                   onSelectIssue={(fp) => {
                     setActiveFingerprint(fp);
                   }}
-                  onDecisionSaved={(updated) => {
-                    setCurrentRun((previous) =>
-                      previous
-                        ? {
-                            ...previous,
-                            groupedIssues: previous.groupedIssues.map((group) =>
-                              group.fingerprint === updated.fingerprint ? updated : group
-                            ),
-                          }
-                        : null
-                    );
-                  }}
+                  onDecisionSaved={handleDecisionSaved}
                 />
 
                 <div className="filter-bar flex flex-wrap items-center gap-2 py-1" role="group" aria-label="Filter audit issues by status">
                   {([
-                    { id: 'all', label: 'All', count: currentRun.groupedIssues.length },
-                    { id: 'candidateFail', label: 'Candidate fail', count: currentRun.summary.candidateFailCount },
-                    { id: 'needsReview', label: 'Needs review', count: currentRun.summary.needsReviewCount },
-                    { id: 'pass', label: 'Pass', count: currentRun.summary.passCount },
+                    { id: 'all', label: 'All review items', count: reviewCount },
+                    ...reviewGroups.map(group => ({ id: group.id, label: group.label, count: group.issues.length })),
                   ] as const).map((filter) => {
                     const isActive = statusFilter === filter.id;
                     return (
@@ -290,19 +523,17 @@ export default function HomePage() {
                         key={filter.id}
                         type="button"
                         aria-pressed={isActive}
-                        aria-label={`Show ${filter.label.toLowerCase()} issues, ${filter.count}`}
+                        aria-label={`Show ${filter.label.toLowerCase()}${filter.id === 'all' ? '' : ' issues'}, ${filter.count}`}
                         onClick={() => setStatusFilter(filter.id)}
-                        className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all border ${
-                          isActive
-                            ? 'bg-zinc-900 text-white border-zinc-900 shadow-xs'
-                            : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900'
-                        }`}
+                        className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all border ${isActive
+                          ? 'bg-zinc-900 text-white border-zinc-900 shadow-xs'
+                          : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900'
+                          }`}
                       >
                         <span>{filter.label}</span>
                         <strong
-                          className={`text-[11px] font-mono font-medium px-1.5 py-0.2 rounded-full ${
-                            isActive ? 'bg-zinc-800 text-zinc-200' : 'bg-zinc-100 text-zinc-600'
-                          }`}
+                          className={`text-[11px] font-mono font-medium px-1.5 py-0.2 rounded-full ${isActive ? 'bg-zinc-800 text-zinc-200' : 'bg-zinc-100 text-zinc-600'
+                            }`}
                         >
                           ({filter.count})
                         </strong>
@@ -311,45 +542,32 @@ export default function HomePage() {
                   })}
                 </div>
 
-                {filteredIssues.length === 0 ? (
-                  <div className="filter-empty flex items-start gap-3 rounded-xl border border-zinc-200 bg-white p-5 shadow-xs" role="status">
-                    <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0 text-zinc-600 border border-zinc-200">
-                      <Icon name={statusFilter === 'candidateFail' ? 'CheckCircle2' : 'Info'} size={18} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-zinc-900">
-                        {statusFilter === 'candidateFail' ? 'No candidate issues found' : 'No cards match this filter'}
-                      </h3>
-                      <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
-                        {statusFilter === 'candidateFail'
-                          ? 'No automated measurements crossed the candidate-failure threshold in this run.'
-                          : 'Choose another status filter to return to the visible evidence.'}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="issue-feed space-y-4">
-                    {filteredIssues.map((issue) => (
-                      <IssueCard
-                        key={issue.fingerprint}
-                        issue={issue}
-                        runId={currentRun.id}
-                        onDecisionSaved={(updated) =>
-                          setCurrentRun((previous) =>
-                            previous
-                              ? {
-                                  ...previous,
-                                  groupedIssues: previous.groupedIssues.map((group) =>
-                                    group.fingerprint === updated.fingerprint ? updated : group
-                                  ),
-                                }
-                              : null
-                          )
-                        }
-                      />
-                    ))}
+                {visibleReviewGroups.length === 0 && (
+                  <div className="rounded-xl border border-zinc-200 bg-white p-5" role="status">
+                    <h3 className="text-sm font-semibold">No items to review in the measured results</h3>
                   </div>
                 )}
+                {visibleReviewGroups.map(({ id, label, issues }) => (
+                  <section key={id} aria-labelledby={`review-${id}`} className="space-y-3">
+                    <h3 id={`review-${id}`} tabIndex={-1} className="scroll-mt-24 text-sm font-semibold text-zinc-900">
+                      {label} ({issues.length})
+                    </h3>
+                    {issues.length === 0 ? (
+                      <p className="text-sm text-zinc-600">No items with this status in the measured results.</p>
+                    ) : (
+                      <div className="issue-feed space-y-4">
+                        {issues.map(issue => <IssueCard key={issue.fingerprint} issue={issue} runId={currentRun.id} readOnly={isUnsavedRun} onDecisionSaved={handleDecisionSaved} />)}
+                      </div>
+                    )}
+                  </section>
+                ))}
+                <details key={currentRun.id} className="rounded-xl border border-zinc-200 bg-white p-4">
+                  <summary className="cursor-pointer font-semibold text-zinc-900">Passed checks ({passedChecks.length})</summary>
+                  <div className="issue-feed mt-4 space-y-4">
+                    {passedChecks.length === 0 && <p className="text-sm text-zinc-600">No passed checks recorded in this run.</p>}
+                    {passedChecks.map(check => <IssueCard key={check.fingerprint} issue={check} runId={currentRun.id} />)}
+                  </div>
+                </details>
               </section>
             )}
           </main>

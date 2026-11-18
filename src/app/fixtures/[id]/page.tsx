@@ -1,4 +1,5 @@
 import { PilotUIFixture } from '@/fixtures/components/PilotUIFixture';
+import { PilotMetricsFixture } from '@/fixtures/components/PilotMetricsFixture';
 import { readStudio } from '@/lib/studio/store';
 import { notFound } from 'next/navigation';
 import { MvpContrastFixture } from '@/fixtures/components/MvpContrastFixture';
@@ -66,7 +67,8 @@ export default async function FixturePage({ params, searchParams }: FixturePageP
       </header>
 
       <style>{sessionCss}</style>
-      <main id="fixture-content">
+      <main id="fixture-content" data-audit-scope data-audit-parent-heading-level={id === 'pilot-metrics-context' ? '2' : undefined}>
+        {id.startsWith('pilot-metrics-') && <PilotMetricsFixture variant={id.replace('pilot-metrics-', '')} />}
         {/^pilot-ui-\d{2}$/.test(id) && <PilotUIFixture caseNumber={Number(id.slice(-2))} />}
         {fixture.id === 'mvp-contrast-demo' && <MvpContrastFixture />}
         {fixture.id === 'target-size-demo' && <TargetSizeFixture />}

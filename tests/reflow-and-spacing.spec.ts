@@ -14,7 +14,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
     // Filter to pass tab to verify clean pass
-    const passTab = page.locator('button', { hasText: 'Pass (' });
+    const passTab = page.locator('summary', { hasText: /^Passed checks \(/ });
     await passTab.click();
 
     const passCard = page.locator('article', { hasText: 'Content reflows without 2D scrolling' }).first();
@@ -80,7 +80,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
-    const passTab = page.locator('button', { hasText: 'Pass (' });
+    const passTab = page.locator('summary', { hasText: /^Passed checks \(/ });
     await passTab.click();
     await expect(page.locator('article', { hasText: 'Content reflows without 2D scrolling' }).first()).toBeVisible();
 
@@ -103,7 +103,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
-    const passTab = page.locator('button', { hasText: 'Pass (' });
+    const passTab = page.locator('summary', { hasText: /^Passed checks \(/ });
     await passTab.click();
     const wrapPassCard = page.locator('article', { hasText: 'Text wraps and container expands fluidly' }).first();
     await expect(wrapPassCard).toBeVisible();

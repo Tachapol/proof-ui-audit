@@ -1,6 +1,7 @@
 import { ProductContextSchema } from '@/lib/schema/product-context';
 import { z } from 'zod';
 import { AIExplanationResultSchema, AIGenerationRecordSchema } from './ai-response';
+import { PilotMetricMetadataSchema, PilotMetricResultSchema } from './pilot-metric';
 
 export * from './evidence';
 
@@ -44,6 +45,7 @@ export const BoundingBoxSchema = z.object({
 export type BoundingBox = z.infer<typeof BoundingBoxSchema>;
 
 export const UXIssueSchema = z.object({
+  metric: PilotMetricMetadataSchema.optional(),
   id: z.string().min(1),
   ruleId: z.string().min(1),
   wcagCriterion: z.string().min(1),
@@ -103,7 +105,14 @@ export const DecisionRecordSchema = z.object({
 });
 export type DecisionRecord = z.infer<typeof DecisionRecordSchema>;
 
+export const ProposedFixSchema = z.object({
+  css: z.string().min(1).max(20000), selector: z.string().min(1).max(2000),
+  viewport: ViewportSchema, source: z.literal('project_heuristic'),
+  verificationStatus: z.literal('unverified'),
+});
+
 export const GroupedUXIssueSchema = z.object({
+  proposedFix: ProposedFixSchema.extend({ savedAt: z.string().datetime() }).optional(),
   fingerprint: z.string().min(1),
   representative: UXIssueSchema,
   rawOccurrencesCount: z.number().int().positive(),
@@ -140,6 +149,12 @@ export const AuditSummarySchema = z.object({
 export type AuditSummary = z.infer<typeof AuditSummarySchema>;
 
 export const AuditRunSchema = z.object({
+  metricResults: z.array(PilotMetricResultSchema).optional(),
+  canvasImport: z.object({
+    sourceRunId: z.string(), fingerprint: z.string(), selector: z.string(),
+    proposalCss: z.string(), viewport: ViewportSchema,
+    scope: z.literal('isolated_reconstruction'),
+  }).optional(),
   pageScreenshots: z.array(z.object({width:z.number(),height:z.number(),path:z.string()})).optional(),
   auditWarnings: z.array(z.string()).optional(),
   productContext: ProductContextSchema.optional(),

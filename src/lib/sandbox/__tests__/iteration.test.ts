@@ -19,7 +19,7 @@ function issue(overrides: Partial<UXIssue> = {}): UXIssue {
   };
 }
 function audit(issues: UXIssue[], errors: string[] = []) {
-  vi.mocked(runBrowserAudit).mockResolvedValue({ issues, errors, pageScreenshots: [] });
+  vi.mocked(runBrowserAudit).mockResolvedValue({ issues, errors, pageScreenshots: [], metricResults: [] });
 }
 const run = (baseline = [issue()]) => runMultiCandidateIteration('<button id="target">Test</button>', baseline, 'http://localhost:3123');
 

@@ -1,13 +1,25 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { AuditRun, GroupedUXIssue, Viewport, DesignerDecision } from '@/lib/schema/ux-issue';
+import { AuditRun, GroupedUXIssue, Viewport, DesignerDecision, extractEvidenceMetrics } from '@/lib/schema/ux-issue';
 import { createSandboxSnippetFromIssue } from '@/lib/sandbox/snippet-builder';
 import { calculateContrastRatioRaw, parseColor } from '@/lib/audit/color-math';
-import { Icon } from './Icon';
+import { Icon, type IconName } from './Icon';
+
+// Standardized color uppercase hex formatter (e.g. #AAAAAA, #FFFFFF, #0F172A)
+function formatColorHex(colorStr?: string | null): string {
+  if (!colorStr) return '#000000';
+  const parsed = parseColor(colorStr);
+  if (!parsed) return colorStr.toUpperCase();
+  const r = Math.round(parsed.r).toString(16).padStart(2, '0').toUpperCase();
+  const g = Math.round(parsed.g).toString(16).padStart(2, '0').toUpperCase();
+  const b = Math.round(parsed.b).toString(16).padStart(2, '0').toUpperCase();
+  return `#${r}${g}${b}`;
+}
 
 interface VisualCanvasOverlayProps {
   currentRun: AuditRun;
+  readOnly?: boolean;
   activeFingerprint: string | null;
   onSelectIssue: (fingerprint: string) => void;
   onDecisionSaved?: (updated: GroupedUXIssue) => void;
@@ -35,10 +47,13 @@ interface IssuePinData {
   targetY: number;
 }
 
-const LEFT_GUTTER = 44; // Dedicated left rail width outside the UI page for pins
+const LEFT_GUTTER = 48;
+const PIN_HIT_SIZE = 44;
+const PIN_STEP = 28;
 
 export function VisualCanvasOverlay({
   currentRun,
+  readOnly = false,
   activeFingerprint,
   onSelectIssue,
   onDecisionSaved,
@@ -78,7 +93,7 @@ export function VisualCanvasOverlay({
   const [zoomScale, setZoomScale] = useState<number | 'fit'>('fit');
   const [showOverlays, setShowOverlays] = useState(true);
   const [autoFocusEnabled, setAutoFocusEnabled] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<'issues' | 'candidateFail' | 'needsReview' | 'all'>('issues');
+  const [statusFilter, setStatusFilter] = useState<'issues' | 'candidateFail' | 'needsReview' | 'pass'>('issues');
   const [boxDisplayMode, setBoxDisplayMode] = useState<'hover_focus' | 'all'>('hover_focus');
   const [hoveredFingerprint, setHoveredFingerprint] = useState<string | null>(null);
   const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
@@ -92,10 +107,11 @@ export function VisualCanvasOverlay({
   // Side-by-Side 2-Column Inspector Drawer states (360-420px resizable)
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
-  const [panelWidth, setPanelWidth] = useState(380);
+  const [panelWidth, setPanelWidth] = useState(560);
   const [isResizing, setIsResizing] = useState(false);
   const resizeStartXRef = useRef(0);
-  const resizeStartWidthRef = useRef(380);
+  const resizeStartWidthRef = useRef(560);
+  const rafIdRef = useRef<number | null>(null);
 
   // Backward-compatible alias for existing tests
   const isPopupOpen = isSidePanelOpen;
@@ -148,8 +164,8 @@ export function VisualCanvasOverlay({
     }
 
     // Filter actionable issues
-    const targetGroups = statusFilter === 'all'
-      ? sortedGroups
+    const targetGroups = statusFilter === 'pass'
+      ? sortedGroups.filter(group => group.status === 'pass')
       : sortedGroups.filter((g) => g.status === 'candidateFail' || g.status === 'needsReview');
 
     // Extract items with geometric occurrences for this viewport and sort vertically by Y
@@ -164,10 +180,12 @@ export function VisualCanvasOverlay({
       const rep = group.representative;
       if (!rep) continue;
       const ruleId = rep.ruleId || group.occurrences?.[0]?.ruleId || '';
+      const viewportOccurrence =
+        group.occurrences?.find(occ => occ.viewport?.width === selectedViewport.width &&
+          (group.status !== 'pass' || occ.viewport?.height === selectedViewport.height));
       const matchingOcc =
-        group.occurrences?.find((occ) => occ.viewport?.width === selectedViewport.width) ||
-        (rep.viewport?.width === selectedViewport.width ? rep : null) ||
-        rep;
+        viewportOccurrence || (group.status === 'pass' ? null : rep);
+      if (!matchingOcc) continue;
 
       if (matchingOcc && matchingOcc.boundingBox && matchingOcc.boundingBox.width > 0 && matchingOcc.boundingBox.height > 0) {
         geometricItems.push({ group, rep, ruleId, occ: matchingOcc });
@@ -180,28 +198,21 @@ export function VisualCanvasOverlay({
     geometricItems.sort((a, b) => a.occ.boundingBox.y - b.occ.boundingBox.y);
 
     let pinCounter = 1;
-    let lastPinY = -100;
+    let lastPinY = -PIN_STEP;
 
     for (const item of geometricItems) {
       const box = item.occ.boundingBox;
 
-      // Pin is placed in the left margin gutter (x = 11, width = 22, centered in 44px gutter)
-      const pinX = 11;
-      const idealY = Math.max(8, box.y + Math.min(box.height / 2 - 11, 8));
-
-      // Resolve vertical overlap along the gutter rail
-      let pinY = idealY;
-      if (pinY - lastPinY < 28) {
-        pinY = lastPinY + 28;
-      }
+      // Keep the marker and hit area in the gutter, including for edge-to-edge evidence.
+      const pinX = (LEFT_GUTTER - PIN_HIT_SIZE) / 2;
+      const pinY = Math.max(0, box.y + Math.min(box.height / 2, 18) - PIN_HIT_SIZE / 2, lastPinY + PIN_STEP);
       lastPinY = pinY;
 
-      const pinCenterX = pinX + 11;
-      const pinCenterY = pinY + 11;
+      const pinCenterX = LEFT_GUTTER / 2;
+      const pinCenterY = pinY + PIN_HIT_SIZE / 2;
 
-      // Target point on the element boundary inside the UI page (offset by LEFT_GUTTER)
-      const targetX = LEFT_GUTTER + box.x;
-      const targetY = Math.max(box.y + 4, Math.min(pinCenterY, box.y + box.height - 4));
+      const targetX = LEFT_GUTTER + Math.max(0, box.x);
+      const targetY = Math.max(box.y, Math.min(pinCenterY, box.y + box.height));
 
       calculatedPins.push({
         index: pinCounter++,
@@ -233,78 +244,6 @@ export function VisualCanvasOverlay({
       spacingSelectors: Array.from(new Set(sSels)),
     };
   }, [currentRun.groupedIssues, selectedViewport.width, statusFilter, selectedViewport]);
-
-  // Inject candidate CSS into iframe when optimizationMode is 'optimized'
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-
-    const applyOptimizationCss = () => {
-      try {
-        const doc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (!doc || !doc.head) return;
-
-        let styleEl = doc.getElementById('proofui-auto-optimize-styles') as HTMLStyleElement | null;
-        if (!styleEl) {
-          styleEl = doc.createElement('style');
-          styleEl.id = 'proofui-auto-optimize-styles';
-          doc.head.appendChild(styleEl);
-        }
-
-        if (optimizationMode === 'baseline') {
-          styleEl.textContent = '';
-          return;
-        }
-
-        let css = '';
-
-        if (activeMetrics.targetSize && targetSelectors.length > 0) {
-          const tSel = targetSelectors.join(', ');
-          css += `
-            /* Target Size Optimization: WCAG 2.2 AA 24px */
-            ${tSel} {
-              min-width: 24px !important;
-              min-height: 24px !important;
-              box-sizing: border-box !important;
-              transition: all 150ms ease !important;
-            }
-          `;
-        }
-
-        if (activeMetrics.contrast && contrastSelectors.length > 0) {
-          const cSel = contrastSelectors.join(', ');
-          css += `
-            /* Color Contrast Optimization: Minimum 4.5:1 Accessible Text */
-            ${cSel} {
-              color: #0f172a !important;
-              transition: color 150ms ease !important;
-            }
-          `;
-        }
-
-        if (activeMetrics.textSpacing && spacingSelectors.length > 0) {
-          const sSel = spacingSelectors.join(', ');
-          css += `
-            /* Text Spacing Optimization: Fluid Responsive Container */
-            ${sSel} {
-              height: auto !important;
-              min-height: fit-content !important;
-              overflow: visible !important;
-              max-width: 100% !important;
-            }
-          `;
-        }
-
-        styleEl.textContent = css;
-      } catch {
-        // Cross-origin fallback
-      }
-    };
-
-    applyOptimizationCss();
-    iframe.addEventListener('load', applyOptimizationCss);
-    return () => iframe.removeEventListener('load', applyOptimizationCss);
-  }, [optimizationMode, activeMetrics, iframeSrc, targetSelectors, contrastSelectors, spacingSelectors]);
 
   // Filtered pins
   const visiblePins = useMemo(() => {
@@ -360,7 +299,7 @@ export function VisualCanvasOverlay({
       if (ro) ro.disconnect();
       window.removeEventListener('resize', updateFitScale);
     };
-  }, [selectedViewport.width, isFullScreen, panelWidth, isSidePanelOpen]);
+  }, [selectedViewport.width, isFullScreen, isSidePanelOpen]);
 
   // Keyboard shortcut listener for Esc and outside click listener for View menu
   useEffect(() => {
@@ -404,7 +343,9 @@ export function VisualCanvasOverlay({
     };
   }, [isFullScreen]);
 
-  // Resizable drawer drag handlers
+  // Resizable drawer drag handlers: Smooth RAF tracking in Full Screen mode
+  const effectivePanelWidth = isFullScreen ? panelWidth : 560;
+
   const handleStartResize = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
@@ -415,25 +356,41 @@ export function VisualCanvasOverlay({
   useEffect(() => {
     if (!isResizing) return;
 
+    // Prevent text selection and disable iframe pointer events during drag for 100% smooth 60fps/120fps tracking
+    document.body.classList.add('canvas-drawer-resizing');
+
     const handleMouseMove = (e: MouseEvent) => {
-      const delta = resizeStartXRef.current - e.clientX;
-      const nextWidth = Math.max(260, Math.min(560, resizeStartWidthRef.current + delta));
-      setPanelWidth(nextWidth);
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+
+      rafIdRef.current = requestAnimationFrame(() => {
+        const delta = resizeStartXRef.current - e.clientX;
+        const nextWidth = Math.max(320, Math.min(680, resizeStartWidthRef.current + delta));
+        setPanelWidth(nextWidth);
+      });
     };
 
     const handleMouseUp = () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       setIsResizing(false);
+      document.body.classList.remove('canvas-drawer-resizing');
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('mouseup', handleMouseUp);
     return () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      document.body.classList.remove('canvas-drawer-resizing');
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isResizing]);
 
   const effectiveScale = zoomScale === 'fit' ? fitScale : zoomScale;
+  const viewportHeight = Math.max(selectedViewport.height, 620);
+  const frameWidth = selectedViewport.width + LEFT_GUTTER;
+  const frameHeight = showOverlays
+    ? Math.max(viewportHeight, (visiblePins.at(-1)?.pinY ?? 0) + PIN_HIT_SIZE)
+    : viewportHeight;
 
   // Zoom into active issue bounding box without changing audited viewport (1.5x for clear legibility)
   const handleZoomToIssue = useCallback((pinToZoom?: IssuePinData) => {
@@ -513,7 +470,7 @@ export function VisualCanvasOverlay({
 
   // 3-Way Issue Disposition: Confirm, Dismiss, or Leave for Review
   const handleDispositionChange = async (disposition: 'confirmed_issue' | 'false_positive' | 'needs_review') => {
-    if (!activePin || isSavingDecision) return;
+    if (readOnly || !activePin || activePin.status === 'pass' || isSavingDecision) return;
     setIsSavingDecision(true);
     setActionFeedback(null);
 
@@ -560,7 +517,7 @@ export function VisualCanvasOverlay({
 
   // Accept Fix into Spec: Records token into spec, explicitly unverified until Sandbox re-audit
   const handleAcceptFixIntoSpec = async () => {
-    if (!activePin || isSavingDecision) return;
+    if (readOnly || !activePin || activePin.status === 'pass' || isSavingDecision) return;
     setIsSavingDecision(true);
     setActionFeedback(null);
 
@@ -571,8 +528,7 @@ export function VisualCanvasOverlay({
         body: JSON.stringify({
           runId: currentRun.id,
           fingerprint: activePin.fingerprint,
-          decision: 'accept',
-          reason: 'Accepted proposed remediation fix into design token spec (automated verification pending in Sandbox)',
+          proposal: { css: getCssFixSnippet(activePin), selector: activePin.selector, viewport: selectedViewport, source: 'project_heuristic', verificationStatus: 'unverified' },
         }),
       });
 
@@ -581,7 +537,7 @@ export function VisualCanvasOverlay({
         throw new Error(data.error || 'Could not accept fix into spec.');
       }
 
-      setActionFeedback('Accepted into spec · Status unverified until Sandbox re-audit');
+      setActionFeedback('Proposed fix saved · Not re-audited');
       if (onDecisionSaved) {
         onDecisionSaved(data.updatedGroup);
       }
@@ -601,7 +557,7 @@ export function VisualCanvasOverlay({
     if (decision === 'reject') {
       return handleDispositionChange('false_positive');
     }
-    if (!activePin || isSavingDecision) return;
+    if (readOnly || !activePin || activePin.status === 'pass' || isSavingDecision) return;
     setIsSavingDecision(true);
     setActionFeedback(null);
 
@@ -636,36 +592,43 @@ export function VisualCanvasOverlay({
 
   const handleOpenInSandbox = (pin: IssuePinData) => {
     try {
-      const code = createSandboxSnippetFromIssue({
+      const baselineCode = createSandboxSnippetFromIssue({
         selector: pin.selector,
-        element: pin.selector.split(/[.#:[ ]/)[0] || 'button',
+        element: pin.groupedIssue.representative.element || 'div',
         title: pin.title,
-        accessibleName: (pin.measured?.accessibleName as string) || pin.title,
+        accessibleName: getElementTextAndTypography(pin).text,
         ruleId: pin.ruleId,
         wcagCriterion: pin.wcagCriterion,
         measured: pin.measured,
         expected: pin.expected,
       });
+      const css = getCssFixSnippet(pin);
+      const code = baselineCode + `<style>${css.replaceAll(pin.selector, '[data-canvas-target]').replace(/<\/style/gi, '')}</style>`;
       sessionStorage.setItem(
         'proofui_sandbox_init',
-        JSON.stringify({ code, source: 'canvas', title: pin.title, ruleId: pin.ruleId })
+        JSON.stringify({ code, baselineCode, proposalCss: css, sourceRunId: currentRun.id, fingerprint: pin.fingerprint, selector: pin.selector, viewport: selectedViewport, source: 'canvas', title: pin.title, ruleId: pin.ruleId })
       );
     } catch {
-      // Fallback
+      setActionFeedback('Could not prepare the proposed fix for Sandbox. Please try again.');
+      return;
     }
     window.location.href = '/sandbox?from=canvas';
   };
 
   // Deterministic single source of truth for contrast candidate calculations & consistency
   const getContrastRemediation = (pin: IssuePinData) => {
-    const textColor = (pin.measured?.color as string) || (pin.measured?.textColor as string) || (pin.measured?.indicatorColor as string) || '#737373';
+    const rawTextColor = (pin.measured?.color as string) || (pin.measured?.textColor as string) || (pin.measured?.indicatorColor as string) || '#737373';
     const rawBgColor = (pin.measured?.backgroundColor as string) || (pin.measured?.adjacentColor as string) || '#ffffff';
     const isTransparent = rawBgColor === 'transparent' || rawBgColor.startsWith('rgba(0, 0, 0, 0)') || rawBgColor.startsWith('rgba(0,0,0,0)');
-    const effectiveBg = isTransparent ? '#ffffff' : rawBgColor;
+    const effectiveBgRaw = isTransparent ? '#ffffff' : rawBgColor;
 
-    const bgRgba = parseColor(effectiveBg) || { r: 255, g: 255, b: 255, a: 1 };
+    const bgRgba = parseColor(effectiveBgRaw) || { r: 255, g: 255, b: 255, a: 1 };
     const isDarkBg = (bgRgba.r * 299 + bgRgba.g * 587 + bgRgba.b * 114) / 1000 < 128;
-    const candidateColor = isDarkBg ? '#ffffff' : '#0f172a';
+    const rawCandidate = isDarkBg ? '#ffffff' : '#0f172a';
+
+    const textColor = formatColorHex(rawTextColor);
+    const effectiveBg = formatColorHex(effectiveBgRaw);
+    const candidateColor = formatColorHex(rawCandidate);
 
     let candidateRatio = 4.5;
     try {
@@ -699,7 +662,7 @@ export function VisualCanvasOverlay({
 
   const getCssFixSnippet = (pin: IssuePinData): string => {
     if (pin.ruleId === 'target-size') {
-      return `/* WCAG 2.2 SC 2.5.8 Target Size (44px HIG / 24px WCAG AA) */\n${pin.selector} {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 10px 14px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n}`;
+      return `/* WCAG 2.2 SC 2.5.8 Target Size (44px HIG / 24px WCAG AA) */\n${pin.selector} {\n  min-width: 44px !important;\n  min-height: 44px !important;\n  padding: 10px 14px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n}`;
     }
     if (pin.ruleId.includes('contrast')) {
       const { candidateColor, candidateRatio } = getContrastRemediation(pin);
@@ -710,6 +673,37 @@ export function VisualCanvasOverlay({
     }
     return `/* WCAG Responsive Remediation */\n${pin.selector} {\n  max-width: 100% !important;\n}`;
   };
+
+  // Apply precisely the CSS displayed/copied for the selected occurrence.
+  const previewCss = activePin ? getCssFixSnippet(activePin) : '';
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const apply = () => {
+      try {
+        const doc = iframe.contentDocument;
+        if (!doc?.head) throw new Error('This website does not allow Canvas preview.');
+        let style = doc.getElementById('proofui-auto-optimize-styles');
+        if (!style) { style = doc.createElement('style'); style.id = 'proofui-auto-optimize-styles'; doc.head.appendChild(style); }
+        style.textContent = optimizationMode === 'optimized' ? previewCss : '';
+        if (optimizationMode === 'optimized' && (!activePin || !doc.querySelector(activePin.selector))) {
+          style.textContent = '';
+          throw new Error('The selected element was not found. Preview was not applied.');
+        }
+      } catch (error) {
+        if (optimizationMode === 'optimized') {
+          setOptimizationMode('baseline');
+          setActionFeedback(error instanceof Error ? error.message : 'Canvas preview unavailable.');
+        }
+      }
+    };
+    apply();
+    iframe.addEventListener('load', apply);
+    return () => {
+      iframe.removeEventListener('load', apply);
+      try { iframe.contentDocument?.getElementById('proofui-auto-optimize-styles')?.remove(); } catch { /* Inaccessible external document. */ }
+    };
+  }, [optimizationMode, previewCss, iframeSrc, activePin]);
 
   const getSpecNoteSnippet = (pin: IssuePinData): string => {
     if (pin.ruleId.includes('contrast')) {
@@ -736,7 +730,7 @@ export function VisualCanvasOverlay({
     const rawFontSize = pin.measured?.fontSizePx;
     const hasMeasuredFont = rawFontSize !== undefined && rawFontSize !== null && !isNaN(Number(rawFontSize)) && Number(rawFontSize) > 0;
     const fontSize = hasMeasuredFont
-      ? `${Math.min(20, Math.max(12, Math.round(Number(rawFontSize))))}px`
+      ? `${Number(rawFontSize)}px`
       : '14px';
 
     const fontWeight = pin.measured?.fontWeight
@@ -840,7 +834,7 @@ export function VisualCanvasOverlay({
   // Stacked Before / After comparison with authentic element text, line wrapping, and dynamic background handling
   const renderVisualComparison = (pin: IssuePinData) => {
     const { text: actualText, fontSize, fontWeight, isSimulatedFont } = getElementTextAndTypography(pin);
-    const elementBg = (pin.measured?.backgroundColor as string) || (pin.measured?.adjacentColor as string) || '#ffffff';
+    const elementBg = formatColorHex((pin.measured?.backgroundColor as string) || (pin.measured?.adjacentColor as string) || '#ffffff');
 
     if (pin.ruleId.includes('contrast')) {
       const {
@@ -857,185 +851,170 @@ export function VisualCanvasOverlay({
 
       return (
         <div className="comparison-stack">
-          {/* Before (Current baseline) */}
-          <div className="comparison-card card-before">
-            <div className="flex items-center justify-between">
-              <div className="card-badge badge-before">Baseline (Current)</div>
-              {isSimulatedFont && (
-                <span className="simulated-font-badge" title="Rendered text is authentic; font size is simulated">
-                  [Simulated typography]
-                </span>
+          {optimizationMode === 'baseline' ? (
+            /* Before (Current baseline) */
+            <div className="comparison-card card-before">
+              <div className="flex items-center justify-between">
+                <div className="card-badge badge-before">Baseline (Current)</div>
+                {isSimulatedFont && (
+                  <span className="simulated-font-badge" title="Rendered text is authentic; font size is simulated">
+                    [Simulated typography]
+                  </span>
+                )}
+              </div>
+              {/* Swatch box strictly preserves authentic element background without card tint bleeding */}
+              <div
+                className={`spec-visual-box box-before ${isTransparent ? 'is-transparent-bg' : ''}`}
+                style={{ backgroundColor: isTransparent ? undefined : effectiveBg }}
+              >
+                <div
+                  className="contrast-text-sample"
+                  style={{
+                    color: textColor,
+                    backgroundColor: isTransparent ? 'transparent' : effectiveBg,
+                    fontSize,
+                    fontWeight,
+                  }}
+                  title={actualText}
+                >
+                  {actualText}
+                </div>
+              </div>
+              {isCompositeOrComplex && (
+                <div className="bg-limitation-pill" title="Element has non-solid or transparent background context. Preview swatch shows solid fallback.">
+                  <Icon name="Info" size={11} />
+                  <span>Composite/Transparent BG · Refer to live Canvas</span>
+                </div>
               )}
+
+              {/* Single-row compact color display: ■ #HEX [Icon] · □ #HEX [Icon] */}
+              <div className="card-color-compact-row">
+                <span className="color-compact-item">
+                  <span className="color-prop-label">Text:</span>
+                  <span className="color-swatch-chip" style={{ backgroundColor: textColor }} />
+                  <code className="color-hex-val">{textColor}</code>
+                  <button
+                    type="button"
+                    className="btn-copy-mini"
+                    onClick={() => copyToClipboard(textColor, `HEX ${textColor}`)}
+                    title={copiedLabel === `HEX ${textColor}` ? 'Copied HEX' : `Copy HEX ${textColor}`}
+                    aria-label={`Copy HEX ${textColor}`}
+                  >
+                    <Icon name={copiedLabel === `HEX ${textColor}` ? 'Check' : 'Copy'} size={11} />
+                  </button>
+                </span>
+                <span className="color-compact-divider">·</span>
+                <span className="color-compact-item">
+                  <span className="color-prop-label">BG:</span>
+                  <span className="color-swatch-chip" style={{ backgroundColor: effectiveBg }} />
+                  <code className="color-hex-val">{effectiveBg}</code>
+                  <button
+                    type="button"
+                    className="btn-copy-mini"
+                    onClick={() => copyToClipboard(effectiveBg, `HEX ${effectiveBg}`)}
+                    title={copiedLabel === `HEX ${effectiveBg}` ? 'Copied HEX' : `Copy HEX ${effectiveBg}`}
+                    aria-label={`Copy HEX ${effectiveBg}`}
+                  >
+                    <Icon name={copiedLabel === `HEX ${effectiveBg}` ? 'Check' : 'Copy'} size={11} />
+                  </button>
+                </span>
+              </div>
+
+              <div className="spec-details">
+                <div className="spec-metric tone-danger">
+                  <strong>Measured:</strong> Below WCAG AA contrast threshold
+                </div>
+              </div>
             </div>
-            {/* Swatch box strictly preserves authentic element background without card tint bleeding */}
-            <div
-              className={`spec-visual-box box-before ${isTransparent ? 'is-transparent-bg' : ''}`}
-              style={{ backgroundColor: isTransparent ? undefined : effectiveBg }}
-            >
+          ) : (
+            /* After (Suggested preview - Neutral slate styling, NOT green) */
+            <div className="comparison-card card-after card-suggested">
+              <div className="flex items-center justify-between">
+                <div className="card-badge badge-after">Suggested Fix (Preview)</div>
+                <div className="projected-ratio-badge">
+                  <strong>Estimated: ~{candidateRatio.toFixed(2)}:1</strong>
+                </div>
+              </div>
+
+              {/* Swatch box strictly preserves authentic element background without card tint bleeding */}
               <div
-                className="contrast-text-sample"
-                style={{
-                  color: textColor,
-                  backgroundColor: isTransparent ? 'transparent' : effectiveBg,
-                  fontSize,
-                  fontWeight,
-                }}
-                title={actualText}
+                className={`spec-visual-box box-after ${isTransparent ? 'is-transparent-bg' : ''}`}
+                style={{ backgroundColor: isTransparent ? undefined : effectiveBg }}
               >
-                {actualText}
+                <div
+                  className="contrast-text-sample"
+                  style={{
+                    color: candidateColor,
+                    backgroundColor: isTransparent ? 'transparent' : effectiveBg,
+                    fontSize,
+                    fontWeight,
+                  }}
+                  title={actualText}
+                >
+                  {actualText}
+                </div>
               </div>
-            </div>
-            {isCompositeOrComplex && (
-              <div className="bg-limitation-pill" title="Element has non-solid or transparent background context. Preview swatch shows solid fallback.">
-                <Icon name="Info" size={11} />
-                <span>Composite/Transparent BG · Refer to live Canvas</span>
-              </div>
-            )}
 
-            {/* Color HEX breakdown with tokens and dedicated inline Copy HEX buttons */}
-            <div className="card-color-breakdown">
-              <div className="color-code-item">
-                <span className="color-prop-label">Text:</span>
-                <span className="color-swatch-chip" style={{ backgroundColor: textColor }} />
-                <code className="color-hex-val">{textColor}</code>
-                <span className="token-tag">{baselineTextToken}</span>
+              {/* Single-row compact color display: ■ #HEX [Icon] · □ #HEX [Icon] */}
+              <div className="card-color-compact-row">
+                <span className="color-compact-item">
+                  <span className="color-prop-label">Suggested:</span>
+                  <span className="color-swatch-chip" style={{ backgroundColor: candidateColor }} />
+                  <code className="color-hex-val">{candidateColor}</code>
+                  <button
+                    type="button"
+                    className="btn-copy-mini"
+                    onClick={() => copyToClipboard(candidateColor, `HEX ${candidateColor}`)}
+                    title={copiedLabel === `HEX ${candidateColor}` ? 'Copied HEX' : `Copy HEX ${candidateColor}`}
+                    aria-label={`Copy HEX ${candidateColor}`}
+                  >
+                    <Icon name={copiedLabel === `HEX ${candidateColor}` ? 'Check' : 'Copy'} size={11} />
+                  </button>
+                </span>
+                <span className="color-compact-divider">·</span>
+                <span className="color-compact-item">
+                  <span className="color-prop-label">BG:</span>
+                  <span className="color-swatch-chip" style={{ backgroundColor: effectiveBg }} />
+                  <code className="color-hex-val">{effectiveBg}</code>
+                  <button
+                    type="button"
+                    className="btn-copy-mini"
+                    onClick={() => copyToClipboard(effectiveBg, `HEX ${effectiveBg}`)}
+                    title={copiedLabel === `HEX ${effectiveBg}` ? 'Copied HEX' : `Copy HEX ${effectiveBg}`}
+                    aria-label={`Copy HEX ${effectiveBg}`}
+                  >
+                    <Icon name={copiedLabel === `HEX ${effectiveBg}` ? 'Check' : 'Copy'} size={11} />
+                  </button>
+                </span>
+              </div>
+
+              <div className="spec-details">
+                <div className="spec-metric tone-success">
+                  <strong>Recommended:</strong> Projected contrast satisfies WCAG AA (~{candidateRatio.toFixed(2)}:1)
+                </div>
+              </div>
+
+              {/* Compact secondary copy actions inside the suggested fix card */}
+              <div className="card-copy-actions">
                 <button
                   type="button"
-                  className="btn-copy-hex"
-                  onClick={() => copyToClipboard(textColor, `HEX ${textColor}`)}
-                  title={`Copy HEX ${textColor}`}
+                  className="action-btn btn-copy"
+                  onClick={() => copyToClipboard(getCssFixSnippet(pin), 'CSS Fix')}
                 >
-                  <Icon name={copiedLabel === `HEX ${textColor}` ? 'Check' : 'Copy'} size={11} />
-                  <span>{copiedLabel === `HEX ${textColor}` ? 'Copied' : 'Copy HEX'}</span>
+                  <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={11} />
+                  <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
                 </button>
-              </div>
-              <div className="color-code-item">
-                <span className="color-prop-label">Background:</span>
-                <span className="color-swatch-chip" style={{ backgroundColor: effectiveBg }} />
-                <code className="color-hex-val">{effectiveBg}</code>
-                <span className="token-tag">{bgToken}</span>
                 <button
                   type="button"
-                  className="btn-copy-hex"
-                  onClick={() => copyToClipboard(effectiveBg, `HEX ${effectiveBg}`)}
-                  title={`Copy HEX ${effectiveBg}`}
+                  className="action-btn btn-copy"
+                  onClick={() => copyToClipboard(getSpecNoteSnippet(pin), 'Design Token')}
                 >
-                  <Icon name={copiedLabel === `HEX ${effectiveBg}` ? 'Check' : 'Copy'} size={11} />
-                  <span>{copiedLabel === `HEX ${effectiveBg}` ? 'Copied' : 'Copy HEX'}</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="spec-details">
-              <div className="spec-metric tone-danger">
-                <strong>Measured:</strong> Below WCAG AA contrast threshold
-              </div>
-            </div>
-          </div>
-
-          {/* After (Suggested preview - Neutral slate styling, NOT green) */}
-          <div className="comparison-card card-after card-suggested">
-            <div className="flex items-center justify-between">
-              <div className="card-badge badge-after">Suggested Fix (Preview)</div>
-              <span className="unverified-pill">Not re-audited</span>
-            </div>
-
-            {/* Header Action Row: Projected Ratio + Draft Simulation tag + Preview on Canvas toggle */}
-            <div className="suggested-card-header-actions">
-              <div className="projected-ratio-badge">
-                <strong>Estimated: ~{candidateRatio.toFixed(2)}:1</strong>
-                <span className="draft-simulation-tag">Draft Simulation · Not Re-audited</span>
-              </div>
-              <button
-                type="button"
-                className={`card-preview-canvas-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
-                onClick={() => setOptimizationMode(optimizationMode === 'optimized' ? 'baseline' : 'optimized')}
-                title="Toggle live candidate preview on Canvas"
-              >
-                <Icon name={optimizationMode === 'optimized' ? 'Check' : 'Sparkles'} size={12} />
-                <span>{optimizationMode === 'optimized' ? 'Previewing on Canvas' : 'Preview on Canvas'}</span>
-              </button>
-            </div>
-
-            {/* Swatch box strictly preserves authentic element background without card tint bleeding */}
-            <div
-              className={`spec-visual-box box-after ${isTransparent ? 'is-transparent-bg' : ''}`}
-              style={{ backgroundColor: isTransparent ? undefined : effectiveBg }}
-            >
-              <div
-                className="contrast-text-sample"
-                style={{
-                  color: candidateColor,
-                  backgroundColor: isTransparent ? 'transparent' : effectiveBg,
-                  fontSize,
-                  fontWeight,
-                }}
-                title={actualText}
-              >
-                {actualText}
-              </div>
-            </div>
-
-            {/* Color HEX breakdown for candidate with tokens and dedicated inline Copy HEX buttons */}
-            <div className="card-color-breakdown">
-              <div className="color-code-item">
-                <span className="color-prop-label">Suggested:</span>
-                <span className="color-swatch-chip" style={{ backgroundColor: candidateColor }} />
-                <code className="color-hex-val">{candidateColor}</code>
-                <span className="token-tag">{candidateTextToken}</span>
-                <button
-                  type="button"
-                  className="btn-copy-hex"
-                  onClick={() => copyToClipboard(candidateColor, `HEX ${candidateColor}`)}
-                  title={`Copy HEX ${candidateColor}`}
-                >
-                  <Icon name={copiedLabel === `HEX ${candidateColor}` ? 'Check' : 'Copy'} size={11} />
-                  <span>{copiedLabel === `HEX ${candidateColor}` ? 'Copied' : 'Copy HEX'}</span>
-                </button>
-              </div>
-              <div className="color-code-item">
-                <span className="color-prop-label">Background:</span>
-                <span className="color-swatch-chip" style={{ backgroundColor: effectiveBg }} />
-                <code className="color-hex-val">{effectiveBg}</code>
-                <span className="token-tag">{bgToken}</span>
-                <button
-                  type="button"
-                  className="btn-copy-hex"
-                  onClick={() => copyToClipboard(effectiveBg, `HEX ${effectiveBg}`)}
-                  title={`Copy HEX ${effectiveBg}`}
-                >
-                  <Icon name={copiedLabel === `HEX ${effectiveBg}` ? 'Check' : 'Copy'} size={11} />
-                  <span>{copiedLabel === `HEX ${effectiveBg}` ? 'Copied' : 'Copy HEX'}</span>
+                  <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={11} />
+                  <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
                 </button>
               </div>
             </div>
-
-            <div className="spec-details">
-              <div className="spec-metric tone-success">
-                <strong>Recommended:</strong> Projected contrast satisfies WCAG AA (~{candidateRatio.toFixed(2)}:1)
-              </div>
-            </div>
-
-            {/* Compact secondary copy actions inside the suggested fix card */}
-            <div className="card-copy-actions">
-              <button
-                type="button"
-                className="action-btn btn-copy"
-                onClick={() => copyToClipboard(getCssFixSnippet(pin), 'CSS Fix')}
-              >
-                <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={12} />
-                <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
-              </button>
-              <button
-                type="button"
-                className="action-btn btn-copy"
-                onClick={() => copyToClipboard(getSpecNoteSnippet(pin), 'Design Token')}
-              >
-                <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={12} />
-                <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       );
     }
@@ -1046,7 +1025,128 @@ export function VisualCanvasOverlay({
 
       return (
         <div className="comparison-stack">
-          {/* Before (Current baseline) */}
+          {optimizationMode === 'baseline' ? (
+            /* Before (Current baseline) */
+            <div className="comparison-card card-before">
+              <div className="flex items-center justify-between">
+                <div className="card-badge badge-before">Baseline (Current)</div>
+                {isSimulatedFont && (
+                  <span className="simulated-font-badge" title="Rendered text is authentic; font size is simulated">
+                    [Simulated typography]
+                  </span>
+                )}
+              </div>
+              <div className="spec-visual-box box-before" style={{ backgroundColor: elementBg }}>
+                <div
+                  className="measured-box-mock"
+                  style={{
+                    width: `${Math.min(measuredWidth, 72)}px`,
+                    height: `${Math.min(measuredHeight, 44)}px`,
+                  }}
+                  title={actualText}
+                >
+                  {actualText.length <= 12 ? actualText : `${measuredWidth}×${measuredHeight}`}
+                </div>
+              </div>
+
+              <div className="card-color-compact-row">
+                <span className="color-compact-item">
+                  <span className="color-prop-label">Measured:</span>
+                  <code className="color-hex-val">{measuredWidth}×{measuredHeight}px</code>
+                  <button
+                    type="button"
+                    className="btn-copy-mini"
+                    onClick={() => copyToClipboard(`${measuredWidth}x${measuredHeight}px`, 'Baseline Spec')}
+                    title={copiedLabel === 'Baseline Spec' ? 'Copied' : 'Copy baseline dimensions'}
+                    aria-label="Copy baseline dimensions"
+                  >
+                    <Icon name={copiedLabel === 'Baseline Spec' ? 'Check' : 'Copy'} size={11} />
+                  </button>
+                </span>
+              </div>
+
+              <div className="spec-details">
+                <div className="spec-metric tone-danger">
+                  <strong>Measured:</strong> Below 24×24px minimum touch target
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* After (Suggested preview - Neutral styling) */
+            <div className="comparison-card card-after card-suggested">
+              <div className="flex items-center justify-between">
+                <div className="card-badge badge-after">Suggested Fix</div>
+                <div className="projected-ratio-badge">
+                  <strong>Estimated: 44×44px Target Spec</strong>
+                </div>
+              </div>
+
+              <div className="spec-visual-box box-after" style={{ backgroundColor: elementBg }}>
+                <div
+                  className="candidate-box-mock"
+                  style={{
+                    minWidth: '44px',
+                    height: '44px',
+                    padding: '0 12px',
+                  }}
+                  title={actualText}
+                >
+                  <span>{actualText.length <= 16 ? actualText : '44×44px Target Spec'}</span>
+                  <span className="candidate-padding-guide">Touch Target Spec</span>
+                </div>
+              </div>
+
+              <div className="card-color-compact-row">
+                <span className="color-compact-item">
+                  <span className="color-prop-label">Recommended:</span>
+                  <code className="color-hex-val">44×44px</code>
+                  <button
+                    type="button"
+                    className="btn-copy-mini"
+                    onClick={() => copyToClipboard('44px', 'Target Token')}
+                    title={copiedLabel === 'Target Token' ? 'Copied' : 'Copy target size token'}
+                    aria-label="Copy target size token"
+                  >
+                    <Icon name={copiedLabel === 'Target Token' ? 'Check' : 'Copy'} size={11} />
+                  </button>
+                </span>
+              </div>
+
+              <div className="spec-details">
+                <div className="spec-metric tone-success">
+                  <strong>Recommended:</strong> 44×44px Target Spec
+                </div>
+              </div>
+
+              {/* Compact secondary copy actions right inside the suggested fix card */}
+              <div className="card-copy-actions">
+                <button
+                  type="button"
+                  className="action-btn btn-copy"
+                  onClick={() => copyToClipboard(getCssFixSnippet(pin), 'CSS Fix')}
+                >
+                  <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={11} />
+                  <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
+                </button>
+                <button
+                  type="button"
+                  className="action-btn btn-copy"
+                  onClick={() => copyToClipboard(getSpecNoteSnippet(pin), 'Design Token')}
+                >
+                  <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={11} />
+                  <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Default / Text spacing / Reflow
+    return (
+      <div className="comparison-stack">
+        {optimizationMode === 'baseline' ? (
           <div className="comparison-card card-before">
             <div className="flex items-center justify-between">
               <div className="card-badge badge-before">Baseline (Current)</div>
@@ -1058,100 +1158,54 @@ export function VisualCanvasOverlay({
             </div>
             <div className="spec-visual-box box-before" style={{ backgroundColor: elementBg }}>
               <div
-                className="measured-box-mock"
                 style={{
-                  width: `${Math.min(measuredWidth, 72)}px`,
-                  height: `${Math.min(measuredHeight, 44)}px`,
+                  fontSize: '11px',
+                  color: '#b42318',
+                  fontWeight: 600,
+                  padding: '0 10px',
+                  wordBreak: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: 1.4,
                 }}
                 title={actualText}
               >
-                {actualText.length <= 12 ? actualText : `${measuredWidth}×${measuredHeight}`}
+                {actualText.length > 0 ? actualText : 'Fixed Height Overflow'}
               </div>
             </div>
-
-            <div className="card-color-breakdown">
-              <div className="color-code-item">
-                <span className="color-prop-label">Measured:</span>
-                <code className="color-hex-val">{measuredWidth}×{measuredHeight}px</code>
-                <span className="token-tag">var(--size-touch-target-baseline)</span>
-                <button
-                  type="button"
-                  className="btn-copy-hex"
-                  onClick={() => copyToClipboard(`${measuredWidth}x${measuredHeight}px`, 'Baseline Spec')}
-                  title="Copy baseline dimensions"
-                >
-                  <Icon name={copiedLabel === 'Baseline Spec' ? 'Check' : 'Copy'} size={11} />
-                  <span>{copiedLabel === 'Baseline Spec' ? 'Copied' : 'Copy Spec'}</span>
-                </button>
-              </div>
-            </div>
-
             <div className="spec-details">
               <div className="spec-metric tone-danger">
-                <strong>Measured:</strong> Below 24×24px minimum touch target
+                <strong>Measured:</strong> Fixed container height clipping text
               </div>
             </div>
           </div>
-
-          {/* After (Suggested preview - Neutral styling) */}
+        ) : (
           <div className="comparison-card card-after card-suggested">
             <div className="flex items-center justify-between">
-              <div className="card-badge badge-after">Suggested Fix (Preview)</div>
-              <span className="unverified-pill">Not re-audited</span>
-            </div>
-
-            {/* Header Action Row: Projected Spec + Draft Simulation tag + Preview on Canvas toggle */}
-            <div className="suggested-card-header-actions">
+              <div className="card-badge badge-after">Suggested Fix</div>
               <div className="projected-ratio-badge">
-                <strong>Estimated: 44×44px Target Spec</strong>
-                <span className="draft-simulation-tag">Draft Simulation · Not Re-audited</span>
+                <strong>Estimated: Fluid auto</strong>
               </div>
-              <button
-                type="button"
-                className={`card-preview-canvas-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
-                onClick={() => setOptimizationMode(optimizationMode === 'optimized' ? 'baseline' : 'optimized')}
-                title="Toggle live candidate preview on Canvas"
-              >
-                <Icon name={optimizationMode === 'optimized' ? 'Check' : 'Sparkles'} size={12} />
-                <span>{optimizationMode === 'optimized' ? 'Previewing on Canvas' : 'Preview on Canvas'}</span>
-              </button>
             </div>
 
             <div className="spec-visual-box box-after" style={{ backgroundColor: elementBg }}>
               <div
-                className="candidate-box-mock"
                 style={{
-                  minWidth: '44px',
-                  height: '44px',
-                  padding: '0 12px',
+                  fontSize: '11px',
+                  color: '#334155',
+                  fontWeight: 600,
+                  padding: '0 10px',
+                  wordBreak: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: 1.4,
                 }}
                 title={actualText}
               >
-                <span>{actualText.length <= 16 ? actualText : '44×44px Target Spec'}</span>
-                <span className="candidate-padding-guide">Touch Target Spec</span>
+                {actualText.length > 0 ? actualText : 'Fluid Height Container'}
               </div>
             </div>
-
-            <div className="card-color-breakdown">
-              <div className="color-code-item">
-                <span className="color-prop-label">Recommended:</span>
-                <code className="color-hex-val">44×44px</code>
-                <span className="token-tag">var(--size-touch-target-min)</span>
-                <button
-                  type="button"
-                  className="btn-copy-hex"
-                  onClick={() => copyToClipboard('44px', 'Target Token')}
-                  title="Copy token size"
-                >
-                  <Icon name={copiedLabel === 'Target Token' ? 'Check' : 'Copy'} size={11} />
-                  <span>{copiedLabel === 'Target Token' ? 'Copied' : 'Copy Token'}</span>
-                </button>
-              </div>
-            </div>
-
             <div className="spec-details">
               <div className="spec-metric tone-success">
-                <strong>Recommended:</strong> 44×44px Target Spec
+                <strong>Recommended:</strong> <code>height: auto</code> fluid flow
               </div>
             </div>
 
@@ -1162,7 +1216,7 @@ export function VisualCanvasOverlay({
                 className="action-btn btn-copy"
                 onClick={() => copyToClipboard(getCssFixSnippet(pin), 'CSS Fix')}
               >
-                <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={12} />
+                <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={11} />
                 <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
               </button>
               <button
@@ -1170,114 +1224,12 @@ export function VisualCanvasOverlay({
                 className="action-btn btn-copy"
                 onClick={() => copyToClipboard(getSpecNoteSnippet(pin), 'Design Token')}
               >
-                <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={12} />
+                <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={11} />
                 <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
               </button>
             </div>
           </div>
-        </div>
-      );
-    }
-
-    // Default / Text spacing / Reflow
-    return (
-      <div className="comparison-stack">
-        <div className="comparison-card card-before">
-          <div className="flex items-center justify-between">
-            <div className="card-badge badge-before">Baseline (Current)</div>
-            {isSimulatedFont && (
-              <span className="simulated-font-badge" title="Rendered text is authentic; font size is simulated">
-                [Simulated typography]
-              </span>
-            )}
-          </div>
-          <div className="spec-visual-box box-before" style={{ backgroundColor: elementBg }}>
-            <div
-              style={{
-                fontSize: '11px',
-                color: '#b42318',
-                fontWeight: 600,
-                padding: '0 10px',
-                wordBreak: 'break-word',
-                whiteSpace: 'pre-wrap',
-                lineHeight: 1.4,
-              }}
-              title={actualText}
-            >
-              {actualText.length > 0 ? actualText : 'Fixed Height Overflow'}
-            </div>
-          </div>
-          <div className="spec-details">
-            <div className="spec-metric tone-danger">
-              <strong>Measured:</strong> Fixed container height clipping text
-            </div>
-          </div>
-        </div>
-
-        <div className="comparison-card card-after card-suggested">
-          <div className="flex items-center justify-between">
-            <div className="card-badge badge-after">Suggested Fix (Preview)</div>
-            <span className="unverified-pill">Not re-audited</span>
-          </div>
-
-          <div className="suggested-card-header-actions">
-            <div className="projected-ratio-badge">
-              <strong>Estimated: Fluid auto</strong>
-              <span className="draft-simulation-tag">Draft Simulation · Not Re-audited</span>
-            </div>
-            <button
-              type="button"
-              className={`card-preview-canvas-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
-              onClick={() => setOptimizationMode(optimizationMode === 'optimized' ? 'baseline' : 'optimized')}
-              title="Toggle live candidate preview on Canvas"
-            >
-              <Icon name={optimizationMode === 'optimized' ? 'Check' : 'Sparkles'} size={12} />
-              <span>{optimizationMode === 'optimized' ? 'Previewing on Canvas' : 'Preview on Canvas'}</span>
-            </button>
-          </div>
-
-          <div className="spec-visual-box box-after" style={{ backgroundColor: elementBg }}>
-            <div
-              style={{
-                fontSize: '11px',
-                color: '#334155',
-                fontWeight: 600,
-                padding: '0 10px',
-                wordBreak: 'break-word',
-                whiteSpace: 'pre-wrap',
-                lineHeight: 1.4,
-              }}
-              title={actualText}
-            >
-              {actualText.length > 0 ? actualText : 'Fluid Height Container'}
-            </div>
-          </div>
-          <div className="spec-details">
-            <div className="spec-metric tone-success">
-              <strong>Recommended:</strong> <code>height: auto</code> fluid flow
-            </div>
-          </div>
-
-          {/* Compact secondary copy actions right inside the suggested fix card */}
-          <div className="card-copy-actions">
-            <button
-              type="button"
-              className="action-btn btn-copy"
-              onClick={() => copyToClipboard(getCssFixSnippet(pin), 'CSS Fix')}
-            >
-              <Icon name={copiedLabel === 'CSS Fix' ? 'Check' : 'FileText'} size={12} />
-              <span>{copiedLabel === 'CSS Fix' ? 'CSS Copied!' : 'Copy CSS Fix'}</span>
-            </button>
-            <button
-              type="button"
-              className="action-btn btn-copy"
-              onClick={() => copyToClipboard(getSpecNoteSnippet(pin), 'Design Token')}
-            >
-              <Icon name={copiedLabel === 'Design Token' ? 'Check' : 'Download'} size={12} />
-              <span>{copiedLabel === 'Design Token' ? 'Token Copied!' : 'Copy Spec Note'}</span>
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     );
   };
@@ -1323,295 +1275,316 @@ export function VisualCanvasOverlay({
 
   return (
     <div
-      className={`visual-canvas-component ${isFullScreen ? 'is-fullpage' : ''}`}
+      className={`visual-canvas-component ${isFullScreen ? 'is-fullpage' : ''} ${isSidePanelOpen && activePin ? 'has-side-panel' : ''}`}
       id="visual-canvas-section"
       aria-label="Visual Canvas Review"
     >
-      {/* Compact 2-Row Toolbar */}
-      <div className="visual-canvas-toolbar">
-        {/* Row 1: Primary Title + Viewport Selector + Full Page */}
-        <div className="toolbar-row">
-          <div className="toolbar-cluster">
-            <span className="canvas-badge">
-              <Icon name="Target" size={14} />
-              Visual Canvas Overlay
-            </span>
-            <span className="canvas-pins-counter">
-              <strong>{pins.length}</strong> {pins.length === 1 ? 'pin placed' : 'pins placed'}
-            </span>
+      {/* Box 1: Canvas Card Box (Contains Toolbar + Stage inside one unified box with border & radius) */}
+      <div className="canvas-card-box canvas-main-column">
+        {/* Compact 2-Row Toolbar */}
+        <div className="visual-canvas-toolbar">
+          {/* Row 1: Primary Title + Viewport Selector + Full Page */}
+          <div className="toolbar-row">
+            <div className="toolbar-cluster">
+              <span className="canvas-badge">
+                <Icon name="Target" size={14} />
+                Visual Canvas Overlay
+              </span>
+              <span className="canvas-pins-counter">
+                <strong>{pins.length}</strong> {pins.length === 1 ? 'pin placed' : 'pins placed'}
+              </span>
 
-            {/* Viewport Selector */}
-            <div className="canvas-viewport-group" role="group" aria-label="Select viewport width">
-              {viewports.map((vp) => (
-                <button
-                  key={vp.width}
-                  type="button"
-                  className={`viewport-pill ${selectedViewport.width === vp.width ? 'is-active' : ''}`}
-                  onClick={() => setSelectedViewport(vp)}
-                  aria-pressed={selectedViewport.width === vp.width}
-                >
-                  <Icon name="Maximize2" size={12} />
-                  <span>
-                    {vp.width === 1440
+              {/* Viewport Selector */}
+              <div className="canvas-viewport-group" role="group" aria-label="Select viewport width">
+                {viewports.map((vp) => {
+                  const label =
+                    vp.width === 1440
                       ? '1440px Desktop'
                       : vp.width === 375
-                      ? '375px Mobile'
-                      : vp.width === 320
-                      ? '320px Reflow'
-                      : `${vp.width}px`}
-                  </span>
-                </button>
-              ))}
+                        ? '375px Mobile'
+                        : vp.width === 320
+                          ? '320px Reflow'
+                          : `${vp.width}px`;
+
+                  const iconName: IconName =
+                    vp.width >= 1024
+                      ? 'ViewportDesktop'
+                      : vp.width === 375
+                        ? 'ViewportMobile'
+                        : 'ViewportReflow';
+
+                  return (
+                    <button
+                      key={vp.width}
+                      type="button"
+                      className={`viewport-pill ${selectedViewport.width === vp.width ? 'is-active' : ''}`}
+                      onClick={() => setSelectedViewport(vp)}
+                      aria-pressed={selectedViewport.width === vp.width}
+                      title={label}
+                      aria-label={label}
+                    >
+                      <Icon name={iconName} size={16} />
+                      <span className="sr-only">{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="toolbar-cluster">
+              {/* Toggle Panel Button (Allows collapsing panel to expand Canvas) */}
+              <button
+                type="button"
+                className={`canvas-toggle-btn btn-toggle-panel ${isSidePanelOpen ? 'is-active' : ''}`}
+                onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
+                aria-pressed={isSidePanelOpen}
+                title={isSidePanelOpen ? 'Collapse Inspector (More room for Canvas)' : 'Open Details Inspector'}
+              >
+                <Icon name="Columns" size={14} />
+                <span>{isSidePanelOpen ? 'Hide Panel' : 'Show Panel'}</span>
+              </button>
+
+              {/* Full Page Button */}
+              <button
+                type="button"
+                className={`canvas-toggle-btn btn-fullpage ${isFullScreen ? 'is-active' : ''}`}
+                onClick={() => setIsFullScreen(!isFullScreen)}
+                aria-pressed={isFullScreen}
+                title={isFullScreen ? 'Exit Full Page (Esc)' : 'Expand to Full Page Canvas'}
+              >
+                <Icon name={isFullScreen ? 'Minimize2' : 'Maximize2'} size={14} />
+                <span>{isFullScreen ? 'Exit Full Page' : 'Full Page'}</span>
+              </button>
             </div>
           </div>
 
-          <div className="toolbar-cluster">
-            {/* Toggle Panel Button (Allows collapsing panel to expand Canvas) */}
-            <button
-              type="button"
-              className={`canvas-toggle-btn btn-toggle-panel ${isSidePanelOpen ? 'is-active' : ''}`}
-              onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
-              aria-pressed={isSidePanelOpen}
-              title={isSidePanelOpen ? 'Collapse Inspector (More room for Canvas)' : 'Open Details Inspector'}
-            >
-              <Icon name="Columns" size={14} />
-              <span>{isSidePanelOpen ? 'Hide Panel' : 'Show Panel'}</span>
-            </button>
-
-            {/* Full Page Button */}
-            <button
-              type="button"
-              className={`canvas-toggle-btn btn-fullpage ${isFullScreen ? 'is-active' : ''}`}
-              onClick={() => setIsFullScreen(!isFullScreen)}
-              aria-pressed={isFullScreen}
-              title={isFullScreen ? 'Exit Full Page (Esc)' : 'Expand to Full Page Canvas'}
-            >
-              <Icon name={isFullScreen ? 'Minimize2' : 'Maximize2'} size={14} />
-              <span>{isFullScreen ? 'Exit Full Page' : 'Full Page'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Row 2: Status Filters + Baseline/Suggested Preview + Zoom + View Menu */}
-        <div className="toolbar-row">
-          <div className="toolbar-cluster">
-            {/* Issue Filter Pills */}
-            <div className="canvas-filter-group" role="group" aria-label="Filter pins">
-              <button
-                type="button"
-                className={`filter-pill ${statusFilter === 'issues' ? 'is-active' : ''}`}
-                onClick={() => setStatusFilter('issues')}
-                title="Show all actionable issues (Failures + Review)"
-              >
-                <span>Issues ({failCount + reviewCount})</span>
-              </button>
-              <button
-                type="button"
-                className={`filter-pill ${statusFilter === 'candidateFail' ? 'is-active' : ''}`}
-                onClick={() => setStatusFilter('candidateFail')}
-                title="Show failures only"
-              >
-                <span>Failures ({failCount})</span>
-              </button>
-              {reviewCount > 0 && (
+          {/* Row 2: Status Filters + Baseline/Suggested Preview + Zoom + View Menu */}
+          <div className="toolbar-row">
+            <div className="toolbar-cluster">
+              {/* Issue Filter Pills */}
+              <div className="canvas-filter-group" role="group" aria-label="Filter pins">
                 <button
                   type="button"
-                  className={`filter-pill ${statusFilter === 'needsReview' ? 'is-active' : ''}`}
-                  onClick={() => setStatusFilter('needsReview')}
-                  title="Show review items only"
+                  className={`filter-pill ${statusFilter === 'issues' ? 'is-active' : ''}`}
+                  onClick={() => setStatusFilter('issues')}
+                  title="Show all actionable issues (Failures + Review)"
                 >
-                  <span>Review ({reviewCount})</span>
+                  <span>Issues ({failCount + reviewCount})</span>
                 </button>
-              )}
-            </div>
-
-            {/* Baseline vs Suggested Preview Switcher (Single place on Toolbar) */}
-            <div className="canvas-optimization-control" role="group" aria-label="Design iteration comparison">
-              <button
-                type="button"
-                className={`mode-btn ${optimizationMode === 'baseline' ? 'is-active' : ''}`}
-                onClick={() => setOptimizationMode('baseline')}
-                aria-pressed={optimizationMode === 'baseline'}
-              >
-                Baseline
-              </button>
-              <button
-                type="button"
-                className={`mode-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
-                onClick={() => setOptimizationMode('optimized')}
-                aria-pressed={optimizationMode === 'optimized'}
-                title="Suggested preview of proposed fixes (Unverified · Not re-audited)"
-              >
-                <Icon name="Sparkles" size={13} />
-                <span>Suggested Preview</span>
-                {optimizationMode === 'optimized' && activePin && (
-                  <span className="mode-pin-tag">Pin #{activePin.index}</span>
+                <button
+                  type="button"
+                  className={`filter-pill ${statusFilter === 'candidateFail' ? 'is-active' : ''}`}
+                  onClick={() => setStatusFilter('candidateFail')}
+                  title="Show failures only"
+                >
+                  <span>Failures ({failCount})</span>
+                </button>
+                {reviewCount > 0 && (
+                  <button
+                    type="button"
+                    className={`filter-pill ${statusFilter === 'needsReview' ? 'is-active' : ''}`}
+                    onClick={() => setStatusFilter('needsReview')}
+                    title="Show review items only"
+                  >
+                    <span>Review ({reviewCount})</span>
+                  </button>
                 )}
-                <span className="mode-sub-badge">Not re-audited</span>
-              </button>
+                {currentRun.summary.passCount > 0 && (
+                  <button type="button" className={`filter-pill ${statusFilter === 'pass' ? 'is-active' : ''}`}
+                    aria-pressed={statusFilter === 'pass'}
+                    onClick={() => {
+                      setStatusFilter('pass');
+                      setOptimizationMode('baseline');
+                      setActionFeedback(null);
+                      setShowImpactDrawer(false);
+                    }}>
+                    <span>Passed checks</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Baseline vs Suggested Preview Switcher (Single place on Toolbar) */}
+              <div className="canvas-optimization-control" role="group" aria-label="Design iteration comparison">
+                <button
+                  type="button"
+                  className={`mode-btn ${optimizationMode === 'baseline' ? 'is-active' : ''}`}
+                  onClick={() => setOptimizationMode('baseline')}
+                  aria-pressed={optimizationMode === 'baseline'}
+                >
+                  Baseline
+                </button>
+                <button
+                  type="button"
+                  className={`mode-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
+                  onClick={() => setOptimizationMode('optimized')}
+                  aria-pressed={optimizationMode === 'optimized'}
+                  disabled={statusFilter === 'pass'}
+                  title="Suggested preview of proposed fixes"
+                >
+                  <Icon name="Sparkles" size={13} />
+                  <span>Suggested Preview</span>
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="toolbar-cluster">
-            {/* Zoom Controls + Zoom to Issue */}
-            <div className="canvas-control-pill">
-              <span className="pill-label">Scale:</span>
-              <button
-                type="button"
-                className={zoomScale === 'fit' ? 'is-selected' : ''}
-                onClick={handleResetToFit}
-                title="Fit to Screen (Reset View)"
-              >
-                Fit ({Math.round(fitScale * 100)}%)
-              </button>
-              <button
-                type="button"
-                className={zoomScale === 1 ? 'is-selected' : ''}
-                onClick={() => setZoomScale(1)}
-                title="100% Actual Scale"
-              >
-                100%
-              </button>
-              <button
-                type="button"
-                className="btn-zoom-to-issue"
-                onClick={() => handleZoomToIssue()}
-                title="Zoom into the active issue bounding box without changing audited viewport"
-              >
-                <Icon name="Target" size={13} />
-                <span>Zoom to Issue</span>
-              </button>
-            </div>
+            <div className="toolbar-cluster">
+              {/* Zoom Controls + Zoom to Issue */}
+              <div className="canvas-control-pill">
+                <span className="pill-label">Scale:</span>
+                <button
+                  type="button"
+                  className={zoomScale === 'fit' ? 'is-selected' : ''}
+                  onClick={handleResetToFit}
+                  title="Fit to Screen (Reset View)"
+                >
+                  Fit ({Math.round(fitScale * 100)}%)
+                </button>
+                <button
+                  type="button"
+                  className={zoomScale === 1 ? 'is-selected' : ''}
+                  onClick={() => setZoomScale(1)}
+                  title="100% Actual Scale"
+                >
+                  100%
+                </button>
+                <button
+                  type="button"
+                  className="btn-zoom-to-issue"
+                  onClick={() => handleZoomToIssue()}
+                  title="Zoom into the active issue bounding box without changing audited viewport"
+                >
+                  <Icon name="Target" size={13} />
+                  <span>Zoom to Issue</span>
+                </button>
+              </div>
 
-            {/* View Options Dropdown Menu */}
-            <div className="view-menu-wrapper" ref={viewMenuRef}>
-              <button
-                type="button"
-                className={`canvas-toggle-btn ${isViewMenuOpen ? 'is-active' : ''}`}
-                onClick={() => setIsViewMenuOpen(!isViewMenuOpen)}
-                aria-haspopup="true"
-                aria-expanded={isViewMenuOpen}
-                title="View options and overlay display toggles"
-              >
-                <Icon name="Sliders" size={14} />
-                <span>View Options</span>
-                <Icon name="ChevronDown" size={12} className={isViewMenuOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
-              </button>
+              {/* View Options Dropdown Menu */}
+              <div className="view-menu-wrapper" ref={viewMenuRef}>
+                <button
+                  type="button"
+                  className={`canvas-toggle-btn ${isViewMenuOpen ? 'is-active' : ''}`}
+                  onClick={() => setIsViewMenuOpen(!isViewMenuOpen)}
+                  aria-haspopup="true"
+                  aria-expanded={isViewMenuOpen}
+                  title="View options and overlay display toggles"
+                >
+                  <Icon name="Sliders" size={14} />
+                  <span>View Options</span>
+                  <Icon name="ChevronDown" size={12} className={isViewMenuOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+                </button>
 
-              {isViewMenuOpen && (
-                <div className="view-menu-dropdown" role="menu">
-                  <label className="view-menu-item">
-                    <input
-                      type="checkbox"
-                      checked={autoFocusEnabled}
-                      onChange={(e) => setAutoFocusEnabled(e.target.checked)}
-                    />
-                    <span>Auto-focus on Pin</span>
-                  </label>
-                  <label className="view-menu-item">
-                    <input
-                      type="checkbox"
-                      checked={showOverlays}
-                      onChange={(e) => setShowOverlays(e.target.checked)}
-                    />
-                    <span>Show Visual Pins</span>
-                  </label>
-                  <label className="view-menu-item">
-                    <input
-                      type="checkbox"
-                      checked={boxDisplayMode === 'all'}
-                      onChange={(e) => setBoxDisplayMode(e.target.checked ? 'all' : 'hover_focus')}
-                    />
-                    <span>Outline All Boxes</span>
-                  </label>
-                  <label className="view-menu-item">
-                    <input
-                      type="checkbox"
-                      checked={isSidePanelOpen}
-                      onChange={(e) => setIsSidePanelOpen(e.target.checked)}
-                    />
-                    <span>Details Inspector Panel</span>
-                  </label>
-                  <label className="view-menu-item">
-                    <input
-                      type="checkbox"
-                      checked={showImpactDrawer}
-                      onChange={(e) => setShowImpactDrawer(e.target.checked)}
-                    />
-                    <span>Research Metric Impact</span>
-                  </label>
-                </div>
-              )}
+                {isViewMenuOpen && (
+                  <div className="view-menu-dropdown" role="menu">
+                    <label className="view-menu-item">
+                      <input
+                        type="checkbox"
+                        checked={autoFocusEnabled}
+                        onChange={(e) => setAutoFocusEnabled(e.target.checked)}
+                      />
+                      <span>Auto-focus on Pin</span>
+                    </label>
+                    <label className="view-menu-item">
+                      <input
+                        type="checkbox"
+                        checked={showOverlays}
+                        onChange={(e) => setShowOverlays(e.target.checked)}
+                      />
+                      <span>Show Visual Pins</span>
+                    </label>
+                    <label className="view-menu-item">
+                      <input
+                        type="checkbox"
+                        checked={boxDisplayMode === 'all'}
+                        onChange={(e) => setBoxDisplayMode(e.target.checked ? 'all' : 'hover_focus')}
+                      />
+                      <span>Outline All Boxes</span>
+                    </label>
+                    <label className="view-menu-item">
+                      <input
+                        type="checkbox"
+                        checked={isSidePanelOpen}
+                        onChange={(e) => setIsSidePanelOpen(e.target.checked)}
+                      />
+                      <span>Details Inspector Panel</span>
+                    </label>
+                    <label className="view-menu-item">
+                      <input
+                        type="checkbox"
+                        checked={showImpactDrawer}
+                        onChange={(e) => setShowImpactDrawer(e.target.checked)}
+                      />
+                      <span>Research Metric Impact</span>
+                    </label>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Metric Impact & Research Control Strip (Collapsible via View Menu) */}
-      {showImpactDrawer && (
-        <div className="metric-impact-strip" role="region" aria-label="Metric Impact Controls">
-          <div className="impact-strip-header">
-            <div className="impact-title-group">
-              <span className="impact-badge">Research Control</span>
-              <h4>Metric Impact on Final Design</h4>
-              <p>Toggle individual metrics to preview which research threshold impacts layout.</p>
+        {/* Metric Impact & Research Control Strip (Collapsible via View Menu) */}
+        {showImpactDrawer && statusFilter !== 'pass' && (
+          <div className="metric-impact-strip" role="region" aria-label="Metric Impact Controls">
+            <div className="impact-strip-header">
+              <div className="impact-title-group">
+                <span className="impact-badge">Research Control</span>
+                <h4>Metric Impact on Final Design</h4>
+                <p>Toggle individual metrics to preview which research threshold impacts layout.</p>
+              </div>
+              <button
+                type="button"
+                className="stepper-btn close-btn"
+                onClick={() => setShowImpactDrawer(false)}
+                aria-label="Close metric impact bar"
+              >
+                <Icon name="X" size={14} />
+              </button>
             </div>
-            <button
-              type="button"
-              className="stepper-btn close-btn"
-              onClick={() => setShowImpactDrawer(false)}
-              aria-label="Close metric impact bar"
-            >
-              <Icon name="X" size={14} />
-            </button>
+
+            <div className="metric-toggle-pills">
+              <label className={`metric-toggle-label ${activeMetrics.targetSize ? 'is-checked' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={activeMetrics.targetSize}
+                  onChange={(e) => {
+                    setActiveMetrics({ ...activeMetrics, targetSize: e.target.checked });
+                    if (optimizationMode === 'baseline') setOptimizationMode('optimized');
+                  }}
+                />
+                <span className="toggle-dot" />
+                <span>Target Size: 44px (HIG) / 24px (WCAG)</span>
+              </label>
+
+              <label className={`metric-toggle-label ${activeMetrics.contrast ? 'is-checked' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={activeMetrics.contrast}
+                  onChange={(e) => {
+                    setActiveMetrics({ ...activeMetrics, contrast: e.target.checked });
+                    if (optimizationMode === 'baseline') setOptimizationMode('optimized');
+                  }}
+                />
+                <span className="toggle-dot" />
+                <span>Color Contrast: 4.5:1 Accessible Tokens</span>
+              </label>
+
+              <label className={`metric-toggle-label ${activeMetrics.textSpacing ? 'is-checked' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={activeMetrics.textSpacing}
+                  onChange={(e) => {
+                    setActiveMetrics({ ...activeMetrics, textSpacing: e.target.checked });
+                    if (optimizationMode === 'baseline') setOptimizationMode('optimized');
+                  }}
+                />
+                <span className="toggle-dot" />
+                <span>Fluid Containers: Text Spacing Adaptation</span>
+              </label>
+            </div>
           </div>
+        )}
 
-          <div className="metric-toggle-pills">
-            <label className={`metric-toggle-label ${activeMetrics.targetSize ? 'is-checked' : ''}`}>
-              <input
-                type="checkbox"
-                checked={activeMetrics.targetSize}
-                onChange={(e) => {
-                  setActiveMetrics({ ...activeMetrics, targetSize: e.target.checked });
-                  if (optimizationMode === 'baseline') setOptimizationMode('optimized');
-                }}
-              />
-              <span className="toggle-dot" />
-              <span>Target Size: 44px (HIG) / 24px (WCAG)</span>
-            </label>
-
-            <label className={`metric-toggle-label ${activeMetrics.contrast ? 'is-checked' : ''}`}>
-              <input
-                type="checkbox"
-                checked={activeMetrics.contrast}
-                onChange={(e) => {
-                  setActiveMetrics({ ...activeMetrics, contrast: e.target.checked });
-                  if (optimizationMode === 'baseline') setOptimizationMode('optimized');
-                }}
-              />
-              <span className="toggle-dot" />
-              <span>Color Contrast: 4.5:1 Accessible Tokens</span>
-            </label>
-
-            <label className={`metric-toggle-label ${activeMetrics.textSpacing ? 'is-checked' : ''}`}>
-              <input
-                type="checkbox"
-                checked={activeMetrics.textSpacing}
-                onChange={(e) => {
-                  setActiveMetrics({ ...activeMetrics, textSpacing: e.target.checked });
-                  if (optimizationMode === 'baseline') setOptimizationMode('optimized');
-                }}
-              />
-              <span className="toggle-dot" />
-              <span>Fluid Containers: Text Spacing Adaptation</span>
-            </label>
-          </div>
-        </div>
-      )}
-
-      {/* Main 2-Column Split Workspace (Both Normal & Full Page modes) */}
-      <div className="visual-canvas-workspace">
-        {/* Left Column: Canvas Stage */}
+        {/* Canvas Stage */}
         <div className="canvas-stage-wrapper" ref={stageRef}>
           {/* Mock Browser Shell Bar */}
           <div className="mock-browser-bar">
@@ -1636,27 +1609,24 @@ export function VisualCanvasOverlay({
             </div>
           </div>
 
-          {/* Viewport Frame with Outside Left Gutter for Pins */}
+          {/* Viewport Frame */}
           <div className="canvas-scroll-container" ref={scrollContainerRef}>
             <div
               className="canvas-scaled-frame"
               style={{
-                width: `${(selectedViewport.width + LEFT_GUTTER) * effectiveScale}px`,
-                height: `${Math.max(selectedViewport.height, 620) * effectiveScale}px`,
+                width: `${frameWidth * effectiveScale}px`,
+                height: `${frameHeight * effectiveScale}px`,
               }}
             >
               <div
                 className="canvas-viewport-inner"
                 style={{
-                  width: `${selectedViewport.width + LEFT_GUTTER}px`,
-                  height: `${Math.max(selectedViewport.height, 620)}px`,
+                  width: `${frameWidth}px`,
+                  height: `${frameHeight}px`,
                   transform: `scale(${effectiveScale})`,
                   transformOrigin: 'top left',
                 }}
               >
-                {/* Left Gutter Rail: Keeps pins completely outside page content */}
-                <div className="canvas-left-gutter" aria-hidden="true" />
-
                 {/* Page Iframe */}
                 <iframe
                   ref={iframeRef}
@@ -1665,10 +1635,10 @@ export function VisualCanvasOverlay({
                   className="canvas-iframe"
                   style={{
                     position: 'absolute',
-                    left: `${LEFT_GUTTER}px`,
+                    left: LEFT_GUTTER,
                     top: 0,
                     width: `${selectedViewport.width}px`,
-                    height: '100%',
+                    height: viewportHeight,
                     border: 'none',
                   }}
                   tabIndex={-1}
@@ -1699,9 +1669,8 @@ export function VisualCanvasOverlay({
                       {visiblePins.map((pin) => {
                         const isSelected = activePin?.fingerprint === pin.fingerprint;
                         const isHovered = hoveredFingerprint === pin.fingerprint;
-                        const isHighlighted = isSelected || isHovered;
-                        const colors = getStatusColor(pin.status);
-                        const strokeColor = isHighlighted ? '#2563eb' : colors.bg;
+                        if (!isHovered && !(isSidePanelOpen && isSelected)) return null;
+                        const strokeColor = '#2563eb';
 
                         return (
                           <g key={`connector-${pin.fingerprint}`}>
@@ -1711,14 +1680,13 @@ export function VisualCanvasOverlay({
                               x2={pin.targetX}
                               y2={pin.targetY}
                               stroke={strokeColor}
-                              strokeWidth={isHighlighted ? 2.25 : 1.5}
-                              strokeDasharray={isHighlighted ? undefined : '3 2'}
+                              strokeWidth={1.5}
                               filter="url(#pin-line-shadow)"
                             />
                             <circle
                               cx={pin.targetX}
                               cy={pin.targetY}
-                              r={isHighlighted ? 3.5 : 2.5}
+                              r={2}
                               fill={strokeColor}
                               stroke="#ffffff"
                               strokeWidth={1}
@@ -1753,22 +1721,7 @@ export function VisualCanvasOverlay({
                               onMouseEnter={() => setHoveredFingerprint(pin.fingerprint)}
                               onMouseLeave={() => setHoveredFingerprint(null)}
                               title={`Pin ${pin.index}: ${pin.title} (${Math.round(box.width)}×${Math.round(box.height)}px)`}
-                            >
-                              {/* Dimension Badge: ONLY shown on hover to prevent permanently obscuring headers */}
-                              {isHovered && (
-                                <div
-                                  className="bounding-box-badge"
-                                  style={{
-                                    position: 'absolute',
-                                    bottom: 'calc(100% + 4px)',
-                                    left: 0,
-                                    background: colors.bg,
-                                  }}
-                                >
-                                  <span>#{pin.index}: {Math.round(box.width)}×{Math.round(box.height)}px</span>
-                                </div>
-                              )}
-                            </div>
+                            />
                           )}
 
                           {/* Pin Button in the Left Gutter */}
@@ -1778,14 +1731,16 @@ export function VisualCanvasOverlay({
                             style={{
                               left: `${pin.pinX}px`,
                               top: `${pin.pinY}px`,
-                              backgroundColor: colors.bg,
+                              width: PIN_HIT_SIZE,
+                              height: PIN_HIT_SIZE,
                             }}
                             onClick={() => handlePinClick(pin)}
                             onMouseEnter={() => setHoveredFingerprint(pin.fingerprint)}
                             onMouseLeave={() => setHoveredFingerprint(null)}
+                            title={`${pin.title} (${Math.round(box.width)}×${Math.round(box.height)}px)`}
                             aria-label={`Pin ${pin.index}: ${pin.title}`}
                           >
-                            <span className="pin-number">{pin.index}</span>
+                            <span className="pin-number" style={{ backgroundColor: colors.bg }}>{pin.index}</span>
                           </button>
                         </React.Fragment>
                       );
@@ -1806,7 +1761,9 @@ export function VisualCanvasOverlay({
                 <strong>{pageLevelIssues.length} page-level finding{pageLevelIssues.length > 1 ? 's' : ''}</strong>
                 <span>(Overflow or layout issues without a single bounding box):</span>
                 <div className="notice-chips">
-                  {pageLevelIssues.map((issue) => (
+                  {pageLevelIssues.map((issue) => issue.status === 'pass' ? (
+                    <span key={issue.fingerprint} className="page-issue-chip">{issue.representative.title}</span>
+                  ) : (
                     <button
                       key={issue.fingerprint}
                       type="button"
@@ -1823,382 +1780,450 @@ export function VisualCanvasOverlay({
               </div>
             </div>
           )}
+          {statusFilter === 'pass' && pins.length === 0 && pageLevelIssues.length === 0 && (
+            <p className="p-3 text-xs text-zinc-600">No passed checks recorded at this viewport.</p>
+          )}
         </div>
+      </div>
 
-        {/* Right Column: Real 2-Column Details Inspector Drawer (360-420px Resizable) */}
-        {isSidePanelOpen && activePin && (
-          <aside
-            className="canvas-inspector-drawer"
-            style={{ width: `${panelWidth}px` }}
-            aria-label="Issue Inspector"
-          >
-            {/* Drag Resize Handle on left border */}
+      {/* Box 2: Inspector Panel Card Box (Side-by-side on the right, matching border & radius) */}
+      {isSidePanelOpen && activePin && (
+        <aside
+          className="canvas-inspector-drawer"
+          style={{ width: `${effectivePanelWidth}px` }}
+          aria-label="Issue Inspector"
+        >
+          {/* Drag Resize Handle on left border: ONLY in Full Screen mode */}
+          {isFullScreen && (
             <div
               className={`inspector-resize-handle ${isResizing ? 'is-resizing' : ''}`}
               onMouseDown={handleStartResize}
               title="Drag to resize details panel"
             />
+          )}
 
-            {/* 1. Header: Fixed non-scrollable top bar */}
-            <header className="inspector-header">
-              <div className="stepper-title">
-                <span className={`inspector-pin-badge tone-${getStatusColor(activePin.status).tone}`}>
-                  Pin #{activePin.index}
-                </span>
-                <span className="stepper-counter">
-                  Issue {currentIndex >= 0 ? currentIndex + 1 : 1} of {visiblePins.length}
-                </span>
-              </div>
-              <div className="stepper-nav">
-                <button
-                  type="button"
-                  className="stepper-btn"
-                  onClick={() => handleZoomToIssue(activePin)}
-                  title="Zoom into this issue"
-                  aria-label="Zoom into issue"
-                >
-                  <Icon name="Target" size={14} />
-                </button>
-                <button
-                  type="button"
-                  className="stepper-btn"
-                  disabled={!hasPrev}
-                  onClick={() => navigatePin('prev')}
-                  aria-label="Previous issue"
-                  title="Previous issue (←)"
-                >
-                  <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(90deg)' }} />
-                </button>
-                <button
-                  type="button"
-                  className="stepper-btn"
-                  disabled={!hasNext}
-                  onClick={() => navigatePin('next')}
-                  aria-label="Next issue"
-                  title="Next issue (→)"
-                >
-                  <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(-90deg)' }} />
-                </button>
-                <button
-                  type="button"
-                  className="stepper-btn close-btn"
-                  onClick={() => setIsSidePanelOpen(false)}
-                  aria-label="Close inspector"
-                  title="Close (Esc)"
-                >
-                  <Icon name="X" size={16} />
-                </button>
-              </div>
-            </header>
+          {/* 1. Header: Fixed non-scrollable top bar */}
+          <header className="inspector-header">
+            <div className="stepper-title">
+              <span className={`inspector-pin-badge tone-${getStatusColor(activePin.status).tone}`}>
+                Pin #{activePin.index}
+              </span>
+              <span className="stepper-counter">
+                Issue {currentIndex >= 0 ? currentIndex + 1 : 1} of {visiblePins.length}
+              </span>
+            </div>
+            <div className="stepper-nav">
+              <button
+                type="button"
+                className="stepper-btn"
+                onClick={() => handleZoomToIssue(activePin)}
+                title="Zoom into this issue"
+                aria-label="Zoom into issue"
+              >
+                <Icon name="Target" size={14} />
+              </button>
+              <button
+                type="button"
+                className="stepper-btn"
+                disabled={!hasPrev}
+                onClick={() => navigatePin('prev')}
+                aria-label="Previous issue"
+                title="Previous issue (←)"
+              >
+                <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(90deg)' }} />
+              </button>
+              <button
+                type="button"
+                className="stepper-btn"
+                disabled={!hasNext}
+                onClick={() => navigatePin('next')}
+                aria-label="Next issue"
+                title="Next issue (→)"
+              >
+                <Icon name="ChevronDown" size={16} style={{ transform: 'rotate(-90deg)' }} />
+              </button>
+              <button
+                type="button"
+                className="stepper-btn close-btn"
+                onClick={() => setIsSidePanelOpen(false)}
+                aria-label="Close inspector"
+                title="Close (Esc)"
+              >
+                <Icon name="X" size={16} />
+              </button>
+            </div>
+          </header>
 
-            {/* 2. Scrollable Body: Content scrolls freely without being blocked by footer */}
-            <div className="inspector-body-scroll">
-              {/* Short Baseline Notice (Condensed) */}
-              {optimizationMode === 'optimized' && (
-                <div className="preview-baseline-notice">
-                  <Icon name="Info" size={12} />
-                  <span>Measured values reflect Baseline.</span>
+          {/* 2. Scrollable Body: Content scrolls freely without being blocked by footer */}
+          <div className="inspector-body-scroll">
+            {/* Short Baseline Notice (Condensed) */}
+            {optimizationMode === 'optimized' && (
+              <div className="preview-baseline-notice">
+                <Icon name="Info" size={12} />
+                <span>Measured values reflect Baseline.</span>
+              </div>
+            )}
+
+            {/* Title & Key Facts */}
+            <div className="summary-headline-row">
+              <h3 id="popup-issue-title" className="summary-rule-title">
+                {getCleanRuleTitle(activePin)}
+              </h3>
+            </div>
+
+            <div className="inspector-meta-row">
+              <span className={`inspector-status-tag tone-${getStatusColor(activePin.status).tone}`}>
+                {getStatusColor(activePin.status).label}
+              </span>
+              {activePin.status !== 'pass' && <span className="inspector-priority-tag">
+                {activePin.priority} Priority
+              </span>}
+              <span className="inspector-wcag-tag">
+                {activePin.wcagCriterion}
+              </span>
+            </div>
+
+            {/* 3-Column Metric Display: Measured | Required | Estimated */}
+            {activePin.status === 'pass' ? (
+              <div className="space-y-2 p-3 text-sm">
+                <p>Viewport {selectedViewport.width}×{selectedViewport.height}</p>
+                <code className="safe-wrap">{activePin.selector}</code>
+                <dl>
+                  {extractEvidenceMetrics(activePin.ruleId, activePin.measured, activePin.expected).map(metric => (
+                    <div key={metric.key}>
+                      <dt className="font-semibold">{metric.label}</dt>
+                      <dd>{metric.value}{metric.unit && !metric.value.includes(metric.unit) ? ` ${metric.unit}` : ''}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ) : renderMetricThreeColumns(activePin)}
+
+            {/* EVIDENCE FIRST: Visual Before vs After Simulation Cards */}
+            {activePin.status !== 'pass' && <div className="inspector-visual-comparison">
+            <div className="comparison-header">
+              <span className="comparison-eyebrow">Visual Spec Comparison</span>
+              <div className="spec-view-segmented" role="tablist" aria-label="Visual spec comparison view">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={optimizationMode === 'baseline'}
+                  className={`spec-tab-pill ${optimizationMode === 'baseline' ? 'is-active' : ''}`}
+                  onClick={() => setOptimizationMode('baseline')}
+                >
+                  Baseline
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={optimizationMode === 'optimized'}
+                  className={`spec-tab-pill card-preview-canvas-btn ${optimizationMode === 'optimized' ? 'is-active' : ''}`}
+                  onClick={() => setOptimizationMode(optimizationMode === 'optimized' ? 'baseline' : 'optimized')}
+                  title="Toggle suggested preview on canvas"
+                >
+                  <Icon name="Sparkles" size={11} />
+                  <span>Suggested Preview</span>
+                </button>
+              </div>
+            </div>
+
+              {renderVisualComparison(activePin)}
+
+              {/* AI / Remediator recommendation */}
+              {(activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation) && (
+                <div className="inspector-ai-rec-box">
+                  <div className="ai-rec-badge">
+                    <Icon name="Sparkles" size={13} />
+                    <span>Remediation Guidance</span>
+                  </div>
+                  <p className="ai-rec-text">
+                    {activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation}
+                  </p>
                 </div>
               )}
+            </div>}
 
-              {/* Title & Key Facts */}
-              <div className="summary-headline-row">
-                <h3 id="popup-issue-title" className="summary-rule-title">
-                  {getCleanRuleTitle(activePin)}
-                </h3>
-              </div>
-
-              <div className="inspector-meta-row">
-                <span className={`inspector-status-tag tone-${getStatusColor(activePin.status).tone}`}>
-                  {getStatusColor(activePin.status).label}
-                </span>
-                <span className="inspector-priority-tag">
-                  {activePin.priority} Priority
-                </span>
-                <span className="inspector-wcag-tag">
-                  {activePin.wcagCriterion}
-                </span>
-              </div>
-
-              {/* 3-Column Metric Display: Measured | Required | Estimated */}
-              {renderMetricThreeColumns(activePin)}
-
-              {/* EVIDENCE FIRST: Visual Before vs After Simulation Cards */}
-              <div className="inspector-visual-comparison">
-                <div className="comparison-header">
-                  <span className="comparison-eyebrow">Visual Spec Comparison</span>
-                </div>
-
-                {renderVisualComparison(activePin)}
-
-                {/* AI / Remediator recommendation */}
-                {(activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation) && (
-                  <div className="inspector-ai-rec-box">
-                    <div className="ai-rec-badge">
-                      <Icon name="Sparkles" size={13} />
-                      <span>Remediation Guidance</span>
-                    </div>
-                    <p className="ai-rec-text">
-                      {activePin.groupedIssue.editedRecommendation || activePin.groupedIssue.aiRecommendation}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* TRIAGE AFTER EVIDENCE: Confirm | Dismiss | Leave for Review */}
-              {(() => {
-                const effectiveDisposition =
-                  activePin.groupedIssue.reviewDisposition ||
-                  (activePin.groupedIssue.designerDecision === 'accept'
-                    ? 'confirmed_issue'
-                    : activePin.groupedIssue.designerDecision === 'reject'
+            {/* TRIAGE AFTER EVIDENCE: Confirm | Dismiss | Leave for Review */}
+            {!readOnly && activePin.status !== 'pass' && (() => {
+              const effectiveDisposition =
+                activePin.groupedIssue.reviewDisposition ||
+                (activePin.groupedIssue.designerDecision === 'accept'
+                  ? 'confirmed_issue'
+                  : activePin.groupedIssue.designerDecision === 'reject'
                     ? 'false_positive'
                     : 'needs_review');
 
-                return (
-                  <div className="inspector-triage-section">
-                    <span className="triage-section-label">Issue Triage Decision</span>
-                    <div className="inspector-disposition-row">
-                      <button
-                        type="button"
-                        className={`disposition-btn btn-confirm ${effectiveDisposition === 'confirmed_issue' ? 'is-selected' : ''}`}
-                        disabled={isSavingDecision}
-                        onClick={() => handleDispositionChange('confirmed_issue')}
-                        title="Confirm this finding as a valid UX issue for backlog"
-                      >
-                        <Icon name="CheckCircle2" size={12} />
-                        <span>Confirm Issue</span>
-                      </button>
-                      <button
-                        type="button"
-                        className={`disposition-btn btn-reject ${effectiveDisposition === 'false_positive' ? 'is-selected' : ''}`}
-                        disabled={isSavingDecision}
-                        onClick={() => handleDispositionChange('false_positive')}
-                        title="Dismiss as acceptable design intent or false positive"
-                      >
-                        <Icon name="X" size={12} />
-                        <span>Dismiss</span>
-                      </button>
-                      <button
-                        type="button"
-                        className={`disposition-btn btn-review ${effectiveDisposition === 'needs_review' ? 'is-selected' : ''}`}
-                        disabled={isSavingDecision}
-                        onClick={() => handleDispositionChange('needs_review')}
-                        title="Leave for team review without forcing immediate triage"
-                      >
-                        <Icon name="HelpCircle" size={12} />
-                        <span>Leave for Review</span>
-                      </button>
-                    </div>
+              return (
+                <div className="inspector-triage-section">
+                  <span className="triage-section-label">Issue Triage Decision</span>
+                  <div className="inspector-disposition-row">
+                    <button
+                      type="button"
+                      className={`disposition-btn btn-confirm ${effectiveDisposition === 'confirmed_issue' ? 'is-selected' : ''}`}
+                      disabled={isSavingDecision}
+                      onClick={() => handleDispositionChange('confirmed_issue')}
+                      title="Confirm this finding as a valid UX issue for backlog"
+                    >
+                      <Icon name="CheckCircle2" size={12} />
+                      <span>Confirm Issue</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`disposition-btn btn-reject ${effectiveDisposition === 'false_positive' ? 'is-selected' : ''}`}
+                      disabled={isSavingDecision}
+                      onClick={() => handleDispositionChange('false_positive')}
+                      title="Dismiss as acceptable design intent or false positive"
+                    >
+                      <Icon name="X" size={12} />
+                      <span>Dismiss</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`disposition-btn btn-review ${effectiveDisposition === 'needs_review' ? 'is-selected' : ''}`}
+                      disabled={isSavingDecision}
+                      onClick={() => handleDispositionChange('needs_review')}
+                      title="Leave for team review without forcing immediate triage"
+                    >
+                      <Icon name="HelpCircle" size={12} />
+                      <span>Leave for Review</span>
+                    </button>
                   </div>
-                );
-              })()}
+                </div>
+              );
+            })()}
 
-              {/* Collapsible Selector, RGB Colors & Technical Details */}
-              <details className="inspector-collapsible-meta">
-                <summary>Technical Details & Element Selector</summary>
-                <div className="collapsible-content">
+            {/* Collapsible Selector, RGB Colors & Technical Details */}
+            {activePin.status !== 'pass' && <details className="inspector-collapsible-meta">
+              <summary>Technical Details & Design Tokens</summary>
+              <div className="collapsible-content">
+                <div className="tech-meta-item">
+                  <span className="tech-meta-label">Selector:</span>
+                  <code>{activePin.selector}</code>
+                </div>
+                {activePin.ruleId.includes('contrast') && (() => {
+                  const rem = getContrastRemediation(activePin);
+                  const tRgba = parseColor(rem.textColor);
+                  const bgRgba = parseColor(rem.effectiveBg);
+                  const cRgba = parseColor(rem.candidateColor);
+                  return (
+                    <>
+                      <div className="tech-meta-item">
+                        <span className="tech-meta-label">RGB Color Values:</span>
+                        <span>
+                          Text: <code>{tRgba ? `rgb(${tRgba.r}, ${tRgba.g}, ${tRgba.b})` : rem.textColor}</code>
+                          {' · '}
+                          BG: <code>{bgRgba ? `rgb(${bgRgba.r}, ${bgRgba.g}, ${bgRgba.b})` : rem.effectiveBg}</code>
+                          {' · '}
+                          Candidate: <code>{cRgba ? `rgb(${cRgba.r}, ${cRgba.g}, ${cRgba.b})` : rem.candidateColor}</code>
+                        </span>
+                      </div>
+                      <div className="tech-meta-item">
+                        <span className="tech-meta-label">Design Tokens:</span>
+                        <span>
+                          Baseline Text: <code>{rem.baselineTextToken}</code>
+                          {' · '}
+                          Candidate: <code>{rem.candidateTextToken}</code>
+                          {' · '}
+                          Background: <code>{rem.bgToken}</code>
+                        </span>
+                      </div>
+                    </>
+                  );
+                })()}
+                {activePin.ruleId === 'target-size' && (
                   <div className="tech-meta-item">
-                    <span className="tech-meta-label">Selector:</span>
-                    <code>{activePin.selector}</code>
-                  </div>
-                  {activePin.ruleId.includes('contrast') && (
-                    <div className="tech-meta-item">
-                      <span className="tech-meta-label">Colors:</span>
-                      <span>
-                        Text: <code>{(activePin.measured?.color as string) || (activePin.measured?.textColor as string) || '#737373'}</code>
-                        {' · '}
-                        Background: <code>{(activePin.measured?.backgroundColor as string) || (activePin.measured?.adjacentColor as string) || '#ffffff'}</code>
-                      </span>
-                    </div>
-                  )}
-                  <div className="tech-meta-item">
-                    <span className="tech-meta-label">Typography:</span>
+                    <span className="tech-meta-label">Design Tokens:</span>
                     <span>
-                      {Boolean(activePin.measured?.fontSizePx) ? (
-                        `${Number(activePin.measured?.fontSizePx)}px (weight: ${String(activePin.measured?.fontWeight || 'normal')})`
-                      ) : (
-                        <>
-                          <span>14px (weight: 500)</span>
-                          <span className="simulated-font-badge" title="Font size was not deterministically measured in DOM; rendered at standard 14px size">
-                            [Simulated typography]
-                          </span>
-                        </>
-                      )}
+                      Target Spec: <code>var(--size-touch-target-min)</code> (44×44px HIG / 24×24px WCAG AA)
                     </span>
                   </div>
+                )}
+                <div className="tech-meta-item">
+                  <span className="tech-meta-label">Typography:</span>
+                  <span>
+                    {Boolean(activePin.measured?.fontSizePx) ? (
+                      `${Number(activePin.measured?.fontSizePx)}px (weight: ${String(activePin.measured?.fontWeight || 'normal')})`
+                    ) : (
+                      <>
+                        <span>14px (weight: 500)</span>
+                        <span className="simulated-font-badge" title="Font size was not deterministically measured in DOM; rendered at standard 14px size">
+                          [Simulated typography]
+                        </span>
+                      </>
+                    )}
+                  </span>
                 </div>
-              </details>
+              </div>
+            </details>}
 
-              {/* Action feedback message */}
-              {actionFeedback && (
-                <div className="inspector-feedback-banner">
-                  <Icon name="CheckCircle2" size={16} />
-                  <span>{actionFeedback}</span>
-                </div>
-              )}
-            </div>
+            {/* Action feedback message */}
+            {activePin.status !== 'pass' && actionFeedback && (
+              <div className="inspector-feedback-banner">
+                <Icon name="CheckCircle2" size={16} />
+                <span>{actionFeedback}</span>
+              </div>
+            )}
+          </div>
 
-            {/* 3. Footer: Fixed solid block outside the scroll area, NEVER overlaying content */}
-            <footer className="inspector-actions-footer">
-              {(() => {
-                const iterComp = activePin.groupedIssue.iterationComparison;
-                const isVerifiedPass =
-                  iterComp?.verificationStatus === 'verified' ||
-                  iterComp?.regressionResult === 'improved' ||
-                  iterComp?.regressionResult === 'no_new_failures';
-                const isFailedRegression =
-                  iterComp?.verificationStatus === 'failed' ||
-                  iterComp?.regressionResult === 'regressed';
-                const isUnverifiable =
-                  iterComp?.verificationStatus === 'unable_to_verify' ||
-                  iterComp?.regressionResult === 'unable_to_verify';
+          {/* 3. Footer: Fixed solid block outside the scroll area, NEVER overlaying content */}
+          {!readOnly && activePin.status !== 'pass' && <footer className="inspector-actions-footer">
+            {(() => {
+              const iterComp = activePin.groupedIssue.iterationComparison;
+              const isVerifiedPass =
+                iterComp?.verificationStatus === 'verified' ||
+                iterComp?.regressionResult === 'improved' ||
+                iterComp?.regressionResult === 'no_new_failures';
+              const isFailedRegression =
+                iterComp?.verificationStatus === 'failed' ||
+                iterComp?.regressionResult === 'regressed';
+              const isUnverifiable =
+                iterComp?.verificationStatus === 'unable_to_verify' ||
+                iterComp?.regressionResult === 'unable_to_verify';
 
-                // State 2: Verified Pass in Sandbox
-                if (isVerifiedPass) {
-                  return (
-                    <>
-                      <div className="footer-verification-banner state-verified">
-                        <Icon name="CheckCircle2" size={14} />
-                        <div className="verification-text">
-                          <strong>Verified Pass in Sandbox</strong>
-                          <span>{iterComp?.plainLanguageSummary || 'Contrast Ratio ≥ 4.5:1 · No regressions found'}</span>
-                        </div>
-                      </div>
-                      <div className="footer-buttons-row">
-                        <button
-                          type="button"
-                          className="action-btn btn-accept is-verified"
-                          disabled={isSavingDecision}
-                          onClick={handleAcceptFixIntoSpec}
-                          title="Accept verified candidate into design system spec"
-                        >
-                          <Icon name="Check" size={14} />
-                          <span>Accept Verified Fix</span>
-                        </button>
-                        <button
-                          type="button"
-                          className="action-btn btn-sandbox-fix"
-                          onClick={() => handleOpenInSandbox(activePin)}
-                          title="Open Sandbox to inspect verification results"
-                        >
-                          <Icon name="ExternalLink" size={14} />
-                          <span>View in Sandbox</span>
-                        </button>
-                      </div>
-                    </>
-                  );
-                }
-
-                // State 3: Failed / New Regression
-                if (isFailedRegression) {
-                  return (
-                    <>
-                      <div className="footer-verification-banner state-failed">
-                        <Icon name="AlertTriangle" size={14} />
-                        <div className="verification-text">
-                          <strong>Regression Detected</strong>
-                          <span>{iterComp?.plainLanguageSummary || 'Threshold not met or new layout overflow detected'}</span>
-                        </div>
-                      </div>
-                      <div className="footer-buttons-row">
-                        <button
-                          type="button"
-                          className="action-btn btn-sandbox-fix is-warning"
-                          onClick={() => handleOpenInSandbox(activePin)}
-                          title="Adjust code fix in Sandbox and re-test"
-                        >
-                          <Icon name="RefreshCw" size={14} />
-                          <span>Adjust Fix & Re-test</span>
-                        </button>
-                        <button
-                          type="button"
-                          className="action-btn btn-accept btn-reject-candidate"
-                          disabled={isSavingDecision}
-                          onClick={() => handleQuickDecision('reject')}
-                          title="Reject this candidate fix"
-                        >
-                          <Icon name="X" size={14} />
-                          <span>Reject Candidate</span>
-                        </button>
-                      </div>
-                    </>
-                  );
-                }
-
-                // State 4: Unverifiable / Error
-                if (isUnverifiable) {
-                  return (
-                    <>
-                      <div className="footer-verification-banner state-unverifiable">
-                        <Icon name="HelpCircle" size={14} />
-                        <div className="verification-text">
-                          <strong>Automated Verification Error</strong>
-                          <span>{iterComp?.verificationErrors?.[0] || 'Dynamic selector or DOM unreachable'}</span>
-                        </div>
-                      </div>
-                      <div className="footer-buttons-row">
-                        <button
-                          type="button"
-                          className="action-btn btn-sandbox-fix"
-                          onClick={() => handleOpenInSandbox(activePin)}
-                          title="Retry verification in Sandbox"
-                        >
-                          <Icon name="RefreshCw" size={14} />
-                          <span>Retry Verification</span>
-                        </button>
-                        <button
-                          type="button"
-                          className="action-btn btn-accept"
-                          disabled={isSavingDecision}
-                          onClick={handleAcceptFixIntoSpec}
-                          title="Save note for manual verification"
-                        >
-                          <Icon name="Check" size={14} />
-                          <span>Save for Manual Review</span>
-                        </button>
-                      </div>
-                    </>
-                  );
-                }
-
-                // State 1: Unverified / Not Re-audited (Default Initial State)
+              // State 2: Verified Pass in Sandbox
+              if (isVerifiedPass) {
                 return (
                   <>
-                    <div className="footer-verification-banner state-unverified">
-                      <Icon name="Info" size={13} />
+                    <div className="footer-verification-banner state-verified">
+                      <Icon name="CheckCircle2" size={14} />
                       <div className="verification-text">
-                        <span>Not re-audited in Sandbox · Draft Spec</span>
+                        <strong>Verified Pass in Sandbox</strong>
+                        <span>{iterComp?.plainLanguageSummary || 'Contrast Ratio ≥ 4.5:1 · No regressions found'}</span>
                       </div>
                     </div>
                     <div className="footer-buttons-row">
                       <button
                         type="button"
-                        className="action-btn btn-sandbox-fix btn-primary-cta"
-                        onClick={() => handleOpenInSandbox(activePin)}
-                        title="Open in Sandbox editor to experiment and run automated re-audit verification"
+                        className="action-btn btn-accept is-verified"
+                        disabled={isSavingDecision}
+                        onClick={handleAcceptFixIntoSpec}
+                        title="Accept verified candidate into design system spec"
                       >
-                        <Icon name="Sparkles" size={14} />
-                        <span>Sandbox & Re-audit →</span>
+                        <Icon name="Check" size={14} />
+                        <span>Accept Verified Fix</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="action-btn btn-sandbox-fix"
+                        onClick={() => handleOpenInSandbox(activePin)}
+                        title="Open Sandbox to inspect verification results"
+                      >
+                        <Icon name="ExternalLink" size={14} />
+                        <span>View in Sandbox</span>
+                      </button>
+                    </div>
+                  </>
+                );
+              }
+
+              // State 3: Failed / New Regression
+              if (isFailedRegression) {
+                return (
+                  <>
+                    <div className="footer-verification-banner state-failed">
+                      <Icon name="AlertTriangle" size={14} />
+                      <div className="verification-text">
+                        <strong>Regression Detected</strong>
+                        <span>{iterComp?.plainLanguageSummary || 'Threshold not met or new layout overflow detected'}</span>
+                      </div>
+                    </div>
+                    <div className="footer-buttons-row">
+                      <button
+                        type="button"
+                        className="action-btn btn-sandbox-fix is-warning"
+                        onClick={() => handleOpenInSandbox(activePin)}
+                        title="Adjust code fix in Sandbox and re-test"
+                      >
+                        <Icon name="RefreshCw" size={14} />
+                        <span>Adjust Fix & Re-test</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="action-btn btn-accept btn-reject-candidate"
+                        disabled={isSavingDecision}
+                        onClick={() => handleQuickDecision('reject')}
+                        title="Reject this candidate fix"
+                      >
+                        <Icon name="X" size={14} />
+                        <span>Reject Candidate</span>
+                      </button>
+                    </div>
+                  </>
+                );
+              }
+
+              // State 4: Unverifiable / Error
+              if (isUnverifiable) {
+                return (
+                  <>
+                    <div className="footer-verification-banner state-unverifiable">
+                      <Icon name="HelpCircle" size={14} />
+                      <div className="verification-text">
+                        <strong>Automated Verification Error</strong>
+                        <span>{iterComp?.verificationErrors?.[0] || 'Dynamic selector or DOM unreachable'}</span>
+                      </div>
+                    </div>
+                    <div className="footer-buttons-row">
+                      <button
+                        type="button"
+                        className="action-btn btn-sandbox-fix"
+                        onClick={() => handleOpenInSandbox(activePin)}
+                        title="Retry verification in Sandbox"
+                      >
+                        <Icon name="RefreshCw" size={14} />
+                        <span>Retry Verification</span>
                       </button>
                       <button
                         type="button"
                         className="action-btn btn-accept"
                         disabled={isSavingDecision}
                         onClick={handleAcceptFixIntoSpec}
-                        title="Accept proposed remediation fix into design spec. Status remains unverified until re-audited in Sandbox."
+                        title="Save note for manual verification"
                       >
                         <Icon name="Check" size={14} />
-                        <span>Accept Fix into Spec</span>
+                        <span>Save for Manual Review</span>
                       </button>
                     </div>
                   </>
                 );
-              })()}
-            </footer>
-          </aside>
-        )}
-      </div>
+              }
+
+              // State 1: Unverified / Not Re-audited (Default Initial State)
+              return (
+                <>
+                  <div className="footer-verification-banner state-unverified">
+                    <Icon name="Info" size={13} />
+                    <div className="verification-text">
+                      <span>Not re-audited in Sandbox · Draft Spec</span>
+                    </div>
+                  </div>
+                  <div className="footer-buttons-row">
+                    <button
+                      type="button"
+                      className="action-btn btn-sandbox-fix btn-primary-cta"
+                      onClick={() => handleOpenInSandbox(activePin)}
+                      title="Open in Sandbox editor to experiment and run automated re-audit verification (Primary Action)"
+                    >
+                      <Icon name="Sparkles" size={14} />
+                      <span>Sandbox & Re-audit →</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="action-btn btn-accept btn-secondary-draft"
+                      disabled={isSavingDecision}
+                      onClick={handleAcceptFixIntoSpec}
+                      title="Save proposed remediation fix into design spec as draft. Status remains unverified until re-audited in Sandbox."
+                    >
+                      <Icon name="Check" size={14} />
+                      <span>Save Proposed Fix</span>
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
+          </footer>}
+        </aside>
+      )}
     </div>
   );
 }

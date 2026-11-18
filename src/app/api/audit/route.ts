@@ -6,10 +6,13 @@ import { saveAuditRun, getAuditRun, listAuditRuns } from '@/lib/storage/db';
 import { saveSandboxSnippet, getSandboxSnippet } from '@/lib/sandbox/store';
 import { AuditRun } from '@/lib/schema/ux-issue';
 import { ProductContext, ProductContextSchema } from '@/lib/schema/product-context';
+import { PilotScopeSchema } from '@/lib/schema/pilot-metric';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const pilotScope = PilotScopeSchema.optional().safeParse(body.pilotScope);
+    if (!pilotScope.success) return NextResponse.json({ success: false, error: 'Invalid pilot UI scope or parent heading level.' }, { status: 400 });
     let target = body.target;
     const rawHtml = typeof body.html === 'string' ? body.html.trim() : '';
     let snippetId: string | undefined = undefined;
@@ -47,7 +50,9 @@ export async function POST(req: Request) {
     // 2. Execute browser auditing across viewports (RULE-02, SEC-07)
     const isMvp = validation.fixtureId === 'mvp-contrast-demo';
     const viewports = isMvp ? [{ width: 375, height: 667 }] : DEFAULT_AUDIT_VIEWPORTS;
-    const { issues: allIssues, errors, pageScreenshots, detectedContext } = await runBrowserAudit({
+    const { issues: allIssues, errors, pageScreenshots, detectedContext, metricResults } = await runBrowserAudit({
+      pilotScope: pilotScope.data,
+      enablePilotMetrics: !isMvp,
       url: validation.normalizedUrl,
       timeoutMs: 25000,
       localOrigin: validation.localOrigin,
@@ -118,6 +123,7 @@ export async function POST(req: Request) {
 
     const runId = `run-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     const auditRun: AuditRun = {
+      metricResults,
       id: runId,
       targetUrl: validation.normalizedUrl,
       pageScreenshots,
@@ -134,10 +140,20 @@ export async function POST(req: Request) {
     };
 
     // 4. Atomic local persistence (DATA-05)
-    await saveAuditRun(auditRun);
+    try {
+      await saveAuditRun(auditRun);
+    } catch {
+      return NextResponse.json({
+        success: false,
+        saved: false,
+        error: 'The measurements are available for this visit, but the audit run could not be saved.',
+        run: auditRun,
+      }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,
+      saved: true,
       run: auditRun,
       partialErrors: errors.length > 0 ? errors : undefined,
     });
@@ -155,8 +171,12 @@ export async function GET(req: Request) {
   const id = searchParams.get('id');
 
   if (!id) {
-    const runs = await listAuditRuns();
-    return NextResponse.json({ success: true, runs });
+    try {
+      const runs = await listAuditRuns();
+      return NextResponse.json({ success: true, runs }, { headers: { 'Cache-Control': 'no-store' } });
+    } catch {
+      return NextResponse.json({ success: false, error: 'Audit history could not be loaded.' }, { status: 503 });
+    }
   }
 
   const run = await getAuditRun(id);

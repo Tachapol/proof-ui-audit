@@ -6,9 +6,11 @@ import { Icon } from './Icon';
 
 interface NavigationRailProps {
   isOpen: boolean;
+  isCollapsed?: boolean;
   onClose: () => void;
-  currentRunId?: string;
-  currentFixtureId?: string;
+  onToggleCollapse?: () => void;
+  currentRun: RecentRunItem | null;
+  isUnsavedRun: boolean;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
 }
 
@@ -26,32 +28,50 @@ interface RecentRunItem {
 
 export function NavigationRail({
   isOpen,
+  isCollapsed = false,
   onClose,
-  currentRunId,
-  currentFixtureId,
+  onToggleCollapse,
+  currentRun,
+  isUnsavedRun,
   triggerRef,
 }: NavigationRailProps) {
   const drawerRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const [recentRuns, setRecentRuns] = useState<RecentRunItem[]>([]);
-  const [isLoadingRuns, setIsLoadingRuns] = useState(false);
+  const [isLoadingRuns, setIsLoadingRuns] = useState(true);
+  const [historyError, setHistoryError] = useState(false);
+  const currentRunId = currentRun?.id;
+  const savedRunId = isUnsavedRun ? undefined : currentRunId;
+  const savedRuns = currentRun && savedRunId
+    ? [currentRun, ...recentRuns.filter(run => run.id !== savedRunId)]
+    : recentRuns.filter(run => run.id !== currentRunId);
 
   useEffect(() => {
-    if (!isOpen) return;
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
+    const shouldLoad = isOpen || (isDesktop && !isCollapsed);
+    if (!shouldLoad) return;
+    const controller = new AbortController();
     setIsLoadingRuns(true);
-    fetch('/api/audit')
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success && Array.isArray(d.runs)) {
-          setRecentRuns(d.runs);
-        }
+    setHistoryError(false);
+    fetch('/api/audit', { cache: 'no-store', signal: controller.signal })
+      .then((r) => {
+        if (!r.ok) throw new Error('Unable to load audit history.');
+        return r.json();
       })
-      .catch(() => undefined)
-      .finally(() => setIsLoadingRuns(false));
-  }, [isOpen]);
+      .then((d) => {
+        if (!d.success || !Array.isArray(d.runs)) throw new Error('Invalid audit history response.');
+        if (!controller.signal.aborted) setRecentRuns(d.runs);
+      })
+      .catch(() => { if (!controller.signal.aborted) setHistoryError(true); })
+      .finally(() => { if (!controller.signal.aborted) setIsLoadingRuns(false); });
+    return () => controller.abort();
+  }, [isOpen, isCollapsed, savedRunId]);
 
   useEffect(() => {
     if (!isOpen) return;
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
+    if (isDesktop) return;
+
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     closeRef.current?.focus();
@@ -89,13 +109,23 @@ export function NavigationRail({
   }, [isOpen, onClose, triggerRef]);
 
   const handleClose = () => {
-    onClose();
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      if (onToggleCollapse) {
+        onToggleCollapse();
+      } else {
+        onClose();
+      }
+    } else {
+      onClose();
+    }
     triggerRef.current?.focus();
   };
 
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
     e.preventDefault();
-    handleClose();
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      handleClose();
+    }
 
     if (target === '#audit-input') {
       const el = document.getElementById('audit-input');
@@ -125,19 +155,28 @@ export function NavigationRail({
       <aside
         ref={drawerRef}
         id="primary-navigation"
-        className={`navigation-rail${isOpen ? ' is-open' : ''}`}
+        className={`navigation-rail${isOpen ? ' is-open' : ''}${isCollapsed ? ' is-collapsed' : ''}`}
         aria-label="Primary navigation"
         aria-modal={isOpen ? 'true' : undefined}
         role={isOpen ? 'dialog' : undefined}
       >
-        <div className="rail-brand">
-          <div className="brand-mark" aria-hidden="true">P</div>
-          <div>
-            <strong>ProofUI</strong>
-            <span>Audit workspace</span>
+        <div className="rail-brand flex items-center justify-between gap-2.5 min-h-[48px] mx-0.5 mb-5">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="brand-mark shrink-0" aria-hidden="true">P</div>
+            <div className="min-w-0">
+              <strong className="truncate block font-semibold text-zinc-900 text-sm">ProofUI</strong>
+              <span className="truncate block text-xs text-zinc-500">Audit workspace</span>
+            </div>
           </div>
-          <button ref={closeRef} className="icon-button rail-close" type="button" onClick={handleClose} aria-label="Close navigation drawer">
-            <Icon name="X" size={19} />
+          <button
+            ref={closeRef}
+            className="icon-button rail-close inline-flex items-center justify-center rounded-md p-1.5 text-zinc-500 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 transition-colors shrink-0 !bg-transparent !border-0 !shadow-none"
+            type="button"
+            onClick={handleClose}
+            aria-label="Close navigation drawer"
+            title="Collapse sidebar (⌘B)"
+          >
+            <Icon name="PanelLeftClose" size={17} />
           </button>
         </div>
 
@@ -162,7 +201,7 @@ export function NavigationRail({
             <Icon name="FlaskConical" size={17} />
             <div className="rail-link-text">
               <span>Local Test Fixtures</span>
-              <small>WCAG 2.2 benchmark suites</small>
+              <small>Fixtures for selected WCAG 2.2 checks</small>
             </div>
           </a>
 
@@ -209,18 +248,17 @@ export function NavigationRail({
             <Icon name="ArrowRight" size={14} className="ml-auto opacity-60" />
           </Link>
 
-          <Link
+          {!currentRunId && <Link
             className="rail-link rail-studio-link"
-            href={currentRunId ? `/studio?runId=${encodeURIComponent(currentRunId)}` : '/studio'}
+            href="/studio"
             onClick={handleClose}
           >
             <Icon name="Users" size={17} />
             <div className="rail-link-text">
-              <span>Critique Studio</span>
-              <small>{currentRunId ? 'Deliberate this run with AI' : 'Multi-role AI round-table'}</small>
+              <span>Open in Critique Studio</span>
             </div>
             <Icon name="ArrowRight" size={14} className="ml-auto opacity-60" />
-          </Link>
+          </Link>}
         </nav>
 
         <section className="rail-section rail-recent" aria-labelledby="recent-title">
@@ -228,17 +266,26 @@ export function NavigationRail({
             <h2 id="recent-title" className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
               Recent Audit Runs
             </h2>
-            {recentRuns.length > 0 && (
-              <span className="text-[10px] text-zinc-400 font-mono">{recentRuns.length} saved</span>
+            {savedRuns.length > 0 && (
+              <span className="text-[10px] text-zinc-400 font-mono">{savedRuns.length} saved</span>
             )}
           </div>
 
-          {isLoadingRuns ? (
+          {currentRun && isUnsavedRun && (
+            <div className="my-2 space-y-1 rounded-lg border border-amber-200 bg-amber-50 p-3" role="status">
+              <strong className="block text-xs text-amber-900">Unsaved run</strong>
+              <p className="safe-wrap text-xs text-amber-900">{currentRun.fixtureId ? `fixture://${currentRun.fixtureId}` : currentRun.targetUrl}</p>
+            </div>
+          )}
+          {historyError && (
+            <p className="py-2 text-xs text-zinc-600" role="status">Audit history could not be refreshed.</p>
+          )}
+          {isLoadingRuns && savedRuns.length === 0 && !currentRun ? (
             <div className="py-4 text-center text-xs text-zinc-400">Loading history…</div>
-          ) : recentRuns.length > 0 ? (
+          ) : savedRuns.length > 0 ? (
             <div className="recent-runs-list">
-              {recentRuns.slice(0, 8).map((run) => {
-                const isSelected = run.id === currentRunId;
+              {savedRuns.slice(0, 8).map((run) => {
+                const isSelected = run.id === savedRunId;
                 const displayName = run.fixtureId ? `fixture://${run.fixtureId}` : run.targetUrl;
                 let dateStr = '';
                 try {
@@ -248,10 +295,11 @@ export function NavigationRail({
                 }
 
                 return (
-                  <Link
+                  <a
                     key={run.id}
                     className={`recent-run-card ${isSelected ? 'is-current' : ''}`}
                     href={`/?runId=${encodeURIComponent(run.id)}`}
+                    aria-current={isSelected ? 'page' : undefined}
                     onClick={handleClose}
                   >
                     <div className="run-card-top flex items-center justify-between gap-2">
@@ -270,22 +318,22 @@ export function NavigationRail({
                         <span className="run-badge badge-fail text-red-700 bg-red-50 border border-red-200 px-1.5 py-0.2 rounded font-medium">
                           {run.summary.candidateFailCount} {run.summary.candidateFailCount === 1 ? 'fail' : 'fails'}
                         </span>
-                      ) : (
+                      ) : run.summary.needsReviewCount === 0 && run.summary.passCount > 0 ? (
                         <span className="run-badge badge-pass text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded font-medium">
                           Pass
                         </span>
-                      )}
+                      ) : null}
                       {run.summary.needsReviewCount > 0 && (
                         <span className="run-badge badge-review text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded font-medium">
                           {run.summary.needsReviewCount} review
                         </span>
                       )}
                     </div>
-                  </Link>
+                  </a>
                 );
               })}
             </div>
-          ) : (
+          ) : !currentRun && !historyError && !isLoadingRuns && (
             <p className="text-xs text-zinc-400 py-4 text-center">No saved audit runs yet.</p>
           )}
         </section>

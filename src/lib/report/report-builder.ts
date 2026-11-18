@@ -18,7 +18,7 @@ export const STANDARD_DISCLAIMERS = [
 ];
 
 export const KNOWN_LIMITATIONS = [
-  'Automated testing is conducted across designated viewports: 1440px (desktop) and 375px (mobile).',
+  'Default audit viewports are 1440px, 375px and 320px. Reflow is evaluated at 320 CSS px; explicitly restricted audits may use other viewport sets.',
   'Dynamic interactive animations, single-page application route transitions, and authenticated states are excluded from automated auditing.',
   'Text and elements over complex canvas, dynamic video, or multi-layered CSS blend modes require manual designer review.',
 ];
@@ -33,6 +33,7 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
   }
 
   const rawOccurrences: ReportOccurrence[] = (run.rawIssues || []).map((finding) => ({
+    metric: finding.metric,
     id: finding.id,
     ruleId: finding.ruleId,
     wcagCriterion: finding.wcagCriterion,
@@ -54,6 +55,7 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
   const groupedIssues: ReportGroupedIssue[] = run.groupedIssues.map((group) => {
     const rep = group.representative;
     const occurrences: ReportOccurrence[] = (group.occurrences || []).map((occ) => ({
+      metric: occ.metric,
       id: occ.id,
       ruleId: occ.ruleId,
       wcagCriterion: occ.wcagCriterion,
@@ -83,6 +85,7 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
     const viewports = Array.from(viewportMap.values());
 
     return {
+      metric: rep.metric,
       fingerprint: group.fingerprint,
       ruleId: rep.ruleId,
       wcagCriterion: rep.wcagCriterion,
@@ -117,6 +120,7 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
       designerReason: group.designerReason,
       editedRecommendation: group.editedRecommendation,
       decisionHistory: group.decisionHistory,
+      proposedFix: group.proposedFix,
       // Remediation / Iteration Proof
       iterationComparison: group.iterationComparison
         ? {
@@ -189,6 +193,7 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
     schemaVersion: '1.0.0',
     exportTimestamp: exportTimestamp || new Date().toISOString(),
     audit: {
+      metricResults: run.metricResults,
       runId: run.id,
       timestamp: run.timestamp,
       targetUrl: run.targetUrl,
@@ -205,7 +210,10 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
       priorityCounts,
       remediationSummary,
     },
-    disclaimers: run.fixtureId === 'mvp-contrast-demo' ? ['This MVP report covers Text Contrast only for four controlled cases; other criteria are not included.', ...STANDARD_DISCLAIMERS.slice(1)] : STANDARD_DISCLAIMERS,
+    disclaimers: run.fixtureId === 'mvp-contrast-demo' ? ['This MVP report covers Text Contrast only for four controlled cases; other criteria are not included.', ...STANDARD_DISCLAIMERS.slice(1)] : [
+      ...STANDARD_DISCLAIMERS,
+      ...(run.metricResults ? ['Touch Target Spacing and Heading Hierarchy are additional pilot project advisories. A gap below 8 CSS px or a heading-level skip is not an automatic WCAG failure. Metric execution and applicability are separate from findings.'] : []),
+    ],
     limitations: run.fixtureId === 'mvp-contrast-demo' ? ['MVP viewport: 375 × 667 CSS px. Designer acceptance does not apply a CSS patch or verify a fix.', ...KNOWN_LIMITATIONS.slice(1)] : KNOWN_LIMITATIONS,
     groupedIssues,
     rawOccurrences,

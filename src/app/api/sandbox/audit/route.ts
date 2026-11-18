@@ -3,14 +3,21 @@ import { saveSandboxSnippet } from '@/lib/sandbox/store';
 import { runBrowserAudit, DEFAULT_AUDIT_VIEWPORTS } from '@/lib/audit/browser';
 import { groupUXIssues } from '@/lib/audit/grouping';
 import { getAuditRun, saveAuditRun, withRunLock } from '@/lib/storage/db';
-import { AuditRun } from '@/lib/schema/ux-issue';
+import { AuditRunSchema, AuditRun } from '@/lib/schema/ux-issue';
+import { PilotScopeSchema } from '@/lib/schema/pilot-metric';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const pilotScope = PilotScopeSchema.optional().safeParse(body.pilotScope);
+    if (!pilotScope.success) return NextResponse.json({ success: false, error: 'Invalid pilot UI scope or parent heading level.' }, { status: 400 });
     const html = typeof body.html === 'string' ? body.html.trim() : '';
     const priorRunId = typeof body.priorRunId === 'string' ? body.priorRunId.trim() : undefined;
     const acceptedCandidate = body.acceptedCandidate;
+    const imported = body.canvasImport ? AuditRunSchema.shape.canvasImport.safeParse({ ...body.canvasImport, scope: 'isolated_reconstruction' }) : undefined;
+    if (imported && !imported.success) return NextResponse.json({ success: false, error: 'Invalid Canvas import metadata.' }, { status: 400 });
+    const canvasImport = imported?.success ? imported.data : undefined;
+    const viewports = canvasImport ? [canvasImport.viewport] : DEFAULT_AUDIT_VIEWPORTS;
 
     if (!html) {
       return NextResponse.json({ success: false, error: 'HTML snippet content is required.' }, { status: 400 });
@@ -24,11 +31,12 @@ export async function POST(req: NextRequest) {
     const targetUrl = `${localOrigin}/api/sandbox/render?id=${snippet.id}`;
 
     // Run browser audit across desktop (1440px) and mobile (375px)
-    const { issues, errors, pageScreenshots } = await runBrowserAudit({
+    const { issues, errors, pageScreenshots, metricResults } = await runBrowserAudit({
+      pilotScope: pilotScope.data,
       url: targetUrl,
       timeoutMs: 15000,
       localOrigin,
-      viewports: DEFAULT_AUDIT_VIEWPORTS,
+      viewports,
     });
 
     const grouped = groupUXIssues(issues);
@@ -99,10 +107,12 @@ export async function POST(req: NextRequest) {
 
     const runId = `sandbox-${snippet.id}`;
     const run: AuditRun = {
+      metricResults,
+      canvasImport,
       id: runId,
       targetUrl,
       timestamp: new Date().toISOString(),
-      viewports: DEFAULT_AUDIT_VIEWPORTS,
+      viewports,
       rawIssues: issues,
       groupedIssues: grouped,
       summary: {

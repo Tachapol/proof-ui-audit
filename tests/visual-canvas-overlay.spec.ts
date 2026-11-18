@@ -87,7 +87,18 @@ test.describe('Visual Canvas Overlay Feature', () => {
 
     // Test Accept Fix into Spec feedback semantics (does not claim verified)
     await acceptBtn.click();
-    await expect(inspector.locator('.inspector-feedback-banner')).toContainText('unverified until Sandbox re-audit');
+    await expect(inspector.locator('.inspector-feedback-banner')).toContainText('Not re-audited');
+
+    // Card preview must inject precisely one selected proposal, matching the saved draft.
+    await inspector.locator('.card-preview-canvas-btn').click();
+    const appliedCss = await canvasIframe.evaluate((frame: HTMLIFrameElement) =>
+      frame.contentDocument?.getElementById('proofui-auto-optimize-styles')?.textContent);
+    expect(appliedCss).toContain('min-width: 44px !important');
+    // The actual saved proposal is covered by the API integration test; canvas scope is checked here.
+    expect(appliedCss?.match(/\{/g)?.length).toBe(1);
+    await inspector.locator('.card-preview-canvas-btn').click();
+    await expect.poll(() => canvasIframe.evaluate((frame: HTMLIFrameElement) =>
+      frame.contentDocument?.getElementById('proofui-auto-optimize-styles')?.textContent)).toBe('');
 
     // 7. Test closing the pop-up box
     const closeBtn = inspector.locator('.stepper-btn.close-btn');

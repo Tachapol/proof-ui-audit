@@ -55,11 +55,12 @@ const DEFAULT_SAMPLE_HTML = `<div class="p-6 max-w-md mx-auto bg-white rounded-x
   </div>
 </div>`;
 
-const CATEGORY_COLORS: Record<FixtureDefinition['category'], { badge: string; border: string }> = {
-  contrast: { badge: 'bg-blue-50 text-blue-700 border-blue-200', border: 'border-blue-500' },
-  'target-size': { badge: 'bg-amber-50 text-amber-700 border-amber-200', border: 'border-amber-500' },
-  reflow: { badge: 'bg-purple-50 text-purple-700 border-purple-200', border: 'border-purple-500' },
-  'text-spacing': { badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', border: 'border-emerald-500' },
+const CATEGORY_META: Record<FixtureDefinition['category'], { label: string; dot: string }> = {
+  contrast: { label: 'Contrast', dot: 'bg-blue-500' },
+  'target-size': { label: 'Target Size', dot: 'bg-amber-500' },
+  reflow: { label: 'Reflow', dot: 'bg-purple-500' },
+  'text-spacing': { label: 'Text Spacing', dot: 'bg-emerald-500' },
+  'pilot-metrics': { label: 'Pilot Metrics', dot: 'bg-indigo-500' },
 };
 
 export function AuditInput({
@@ -72,11 +73,44 @@ export function AuditInput({
   currentContext,
 }: AuditInputProps) {
   const [productContext, setProductContext] = useState<ProductContext>(EMPTY_PRODUCT_CONTEXT);
-  const [contextMode, setContextMode] = useState<'auto' | 'manual'>('manual');
   const [activeTab, setActiveTab] = useState<'sample' | 'url' | 'code'>('sample');
 
   // Sample UI state
   const [selectedFixture, setSelectedFixture] = useState('pilot-ui-01');
+
+  // Resizable Rendered UI Preview Height (min 120, max 800, default 480)
+  const [previewHeight, setPreviewHeight] = useState(480);
+  const [isResizingPreview, setIsResizingPreview] = useState(false);
+  const resizeStartYRef = useRef(0);
+  const resizeStartHeightRef = useRef(480);
+
+  const handleStartResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizingPreview(true);
+    resizeStartYRef.current = e.clientY;
+    resizeStartHeightRef.current = previewHeight;
+  };
+
+  useEffect(() => {
+    if (!isResizingPreview) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaY = e.clientY - resizeStartYRef.current;
+      const nextHeight = Math.max(120, Math.min(800, resizeStartHeightRef.current + deltaY));
+      setPreviewHeight(nextHeight);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizingPreview(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizingPreview]);
 
   // Website URL state
   const [customUrl, setCustomUrl] = useState('');
@@ -100,9 +134,6 @@ export function AuditInput({
   useEffect(() => {
     if (currentContext) {
       setProductContext(currentContext);
-      if (Object.values(currentContext).some(Boolean)) {
-        setContextMode('manual');
-      }
     }
   }, [currentContext]);
 
@@ -219,8 +250,9 @@ export function AuditInput({
       }
     }
 
-    const parsedContext = ProductContextSchema.safeParse(productContext);
-    if (contextMode === 'manual' && !parsedContext.success) {
+    const hasContext = Object.values(productContext).some((v) => Boolean(v && v.trim()));
+    const parsedContext = hasContext ? ProductContextSchema.safeParse(productContext) : null;
+    if (parsedContext && !parsedContext.success) {
       setClientError(parsedContext.error.issues[0].message);
       onValidationStateChange?.(true);
       return;
@@ -229,23 +261,25 @@ export function AuditInput({
     setClientError(null);
     onValidationStateChange?.(false);
 
+    const contextToSend = parsedContext?.success ? parsedContext.data : undefined;
+
     if (activeTab === 'sample') {
       await onRunAudit(
         selectedFixture,
-        contextMode === 'manual' ? (parsedContext.success ? parsedContext.data : undefined) : undefined,
-        contextMode === 'auto'
+        contextToSend,
+        false
       );
     } else if (activeTab === 'url') {
       await onRunAudit(
         customUrl.trim(),
-        contextMode === 'manual' ? (parsedContext.success ? parsedContext.data : undefined) : undefined,
-        contextMode === 'auto'
+        contextToSend,
+        false
       );
     } else {
       // Code audit
       await onRunAudit(
         'snippet://active',
-        contextMode === 'manual' ? (parsedContext.success ? parsedContext.data : undefined) : undefined,
+        contextToSend,
         false,
         codeSnippet.trim()
       );
@@ -351,7 +385,7 @@ export function AuditInput({
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
               {PILOT_UI_FIXTURES.map((fixture) => {
                 const isSelected = selectedFixture === fixture.id;
-                const colors = CATEGORY_COLORS[fixture.category];
+                const meta = CATEGORY_META[fixture.category];
                 return (
                   <button
                     key={fixture.id}
@@ -364,12 +398,19 @@ export function AuditInput({
                     }`}
                   >
                     <div className="flex items-center justify-between w-full mb-1">
-                      <span className="font-bold text-zinc-900">{fixture.name.split(':')[0]}</span>
-                      <span className={`text-[9px] uppercase px-1 py-0.2 rounded font-semibold border ${colors.badge}`}>
-                        {fixture.category}
+                      <span className="font-semibold text-zinc-900">{fixture.name.split(':')[0]}</span>
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors ${
+                          isSelected
+                            ? 'bg-blue-100/80 text-blue-900'
+                            : 'bg-zinc-100 text-zinc-600'
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${meta.dot} shrink-0`} aria-hidden="true" />
+                        <span>{meta.label}</span>
                       </span>
                     </div>
-                    <span className="text-[11px] font-medium text-zinc-800 line-clamp-1">
+                    <span className="text-[11px] font-medium text-zinc-700 line-clamp-1">
                       {fixture.name.split(':')[1]?.trim() || fixture.name}
                     </span>
                   </button>
@@ -383,43 +424,78 @@ export function AuditInput({
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-zinc-900">{activeFixtureDef.name}</span>
-                    <span
-                      className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${
-                        CATEGORY_COLORS[activeFixtureDef.category].badge
-                      }`}
-                    >
-                      {activeFixtureDef.category.toUpperCase()}
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-zinc-100 text-zinc-700">
+                      <span className={`w-1.5 h-1.5 rounded-full ${CATEGORY_META[activeFixtureDef.category].dot}`} aria-hidden="true" />
+                      <span>{CATEGORY_META[activeFixtureDef.category].label}</span>
                     </span>
                   </div>
                   <p className="text-xs text-zinc-600 leading-relaxed">{activeFixtureDef.description}</p>
                 </div>
               </div>
 
-              {/* Rendered Live Preview Frame */}
-              <div className="border border-zinc-200 rounded-md overflow-hidden bg-white shadow-xs">
-                <div className="bg-zinc-100 px-3 py-1 border-b border-zinc-200 text-[10px] text-zinc-500 flex items-center justify-between font-mono">
-                  <span>Rendered UI preview</span>
-                  <span>{activeFixtureDef.path}</span>
+              {/* Rendered Live Preview Frame (Resizable) */}
+              <div className="border border-zinc-200 rounded-md overflow-hidden bg-white shadow-xs transition-shadow hover:shadow-sm">
+                <div className="bg-zinc-100 px-3 py-1.5 border-b border-zinc-200 text-[10px] text-zinc-500 flex items-center justify-between font-mono select-none">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-zinc-700">Rendered UI preview</span>
+                    <span className="text-zinc-300">·</span>
+                    <span className="text-[9px] px-1.5 py-0.5 bg-zinc-200/80 text-zinc-600 rounded font-medium">
+                      {previewHeight}px
+                    </span>
+                  </div>
+                  <span className="truncate max-w-[200px] text-zinc-400">{activeFixtureDef.path}</span>
                 </div>
-                <iframe
-                  src={activeFixtureDef.path}
-                  title={`Preview of ${activeFixtureDef.name}`}
-                  sandbox="allow-scripts"
-                  className="w-full h-36 border-none"
-                />
+
+                <div className="relative bg-white">
+                  <iframe
+                    src={activeFixtureDef.path}
+                    title={`Preview of ${activeFixtureDef.name}`}
+                    sandbox="allow-scripts"
+                    style={{ height: `${previewHeight}px` }}
+                    className={`w-full border-none block ${
+                      isResizingPreview ? 'pointer-events-none transition-none' : 'transition-[height] duration-150'
+                    }`}
+                  />
+                </div>
+
+                {/* Resizable Bottom Handle Bar */}
+                <div
+                  onMouseDown={handleStartResize}
+                  onDoubleClick={() => setPreviewHeight(480)}
+                  className={`h-5 w-full bg-zinc-50 hover:bg-zinc-100/90 border-t border-zinc-200 cursor-row-resize flex items-center justify-center transition-colors group select-none ${
+                    isResizingPreview ? 'bg-blue-50 border-blue-300' : ''
+                  }`}
+                  title="Drag down/up to resize preview height (Double-click to reset to 480px)"
+                  role="separator"
+                  aria-orientation="horizontal"
+                  aria-label="Resize preview height"
+                >
+                  <div className="flex items-center gap-1 py-1">
+                    <div
+                      className={`h-1 rounded-full transition-all ${
+                        isResizingPreview
+                          ? 'bg-blue-500 w-14'
+                          : 'bg-zinc-300 group-hover:bg-zinc-400 w-10 group-hover:w-14'
+                      }`}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Developer & Benchmark Suites (Pass/Fail Debug) */}
-            <details open className="group rounded-lg border border-zinc-200 bg-zinc-50/60 p-3 text-xs">
-              <summary className="flex items-center justify-between font-medium text-zinc-700 cursor-pointer select-none">
+            {/* Developer & Benchmark Suites (Subdued / Collapsed for Dev only) */}
+            <details open className="group border-t border-zinc-100 pt-2.5 text-[11px] transition-colors">
+              <summary className="flex items-center justify-between font-normal text-zinc-400 hover:text-zinc-600 cursor-pointer select-none py-1">
                 <div className="flex items-center gap-2">
-                  <Icon name="FlaskConical" size={14} className="text-zinc-500" />
-                  <span>Developer & Benchmark Suites (Pass/Fail Debug)</span>
+                  <Icon name="FlaskConical" size={12} className="text-zinc-400" />
+                  <span>Advanced: Developer &amp; Algorithm Debug Fixtures (Optional)</span>
+                  <span className="text-[9px] font-mono text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200/50">
+                    for me only
+                  </span>
                 </div>
-                <Icon name="ChevronDown" size={14} className="text-zinc-400 group-open:rotate-180 transition-transform" />
+                <Icon name="ChevronDown" size={12} className="text-zinc-300 group-hover:text-zinc-500 group-open:rotate-180 transition-transform" />
               </summary>
-              <div className="mt-3 pt-3 border-t border-zinc-200 space-y-2">
+              <div className="mt-2.5 p-3 rounded-md bg-zinc-50/80 border border-zinc-200/60 space-y-2">
                 <p className="text-[11px] text-zinc-500">
                   Isolated pass/fail assertion cases for algorithm verification and engine regression tests.
                 </p>
@@ -428,7 +504,7 @@ export function AuditInput({
                   value={selectedFixture}
                   onChange={(e) => setSelectedFixture(e.target.value)}
                   disabled={isLoading}
-                  className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 text-zinc-900"
+                  className="flex h-8 w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-xs shadow-2xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-600 focus-visible:border-blue-600 text-zinc-800"
                 >
                   <optgroup label="Developer Regression Suites">
                     {devFixtures.map((f) => (
@@ -475,7 +551,7 @@ export function AuditInput({
                 disabled={isLoading}
                 aria-invalid={displayedError ? 'true' : 'false'}
                 aria-describedby={`url-help${displayedError ? ' audit-target-error' : ''}`}
-                className="flex h-10 w-full rounded-md border border-zinc-200 bg-zinc-50/50 pl-9 pr-3 py-1 text-xs shadow-xs placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 focus:bg-white text-zinc-900 transition-colors font-mono"
+                className="flex h-10 w-full rounded-md border border-zinc-200 bg-zinc-50/50 pl-9 pr-3 py-1 text-xs shadow-xs placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-600 focus-visible:border-blue-600 focus:bg-white text-zinc-900 transition-colors font-mono"
               />
             </div>
           </div>
@@ -565,7 +641,7 @@ export function AuditInput({
                 disabled={isLoading}
                 rows={7}
                 placeholder="<!-- Paste HTML with inline CSS or <style> tags here -->"
-                className="w-full font-mono text-xs rounded-md border border-zinc-200 bg-zinc-50/50 p-3 shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 focus:bg-white text-zinc-900 leading-relaxed resize-y transition-colors"
+                className="w-full font-mono text-xs rounded-md border border-zinc-200 bg-zinc-50/50 p-3 shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-600 focus-visible:border-blue-600 focus:bg-white text-zinc-900 leading-relaxed resize-y transition-colors"
               />
               <div className="flex items-center justify-between text-[10px] text-zinc-400 mt-1 px-1">
                 <span>Supports standard HTML5 and Tailwind CSS utility classes</span>
@@ -585,16 +661,47 @@ export function AuditInput({
               </button>
 
               {showCodePreview && (
-                <div className="mt-2 border border-zinc-200 rounded-md overflow-hidden bg-white shadow-xs">
-                  <div className="bg-zinc-100 px-3 py-1 border-b border-zinc-200 text-[10px] text-zinc-500 font-mono">
-                    Sandboxed component render (isolated origin)
+                <div className="mt-2 border border-zinc-200 rounded-md overflow-hidden bg-white shadow-xs transition-shadow hover:shadow-sm">
+                  <div className="bg-zinc-100 px-3 py-1.5 border-b border-zinc-200 text-[10px] text-zinc-500 flex items-center justify-between font-mono select-none">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-zinc-700">Sandboxed component render</span>
+                      <span className="text-zinc-300">·</span>
+                      <span className="text-[9px] px-1.5 py-0.5 bg-zinc-200/80 text-zinc-600 rounded font-medium">
+                        {previewHeight}px
+                      </span>
+                    </div>
+                    <span className="text-zinc-400">isolated origin</span>
                   </div>
-                  <iframe
-                    srcDoc={buildSandboxedDocument(codeSnippet)}
-                    title="Code snippet live preview"
-                    sandbox="allow-scripts"
-                    className="w-full h-44 border-none"
-                  />
+                  <div className="relative bg-white">
+                    <iframe
+                      srcDoc={buildSandboxedDocument(codeSnippet)}
+                      title="Code snippet live preview"
+                      sandbox="allow-scripts"
+                      style={{ height: `${previewHeight}px` }}
+                      className={`w-full border-none block ${
+                        isResizingPreview ? 'pointer-events-none transition-none' : 'transition-[height] duration-150'
+                      }`}
+                    />
+                  </div>
+                  {/* Resizable Bottom Handle Bar */}
+                  <div
+                    onMouseDown={handleStartResize}
+                    onDoubleClick={() => setPreviewHeight(480)}
+                    className={`h-5 w-full bg-zinc-50 hover:bg-zinc-100/90 border-t border-zinc-200 cursor-row-resize flex items-center justify-center transition-colors group select-none ${
+                      isResizingPreview ? 'bg-blue-50 border-blue-300' : ''
+                    }`}
+                    title="Drag down/up to resize preview height (Double-click to reset to 480px)"
+                  >
+                    <div className="flex items-center gap-1 py-1">
+                      <div
+                        className={`h-1 rounded-full transition-all ${
+                          isResizingPreview
+                            ? 'bg-blue-500 w-14'
+                            : 'bg-zinc-300 group-hover:bg-zinc-400 w-10 group-hover:w-14'
+                        }`}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -613,8 +720,7 @@ export function AuditInput({
               ? customUrl.trim() || undefined
               : 'snippet://active'
           }
-          contextMode={contextMode}
-          onContextModeChange={setContextMode}
+          htmlSnippet={activeTab === 'code' ? codeSnippet : undefined}
         />
 
         {/* Actions Bar */}
@@ -658,6 +764,11 @@ export function AuditInput({
           An audit usually takes ten to thirty seconds.
         </span>
       </form>
+
+      {/* Global drag shield to capture mouse movements outside iframe during resize */}
+      {isResizingPreview && (
+        <div className="fixed inset-0 z-50 cursor-row-resize select-none pointer-events-auto" />
+      )}
     </section>
   );
 }

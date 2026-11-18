@@ -59,7 +59,7 @@ test.describe('Phase 2: Contrast Rules Integration Test', () => {
     await expect(nonTextReviewCard.locator('text=Requires Designer Review')).toBeVisible();
 
     // 5. Inactive / disabled control excluded state (Section D Audit)
-    const passFilterTab = page.locator('button', { hasText: 'Pass (' });
+    const passFilterTab = page.locator('summary', { hasText: /^Passed checks \(/ });
     await passFilterTab.click();
 
     const excludedCard = page.locator('article', { hasText: 'Inactive control excluded from SC 1.4.11' }).first();

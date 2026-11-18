@@ -7,7 +7,7 @@ import type { CSSProperties } from 'react';
 export function PilotUIFixture({ caseNumber }: { caseNumber: number }) {
   const [message, setMessage] = useState('');
   const button: CSSProperties = { minWidth: 44, minHeight: 44, padding: '8px 16px', background: '#1e40af', color: '#fff', borderRadius: 6 };
-  const input: CSSProperties = { width: '100%', minHeight: 44, border: '2px solid #555', padding: 8, background: '#fff', color: '#111827', boxSizing: 'border-box' };
+  const input: CSSProperties = { width: '100%', minHeight: 44, border: '1px solid #cbd5e1', borderRadius: 6, padding: '8px 12px', background: '#fff', color: '#111827', boxSizing: 'border-box', outline: 'none' };
   return <div style={{ background: '#fff', color: '#111827', padding: 16, fontFamily: 'Arial, sans-serif', fontSize: 16, lineHeight: 1.5 }}>
     {(caseNumber === 1 || caseNumber === 2) && <section>
       <h2 style={{ fontSize: 24 }}>Create your account</h2>
@@ -33,7 +33,7 @@ export function PilotUIFixture({ caseNumber }: { caseNumber: number }) {
     </section>}
     {(caseNumber === 7 || caseNumber === 8) && <section>
       <h2 style={{ fontSize: 24 }}>Delivery information</h2>
-      <p id="delivery-details" style={{ width: '100%', maxWidth: 260, height: caseNumber === 7 ? 72 : 'auto', overflow: caseNumber === 7 ? 'hidden' : 'visible', lineHeight: '24px', margin: 0 }}>Your order arrives on Monday. Please keep your phone available so our courier can contact you.</p>
+      <p id="delivery-details" data-text-spacing-target="true" style={{ width: '100%', maxWidth: 260, height: caseNumber === 7 ? 72 : 'auto', overflow: caseNumber === 7 ? 'hidden' : 'visible', lineHeight: '24px', margin: 0 }}>Your order arrives on Monday. Please keep your phone available so our courier can contact you.</p>
       <button style={{ ...button, marginTop: 16 }} onClick={() => setMessage('Delivery confirmed.')}>Confirm delivery</button>
     </section>}
     {(caseNumber === 9 || caseNumber === 10) && <section>

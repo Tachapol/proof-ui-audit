@@ -63,11 +63,21 @@ export function DecisionLog({ history, fingerprint }: DecisionLogProps) {
           }}
         >
           {history.map((record, idx) => {
-            const conf = actionLabels[record.action] || {
-              label: record.action,
-              color: 'var(--foreground)',
-              bg: 'var(--surface-subtle)',
-            };
+            const conf = record.action === 'review_disposition'
+              ? (record.newDisposition === 'confirmed_issue'
+                  ? actionLabels.accept
+                  : record.newDisposition === 'false_positive'
+                  ? actionLabels.reject
+                  : {
+                      label: REVIEW_DISPOSITION_LABELS[record.newDisposition as keyof typeof REVIEW_DISPOSITION_LABELS] || 'Issue Review',
+                      color: '#175cd3',
+                      bg: '#eff8ff',
+                    })
+              : (actionLabels[record.action] || {
+                  label: record.action,
+                  color: 'var(--foreground)',
+                  bg: 'var(--surface-subtle)',
+                });
 
             return (
               <div

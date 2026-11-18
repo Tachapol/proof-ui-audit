@@ -1,4 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Route } from '@playwright/test';
+import { mkdir, writeFile, rm } from 'node:fs/promises';
+import { resolve, dirname } from 'node:path';
+import { randomUUID } from 'node:crypto';
+import { makeUiAuditRun } from './ui-fixtures';
 
 test.describe('Sandbox Real Browser Verification: 4 Core Scenarios', () => {
   test.setTimeout(90000);
@@ -157,7 +161,7 @@ test.describe('Sandbox Real Browser Verification: 4 Core Scenarios', () => {
     await expect(scorecardStatus).toHaveText('Checks failed');
   });
 
-  test('Case 3: Unable to verify — browser audit failure or empty output raises clear error callout', async ({ page }) => {
+  test('Case 3: Unable to verify — shows the warning and records Accepted Risk only for the selected issue', async ({ page, request }) => {
     await page.route('/api/sandbox/iterate', async (route) => {
       await route.fulfill({
         status: 200,
@@ -198,26 +202,77 @@ test.describe('Sandbox Real Browser Verification: 4 Core Scenarios', () => {
       });
     });
 
-    await page.goto('/sandbox');
-    await expect(page.locator('text=Failures').first()).toBeVisible({ timeout: 20000 });
+    // Seed the baseline so this test exercises decisions without relying on a fresh Sandbox audit.
+    const runId = `e2e-sandbox-risk-${randomUUID()}`;
+    const baseline = makeUiAuditRun({ id: runId });
+    const first = baseline.groupedIssues[0];
+    const second = { ...first, fingerprint: 'second-finding', representative: { ...first.representative, selector: '#second' } };
+    const passed = { ...first, status: 'pass', fingerprint: 'passing-check' };
+    const run = {
+      ...baseline, groupedIssues: [first, second, passed],
+      summary: { ...baseline.summary, totalGroupedIssues: 3, candidateFailCount: 2, passCount: 1 },
+    };
+    const file = resolve('.proofui-data/runs', `${runId}.json`);
+    await mkdir(dirname(file), { recursive: true });
+    await writeFile(file, JSON.stringify(run));
+    try {
+      await page.route('/api/sandbox/audit', route => route.fulfill({ json: { success: true, run } }));
+      await page.goto('/sandbox');
+      await expect(page.locator('text=Failures').first()).toBeVisible({ timeout: 20000 });
 
-    const iterateBtn = page.locator('button:has-text("Auto-Iterate")');
-    await iterateBtn.click();
+      const iterateBtn = page.locator('button:has-text("Auto-Iterate")');
+      await iterateBtn.click();
 
-    const candCard = page.locator('[data-testid="candidate-card-candidate-error"]');
-    await expect(candCard).toBeVisible();
+      const candCard = page.locator('[data-testid="candidate-card-candidate-error"]');
+      await expect(candCard).toBeVisible();
 
-    // Must show "Unable to verify" badge
-    await expect(candCard.locator('span[title^="Unable to verify"]')).toBeVisible();
-    await expect(candCard.locator('span[title^="Verified for selected automated checks"]')).not.toBeVisible();
+      // Must show "Unable to verify" badge
+      await expect(candCard.locator('span[title^="Unable to verify"]')).toBeVisible();
+      await expect(candCard.locator('span[title^="Verified for selected automated checks"]')).not.toBeVisible();
 
-    // Must show explicit verification warning callout
-    await expect(candCard.locator('text=ตรวจสอบไม่ได้ / Verification Incomplete:')).toBeVisible();
-    await expect(candCard.locator('li:has-text("Re-audit failed. Retry the audit before relying on this candidate.")')).toBeVisible();
+      // Must show explicit verification warning callout
+      await expect(candCard.locator('text=ตรวจสอบไม่ได้ / Verification Incomplete:')).toBeVisible();
+      await expect(candCard.locator('li:has-text("Re-audit failed. Retry the audit before relying on this candidate.")')).toBeVisible();
 
-    // Scorecard footer should display "Unable to verify"
-    const scorecardStatus = page.locator('[data-testid="remediation-status-value"]');
-    await expect(scorecardStatus).toHaveText('Unable to verify');
+      // Scorecard footer should display "Unable to verify"
+      const scorecardStatus = page.locator('[data-testid="remediation-status-value"]');
+      await expect(scorecardStatus).toHaveText('Unable to verify');
+
+      await page.getByText('Review Accepted Risk', { exact: true }).click();
+      const picker = page.getByLabel('Issue to review', { exact: true });
+      await expect(picker.locator('option')).toHaveCount(3);
+      const fingerprint = first.fingerprint;
+      await expect(page.getByRole('button', { name: 'Save Accepted Risk' })).toHaveCount(0);
+      await picker.selectOption(fingerprint);
+      const form = page.getByRole('form', { name: 'Issue review', exact: true });
+      const save = form.getByRole('button', { name: 'Save Accepted Risk' });
+      await expect(save).toBeDisabled();
+      await form.getByLabel('Reviewer / risk approver (self-reported)').fill('Browser test reviewer');
+      await form.getByLabel('Review rationale').fill('Keep this one baseline issue for the pilot.');
+
+      const reject = async (route: Route) => {
+        await route.fulfill({ status: 400, json: { success: false, error: 'Controlled save rejection' } });
+      };
+      await page.route('**/api/decisions', reject);
+      await save.click();
+      await expect(form.getByRole('alert')).toHaveText('Controlled save rejection');
+      await expect(form.getByRole('status')).toHaveCount(0);
+      await expect(form.getByLabel('Review rationale')).toHaveValue('Keep this one baseline issue for the pilot.');
+      await page.unroute('**/api/decisions', reject);
+
+      const savedRequest = page.waitForRequest(req => req.method() === 'POST' && req.url().endsWith('/api/decisions'));
+      const savedResponse = page.waitForResponse(res => res.request().method() === 'POST' && res.url().endsWith('/api/decisions'));
+      await save.click();
+      expect((await savedRequest).postDataJSON()).toMatchObject({ runId, fingerprint, disposition: 'accepted_risk' });
+      const response = await savedResponse;
+      expect(response.ok(), await response.text()).toBe(true);
+      await expect(form.getByRole('status')).toHaveText('Issue review saved.');
+      const persisted = await (await request.get(`/api/audit?id=${runId}`)).json();
+      expect(persisted.run.groupedIssues.filter((group: { reviewDisposition?: string }) =>
+        group.reviewDisposition === 'accepted_risk').map((group: { fingerprint: string }) => group.fingerprint)).toEqual([fingerprint]);
+    } finally {
+      await rm(file, { force: true });
+    }
   });
 
   test('Case 4: Element missing — when baseline element is removed or selector changed, never claim verified', async ({ page }) => {

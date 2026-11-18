@@ -11,7 +11,7 @@ interface TopBarProps {
   onOpenNavigation: () => void;
   target?: string;
   status: AuditUiStatus;
-  viewportLabel?: string;
+  isSidebarCollapsed?: boolean;
 }
 
 const statusLabels: Record<AuditUiStatus, string> = {
@@ -32,7 +32,13 @@ const statusStyles: Record<AuditUiStatus, { badge: string; dot: string }> = {
   failed: { badge: 'bg-rose-50 text-rose-800 border-rose-200', dot: 'bg-rose-500' },
 };
 
-export function TopBar({ menuButtonRef, onOpenNavigation, target, status, viewportLabel }: TopBarProps) {
+export function TopBar({
+  menuButtonRef,
+  onOpenNavigation,
+  target,
+  status,
+  isSidebarCollapsed,
+}: TopBarProps) {
   const currentStatusStyle = statusStyles[status];
 
   return (
@@ -40,13 +46,15 @@ export function TopBar({ menuButtonRef, onOpenNavigation, target, status, viewpo
       <div className="top-bar-primary flex items-center min-w-0 gap-3">
         <button
           ref={menuButtonRef}
-          className="icon-button menu-trigger inline-flex items-center justify-center rounded-md border border-zinc-200 bg-white p-1.5 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 transition-colors"
+          className="icon-button menu-trigger inline-flex items-center justify-center rounded-md p-1.5 text-zinc-600 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 transition-colors !bg-transparent !border-0 !shadow-none"
           type="button"
-          aria-label="Open navigation drawer"
+          aria-label={isSidebarCollapsed ? 'Expand navigation sidebar' : 'Open navigation drawer'}
+          title={isSidebarCollapsed ? 'Expand sidebar (⌘B)' : 'Collapse sidebar (⌘B)'}
           aria-controls="primary-navigation"
+          aria-expanded={!isSidebarCollapsed}
           onClick={onOpenNavigation}
         >
-          <Icon name="Menu" size={18} />
+          <Icon name={isSidebarCollapsed ? 'PanelLeftOpen' : 'PanelLeft'} size={18} />
         </button>
 
         <div className="target-context flex flex-col min-w-0">
@@ -58,11 +66,6 @@ export function TopBar({ menuButtonRef, onOpenNavigation, target, status, viewpo
       </div>
 
       <div className="top-bar-meta flex items-center gap-2 sm:gap-3">
-        {viewportLabel && (
-          <span className="viewport-note hidden sm:inline-flex items-center text-[11px] font-mono text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded border border-zinc-200/80">
-            {viewportLabel}
-          </span>
-        )}
 
         {status !== 'ready' && (
           <span
@@ -78,19 +81,12 @@ export function TopBar({ menuButtonRef, onOpenNavigation, target, status, viewpo
 
         <Link
           href="/sandbox"
-          className="hidden md:inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 hover:text-blue-900 border border-blue-200/80 hover:border-blue-300 rounded-md px-2.5 py-1 transition-colors bg-blue-50/50 hover:bg-blue-50"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 hover:text-blue-900 border border-blue-200/80 hover:border-blue-300 rounded-md px-2.5 py-1 transition-colors bg-blue-50/50 hover:bg-blue-50"
         >
           <Icon name="Layers" size={13} />
-          <span>Code Sandbox</span>
+          <span>Component Sandbox</span>
         </Link>
 
-        <Link
-          href="/studio"
-          className="hidden md:inline-flex items-center gap-1 text-xs font-medium text-zinc-600 hover:text-zinc-900 border border-zinc-200 hover:border-zinc-300 rounded-md px-2.5 py-1 transition-colors bg-white hover:bg-zinc-50"
-        >
-          <Icon name="Users" size={13} />
-          <span>Critique Studio</span>
-        </Link>
       </div>
     </header>
   );

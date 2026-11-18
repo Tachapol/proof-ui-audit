@@ -1,0 +1,4927 @@
+{
+  "schemaVersion": "1.0.0",
+  "exportTimestamp": "2026-11-16T22:09:30.298Z",
+  "audit": {
+    "metricResults": [
+      {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": "needsReview",
+        "reason": "Nearest target edge distances in the same rendered UI state. The 8 CSS px threshold is a project advisory only.",
+        "measurements": [
+          {
+            "target": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          {
+            "target": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "nearestTarget": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          {
+            "target": {
+              "selector": "#day-18",
+              "element": "button",
+              "accessibleName": "November 18",
+              "boundingBox": {
+                "x": 72,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-18"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "skipped",
+        "applicability": "unknown",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+        "measurements": [
+          {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+            "element": "h2",
+            "accessibleName": "Choose a delivery date",
+            "boundingBox": {
+              "x": 32,
+              "y": 232.859375,
+              "width": 256,
+              "height": 36
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 0,
+            "previousHeading": null,
+            "skippedLevels": null,
+            "boundaryContextKnown": false,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 375,
+          "height": 812
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": "needsReview",
+        "reason": "Nearest target edge distances in the same rendered UI state. The 8 CSS px threshold is a project advisory only.",
+        "measurements": [
+          {
+            "target": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          {
+            "target": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "nearestTarget": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          {
+            "target": {
+              "selector": "#day-18",
+              "element": "button",
+              "accessibleName": "November 18",
+              "boundingBox": {
+                "x": 72,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-18"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "skipped",
+        "applicability": "unknown",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 375,
+          "height": 812
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+        "measurements": [
+          {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+            "element": "h2",
+            "accessibleName": "Choose a delivery date",
+            "boundingBox": {
+              "x": 32,
+              "y": 211.171875,
+              "width": 311,
+              "height": 36
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 0,
+            "previousHeading": null,
+            "skippedLevels": null,
+            "boundaryContextKnown": false,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": "needsReview",
+        "reason": "Nearest target edge distances in the same rendered UI state. The 8 CSS px threshold is a project advisory only.",
+        "measurements": [
+          {
+            "target": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          {
+            "target": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "nearestTarget": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          {
+            "target": {
+              "selector": "#day-18",
+              "element": "button",
+              "accessibleName": "November 18",
+              "boundingBox": {
+                "x": 72,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-18"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "skipped",
+        "applicability": "unknown",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+        "measurements": [
+          {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+            "element": "h2",
+            "accessibleName": "Choose a delivery date",
+            "boundingBox": {
+              "x": 32,
+              "y": 158.484375,
+              "width": 1376,
+              "height": 36
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 0,
+            "previousHeading": null,
+            "skippedLevels": null,
+            "boundaryContextKnown": false,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      }
+    ],
+    "runId": "pilot-pilot-ui-03-15660b38-1959-46f8-8b91-6a7137a6e656",
+    "timestamp": "2026-11-16T22:09:30.228Z",
+    "targetUrl": "http://localhost:3123/fixtures/pilot-ui-03",
+    "fixtureId": "pilot-ui-03",
+    "viewports": [
+      {
+        "width": 320,
+        "height": 640
+      },
+      {
+        "width": 375,
+        "height": 812
+      },
+      {
+        "width": 1440,
+        "height": 900
+      }
+    ]
+  },
+  "summary": {
+    "rawFindingCount": 43,
+    "groupedIssueCount": 15,
+    "passCount": 9,
+    "candidateFailCount": 3,
+    "needsReviewCount": 3,
+    "priorityCounts": {
+      "P0": 0,
+      "P1": 3,
+      "P2": 0,
+      "P3": 12
+    }
+  },
+  "disclaimers": [
+    "Only five selected WCAG-informed criteria were tested (Text Contrast, Non-text Contrast, Target Size, Reflow, Text Spacing).",
+    "Automated results do not establish complete WCAG conformance.",
+    "'candidateFail' is an automated candidate issue and requires human verification.",
+    "'needsReview' requires human interpretation and design context validation.",
+    "P0–P3 is a project heuristic and not a severity scale defined by WCAG.",
+    "AI-generated explanations and recommendations are advisory decision-support only.",
+    "The UX/UI designer retains authority and makes the final decision on all items.",
+    "Touch Target Spacing and Heading Hierarchy are additional pilot project advisories. A gap below 8 CSS px or a heading-level skip is not an automatic WCAG failure. Metric execution and applicability are separate from findings."
+  ],
+  "limitations": [
+    "Default audit viewports are 1440px, 375px and 320px. Reflow is evaluated at 320 CSS px; explicitly restricted audits may use other viewport sets.",
+    "Dynamic interactive animations, single-page application route transitions, and authenticated states are excluded from automated auditing.",
+    "Text and elements over complex canvas, dynamic video, or multi-layered CSS blend modes require manual designer review."
+  ],
+  "groupedIssues": [
+    {
+      "fingerprint": "reflow::#fixture-content::scroll-288-overflow-0",
+      "ruleId": "reflow",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+      "status": "pass",
+      "title": "Content reflows without 2D scrolling at 320px",
+      "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px.",
+      "occurrenceCount": 1,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        }
+      ],
+      "selector": "#fixture-content",
+      "element": "html",
+      "measured": {
+        "scrollWidth": 288,
+        "clientWidth": 288,
+        "horizontalOverflowPx": 0,
+        "overflowingElementsCount": 0,
+        "metricVersion": "1.1.0",
+        "unit": "CSS px",
+        "scopeSelector": "#fixture-content",
+        "rawHorizontalOverflowPx": 0,
+        "rawDocumentScrollWidth": 320,
+        "rawDocumentClientWidth": 320,
+        "rawScopeScrollWidth": 288,
+        "decorativeElementsExcludedCount": 0
+      },
+      "expected": {
+        "maxOverflowPx": 1,
+        "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 216.859375,
+        "width": 288,
+        "height": 134
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "reflow-1255695391",
+          "ruleId": "reflow",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+          "status": "pass",
+          "title": "Content reflows without 2D scrolling at 320px",
+          "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#fixture-content",
+          "element": "html",
+          "measured": {
+            "scrollWidth": 288,
+            "clientWidth": 288,
+            "horizontalOverflowPx": 0,
+            "overflowingElementsCount": 0,
+            "metricVersion": "1.1.0",
+            "unit": "CSS px",
+            "scopeSelector": "#fixture-content",
+            "rawHorizontalOverflowPx": 0,
+            "rawDocumentScrollWidth": 320,
+            "rawDocumentClientWidth": 320,
+            "rawScopeScrollWidth": 288,
+            "decorativeElementsExcludedCount": 0
+          },
+          "expected": {
+            "maxOverflowPx": 1,
+            "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 216.859375,
+            "width": 288,
+            "height": 134
+          }
+        }
+      ]
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "fingerprint": "touch-target-spacing::#day-16::{\"version\":\"1.0.0\",\"nearestSelector\":\"#day-17\",\"distance\":2,\"overlap\":false}",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "target": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "id": "touch-target-spacing-320-a91d76d3-dc36-41cf-8d9c-8bdd236c4468",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "target": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "id": "touch-target-spacing-375-4aa42536-6611-4797-9ff2-06b89b441c96",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "target": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "id": "touch-target-spacing-1440-856ca7f1-1495-45f0-9a19-dd590f927607",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "target": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          }
+        }
+      ]
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "fingerprint": "touch-target-spacing::#day-17::{\"version\":\"1.0.0\",\"nearestSelector\":\"#day-16\",\"distance\":2,\"overlap\":false}",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "target": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "nearestTarget": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "id": "touch-target-spacing-320-edad8c28-4496-486b-97b3-77447c18803b",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "target": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "nearestTarget": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "id": "touch-target-spacing-375-dc1ccdb0-6358-4b94-8096-22e534c8b8f5",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "target": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "nearestTarget": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "id": "touch-target-spacing-1440-787578a6-c8a1-4b81-9056-ed6ae00fb02a",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "target": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "nearestTarget": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          }
+        }
+      ]
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "fingerprint": "touch-target-spacing::#day-18::{\"version\":\"1.0.0\",\"nearestSelector\":\"#day-17\",\"distance\":2,\"overlap\":false}",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "target": {
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "boundingBox": {
+            "x": 72,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-18"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "id": "touch-target-spacing-320-fa206add-c401-4e2d-988a-8ab0c17387d0",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "target": {
+              "selector": "#day-18",
+              "element": "button",
+              "accessibleName": "November 18",
+              "boundingBox": {
+                "x": 72,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-18"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "id": "touch-target-spacing-375-57e733e8-ae25-4666-852a-45ad86a943b9",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "target": {
+              "selector": "#day-18",
+              "element": "button",
+              "accessibleName": "November 18",
+              "boundingBox": {
+                "x": 72,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-18"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "id": "touch-target-spacing-1440-feea9eae-d1f6-489c-b984-f9fc0701037b",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "target": {
+              "selector": "#day-18",
+              "element": "button",
+              "accessibleName": "November 18",
+              "boundingBox": {
+                "x": 72,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-18"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "target-size::#day-16::18x18",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "currentPriority": "P1",
+      "initialPriority": "P1",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#day-16",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 317,
+        "width": 18,
+        "height": 18
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "target-size-919880822",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 317,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "target-size-919880822",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 271,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "target-size-919880822",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 218,
+            "width": 18,
+            "height": 18
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "target-size::#day-17::18x18",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "currentPriority": "P1",
+      "initialPriority": "P1",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#day-17",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 317,
+        "width": 18,
+        "height": 18
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "target-size-1807384503",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 317,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "target-size-1807384503",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 271,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "target-size-1807384503",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 218,
+            "width": 18,
+            "height": 18
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "target-size::#day-18::18x18",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "currentPriority": "P1",
+      "initialPriority": "P1",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#day-18",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 317,
+        "width": 18,
+        "height": 18
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "target-size-1600079112",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 317,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "target-size-1600079112",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 271,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "target-size-1600079112",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 218,
+            "width": 18,
+            "height": 18
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::span::ratio-5.4",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-1008947328",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          }
+        },
+        {
+          "id": "text-contrast-1008947328",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          }
+        },
+        {
+          "id": "text-contrast-1008947328",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::h1::ratio-15.4",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 288,
+        "height": 62
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-2047009034",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 288,
+            "height": 62
+          }
+        },
+        {
+          "id": "text-contrast-2047009034",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 343,
+            "height": 62
+          }
+        },
+        {
+          "id": "text-contrast-2047009034",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 1408,
+            "height": 31
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::p::ratio-5.4",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 288,
+        "height": 65.0625
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-232423036",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 110.796875,
+            "width": 288,
+            "height": 65.0625
+          }
+        },
+        {
+          "id": "text-contrast-232423036",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 110.796875,
+            "width": 343,
+            "height": 43.375
+          }
+        },
+        {
+          "id": "text-contrast-232423036",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 79.796875,
+            "width": 1408,
+            "height": 21.6875
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::h2::ratio-17.7",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Choose a delivery date",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 232.859375,
+        "width": 256,
+        "height": 36
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-1938087685",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Choose a delivery date",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 232.859375,
+            "width": 256,
+            "height": 36
+          }
+        },
+        {
+          "id": "text-contrast-1938087685",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Choose a delivery date",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 211.171875,
+            "width": 311,
+            "height": 36
+          }
+        },
+        {
+          "id": "text-contrast-1938087685",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Choose a delivery date",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 158.484375,
+            "width": 1376,
+            "height": 36
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::p::ratio-17.7",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Select an available day in November.",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 268.859375,
+        "width": 256,
+        "height": 48
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-1424752439",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Select an available day in November.",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 268.859375,
+            "width": 256,
+            "height": 48
+          }
+        },
+        {
+          "id": "text-contrast-1424752439",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Select an available day in November.",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 247.171875,
+            "width": 311,
+            "height": 24
+          }
+        },
+        {
+          "id": "text-contrast-1424752439",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Select an available day in November.",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 194.484375,
+            "width": 1376,
+            "height": 24
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::#day-16::ratio-8.7",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-2019233930",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "text-contrast-2019233930",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "text-contrast-2019233930",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::#day-17::ratio-8.7",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-83573643",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "text-contrast-83573643",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "text-contrast-83573643",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::#day-18::ratio-8.7",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-1852086644",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "text-contrast-1852086644",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          }
+        },
+        {
+          "id": "text-contrast-1852086644",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          }
+        }
+      ]
+    }
+  ],
+  "rawOccurrences": [
+    {
+      "id": "reflow-1255695391",
+      "ruleId": "reflow",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+      "status": "pass",
+      "title": "Content reflows without 2D scrolling at 320px",
+      "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#fixture-content",
+      "element": "html",
+      "measured": {
+        "scrollWidth": 288,
+        "clientWidth": 288,
+        "horizontalOverflowPx": 0,
+        "overflowingElementsCount": 0,
+        "metricVersion": "1.1.0",
+        "unit": "CSS px",
+        "scopeSelector": "#fixture-content",
+        "rawHorizontalOverflowPx": 0,
+        "rawDocumentScrollWidth": 320,
+        "rawDocumentClientWidth": 320,
+        "rawScopeScrollWidth": 288,
+        "decorativeElementsExcludedCount": 0
+      },
+      "expected": {
+        "maxOverflowPx": 1,
+        "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 216.859375,
+        "width": 288,
+        "height": 134
+      }
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "id": "touch-target-spacing-320-a91d76d3-dc36-41cf-8d9c-8bdd236c4468",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "target": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "id": "touch-target-spacing-320-edad8c28-4496-486b-97b3-77447c18803b",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "target": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "nearestTarget": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "id": "touch-target-spacing-320-fa206add-c401-4e2d-988a-8ab0c17387d0",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "target": {
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "boundingBox": {
+            "x": 72,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-18"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "target-size-919880822",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 317,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "target-size-1807384503",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 317,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "target-size-1600079112",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 317,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "text-contrast-1008947328",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      }
+    },
+    {
+      "id": "text-contrast-2047009034",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 288,
+        "height": 62
+      }
+    },
+    {
+      "id": "text-contrast-232423036",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 288,
+        "height": 65.0625
+      }
+    },
+    {
+      "id": "text-contrast-1938087685",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Choose a delivery date",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 232.859375,
+        "width": 256,
+        "height": 36
+      }
+    },
+    {
+      "id": "text-contrast-1424752439",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Select an available day in November.",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 268.859375,
+        "width": 256,
+        "height": 48
+      }
+    },
+    {
+      "id": "text-contrast-2019233930",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "text-contrast-83573643",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "text-contrast-1852086644",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "id": "touch-target-spacing-375-4aa42536-6611-4797-9ff2-06b89b441c96",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "target": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "id": "touch-target-spacing-375-dc1ccdb0-6358-4b94-8096-22e534c8b8f5",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "target": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "nearestTarget": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "id": "touch-target-spacing-375-57e733e8-ae25-4666-852a-45ad86a943b9",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "target": {
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "boundingBox": {
+            "x": 72,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-18"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "target-size-919880822",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 271,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "target-size-1807384503",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 271,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "target-size-1600079112",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 271,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "text-contrast-1008947328",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      }
+    },
+    {
+      "id": "text-contrast-2047009034",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 343,
+        "height": 62
+      }
+    },
+    {
+      "id": "text-contrast-232423036",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 343,
+        "height": 43.375
+      }
+    },
+    {
+      "id": "text-contrast-1938087685",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Choose a delivery date",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 211.171875,
+        "width": 311,
+        "height": 36
+      }
+    },
+    {
+      "id": "text-contrast-1424752439",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Select an available day in November.",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 247.171875,
+        "width": 311,
+        "height": 24
+      }
+    },
+    {
+      "id": "text-contrast-2019233930",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "text-contrast-83573643",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "text-contrast-1852086644",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "id": "touch-target-spacing-1440-856ca7f1-1495-45f0-9a19-dd590f927607",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "target": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "id": "touch-target-spacing-1440-787578a6-c8a1-4b81-9056-ed6ae00fb02a",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "target": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "nearestTarget": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "id": "touch-target-spacing-1440-feea9eae-d1f6-489c-b984-f9fc0701037b",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "target": {
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "boundingBox": {
+            "x": 72,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-18"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "target-size-919880822",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 218,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "target-size-1807384503",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 218,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "target-size-1600079112",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 218,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "text-contrast-1008947328",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      }
+    },
+    {
+      "id": "text-contrast-2047009034",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 1408,
+        "height": 31
+      }
+    },
+    {
+      "id": "text-contrast-232423036",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 79.796875,
+        "width": 1408,
+        "height": 21.6875
+      }
+    },
+    {
+      "id": "text-contrast-1938087685",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Choose a delivery date",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 158.484375,
+        "width": 1376,
+        "height": 36
+      }
+    },
+    {
+      "id": "text-contrast-1424752439",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Select an available day in November.",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 194.484375,
+        "width": 1376,
+        "height": 24
+      }
+    },
+    {
+      "id": "text-contrast-2019233930",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "text-contrast-83573643",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "text-contrast-1852086644",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      }
+    }
+  ]
+}

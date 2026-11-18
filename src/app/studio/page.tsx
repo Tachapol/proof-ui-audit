@@ -203,6 +203,7 @@ export default function StudioPage() {
   const [allowLocalhost, setAllowLocalhost] = useState(false);
 
   const [session, setSession] = useState<StudioSession | null>(null);
+  const [sourceRunId, setSourceRunId] = useState<string | null>(null);
   const [selectedFrames, setSelectedFrames] = useState(['mvp-contrast-demo']);
   const [roles, setRoles] = useState<StudioRole[]>(['ux', 'product', 'engineering']);
   const [selectedModel, setSelectedModel] = useState('gpt-6-luna');
@@ -265,6 +266,7 @@ export default function StudioPage() {
     const params = new URLSearchParams(location.search);
     const id = params.get('session');
     const runId = params.get('runId');
+    setSourceRunId(runId);
     const issueFingerprint = params.get('issue');
 
     if (id) {
@@ -299,6 +301,7 @@ export default function StudioPage() {
 
   const item = session?.agenda.find(a => a.id === active);
   const run = session?.runs.find(r => r.id === item?.runId) || session?.runs[0];
+  const returnRunId = sourceRunId || run?.id;
   const issue = session && item ? findStudioIssue(session, item) : undefined;
   const candidate = session?.candidates[active];
 
@@ -328,7 +331,10 @@ export default function StudioPage() {
   }
 
   function historyReplace(id: string) {
-    window.history.replaceState(null, '', '/studio?session=' + encodeURIComponent(id));
+    const params = new URLSearchParams({ session: id });
+    const originRunId = new URLSearchParams(window.location.search).get('runId');
+    if (originRunId) params.set('runId', originRunId);
+    window.history.replaceState(null, '', '/studio?' + params.toString());
   }
 
   async function start() {
@@ -471,7 +477,7 @@ export default function StudioPage() {
           </Button>
 
           <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 border-zinc-200 text-zinc-700 hover:bg-zinc-100 transition" asChild>
-            <Link href="/">
+            <Link href={returnRunId ? `/?runId=${encodeURIComponent(returnRunId)}` : '/'}>
               <ArrowLeft className="size-3.5" />
               <span>Back to Audit</span>
             </Link>

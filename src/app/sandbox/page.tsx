@@ -29,6 +29,8 @@ import type { SandboxCandidate, IterationConstraint } from '@/lib/sandbox/types'
 import { cherryPickTargetSizeFix, cherryPickContrastFix } from '@/lib/sandbox/cherry-pick';
 import { buildSandboxedDocument } from '@/lib/sandbox/document';
 import type { AuditRun, UXIssue } from '@/lib/schema/ux-issue';
+import { PilotMetricEvidence } from '@/components/PilotMetricEvidence';
+import { IssueReview } from '@/components/IssueReview';
 
 function formatMeasuredValue(ruleId: string, m?: Record<string, unknown>): string {
   if (!m) return 'Unable to verify';
@@ -107,8 +109,7 @@ export default function SandboxPage() {
   const [selectedConstraints, setSelectedConstraints] = useState<IterationConstraint[]>([]);
   const [customDirective, setCustomDirective] = useState('');
   const [showDirectivesPanel, setShowDirectivesPanel] = useState(false);
-  const [recordingDecision, setRecordingDecision] = useState(false);
-  const [decisionFeedback, setDecisionFeedback] = useState<string | null>(null);
+  const [riskSelection, setRiskSelection] = useState<{ runId: string; fingerprint: string } | null>(null);
   const [sandboxError, setSandboxError] = useState<string | null>(null);
   const [isStaleResult, setIsStaleResult] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -118,6 +119,7 @@ export default function SandboxPage() {
   // Initial audit on load: restore prior run if runId in URL, or check if sent from Visual Canvas / Studio
   useEffect(() => {
     let initialCode = code;
+    let canvasImport: { viewport?: { width: number; height: number }; sourceRunId?: string; fingerprint?: string; selector?: string; proposalCss?: string } | undefined;
     try {
       if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
@@ -160,6 +162,8 @@ export default function SandboxPage() {
         const parsed = JSON.parse(stored);
         if (parsed.code && typeof parsed.code === 'string') {
           initialCode = parsed.code;
+          if (parsed.viewport) setSelectedViewport(parsed.viewport);
+          if (parsed.source === 'canvas') canvasImport = parsed;
           setCode(parsed.code);
           setActiveCodePreview(parsed.code);
         }
@@ -168,13 +172,13 @@ export default function SandboxPage() {
       // Fallback to default
     }
 
-    void handleRunAudit(initialCode);
+    void handleRunAudit(initialCode, canvasImport ? { canvasImport } : undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRunAudit = async (
     htmlToAudit: string,
-    options?: { priorRunId?: string; acceptedCandidate?: SandboxCandidate }
+    options?: { priorRunId?: string; acceptedCandidate?: SandboxCandidate; canvasImport?: { viewport?: { width: number; height: number }; sourceRunId?: string; fingerprint?: string; selector?: string; proposalCss?: string } }
   ) => {
     setIsAuditing(true);
     setSandboxError(null);
@@ -184,6 +188,7 @@ export default function SandboxPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           html: htmlToAudit,
+          canvasImport: options?.canvasImport,
           priorRunId: options?.priorRunId,
           acceptedCandidate: options?.acceptedCandidate
             ? {
@@ -268,34 +273,6 @@ export default function SandboxPage() {
     void handleRunAudit(newCode);
   };
 
-  const handleRecordAcceptedRisk = async () => {
-    if (!auditRun || !auditRun.groupedIssues?.length) return;
-    setRecordingDecision(true);
-    try {
-      let count = 0;
-      for (const group of auditRun.groupedIssues) {
-        await fetch('/api/decisions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            runId: auditRun.id,
-            fingerprint: group.fingerprint,
-            disposition: 'Accepted Risk',
-            reason: 'Auto-generated candidate fixes failed verification or caused visual regressions; baseline maintained under design exemption.',
-            reviewer: 'Designer (Sandbox Fallback)',
-          }),
-        });
-        count++;
-      }
-      setDecisionFeedback(`✓ บันทึกเป็น Accepted Risk เรียบร้อยแล้ว (${count} รายการ)`);
-      setTimeout(() => setDecisionFeedback(null), 5000);
-    } catch {
-      setDecisionFeedback('เกิดข้อผิดพลาดในการบันทึก');
-    } finally {
-      setRecordingDecision(false);
-    }
-  };
-
   const handleSelectCandidate = async (candidate: SandboxCandidate) => {
     setSelectedCandidateId(candidate.id);
     setActiveCodePreview(candidate.code);
@@ -349,6 +326,10 @@ export default function SandboxPage() {
 
   const activeCandidate = candidates.find((c) => c.id === selectedCandidateId);
   const allCandidatesSuboptimal = candidates.length > 0 && candidates.every((c) => c.verificationStatus !== 'verified');
+  const riskIssues = auditRun?.groupedIssues.filter(group => group.status !== 'pass') ?? [];
+  const selectedRiskIssue = riskSelection && riskSelection.runId === auditRun?.id
+    ? riskIssues.find(group => group.fingerprint === riskSelection.fingerprint)
+    : undefined;
   const iframeSrc = renderId ? `/api/sandbox/render?id=${renderId}` : '';
 
   // Simple unified diff computation
@@ -483,6 +464,13 @@ export default function SandboxPage() {
       )}
 
       {/* Main Dual-Pane Sandbox Layout */}
+      {auditRun?.canvasImport && <p className="border-b border-zinc-200 bg-white px-4 py-2 text-xs text-zinc-700">
+        Canvas proposal loaded into an isolated reconstruction. Results apply to this snippet only.
+      </p>}
+      {!!auditRun?.metricResults?.length && <details className="border-b border-zinc-200 bg-white px-4 py-3 text-xs">
+        <summary className="cursor-pointer font-semibold">Pilot metric evidence (project advisories)</summary>
+        <div className="pt-3"><PilotMetricEvidence results={auditRun.metricResults} /></div>
+      </details>}
       <div className="flex-1 flex flex-col xl:flex-row h-auto xl:h-[calc(100vh-56px)] overflow-hidden divide-y xl:divide-y-0 xl:divide-x divide-zinc-200">
         
         {/* LEFT PANE: Code Editor & Auto-Iteration Proposals */}
@@ -737,17 +725,6 @@ export default function SandboxPage() {
 
                   <Button
                     size="sm"
-                    variant="outline"
-                    disabled={recordingDecision}
-                    className="h-7 text-[11px] bg-white border-amber-300 hover:bg-amber-100/70 text-amber-900 gap-1"
-                    onClick={() => void handleRecordAcceptedRisk()}
-                  >
-                    <ShieldCheck className="size-3 text-amber-700" />
-                    <span>{recordingDecision ? 'กำลังบันทึก...' : 'บันทึกเป็น Accepted Risk'}</span>
-                  </Button>
-
-                  <Button
-                    size="sm"
                     variant="ghost"
                     className="h-7 text-[11px] text-amber-900 hover:bg-amber-100/60 gap-1"
                     onClick={() => setShowDirectivesPanel((prev) => !prev)}
@@ -757,10 +734,28 @@ export default function SandboxPage() {
                   </Button>
                 </div>
 
-                {decisionFeedback && (
-                  <div className="p-2 rounded bg-amber-100 border border-amber-300 text-[11px] text-amber-950 font-medium">
-                    {decisionFeedback}
-                  </div>
+                {auditRun && riskIssues.length > 0 && !isAuditing && !isStaleResult && (
+                  <details className="rounded border border-amber-300 bg-white p-3">
+                    <summary className="cursor-pointer text-sm font-semibold">Review Accepted Risk</summary>
+                    <label htmlFor="sandbox-risk-issue" className="mt-3 block text-xs">Issue to review</label>
+                    <select id="sandbox-risk-issue" className="min-h-11 w-full rounded border border-zinc-300 p-2 text-sm"
+                      value={selectedRiskIssue?.fingerprint ?? ''}
+                      onChange={event => setRiskSelection({ runId: auditRun.id, fingerprint: event.target.value })}>
+                      <option value="">Choose an issue</option>
+                      {riskIssues.map(group => (
+                        <option key={group.fingerprint} value={group.fingerprint}>
+                          {group.representative.title} ({group.representative.selector})
+                        </option>
+                      ))}
+                    </select>
+                    {selectedRiskIssue && (
+                      <IssueReview key={`${auditRun.id}:${selectedRiskIssue.fingerprint}`}
+                        issue={selectedRiskIssue} runId={auditRun.id} fixedDisposition="accepted_risk"
+                        onSaved={updated => setAuditRun(current => current?.id === auditRun.id
+                          ? { ...current, groupedIssues: current.groupedIssues.map(group => group.fingerprint === updated.fingerprint ? updated : group) }
+                          : current)} />
+                    )}
+                  </details>
                 )}
               </div>
             )}

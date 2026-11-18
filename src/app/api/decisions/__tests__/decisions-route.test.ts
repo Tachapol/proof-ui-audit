@@ -12,6 +12,26 @@ describe('API Route /api/decisions Security & Immutability Tests', () => {
   const testRunId = 'test-run-api-decisions';
   const testFingerprint = 'target-size::button.save::20x20';
 
+  it('persists a draft proposal without confirming the issue or claiming verification', async () => {
+    const proposal = { css: 'button.save { min-width:44px; }', selector: 'button.save', viewport: { width:375, height:667 }, source:'project_heuristic', verificationStatus:'unverified' };
+    const res = await POST(new Request('http://localhost/api/decisions', { method:'POST', body:JSON.stringify({runId:testRunId, fingerprint:testFingerprint, proposal}) }));
+    expect(res.status).toBe(200);
+    const group = (await getAuditRun(testRunId))!.groupedIssues[0];
+    expect(group.proposedFix).toMatchObject(proposal);
+    const report = buildNormalizedReport((await getAuditRun(testRunId))!);
+    expect(JSON.parse(generateJsonReport(report)).groupedIssues[0].proposedFix).toMatchObject(proposal);
+    expect(generateMarkdownReport(report)).toContain('Unverified draft');
+    expect(generateMarkdownReport(report)).toContain('min-width:44px');
+    expect(group.status).toBe('candidateFail');
+    expect(group.designerDecision).toBeUndefined();
+    expect(effectiveReviewDisposition(group)).toBeUndefined();
+  });
+  it('rejects a proposal for a viewport that was not measured', async () => {
+    const res = await POST(new Request('http://localhost/api/decisions', { method:'POST', body:JSON.stringify({runId:testRunId, fingerprint:testFingerprint, proposal:{css:'x {}', selector:'button.save', viewport:{width:999,height:999}, source:'project_heuristic', verificationStatus:'unverified'}}) }));
+    expect(res.status).toBe(400);
+    expect((await getAuditRun(testRunId))!.groupedIssues[0].proposedFix).toBeUndefined();
+  });
+
   const mockRun: AuditRun = {
     id: testRunId,
     targetUrl: 'http://localhost:3123/fixtures/target-size-demo',

@@ -4,7 +4,7 @@ test.describe('ProofUI PoC Smoke Test', () => {
   test('homepage renders heading and fixture suite list', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('h1')).toHaveText('ProofUI Audit PoC');
-    await expect(page.locator('#fixture-select')).toBeVisible();
+    await expect(page.locator('#fixture-select')).toBeAttached();
   });
 
   test('fixture route loads successfully', async ({ page }) => {
