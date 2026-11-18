@@ -46,7 +46,9 @@ export function TopBar({
       <div className="top-bar-primary flex items-center min-w-0 gap-3">
         <button
           ref={menuButtonRef}
-          className="icon-button menu-trigger inline-flex items-center justify-center rounded-md p-1.5 text-zinc-600 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 transition-colors !bg-transparent !border-0 !shadow-none"
+          className={`icon-button menu-trigger inline-flex items-center justify-center rounded-md p-1.5 text-zinc-600 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 transition-colors !bg-transparent !border-0 !shadow-none ${
+            !isSidebarCollapsed ? 'lg:hidden' : ''
+          }`}
           type="button"
           aria-label={isSidebarCollapsed ? 'Expand navigation sidebar' : 'Open navigation drawer'}
           title={isSidebarCollapsed ? 'Expand sidebar (⌘B)' : 'Collapse sidebar (⌘B)'}

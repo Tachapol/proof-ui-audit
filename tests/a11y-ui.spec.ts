@@ -28,7 +28,7 @@ test.describe('Phase 7: application states and keyboard accessibility', () => {
 
   test('invalid and blocked URLs preserve input and focus the blocking field', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('tab', { name: 'Public URL' }).click();
+    await page.getByRole('tab', { name: /Website URL|Public URL/ }).click();
     const input = page.locator('#custom-url-input');
     await input.fill('not-a-url');
     await page.locator('#run-audit-button').click();

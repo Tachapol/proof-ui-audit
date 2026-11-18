@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { AuditInput } from '@/components/AuditInput';
 import { AuditSummary } from '@/components/AuditSummary';
 import { IssueCard } from '@/components/IssueCard';
@@ -16,8 +17,8 @@ import { PilotMetricEvidence } from '@/components/PilotMetricEvidence';
 
 type ReviewStatus = Exclude<AuditStatus, 'pass'>;
 const reviewStatuses = [
-  { id: 'candidateFail', label: 'Candidate fail', tone: 'bg-rose-50 text-rose-700 border-rose-200' },
-  { id: 'needsReview', label: 'Needs review', tone: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { id: 'candidateFail', label: 'Candidate fail', tone: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100' },
+  { id: 'needsReview', label: 'Needs review', tone: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' },
 ] as const;
 
 export default function HomePage() {
@@ -27,7 +28,7 @@ export default function HomePage() {
   const [pipelineMessage, setPipelineMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [partialMessage, setPartialMessage] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | ReviewStatus>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | AuditStatus>('all');
   const [auditStatus, setAuditStatus] = useState<AuditUiStatus>('ready');
   const [pendingTarget, setPendingTarget] = useState('fixture://target-size-demo');
   const [activeFingerprint, setActiveFingerprint] = useState<string | null>(null);
@@ -138,7 +139,7 @@ export default function HomePage() {
         try {
           const saved = JSON.parse(sessionStorage.getItem(`proofui_audit_review:${runId}`) || 'null');
           if (saved) {
-            if (['all', 'candidateFail', 'needsReview'].includes(saved.statusFilter)) setStatusFilter(saved.statusFilter);
+            if (['all', 'candidateFail', 'needsReview', 'pass'].includes(saved.statusFilter)) setStatusFilter(saved.statusFilter);
             if (data.run.groupedIssues.some((group: { fingerprint: string }) => group.fingerprint === saved.activeFingerprint)) {
               setActiveFingerprint(saved.activeFingerprint);
             }
@@ -148,9 +149,7 @@ export default function HomePage() {
         setCurrentRun(data.run);
         setIsUnsavedRun(false);
         setPendingTarget(data.run.fixtureId ? `fixture://${data.run.fixtureId}` : data.run.targetUrl);
-        const warnings = data.run.auditWarnings;
-        setPartialMessage(warnings?.length ? `The audit completed with limited coverage: ${warnings.join('; ')}` : null);
-        setAuditStatus(warnings?.length ? 'partial' : 'completed');
+        setAuditStatus('completed');
       })
       .catch((caught: unknown) => {
         setError(caught instanceof Error ? caught.message : 'Saved audit run could not be loaded.');
@@ -226,32 +225,38 @@ export default function HomePage() {
   };
 
   const groupedIssues = currentRun?.groupedIssues ?? [];
-  const reviewGroups = reviewStatuses.map(status => ({
+  const reviewGroups = reviewStatuses.map((status) => ({
     ...status,
-    issues: groupedIssues.filter(issue => issue.status === status.id),
+    issues: groupedIssues.filter((issue) => issue.status === status.id),
   }));
-  const passedChecks = groupedIssues.filter(issue => issue.status === 'pass');
-  const reviewCount = groupedIssues.length - passedChecks.length;
-  const hasPartialResults = auditStatus === 'partial' || !!currentRun?.auditWarnings?.length;
-  const resultStatusLabel = hasPartialResults ? 'Partial results' : 'Audit completed';
-  const visibleReviewGroups = reviewGroups.filter(group =>
-    statusFilter === 'all' ? group.issues.length > 0 : group.id === statusFilter);
+  const passedChecks = groupedIssues.filter((issue) => issue.status === 'pass');
+  const visibleReviewGroups = reviewGroups.filter((group) =>
+    statusFilter === 'all' ? group.issues.length > 0 : group.id === statusFilter
+  );
 
-  function openReviewGroup(status: ReviewStatus) {
+  const openReviewGroup = (status: ReviewStatus) => {
     setStatusFilter(status);
     requestAnimationFrame(() => {
       const heading = document.getElementById(`review-${status}`);
       heading?.focus({ preventScroll: true });
       heading?.scrollIntoView({ block: 'start' });
     });
-  }
+  };
 
-  function handleDecisionSaved(updated: GroupedUXIssue) {
-    setCurrentRun(previous => previous ? {
-      ...previous,
-      groupedIssues: previous.groupedIssues.map(group => group.fingerprint === updated.fingerprint ? updated : group),
-    } : null);
-  }
+  const handleDecisionSaved = (updated: GroupedUXIssue) => {
+    setCurrentRun((previous) =>
+      previous
+        ? {
+            ...previous,
+            groupedIssues: previous.groupedIssues.map((group) =>
+              group.fingerprint === updated.fingerprint ? updated : group
+            ),
+          }
+        : null
+    );
+  };
+
+  const filteredIssues = (currentRun?.groupedIssues || []).filter((issue) => statusFilter === 'all' || issue.status === statusFilter);
   const currentFixtureDef = currentRun?.fixtureId ? FIXTURES.find((f) => f.id === currentRun.fixtureId) : undefined;
   const pendingFixtureId = pendingTarget.startsWith('fixture://') ? pendingTarget.replace('fixture://', '') : undefined;
   const pendingFixtureDef = pendingFixtureId ? FIXTURES.find((f) => f.id === pendingFixtureId) : undefined;
@@ -294,7 +299,7 @@ export default function HomePage() {
                   <span className="text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200 px-2 py-0.5 rounded-full">v1.0</span>
                 </div>
                 <p className="text-xs text-zinc-500">
-                  Checks selected WCAG 2.2 criteria and collects evidence for review.
+                  Deterministic accessibility measurements and evidence collection. Checks selected WCAG criteria.
                 </p>
               </div>
             </header>
@@ -308,25 +313,32 @@ export default function HomePage() {
                 <div className="space-y-1.5 min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-base sm:text-lg font-bold tracking-tight text-zinc-900 break-all">
-                      {fixtureShortCode} · {resultStatusLabel}
+                      {fixtureShortCode} · Audit completed
                     </h2>
-                    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${hasPartialResults
-                      ? 'border-amber-200 bg-amber-50 text-amber-800'
-                      : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`}>
-                      <Icon name={hasPartialResults ? 'AlertTriangle' : 'CheckCircle2'} size={12} />
-                      {resultStatusLabel}
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                      <Icon name="CheckCircle2" size={12} />
+                      Audit completed
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-zinc-600">
-                    {reviewGroups.map(({ id, label, tone, issues }) => (
-                      <button key={id} type="button" onClick={() => openReviewGroup(id)}
-                        className={`inline-flex items-center gap-1.5 rounded-md border px-2 font-semibold hover:underline focus-visible:ring-2 focus-visible:ring-blue-600 ${tone}`}>
-                        {issues.length} {label}
-                        <Icon name="ChevronDown" size={12} aria-hidden="true" />
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-2 flex-wrap text-xs font-medium text-zinc-600">
+                    <button
+                      type="button"
+                      onClick={() => openReviewGroup('candidateFail')}
+                      className="inline-flex items-center gap-1.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 font-semibold hover:bg-rose-100 transition-colors cursor-pointer"
+                    >
+                      {currentRun.summary.candidateFailCount} Candidate fail
+                    </button>
+                    <span className="text-zinc-300">·</span>
+                    <button
+                      type="button"
+                      onClick={() => openReviewGroup('needsReview')}
+                      className="inline-flex items-center gap-1.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 font-semibold hover:bg-amber-100 transition-colors cursor-pointer"
+                    >
+                      {currentRun.summary.needsReviewCount} Needs review
+                    </button>
+                    <span className="text-zinc-300">·</span>
                     <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 font-semibold">
-                      {passedChecks.length} Pass
+                      {currentRun.summary.passCount} Pass
                     </span>
                   </div>
                 </div>
@@ -336,11 +348,10 @@ export default function HomePage() {
                     type="button"
                     id="new-audit-button"
                     onClick={() => setShowAuditForm((prev) => !prev)}
-                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all border shadow-2xs ${
-                      showAuditForm
-                        ? 'bg-zinc-900 text-white border-zinc-900 hover:bg-zinc-800'
-                        : 'bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900'
-                    }`}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all border shadow-2xs ${showAuditForm
+                      ? 'bg-zinc-900 text-white border-zinc-900 hover:bg-zinc-800'
+                      : 'bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900'
+                      }`}
                     aria-expanded={showAuditForm}
                     aria-controls="audit-setup-section"
                   >
@@ -463,6 +474,15 @@ export default function HomePage() {
                     <span className="text-xs font-medium text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200/60 font-mono">
                       {currentRun.groupedIssues.length} grouped {currentRun.groupedIssues.length === 1 ? 'issue' : 'issues'}
                     </span>
+                    <Link
+                      href={`/studio?runId=${encodeURIComponent(currentRun.id)}`}
+                      className="hidden sm:inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 transition-colors"
+                      title="Open this audit in Critique Studio"
+                    >
+                      <Icon name="Users" size={13} />
+                      <span>Open in Studio</span>
+                      <Icon name="ArrowRight" size={12} />
+                    </Link>
                   </div>
                 </div>
 
@@ -509,13 +529,26 @@ export default function HomePage() {
                   onSelectIssue={(fp) => {
                     setActiveFingerprint(fp);
                   }}
-                  onDecisionSaved={handleDecisionSaved}
+                  onDecisionSaved={(updated) => {
+                    setCurrentRun((previous) =>
+                      previous
+                        ? {
+                          ...previous,
+                          groupedIssues: previous.groupedIssues.map((group) =>
+                            group.fingerprint === updated.fingerprint ? updated : group
+                          ),
+                        }
+                        : null
+                    );
+                  }}
                 />
 
                 <div className="filter-bar flex flex-wrap items-center gap-2 py-1" role="group" aria-label="Filter audit issues by status">
                   {([
-                    { id: 'all', label: 'All review items', count: reviewCount },
-                    ...reviewGroups.map(group => ({ id: group.id, label: group.label, count: group.issues.length })),
+                    { id: 'all', label: 'All', count: currentRun.groupedIssues.length },
+                    { id: 'candidateFail', label: 'Candidate fail', count: currentRun.summary.candidateFailCount },
+                    { id: 'needsReview', label: 'Needs review', count: currentRun.summary.needsReviewCount },
+                    { id: 'pass', label: 'Pass', count: currentRun.summary.passCount },
                   ] as const).map((filter) => {
                     const isActive = statusFilter === filter.id;
                     return (
@@ -523,7 +556,7 @@ export default function HomePage() {
                         key={filter.id}
                         type="button"
                         aria-pressed={isActive}
-                        aria-label={`Show ${filter.label.toLowerCase()}${filter.id === 'all' ? '' : ' issues'}, ${filter.count}`}
+                        aria-label={`Show ${filter.label.toLowerCase()} issues, ${filter.count}`}
                         onClick={() => setStatusFilter(filter.id)}
                         className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all border ${isActive
                           ? 'bg-zinc-900 text-white border-zinc-900 shadow-xs'
@@ -542,30 +575,50 @@ export default function HomePage() {
                   })}
                 </div>
 
-                {visibleReviewGroups.length === 0 && (
-                  <div className="rounded-xl border border-zinc-200 bg-white p-5" role="status">
-                    <h3 className="text-sm font-semibold">No items to review in the measured results</h3>
+                {visibleReviewGroups.length === 0 && passedChecks.length === 0 && (
+                  <div className="filter-empty flex items-start gap-3 rounded-xl border border-zinc-200 bg-white p-5 shadow-xs" role="status">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0 text-zinc-600 border border-zinc-200">
+                      <Icon name="CheckCircle2" size={18} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-zinc-900">No items match this filter</h3>
+                      <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+                        Choose another status filter to return to the visible evidence.
+                      </p>
+                    </div>
                   </div>
                 )}
-                {visibleReviewGroups.map(({ id, label, issues }) => (
+
+                {statusFilter !== 'pass' && visibleReviewGroups.map(({ id, label, issues }) => (
                   <section key={id} aria-labelledby={`review-${id}`} className="space-y-3">
-                    <h3 id={`review-${id}`} tabIndex={-1} className="scroll-mt-24 text-sm font-semibold text-zinc-900">
+                    <h3 id={`review-${id}`} tabIndex={-1} className="scroll-mt-24 text-sm font-semibold text-zinc-900 outline-none">
                       {label} ({issues.length})
                     </h3>
                     {issues.length === 0 ? (
                       <p className="text-sm text-zinc-600">No items with this status in the measured results.</p>
                     ) : (
                       <div className="issue-feed space-y-4">
-                        {issues.map(issue => <IssueCard key={issue.fingerprint} issue={issue} runId={currentRun.id} readOnly={isUnsavedRun} onDecisionSaved={handleDecisionSaved} />)}
+                        {issues.map((issue) => (
+                          <IssueCard
+                            key={issue.fingerprint}
+                            issue={issue}
+                            runId={currentRun.id}
+                            readOnly={isUnsavedRun}
+                            onDecisionSaved={handleDecisionSaved}
+                          />
+                        ))}
                       </div>
                     )}
                   </section>
                 ))}
-                <details key={currentRun.id} className="rounded-xl border border-zinc-200 bg-white p-4">
+
+                <details key={currentRun.id} className="rounded-xl border border-zinc-200 bg-white p-4" open={statusFilter === 'pass'}>
                   <summary className="cursor-pointer font-semibold text-zinc-900">Passed checks ({passedChecks.length})</summary>
                   <div className="issue-feed mt-4 space-y-4">
                     {passedChecks.length === 0 && <p className="text-sm text-zinc-600">No passed checks recorded in this run.</p>}
-                    {passedChecks.map(check => <IssueCard key={check.fingerprint} issue={check} runId={currentRun.id} />)}
+                    {passedChecks.map((check) => (
+                      <IssueCard key={check.fingerprint} issue={check} runId={currentRun.id} readOnly={isUnsavedRun} />
+                    ))}
                   </div>
                 </details>
               </section>
