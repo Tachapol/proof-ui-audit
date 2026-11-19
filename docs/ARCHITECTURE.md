@@ -254,21 +254,22 @@ journey
 ```mermaid
 flowchart TB
     %% Layer 1: Presentation
-    subgraph L1 ["1. Presentation Layer (Next.js 14 App Router — Client Components)"]
+    subgraph L1 ["1. Presentation Layer (Next.js 15 App Router — Client Components)"]
         direction TB
-        AppShell["Page Shell (src/app/page.tsx)<br/>- Central State Manager & Tab Router"]
+        AppShell["Page Shell (src/app/page.tsx)<br/>- URL-first Route Hydration (?runId=...)<br/>- Modal Setup Drawer<br/>- Status Counters & Review Queue"]
         
-        subgraph UIComponents ["UI Component Library (Vanilla CSS Design System)"]
-            NavRail["NavigationRail.tsx<br/>- Fixture Selector<br/>- Recent Runs<br/>- Limitations Modal"]
-            TopBar["TopBar.tsx<br/>- Target Context<br/>- Viewport Switcher<br/>- Run Button"]
-            SummaryBanner["AuditSummary.tsx<br/>- Tri-state Count<br/>- P0-P3 Summary"]
-            IssueCards["IssueCard.tsx & OccurrenceList.tsx<br/>- Bounding Box Preview<br/>- Collapsible Technical Details<br/>- Decision Controls"]
-            CanvasOverlay["VisualCanvasOverlay.tsx<br/>- High-res Screenshot Pinning<br/>- Geometric Bounding Box Highlighting"]
-            IterationView["IterationProofView.tsx<br/>- CSS Sandbox Editor<br/>- Before/After Diff Inspector"]
-            DecisionLogView["DecisionLog.tsx<br/>- Structured Audit Trail"]
+        subgraph UIComponents ["UI Component Architecture"]
+            NavRail["NavigationRail.tsx<br/>- Fixture Selector<br/>- Recent Runs History<br/>- Desktop/Mobile Shell"]
+            TopBar["TopBar.tsx<br/>- Target Context<br/>- Desktop/Mobile Responsive Controls"]
+            SummaryBanner["AuditSummary.tsx<br/>- Tri-state Count<br/>- Single 'Open in Critique Studio' CTA"]
+            IssueCards["IssueCard.tsx & IssueReview.tsx<br/>- Unified Finding Review Dispositions<br/>- Collapsible Technical Details"]
+            CanvasOverlay["VisualCanvasOverlay.tsx<br/>- Zero-Gutter Flush Live Viewport (1440/375/320px)<br/>- Interactive Pins (44px hit-box) & Leader Lines<br/>- Floating Resizable Inspector (320-680px)<br/>- Live Suggested Fix Preview"]
+            CritiqueStudio["Critique Studio (src/app/studio/)<br/>- Multi-Role AI Debate (Lead/UX/System/A11y/PM)<br/>- Structured Proposals & Live Swatch Previews<br/>- State-Preserving Round-Trip Navigation"]
+            ComponentSandbox["Component Sandbox (src/app/sandbox/)<br/>- In-Browser Automated Re-audit Verification<br/>- Regression Checking & 4-State Proof Workflow"]
+            PilotMetricsView["PilotMetricEvidence.tsx<br/>- Plain-Language Advisory Metrics<br/>- Touch Spacing & Heading Depth"]
         end
 
-        CSSDesignSystem["src/app/globals.css<br/>- Off-white Canvas (#f7f7f5)<br/>- Restrained Accent (#10a37f)<br/>- 44px Accessible Touch Targets"]
+        CSSDesignSystem["src/app/globals.css<br/>- Off-white Canvas (#f7f7f5)<br/>- Dark Restrained Theme Tokens<br/>- 44px Accessible Touch Targets"]
         
         AppShell --> UIComponents
         UIComponents --> CSSDesignSystem
@@ -278,13 +279,15 @@ flowchart TB
     subgraph L2 ["2. Application & API Boundary Layer (Server Route Handlers)"]
         direction TB
         SSRF["SSRF & Network Boundary Protection<br/>(RFC 1918 Blocklist, Loopback Guard, Fixture Routing)"]
-        ZodSchemas["Zod Schema Validation Guard<br/>(UXIssueSchema, DecisionSchema, AuditRunSchema)"]
+        ZodSchemas["Zod Schema Validation Guard<br/>(UXIssueSchema, DecisionSchema, AuditRunSchema, StudioSchema)"]
 
         subgraph RouteHandlers ["Next.js API Handlers"]
             ApiAudit["/api/audit<br/>(POST: Launch Playwright & Deduplicate)"]
             ApiExplain["/api/explain<br/>(POST: AI Context Grounding)"]
             ApiDecisions["/api/decisions<br/>(POST/GET: Record Decisions)"]
-            ApiIteration["/api/iteration<br/>(POST: Isolated CSS Sandbox)"]
+            ApiStudio["/api/studio<br/>(POST/GET: Multi-Role Session & Debate)"]
+            ApiSandbox["/api/sandbox/audit<br/>(POST: In-Browser Verification)"]
+            ApiContextDetect["/api/context/detect<br/>(POST: Page Context Auto-Detection)"]
             ApiExport["/api/export<br/>(GET/POST: Report Generation)"]
         end
 
@@ -297,12 +300,14 @@ flowchart TB
         direction TB
         PlaywrightCtrl["Playwright Chromium Browser Controller<br/>(Multi-viewport: 320px, 375px, 1440px)"]
         
-        subgraph Evaluators ["5 WCAG-Informed Evaluators"]
-            R_TextContrast["Contrast Rule (SC 1.4.3)<br/>4.5:1 / 3:1 / Complex BG Detect"]
+        subgraph Evaluators ["5 WCAG Evaluators + 2 Pilot Advisory Metrics"]
+            R_TextContrast["Text Contrast (SC 1.4.3)<br/>4.5:1 / 3:1 / Complex BG Detect"]
             R_NonTextContrast["Non-Text Contrast (SC 1.4.11)<br/>3:1 UI Components / Graphics"]
             R_TargetSize["Target Size (SC 2.5.8)<br/>24x24 CSS px Bounding Area"]
             R_Reflow["Reflow Rule (SC 1.4.10)<br/>2D Scrolling at 320px"]
             R_TextSpacing["Text Spacing (SC 1.4.12)<br/>WCAG Override & Overflow Detect"]
+            R_PilotSpacing["Pilot Target Spacing<br/>Nearest-neighbor Euclidean & Overlap"]
+            R_PilotHeading["Pilot Heading Hierarchy<br/>Sequential H1-H6 Depth & Skips"]
         end
 
         Deduplicator["Deterministic Grouping Fingerprint Engine<br/>(ruleId + selector + measurement signature)"]

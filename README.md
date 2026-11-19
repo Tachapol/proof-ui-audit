@@ -2,19 +2,32 @@
 
 A research proof-of-concept for **Evidence-Based UX/UI Optimization with Designer-in-the-Loop Validation**.
 
-This tool provides deterministic, WCAG-informed measurements for five selected criteria, presents grouped evidence-based issue cards, offers AI-assisted explanations grounded in verified evidence, and supports structured designer decisions — all without claiming full WCAG conformance.
+This tool provides deterministic, WCAG-informed measurements for five selected criteria and two pilot advisory metrics, presents grouped evidence-based issue cards, offers an interactive Visual Canvas Overlay with zero-gutter live viewport rendering, multi-role AI critique in Critique Studio, in-browser automated remediation in the Component Sandbox, and structured designer review decisions — all without claiming full WCAG conformance.
 
 ## Scope
 
-Five WCAG 2.2-informed criteria only:
-
+### Five WCAG 2.2-Informed Criteria:
 1. **Text Contrast** (SC 1.4.3) — 4.5:1 normal text, 3:1 large text
 2. **Non-text Contrast** (SC 1.4.11) — 3:1 UI components and graphical objects
 3. **Target Size** (SC 2.5.8) — 24×24 CSS px minimum
 4. **Reflow** (SC 1.4.10) — No 2D scrolling at 320 CSS px
 5. **Text Spacing** (SC 1.4.12) — Content resilience under WCAG spacing overrides
 
-All results use a deterministic tri-state status: `pass`, `candidateFail`, or `needsReview`.
+All audit criteria use a deterministic tri-state status: `pass`, `candidateFail`, or `needsReview`.
+
+### Two Pilot Advisory Metrics:
+1. **Touch Target Spacing** — Nearest neighbor distance (8 px threshold) and overlap detection using real pointer hit-areas.
+2. **Heading Hierarchy** — Sequential heading depth and skip detection (e.g. H2 → H4) with parent component context.
+
+Advisory findings are surfaced with human-readable language (e.g. *Email field and Continue button overlap distance: 0 px*) and an explicit **Project advisory** badge.
+
+## Core Features & Subsystems
+
+- **Audit Workspace (`/`)**: URL-first evidence layout (`?runId=...`) prioritizing actionable review items first, status counter filter badges (*Candidate fail*, *Needs review*), folded pass checks, unified finding review status, and single-click jump to Critique Studio.
+- **Visual Canvas Overlay**: Zero-gutter flush live iframe preview across Desktop (1440px), Mobile (375px), and Reflow (320px) viewports; interactive pin badges with 44×44px hit areas, leader lines, smart auto-focus, and a floating resizable Inspector Drawer (320px–680px) with stacked before/after comparison cards and live suggested fix preview.
+- **Multi-Role Critique Studio (`/studio`)**: Multi-role AI critique engine (Lead Coordinator, User Experience, Design System, Accessibility, Product Manager), CPE gateway integration, structured design & color proposals with live swatch previews, and round-trip navigation back to Audit evidence with preserved filters and scroll position.
+- **Component Sandbox (`/sandbox`)**: In-browser remediation playground with automated candidate generation, Playwright browser re-audit verification, regression checks, and a 4-state verification workflow (`Unverified`, `Verified`, `Suboptimal`, `Error`).
+- **Research & Pilot Benchmarks (`docs/research/`)**: Standardized UI-01 through UI-12 benchmark test cases, two-phase blind evaluation protocol, precision metrics, and PostgreSQL knowledge base schema proposal (`docs/KNOWLEDGE_BASE.md`).
 
 ## Prerequisites
 
@@ -80,40 +93,33 @@ Available fixture categories:
 
 ## Workflow
 
-1. Select a local fixture or enter a public URL
-2. Run the audit — the tool launches headless Chromium at configured viewports (320px, 375px, 1440px)
-3. Review grouped evidence-based issue cards with deterministic measurements
-4. Request AI/fallback explanations grounded in verified evidence
-5. Record designer decisions (Accept, Reject, Edit, Reprioritize) with rationale
-6. Optionally launch an isolated CSS preview on local fixtures to verify candidate fixes
-7. Export Markdown or JSON reports with all evidence, decisions, and disclaimers
+1. **Select Target**: Choose a public website URL, local test fixture, or paste an HTML/CSS code snippet.
+2. **Execute Audit**: Headless Chromium evaluates the 5 WCAG criteria and 2 pilot metrics across Desktop (1440px), Mobile (375px), and Reflow (320px).
+3. **Inspect Evidence**: View prioritized findings on the URL-first audit dashboard (`?runId=...`) and inspect pins with zero-gutter live viewport rendering on the **Visual Canvas Overlay**.
+4. **Multi-Role AI Critique**: Open Critique Studio (`/studio`) to run multi-agent design evaluations across UX, Design System, Accessibility, and Product Management perspectives.
+5. **Component Remediation**: Jump directly into the **Component Sandbox** (`/sandbox`) to generate fixes, run automated in-browser re-audit verification, and check for layout regressions.
+6. **Record Review Dispositions**: Assign review status (**Confirmed Issue**, **False Positive**, **Needs Review**, **Accepted Risk**) with reviewer rationale, separate from Edit Scope or Reprioritize actions.
+7. **Export & Report**: Generate complete JSON and Markdown audit reports containing verified measurements, screenshot evidence, sandbox iteration proof, and full decision trails.
 
 ## Architecture
 
-- **Next.js** with App Router and TypeScript strict mode
-- **Playwright** for headless browser auditing, screenshots, and bounding-box evidence
-- **Zod** for schema validation at all boundaries
-- **Vitest** for unit tests
-- **Local JSON file store** for audit runs and decisions (`.proofui-data/`)
-- **Lucide** for consistent SVG iconography
-
-## Known Limitations
-
-- Light-theme only
-- Recent-run navigation represents the current session, not a complete history
-- Public URL audits depend on network and DNS availability (documented DNS TOCTOU limitation)
-- Persistence and locking are designed for single-process PoC deployment
-- Failure and uncommon preview states are verified using controlled API responses
-- Color and focus treatments were visually reviewed and behaviorally tested, but not certified by an external accessibility conformance audit
-- This is a research PoC — it does not claim complete WCAG conformance
+- **Next.js 15 (App Router)** with TypeScript strict mode
+- **Playwright** for headless browser execution, subpixel DOM geometry, and runtime screenshots
+- **Zod** for schema validation at all network and data boundaries
+- **Vitest** for fast unit and integration testing (313 tests across 36 suites)
+- **Local JSON Storage** with atomic file writing (`.proofui-data/`)
+- **Lucide Icons** for consistent accessible iconography
 
 ## Documentation
 
+- [`docs/STUDIO.md`](docs/STUDIO.md) — Critique Studio workflow and multi-role AI design debate reference
 - [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) — Complete requirements checklist
 - [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) — Phased execution plan
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) ([ภาษาไทย](docs/ARCHITECTURE.th.md)) — System architecture, use case, and user flow diagrams
-- [`docs/DECISIONS.md`](docs/DECISIONS.md) — Architecture and implementation decisions
-- [`docs/TRACEABILITY.md`](docs/TRACEABILITY.md) — Requirement traceability matrix
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — Technical and architectural decision log
+- [`docs/KNOWLEDGE_BASE.md`](docs/KNOWLEDGE_BASE.md) — PostgreSQL editorial design knowledge catalog proposal
+- [`docs/research/pilot-metrics.md`](docs/research/pilot-metrics.md) — Pilot advisory metrics specification
+- [`docs/research/pilot-freeze-workflow.md`](docs/research/pilot-freeze-workflow.md) — Pilot benchmark freeze and validation workflow
 - [`docs/METRICS.md`](docs/METRICS.md) ([English](docs/METRICS.en.md)) — Comprehensive metrics and measurement reference
 
 ## License
