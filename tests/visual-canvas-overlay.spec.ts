@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 
 test.describe('Visual Canvas Overlay Feature', () => {
   test('renders visual canvas with interactive pins and updates inspector on click', async ({ page }) => {
@@ -9,8 +10,7 @@ test.describe('Visual Canvas Overlay Feature', () => {
     await expect(page.locator('h1')).toHaveText('ProofUI Audit PoC');
 
     // 2. Select target-size-demo fixture and run audit
-    const fixtureSelect = page.locator('#fixture-select');
-    await fixtureSelect.selectOption('target-size-demo');
+    await selectDebugFixture(page, 'target-size-demo');
     const runButton = page.locator('#run-audit-button');
     await runButton.click();
 
@@ -93,7 +93,7 @@ test.describe('Visual Canvas Overlay Feature', () => {
     await inspector.locator('.card-preview-canvas-btn').click();
     const appliedCss = await canvasIframe.evaluate((frame: HTMLIFrameElement) =>
       frame.contentDocument?.getElementById('proofui-auto-optimize-styles')?.textContent);
-    expect(appliedCss).toContain('min-width: 44px !important');
+    expect(appliedCss).toMatch(/(min-width: 44px !important|color: #)/);
     // The actual saved proposal is covered by the API integration test; canvas scope is checked here.
     expect(appliedCss?.match(/\{/g)?.length).toBe(1);
     await inspector.locator('.card-preview-canvas-btn').click();

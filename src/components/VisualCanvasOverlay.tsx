@@ -47,7 +47,7 @@ interface IssuePinData {
   targetY: number;
 }
 
-const LEFT_GUTTER = 48;
+const LEFT_GUTTER = 0;
 const PIN_HIT_SIZE = 44;
 const PIN_STEP = 28;
 
@@ -203,16 +203,15 @@ export function VisualCanvasOverlay({
     for (const item of geometricItems) {
       const box = item.occ.boundingBox;
 
-      // Keep the marker and hit area in the gutter, including for edge-to-edge evidence.
-      const pinX = (LEFT_GUTTER - PIN_HIT_SIZE) / 2;
-      const pinY = Math.max(0, box.y + Math.min(box.height / 2, 18) - PIN_HIT_SIZE / 2, lastPinY + PIN_STEP);
-      lastPinY = pinY;
+      // Position pin hit area so the badge sits neatly at the top-left of the bounding box
+      const pinX = Math.max(0, Math.min(box.x - PIN_HIT_SIZE / 2, selectedViewport.width - PIN_HIT_SIZE));
+      const pinY = Math.max(0, box.y >= 20 ? box.y - PIN_HIT_SIZE / 2 - 4 : box.y);
 
-      const pinCenterX = LEFT_GUTTER / 2;
+      const pinCenterX = pinX + PIN_HIT_SIZE / 2;
       const pinCenterY = pinY + PIN_HIT_SIZE / 2;
 
-      const targetX = LEFT_GUTTER + Math.max(0, box.x);
-      const targetY = Math.max(box.y, Math.min(pinCenterY, box.y + box.height));
+      const targetX = Math.max(0, Math.min(box.x + Math.min(box.width / 2, 20), selectedViewport.width));
+      const targetY = Math.max(0, Math.min(box.y + Math.min(box.height / 2, 20), selectedViewport.height || 900));
 
       calculatedPins.push({
         index: pinCounter++,
@@ -851,9 +850,8 @@ export function VisualCanvasOverlay({
 
       return (
         <div className="comparison-stack">
-          {optimizationMode === 'baseline' ? (
-            /* Before (Current baseline) */
-            <div className="comparison-card card-before">
+          {/* Before (Current baseline) */}
+          <div className="comparison-card card-before">
               <div className="flex items-center justify-between">
                 <div className="card-badge badge-before">Baseline (Current)</div>
                 {isSimulatedFont && (
@@ -926,8 +924,8 @@ export function VisualCanvasOverlay({
                 </div>
               </div>
             </div>
-          ) : (
-            /* After (Suggested preview - Neutral slate styling, NOT green) */
+
+            {/* After (Suggested preview - Neutral slate styling, NOT green) */}
             <div className="comparison-card card-after card-suggested">
               <div className="flex items-center justify-between">
                 <div className="card-badge badge-after">Suggested Fix (Preview)</div>
@@ -1014,10 +1012,9 @@ export function VisualCanvasOverlay({
                 </button>
               </div>
             </div>
-          )}
-        </div>
-      );
-    }
+          </div>
+        );
+      }
 
     if (pin.ruleId === 'target-size') {
       const measuredWidth = Math.round(Number(pin.measured?.width) || pin.boundingBox.width || 18);
@@ -1025,9 +1022,8 @@ export function VisualCanvasOverlay({
 
       return (
         <div className="comparison-stack">
-          {optimizationMode === 'baseline' ? (
-            /* Before (Current baseline) */
-            <div className="comparison-card card-before">
+          {/* Before (Current baseline) */}
+          <div className="comparison-card card-before">
               <div className="flex items-center justify-between">
                 <div className="card-badge badge-before">Baseline (Current)</div>
                 {isSimulatedFont && (
@@ -1071,8 +1067,8 @@ export function VisualCanvasOverlay({
                 </div>
               </div>
             </div>
-          ) : (
-            /* After (Suggested preview - Neutral styling) */
+
+            {/* After (Suggested preview - Neutral styling) */}
             <div className="comparison-card card-after card-suggested">
               <div className="flex items-center justify-between">
                 <div className="card-badge badge-after">Suggested Fix</div>
@@ -1138,16 +1134,14 @@ export function VisualCanvasOverlay({
                 </button>
               </div>
             </div>
-          )}
-        </div>
-      );
-    }
+          </div>
+        );
+      }
 
     // Default / Text spacing / Reflow
     return (
       <div className="comparison-stack">
-        {optimizationMode === 'baseline' ? (
-          <div className="comparison-card card-before">
+        <div className="comparison-card card-before">
             <div className="flex items-center justify-between">
               <div className="card-badge badge-before">Baseline (Current)</div>
               {isSimulatedFont && (
@@ -1178,7 +1172,7 @@ export function VisualCanvasOverlay({
               </div>
             </div>
           </div>
-        ) : (
+
           <div className="comparison-card card-after card-suggested">
             <div className="flex items-center justify-between">
               <div className="card-badge badge-after">Suggested Fix</div>
@@ -1229,10 +1223,9 @@ export function VisualCanvasOverlay({
               </button>
             </div>
           </div>
-        )}
-      </div>
-    );
-  };
+        </div>
+      );
+    };
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);

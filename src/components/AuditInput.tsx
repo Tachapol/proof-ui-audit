@@ -482,40 +482,6 @@ export function AuditInput({
                 </div>
               </div>
             </div>
-
-            {/* Developer & Benchmark Suites (Subdued / Collapsed for Dev only) */}
-            <details open className="group border-t border-zinc-100 pt-2.5 text-[11px] transition-colors">
-              <summary className="flex items-center justify-between font-normal text-zinc-400 hover:text-zinc-600 cursor-pointer select-none py-1">
-                <div className="flex items-center gap-2">
-                  <Icon name="FlaskConical" size={12} className="text-zinc-400" />
-                  <span>Advanced: Developer &amp; Algorithm Debug Fixtures (Optional)</span>
-                  <span className="text-[9px] font-mono text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200/50">
-                    for me only
-                  </span>
-                </div>
-                <Icon name="ChevronDown" size={12} className="text-zinc-300 group-hover:text-zinc-500 group-open:rotate-180 transition-transform" />
-              </summary>
-              <div className="mt-2.5 p-3 rounded-md bg-zinc-50/80 border border-zinc-200/60 space-y-2">
-                <p className="text-[11px] text-zinc-500">
-                  Isolated pass/fail assertion cases for algorithm verification and engine regression tests.
-                </p>
-                <select
-                  id="fixture-select"
-                  value={selectedFixture}
-                  onChange={(e) => setSelectedFixture(e.target.value)}
-                  disabled={isLoading}
-                  className="flex h-8 w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-xs shadow-2xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-600 focus-visible:border-blue-600 text-zinc-800"
-                >
-                  <optgroup label="Developer Regression Suites">
-                    {devFixtures.map((f) => (
-                      <option key={f.id} value={f.id}>
-                        {f.name} — {f.description}
-                      </option>
-                    ))}
-                  </optgroup>
-                </select>
-              </div>
-            </details>
           </div>
         )}
 
@@ -722,6 +688,41 @@ export function AuditInput({
           }
           htmlSnippet={activeTab === 'code' ? codeSnippet : undefined}
         />
+
+        {activeTab === 'sample' && (
+          <details className="group border-t border-zinc-100 pt-2.5 text-[11px] transition-colors">
+            <summary className="flex items-center justify-between font-normal text-zinc-400 hover:text-zinc-600 cursor-pointer select-none py-1">
+              <div className="flex items-center gap-2">
+                <Icon name="FlaskConical" size={12} className="text-zinc-400" />
+                <span>Advanced: Developer &amp; Algorithm Debug Fixtures (Optional)</span>
+                <span className="text-[9px] font-mono text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200/50">
+                  for me only
+                </span>
+              </div>
+              <Icon name="ChevronRight" size={12} className="shrink-0 text-zinc-300 group-hover:text-zinc-500 group-open:rotate-90 transition-transform" />
+            </summary>
+            <div className="mt-2.5 p-3 rounded-md bg-zinc-50/80 border border-zinc-200/60 space-y-2">
+              <p className="text-[11px] text-zinc-500">
+                Isolated pass/fail assertion cases for algorithm verification and engine regression tests.
+              </p>
+              <select
+                id="fixture-select"
+                value={selectedFixture}
+                onChange={(e) => setSelectedFixture(e.target.value)}
+                disabled={isLoading}
+                className="flex h-8 w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-xs shadow-2xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-600 focus-visible:border-blue-600 text-zinc-800"
+              >
+                <optgroup label="Developer Regression Suites">
+                  {devFixtures.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.name} — {f.description}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
+          </details>
+        )}
 
         {/* Actions Bar */}
         <div className="form-action-row flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-zinc-100">

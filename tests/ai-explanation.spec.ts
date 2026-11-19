@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 
 test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verification', () => {
   test('executes 12-step offline AI explanation workflow, persistence, immutability, and 320px responsiveness', async ({
@@ -11,7 +12,7 @@ test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verific
     await expect(page.locator('h1')).toHaveText('ProofUI Audit PoC');
     await page.waitForLoadState('networkidle');
 
-    await page.selectOption('#fixture-select', 'target-size-demo');
+    await selectDebugFixture(page, 'target-size-demo');
     await page.click('#run-audit-button');
 
     // Wait for audit summary
@@ -229,7 +230,7 @@ test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verific
     });
 
     await page.goto('/');
-    await page.selectOption('#fixture-select', 'target-size-demo');
+    await selectDebugFixture(page, 'target-size-demo');
     await page.click('#run-audit-button');
 
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });

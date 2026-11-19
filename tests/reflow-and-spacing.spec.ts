@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 import path from 'path';
 import fs from 'fs';
 
@@ -9,7 +10,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
     await expect(page.locator('h1')).toHaveText('ProofUI Audit PoC');
 
     // Select isolated pass fixture
-    await page.selectOption('#fixture-select', 'reflow-pass');
+    await selectDebugFixture(page, 'reflow-pass');
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
@@ -29,7 +30,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
 
   test('Reflow: Isolated Candidate Failure scenario forces horizontal overflow at 320px', async ({ page }) => {
     await page.goto('/');
-    await page.selectOption('#fixture-select', 'reflow-fail');
+    await selectDebugFixture(page, 'reflow-fail');
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
@@ -46,7 +47,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
 
   test('Reflow: Isolated Essential 2D scenario requires designer review', async ({ page }) => {
     await page.goto('/');
-    await page.selectOption('#fixture-select', 'reflow-review');
+    await selectDebugFixture(page, 'reflow-review');
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
@@ -58,7 +59,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
 
   test('Reflow: Detects nested scroll container and ancestor-clipped content without document scroll', async ({ page }) => {
     await page.goto('/');
-    await page.selectOption('#fixture-select', 'reflow-nested-fail');
+    await selectDebugFixture(page, 'reflow-nested-fail');
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
@@ -76,7 +77,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
   test('Reflow: Excludes decorative overflow and detects off-screen interactive controls', async ({ page }) => {
     // 1. Check decorative bleed produces clean pass (excluded from failure)
     await page.goto('/');
-    await page.selectOption('#fixture-select', 'reflow-decorative-pass');
+    await selectDebugFixture(page, 'reflow-decorative-pass');
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
@@ -86,7 +87,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
 
     // 2. Check off-screen interactive control candidate failure
     await page.goto('/');
-    await page.selectOption('#fixture-select', 'reflow-controls-fail');
+    await selectDebugFixture(page, 'reflow-controls-fail');
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
@@ -99,7 +100,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
   test('Text Spacing: Normal wrapping remains pass while vertical, horizontal, and obscured controls fail', async ({ page }) => {
     // 1. Normal wrapping pass
     await page.goto('/');
-    await page.selectOption('#fixture-select', 'text-spacing-pass');
+    await selectDebugFixture(page, 'text-spacing-pass');
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
@@ -111,7 +112,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
 
     // 2. Vertical clipping failure
     await page.goto('/');
-    await page.selectOption('#fixture-select', 'text-spacing-fail');
+    await selectDebugFixture(page, 'text-spacing-fail');
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
@@ -120,7 +121,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
 
     // 3. Obscured interactive control failure
     await page.goto('/');
-    await page.selectOption('#fixture-select', 'text-spacing-obscured-fail');
+    await selectDebugFixture(page, 'text-spacing-obscured-fail');
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
@@ -150,7 +151,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
 
     // Run first audit from UI
     await page.goto('/');
-    await page.selectOption('#fixture-select', 'text-spacing-preserved');
+    await selectDebugFixture(page, 'text-spacing-preserved');
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 
@@ -191,7 +192,7 @@ test.describe('Phase 3: Reflow & Text Spacing Correctness Suite', () => {
 
     // 4. Run second audit to verify identical results and stable fingerprints
     await page.goto('/');
-    await page.selectOption('#fixture-select', 'text-spacing-preserved');
+    await selectDebugFixture(page, 'text-spacing-preserved');
     await page.click('#run-audit-button');
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });
 

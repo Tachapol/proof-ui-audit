@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 import path from 'path';
 import fs from 'fs';
 
@@ -8,7 +9,7 @@ test.describe('Phase 2: Contrast Rules Integration Test', () => {
     await expect(page.locator('h1')).toHaveText('ProofUI Audit PoC');
 
     // Select contrast suite fixture
-    await page.selectOption('#fixture-select', 'text-contrast-demo');
+    await selectDebugFixture(page, 'text-contrast-demo');
     const runBtn = page.locator('#run-audit-button');
     await expect(runBtn).toBeEnabled();
     await runBtn.click();

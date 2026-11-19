@@ -149,7 +149,9 @@ export default function HomePage() {
         setCurrentRun(data.run);
         setIsUnsavedRun(false);
         setPendingTarget(data.run.fixtureId ? `fixture://${data.run.fixtureId}` : data.run.targetUrl);
-        setAuditStatus('completed');
+        const warnings = data.run.auditWarnings;
+        setPartialMessage(warnings?.length ? `The audit completed with limited coverage: ${warnings.join('; ')}` : null);
+        setAuditStatus(warnings?.length ? 'partial' : 'completed');
       })
       .catch((caught: unknown) => {
         setError(caught instanceof Error ? caught.message : 'Saved audit run could not be loaded.');
@@ -247,11 +249,11 @@ export default function HomePage() {
     setCurrentRun((previous) =>
       previous
         ? {
-            ...previous,
-            groupedIssues: previous.groupedIssues.map((group) =>
-              group.fingerprint === updated.fingerprint ? updated : group
-            ),
-          }
+          ...previous,
+          groupedIssues: previous.groupedIssues.map((group) =>
+            group.fingerprint === updated.fingerprint ? updated : group
+          ),
+        }
         : null
     );
   };
@@ -474,15 +476,6 @@ export default function HomePage() {
                     <span className="text-xs font-medium text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200/60 font-mono">
                       {currentRun.groupedIssues.length} grouped {currentRun.groupedIssues.length === 1 ? 'issue' : 'issues'}
                     </span>
-                    <Link
-                      href={`/studio?runId=${encodeURIComponent(currentRun.id)}`}
-                      className="hidden sm:inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 transition-colors"
-                      title="Open this audit in Critique Studio"
-                    >
-                      <Icon name="Users" size={13} />
-                      <span>Open in Studio</span>
-                      <Icon name="ArrowRight" size={12} />
-                    </Link>
                   </div>
                 </div>
 
@@ -545,18 +538,16 @@ export default function HomePage() {
 
                 <div className="filter-bar flex flex-wrap items-center gap-2 py-1" role="group" aria-label="Filter audit issues by status">
                   {([
-                    { id: 'all', label: 'All', count: currentRun.groupedIssues.length },
-                    { id: 'candidateFail', label: 'Candidate fail', count: currentRun.summary.candidateFailCount },
-                    { id: 'needsReview', label: 'Needs review', count: currentRun.summary.needsReviewCount },
-                    { id: 'pass', label: 'Pass', count: currentRun.summary.passCount },
-                  ] as const).map((filter) => {
+                    { id: 'all' as const, label: 'All review items', count: reviewGroups.reduce((acc, g) => acc + g.issues.length, 0) },
+                    ...reviewGroups.map(group => ({ id: group.id, label: group.label, count: group.issues.length })),
+                  ]).map((filter) => {
                     const isActive = statusFilter === filter.id;
                     return (
                       <button
                         key={filter.id}
                         type="button"
                         aria-pressed={isActive}
-                        aria-label={`Show ${filter.label.toLowerCase()} issues, ${filter.count}`}
+                        aria-label={`Show ${filter.label.toLowerCase()}${filter.id === 'all' ? '' : ' issues'}, ${filter.count}`}
                         onClick={() => setStatusFilter(filter.id)}
                         className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all border ${isActive
                           ? 'bg-zinc-900 text-white border-zinc-900 shadow-xs'
@@ -575,15 +566,15 @@ export default function HomePage() {
                   })}
                 </div>
 
-                {visibleReviewGroups.length === 0 && passedChecks.length === 0 && (
+                {visibleReviewGroups.length === 0 && (
                   <div className="filter-empty flex items-start gap-3 rounded-xl border border-zinc-200 bg-white p-5 shadow-xs" role="status">
                     <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0 text-zinc-600 border border-zinc-200">
                       <Icon name="CheckCircle2" size={18} />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-zinc-900">No items match this filter</h3>
+                      <h3 className="text-sm font-semibold text-zinc-900">No items to review in the measured results</h3>
                       <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
-                        Choose another status filter to return to the visible evidence.
+                        All checks in this run either passed or were resolved. Expand passed checks below to view evidence.
                       </p>
                     </div>
                   </div>

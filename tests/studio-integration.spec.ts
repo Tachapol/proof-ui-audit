@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 
 test.describe('Critique Studio Integration & Summary Export', () => {
   test('homepage provides direct link to Critique Studio with audit runId', async ({ page }) => {
     await page.goto('/');
 
     // Select fixture and run audit
-    const fixtureSelect = page.locator('#fixture-select');
-    await fixtureSelect.selectOption('target-size-demo');
+    await selectDebugFixture(page, 'target-size-demo');
     await page.locator('#run-audit-button').click();
 
     // Wait for audit results

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { makeUiAuditRun } from './ui-fixtures';
+import { makeUiAuditRun, selectDebugFixture } from './ui-fixtures';
 
 test('MVP automatically renders a newly returned CPE critique without reload', async ({ page }) => {
   const run = makeUiAuditRun({ id: 'run-mvp-ui-test', fixtureId: 'mvp-contrast-demo', targetUrl: 'http://localhost:3123/fixtures/mvp-contrast-demo' });
@@ -22,7 +22,7 @@ test('MVP automatically renders a newly returned CPE critique without reload', a
   await page.getByLabel('Product Goal', { exact: true }).fill('Help students register for courses');
   await page.getByLabel('Theme Color', { exact: true }).fill('#2563EB');
   await page.getByLabel('Target Audience', { exact: true }).fill('University students on mobile');
-  await page.selectOption('#fixture-select', 'mvp-contrast-demo');
+  await selectDebugFixture(page, 'mvp-contrast-demo');
   await page.locator('#run-audit-button').click();
   await expect(page.getByText('AI-Generated (CPE · test-model)', { exact: true })).toBeVisible();
   await expect(page.getByText(result.explanation, { exact: true })).toBeVisible();

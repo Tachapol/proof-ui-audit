@@ -2229,48 +2229,51 @@ body.canvas-drawer-resizing iframe {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
-  min-height: 22px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0;
-  border-radius: 9999px;
-  border: 2px solid white;
-  color: white;
-  font-size: 11px;
-  font-weight: 750;
-  line-height: 1;
+  border: 0;
+  background: transparent;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
-  transition: transform 120ms ease, box-shadow 120ms ease;
   user-select: none;
 }
 
-/* Large transparent hit area (38px x 38px) for effortless clicking/touch */
-.canvas-pin-marker::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 38px;
-  height: 38px;
+.canvas-pin-marker .pin-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
   border-radius: 9999px;
-  background: transparent;
-  pointer-events: auto;
+  border: 1px solid white;
+  color: white;
+  font-size: 8px;
+  font-weight: 750;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.canvas-pin-marker:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
+  border-radius: 9999px;
 }
 
 .canvas-pin-marker:hover,
-.canvas-pin-marker.is-hovered {
-  transform: scale(1.18);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.45), 0 3px 8px rgba(0, 0, 0, 0.3);
+.canvas-pin-marker.is-hovered,
+.canvas-pin-marker.is-selected {
   z-index: 28;
 }
 
-.canvas-pin-marker.is-selected {
-  transform: scale(1.22);
-  box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.55), 0 4px 10px rgba(0, 0, 0, 0.35);
-  z-index: 32;
+.canvas-pin-marker:hover .pin-number,
+.canvas-pin-marker.is-hovered .pin-number,
+.canvas-pin-marker.is-selected .pin-number {
+  box-shadow: 0 0 0 2px #2563eb;
+  transform: scale(1.18);
 }
 
 .canvas-pin-marker.tone-danger {

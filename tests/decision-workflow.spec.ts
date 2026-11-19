@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 
 test.describe('Phase 4: Complete Grouping & Review Workflow Verification', () => {
   test('executes 15-step decision workflow, verifies occurrences, immutability, reload, and responsiveness', async ({ page }) => {
@@ -9,7 +10,7 @@ test.describe('Phase 4: Complete Grouping & Review Workflow Verification', () =>
     await expect(page.locator('h1')).toHaveText('ProofUI Audit PoC');
     await page.waitForLoadState('networkidle');
 
-    await page.selectOption('#fixture-select', 'occurrence-demo');
+    await selectDebugFixture(page, 'occurrence-demo');
     await page.click('#run-audit-button');
 
     // Wait for audit summary

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 import fs from 'fs/promises';
 
 test.describe('Phase 6A: Report Export (JSON & Markdown)', () => {
@@ -12,7 +13,7 @@ test.describe('Phase 6A: Report Export (JSON & Markdown)', () => {
     await expect(page.locator('h1')).toHaveText('ProofUI Audit PoC');
     await page.waitForLoadState('networkidle');
 
-    await page.selectOption('#fixture-select', 'target-size-demo');
+    await selectDebugFixture(page, 'target-size-demo');
     await page.click('#run-audit-button');
 
     // Wait for audit completion

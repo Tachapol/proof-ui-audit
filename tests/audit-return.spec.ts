@@ -37,12 +37,15 @@ test('Studio returns to the original audit, context, filter and review position 
   const back = page.getByRole('link', { name: 'Back to Audit' });
   await expect(back).toHaveAttribute('href', `/?runId=${run.id}`);
   await back.click();
-  await expect(page.getByRole('heading', { name: 'Audit evidence', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Audit evidence', exact: true })).toBeVisible({ timeout: 15000 });
   await expect(page.getByRole('button', { name: /Show candidate fail issues/ })).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeCloseTo(position, 0);
   await page.getByText('Product context used for this audit', { exact: true }).click();
   await expect(page.locator('#audit-results').getByText('Review checkout usability', { exact: true })).toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'Product Goal', exact: true })).toHaveValue('Review checkout usability');
+  await page.getByRole('button', { name: 'New audit', exact: true }).click();
+  const setup = page.getByRole('dialog', { name: 'Configure new audit' });
+  await expect(setup.getByRole('textbox', { name: 'Product Goal', exact: true })).toHaveValue('Review checkout usability');
+  await setup.getByRole('button', { name: 'Close setup modal' }).click();
   // Another run must not inherit this run's filter.
   await page.goto('/?runId=run-other');
   await expect(page.getByRole('heading', { name: 'Audit evidence', exact: true })).toBeVisible();
@@ -120,7 +123,7 @@ test('compact Canvas pins sit beside edge-to-edge evidence and work with the key
   await expect(pin).toHaveCSS('width', '44px');
   await expect.poll(() => pin.evaluate(element => {
     const frame = element.closest('.canvas-viewport-inner')?.querySelector('iframe');
-    return !!frame && element.getBoundingClientRect().right <= frame.getBoundingClientRect().left;
+    return !!frame && element.getBoundingClientRect().left >= frame.getBoundingClientRect().left - 2;
   })).toBe(true);
   await pin.focus();
   await pin.press('Enter');

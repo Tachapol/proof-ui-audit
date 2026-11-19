@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 import fs from 'fs/promises';
 
 test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
@@ -25,9 +26,7 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
     // =========================================================================
     // STEP 2: Select fixture and run audit
     // =========================================================================
-    const fixtureSelect = page.locator('#fixture-select');
-    await expect(fixtureSelect).toBeVisible();
-    await fixtureSelect.selectOption('target-size-demo');
+    await selectDebugFixture(page, 'target-size-demo');
 
     const runButton = page.locator('#run-audit-button');
     await expect(runButton).toBeEnabled();
