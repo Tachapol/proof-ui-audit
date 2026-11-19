@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { AuditInput } from '@/components/AuditInput';
 import { AuditSummary } from '@/components/AuditSummary';
 import { IssueCard } from '@/components/IssueCard';
@@ -17,9 +16,10 @@ import { PilotMetricEvidence } from '@/components/PilotMetricEvidence';
 
 type ReviewStatus = Exclude<AuditStatus, 'pass'>;
 const reviewStatuses = [
-  { id: 'candidateFail', label: 'Candidate fail', tone: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100' },
-  { id: 'needsReview', label: 'Needs review', tone: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' },
+  { id: 'candidateFail', label: 'Candidate fail', tone: 'bg-rose-50 text-rose-700 border-rose-200' },
+  { id: 'needsReview', label: 'Needs review', tone: 'bg-amber-50 text-amber-700 border-amber-200' },
 ] as const;
+const resultPillClass = 'inline-flex min-h-11 items-center rounded-full border px-3 py-1 text-xs font-semibold';
 
 export default function HomePage() {
   const [currentRun, setCurrentRun] = useState<AuditRun | null>(null);
@@ -32,6 +32,7 @@ export default function HomePage() {
   const [auditStatus, setAuditStatus] = useState<AuditUiStatus>('ready');
   const [pendingTarget, setPendingTarget] = useState('fixture://target-size-demo');
   const [activeFingerprint, setActiveFingerprint] = useState<string | null>(null);
+  const [canvasPairRequest, setCanvasPairRequest] = useState<{ group: GroupedUXIssue } | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [hasInputValidationError, setHasInputValidationError] = useState(false);
@@ -39,6 +40,7 @@ export default function HomePage() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const runningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const restoreScrollRef = useRef<number | null>(null);
+  const passedChecksRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
     try {
@@ -202,6 +204,7 @@ export default function HomePage() {
       setShowAuditForm(false);
       setStatusFilter('all');
       setActiveFingerprint(null);
+      setCanvasPairRequest(null);
       const warnings = data.partialErrors ?? data.run.auditWarnings;
       if (warnings?.length) {
         setPartialMessage(`The audit completed with limited coverage: ${warnings.join('; ')}`);
@@ -232,6 +235,12 @@ export default function HomePage() {
     issues: groupedIssues.filter((issue) => issue.status === status.id),
   }));
   const passedChecks = groupedIssues.filter((issue) => issue.status === 'pass');
+  const resultPills = [
+    ...reviewGroups.map(({ id, label, tone, issues }) => ({ id, label, tone, count: issues.length })),
+    { id: 'pass' as const, label: 'Pass', tone: 'bg-emerald-50 text-emerald-700 border-emerald-200', count: passedChecks.length },
+  ];
+  const reviewItemCount = groupedIssues.length - passedChecks.length;
+  const allPassed = reviewItemCount === 0 && passedChecks.length > 0;
   const visibleReviewGroups = reviewGroups.filter((group) =>
     statusFilter === 'all' ? group.issues.length > 0 : group.id === statusFilter
   );
@@ -243,6 +252,25 @@ export default function HomePage() {
       heading?.focus({ preventScroll: true });
       heading?.scrollIntoView({ block: 'start' });
     });
+  };
+
+  const openPassedChecks = () => {
+    const details = passedChecksRef.current;
+    if (!details) return;
+    details.open = true;
+    const summary = details.querySelector('summary');
+    summary?.focus({ preventScroll: true });
+    summary?.scrollIntoView({ block: 'start' });
+  };
+
+  const showPairOnCanvas = (fingerprint: string) => {
+    const group = groupedIssues.find(issue => issue.fingerprint === fingerprint);
+    if (!group) return;
+    setActiveFingerprint(fingerprint);
+    setCanvasPairRequest({ group });
+    const canvas = document.getElementById('visual-canvas-section');
+    canvas?.focus({ preventScroll: true });
+    canvas?.scrollIntoView({ block: 'start' });
   };
 
   const handleDecisionSaved = (updated: GroupedUXIssue) => {
@@ -258,7 +286,6 @@ export default function HomePage() {
     );
   };
 
-  const filteredIssues = (currentRun?.groupedIssues || []).filter((issue) => statusFilter === 'all' || issue.status === statusFilter);
   const currentFixtureDef = currentRun?.fixtureId ? FIXTURES.find((f) => f.id === currentRun.fixtureId) : undefined;
   const pendingFixtureId = pendingTarget.startsWith('fixture://') ? pendingTarget.replace('fixture://', '') : undefined;
   const pendingFixtureDef = pendingFixtureId ? FIXTURES.find((f) => f.id === pendingFixtureId) : undefined;
@@ -315,33 +342,27 @@ export default function HomePage() {
                 <div className="space-y-1.5 min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-base sm:text-lg font-bold tracking-tight text-zinc-900 break-all">
-                      {fixtureShortCode} · Audit completed
+                      {fixtureShortCode} · {currentRun.auditWarnings?.length ? 'Partial results' : 'Audit completed'}
                     </h2>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                      <Icon name="CheckCircle2" size={12} />
-                      Audit completed
-                    </span>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap text-xs font-medium text-zinc-600">
-                    <button
-                      type="button"
-                      onClick={() => openReviewGroup('candidateFail')}
-                      className="inline-flex items-center gap-1.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 font-semibold hover:bg-rose-100 transition-colors cursor-pointer"
-                    >
-                      {currentRun.summary.candidateFailCount} Candidate fail
-                    </button>
-                    <span className="text-zinc-300">·</span>
-                    <button
-                      type="button"
-                      onClick={() => openReviewGroup('needsReview')}
-                      className="inline-flex items-center gap-1.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 font-semibold hover:bg-amber-100 transition-colors cursor-pointer"
-                    >
-                      {currentRun.summary.needsReviewCount} Needs review
-                    </button>
-                    <span className="text-zinc-300">·</span>
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 font-semibold">
-                      {currentRun.summary.passCount} Pass
-                    </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {resultPills.map(({ id, label, tone, count }) => (
+                      count > 0 ? (
+                        <button
+                          key={id}
+                          type="button"
+                          aria-controls={id === 'pass' ? 'passed-checks' : undefined}
+                          onClick={() => id === 'pass' ? openPassedChecks() : openReviewGroup(id)}
+                          className={`${resultPillClass} ${tone} transition hover:brightness-95 focus-visible:ring-2 focus-visible:ring-zinc-700 focus-visible:ring-offset-2`}
+                        >
+                          {label} ({count})
+                        </button>
+                      ) : (
+                        <span key={id} className={`${resultPillClass} border-transparent text-zinc-500`}>
+                          {label} ({count})
+                        </span>
+                      )
+                    ))}
                   </div>
                 </div>
 
@@ -469,12 +490,12 @@ export default function HomePage() {
               <section id="audit-results" className="space-y-6 pt-2" aria-labelledby="results-heading">
                 <div className="results-heading-row flex items-end justify-between gap-4 pb-2 border-b border-zinc-200">
                   <div>
-                    <p className="eyebrow text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Review queue</p>
+                    {reviewItemCount > 0 && <p className="eyebrow text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Review queue</p>}
                     <h2 id="results-heading" className="text-lg font-bold tracking-tight text-zinc-900">Audit evidence</h2>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <span className="text-xs font-medium text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200/60 font-mono">
-                      {currentRun.groupedIssues.length} grouped {currentRun.groupedIssues.length === 1 ? 'issue' : 'issues'}
+                      {groupedIssues.length} grouped {groupedIssues.length === 1 ? 'result' : 'results'}
                     </span>
                   </div>
                 </div>
@@ -519,6 +540,7 @@ export default function HomePage() {
                   currentRun={currentRun}
                   readOnly={isUnsavedRun}
                   activeFingerprint={activeFingerprint}
+                  pairRequest={canvasPairRequest}
                   onSelectIssue={(fp) => {
                     setActiveFingerprint(fp);
                   }}
@@ -536,9 +558,9 @@ export default function HomePage() {
                   }}
                 />
 
-                <div className="filter-bar flex flex-wrap items-center gap-2 py-1" role="group" aria-label="Filter audit issues by status">
+                {reviewItemCount > 0 && <div className="filter-bar flex flex-wrap items-center gap-2 py-1" role="group" aria-label="Filter audit issues by status">
                   {([
-                    { id: 'all' as const, label: 'All review items', count: reviewGroups.reduce((acc, g) => acc + g.issues.length, 0) },
+                    { id: 'all' as const, label: 'All review items', count: reviewItemCount },
                     ...reviewGroups.map(group => ({ id: group.id, label: group.label, count: group.issues.length })),
                   ]).map((filter) => {
                     const isActive = statusFilter === filter.id;
@@ -564,9 +586,9 @@ export default function HomePage() {
                       </button>
                     );
                   })}
-                </div>
+                </div>}
 
-                {visibleReviewGroups.length === 0 && (
+                {reviewItemCount === 0 && (
                   <div className="filter-empty flex items-start gap-3 rounded-xl border border-zinc-200 bg-white p-5 shadow-xs" role="status">
                     <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0 text-zinc-600 border border-zinc-200">
                       <Icon name="CheckCircle2" size={18} />
@@ -574,13 +596,15 @@ export default function HomePage() {
                     <div>
                       <h3 className="text-sm font-semibold text-zinc-900">No items to review in the measured results</h3>
                       <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
-                        All checks in this run either passed or were resolved. Expand passed checks below to view evidence.
+                        {allPassed
+                          ? passedChecks.length === 1 ? 'The grouped result passed.' : `All ${passedChecks.length} grouped results passed.`
+                          : 'This run returned no grouped results.'}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {statusFilter !== 'pass' && visibleReviewGroups.map(({ id, label, issues }) => (
+                {reviewItemCount > 0 && statusFilter !== 'pass' && visibleReviewGroups.map(({ id, label, issues }) => (
                   <section key={id} aria-labelledby={`review-${id}`} className="space-y-3">
                     <h3 id={`review-${id}`} tabIndex={-1} className="scroll-mt-24 text-sm font-semibold text-zinc-900 outline-none">
                       {label} ({issues.length})
@@ -596,6 +620,7 @@ export default function HomePage() {
                             runId={currentRun.id}
                             readOnly={isUnsavedRun}
                             onDecisionSaved={handleDecisionSaved}
+                            onShowPair={showPairOnCanvas}
                           />
                         ))}
                       </div>
@@ -603,12 +628,12 @@ export default function HomePage() {
                   </section>
                 ))}
 
-                <details key={currentRun.id} className="rounded-xl border border-zinc-200 bg-white p-4" open={statusFilter === 'pass'}>
-                  <summary className="cursor-pointer font-semibold text-zinc-900">Passed checks ({passedChecks.length})</summary>
+                <details id="passed-checks" ref={passedChecksRef} key={currentRun.id} className="rounded-xl border border-zinc-200 bg-white p-4" open={statusFilter === 'pass'}>
+                  <summary className="scroll-mt-24 cursor-pointer font-semibold text-zinc-900">Passed checks ({passedChecks.length})</summary>
                   <div className="issue-feed mt-4 space-y-4">
                     {passedChecks.length === 0 && <p className="text-sm text-zinc-600">No passed checks recorded in this run.</p>}
                     {passedChecks.map((check) => (
-                      <IssueCard key={check.fingerprint} issue={check} runId={currentRun.id} readOnly={isUnsavedRun} />
+                      <IssueCard key={check.fingerprint} issue={check} runId={currentRun.id} readOnly={isUnsavedRun} onShowPair={showPairOnCanvas} />
                     ))}
                   </div>
                 </details>

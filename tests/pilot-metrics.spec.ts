@@ -3,10 +3,66 @@ import { extractPilotFromPage } from '../src/lib/audit/pilot-browser';
 import { evaluateTouchTargetSpacing, evaluateHeadingHierarchy } from '../src/lib/audit/pilot-metrics';
 import { runBrowserAudit } from '../src/lib/audit/browser';
 import type { PilotMetricResult } from '../src/lib/schema/pilot-metric';
+import type { AuditRun } from '../src/lib/schema/ux-issue';
 import { makeUiAuditRun } from './ui-fixtures';
 
 const viewport = { width: 375, height: 812 };
 test.use({ viewport });
+
+test('UI-01 uses one advisory card, pin and review for the same touch target pair', async ({ page, request }) => {
+  const response = await request.post('/api/audit', { data: { target: 'fixture://pilot-ui-01' } });
+  expect(response.ok(), await response.text()).toBe(true);
+  const { run } = await response.json() as { run: AuditRun };
+  expect(run.summary).toMatchObject({ totalRawFindings: 34, totalGroupedIssues: 11, candidateFailCount: 1, needsReviewCount: 1, passCount: 9 });
+  const review = run.groupedIssues.filter(group => group.status === 'needsReview');
+  expect(review).toHaveLength(1);
+  const [pair] = review;
+  expect(pair.representative.title).toBe('Email address ↔ Continue');
+  expect(pair.occurrences).toHaveLength(6);
+  expect(new Set(pair.occurrences.map(occurrence => occurrence.selector)).size).toBe(2);
+  const history = await (await request.get('/api/audit')).json();
+  expect(history.runs.find((saved: AuditRun) => saved.id === run.id).summary).toEqual(run.summary);
+
+  await page.goto(`/?runId=${run.id}`);
+  const banner = page.locator('#audit-run-banner');
+  for (const name of ['Candidate fail (1)', 'Needs review (1)', 'Pass (9)']) {
+    await expect(banner.getByRole('button', { name, exact: true })).toBeVisible();
+  }
+  await banner.getByRole('button', { name: 'Needs review (1)', exact: true }).click();
+  const reviewQueue = page.getByRole('region', { name: 'Needs review (1)', exact: true });
+  const card = reviewQueue.locator('.issue-card');
+  await expect(card).toHaveCount(1);
+  await expect(card.getByRole('heading', { name: 'Email address ↔ Continue · 0 CSS px across 3 viewports' })).toBeVisible();
+  await expect(card.getByText('Project advisory', { exact: true })).toBeVisible();
+  await expect(card.getByRole('list', { name: 'Pair measurements by viewport' }).getByRole('listitem')).toHaveCount(3);
+  await card.getByRole('button', { name: 'Inspect All 6 Raw Occurrences' }).click();
+  await expect(card.locator('[data-occurrence-id]')).toHaveCount(6);
+
+  await card.getByRole('button', { name: 'Show pair on Visual Canvas' }).click();
+  const canvas = page.locator('#visual-canvas-section');
+  await expect(canvas.locator('.canvas-pins-counter')).toHaveText('1 pin placed');
+  await expect(canvas.getByRole('button', { name: /^Pin \d+: Email address ↔ Continue$/ })).toHaveCount(1);
+  const highlights = canvas.locator('.canvas-bounding-box.is-selected');
+  await expect(highlights).toHaveCount(2);
+  expect(await highlights.evaluateAll(elements => elements.map(element => element.getAttribute('data-target-selector')).sort()))
+    .toEqual([...new Set(pair.occurrences.map(occurrence => occurrence.selector))].sort());
+  await canvas.getByRole('button', { name: '320px Reflow' }).click();
+  await expect(highlights).toHaveCount(2);
+
+  const decision = await request.post('/api/decisions', { data: {
+    runId: run.id, fingerprint: pair.fingerprint, disposition: 'confirmed_issue', reviewer: 'Test reviewer', reason: 'Review the pair as a single advisory.',
+  } });
+  expect(decision.ok(), await decision.text()).toBe(true);
+  const report = await (await request.get(`/api/export?runId=${run.id}&format=json`)).json();
+  expect(report.summary).toMatchObject({ rawFindingCount: 34, groupedIssueCount: 11, candidateFailCount: 1, needsReviewCount: 1, passCount: 9 });
+  const reportedPair = report.groupedIssues.find((group: { fingerprint: string }) => group.fingerprint === pair.fingerprint);
+  expect(reportedPair).toMatchObject({ occurrenceCount: 6, reviewDisposition: 'confirmed_issue', decisionHistory: [expect.objectContaining({ action: 'review_disposition' })], touchSpacing: { summary: '0 CSS px across 3 viewports' } });
+  expect(reportedPair.touchSpacing.byViewport).toHaveLength(3);
+  expect(report.rawOccurrences.filter((item: { ruleId: string }) => item.ruleId === 'touch-target-spacing')).toHaveLength(9);
+  const markdown = await (await request.get(`/api/export?runId=${run.id}&format=markdown`)).text();
+  expect(markdown).toContain('Email address ↔ Continue');
+  expect(markdown).toContain('**Touch target pair**: 0 CSS px across 3 viewports');
+});
 
 test('UI-01 Pilot summaries read as findings and disclose viewport measurements on demand', async ({ page }) => {
   const metrics: PilotMetricResult[] = [];

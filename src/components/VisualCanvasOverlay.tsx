@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { AuditRun, GroupedUXIssue, Viewport, DesignerDecision, extractEvidenceMetrics } from '@/lib/schema/ux-issue';
+import { AuditRun, BoundingBox, GroupedUXIssue, Viewport, DesignerDecision, extractEvidenceMetrics } from '@/lib/schema/ux-issue';
 import { createSandboxSnippetFromIssue } from '@/lib/sandbox/snippet-builder';
 import { calculateContrastRatioRaw, parseColor } from '@/lib/audit/color-math';
 import { Icon, type IconName } from './Icon';
+import { describeTouchTargetPair, readTouchTargetPair } from '@/lib/audit/touch-target-pair';
 
 // Standardized color uppercase hex formatter (e.g. #AAAAAA, #FFFFFF, #0F172A)
 function formatColorHex(colorStr?: string | null): string {
@@ -21,6 +22,7 @@ interface VisualCanvasOverlayProps {
   currentRun: AuditRun;
   readOnly?: boolean;
   activeFingerprint: string | null;
+  pairRequest?: { group: GroupedUXIssue } | null;
   onSelectIssue: (fingerprint: string) => void;
   onDecisionSaved?: (updated: GroupedUXIssue) => void;
 }
@@ -34,7 +36,9 @@ interface IssuePinData {
   priority: string;
   ruleId: string;
   wcagCriterion: string;
-  boundingBox: { x: number; y: number; width: number; height: number };
+  boundingBox: BoundingBox;
+  partner?: { selector: string; boundingBox: BoundingBox };
+  focusBounds: BoundingBox;
   selector: string;
   measured: Record<string, unknown>;
   expected: Record<string, unknown>;
@@ -55,6 +59,7 @@ export function VisualCanvasOverlay({
   currentRun,
   readOnly = false,
   activeFingerprint,
+  pairRequest,
   onSelectIssue,
   onDecisionSaved,
 }: VisualCanvasOverlayProps) {
@@ -126,6 +131,17 @@ export function VisualCanvasOverlay({
     textSpacing: true,
   });
 
+  useEffect(() => {
+    if (!pairRequest) return;
+    const { group } = pairRequest;
+    setStatusFilter(group.status === 'pass' ? 'pass' : 'needsReview');
+    setSelectedViewport(previous => group.occurrences.some(({ viewport }) =>
+      viewport.width === previous.width && viewport.height === previous.height
+    ) ? previous : group.representative.viewport);
+    setOptimizationMode('baseline');
+    setIsSidePanelOpen(true);
+  }, [pairRequest]);
+
   const stageRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -180,12 +196,16 @@ export function VisualCanvasOverlay({
       const rep = group.representative;
       if (!rep) continue;
       const ruleId = rep.ruleId || group.occurrences?.[0]?.ruleId || '';
+      const isPair = Boolean(readTouchTargetPair(rep));
       const viewportOccurrence =
         group.occurrences?.find(occ => occ.viewport?.width === selectedViewport.width &&
-          (group.status !== 'pass' || occ.viewport?.height === selectedViewport.height));
+          ((!isPair && group.status !== 'pass') || occ.viewport?.height === selectedViewport.height));
       const matchingOcc =
-        viewportOccurrence || (group.status === 'pass' ? null : rep);
-      if (!matchingOcc) continue;
+        viewportOccurrence || (group.status === 'pass' || isPair ? null : rep);
+      if (!matchingOcc) {
+        if (isPair) nonGeometricIssues.push(group);
+        continue;
+      }
 
       if (matchingOcc && matchingOcc.boundingBox && matchingOcc.boundingBox.width > 0 && matchingOcc.boundingBox.height > 0) {
         geometricItems.push({ group, rep, ruleId, occ: matchingOcc });
@@ -202,6 +222,16 @@ export function VisualCanvasOverlay({
 
     for (const item of geometricItems) {
       const box = item.occ.boundingBox;
+      const nearest = readTouchTargetPair(item.occ)?.nearest;
+      const partner = nearest?.boundingBox ? { selector: nearest.selector, boundingBox: nearest.boundingBox } : undefined;
+      const other = partner?.boundingBox;
+      const x = Math.min(box.x, other?.x ?? box.x);
+      const y = Math.min(box.y, other?.y ?? box.y);
+      const focusBounds = other ? {
+        x, y,
+        width: Math.max(box.x + box.width, other.x + other.width) - x,
+        height: Math.max(box.y + box.height, other.y + other.height) - y,
+      } : box;
 
       // Position pin hit area so the badge sits neatly at the top-left of the bounding box
       const pinX = Math.max(0, Math.min(box.x - PIN_HIT_SIZE / 2, selectedViewport.width - PIN_HIT_SIZE));
@@ -223,6 +253,8 @@ export function VisualCanvasOverlay({
         ruleId: item.ruleId,
         wcagCriterion: item.rep.wcagCriterion,
         boundingBox: box,
+        partner,
+        focusBounds,
         selector: item.occ.selector || item.rep.selector || '',
         measured: item.occ.measured || {},
         expected: item.occ.expected || {},
@@ -270,6 +302,8 @@ export function VisualCanvasOverlay({
     if (firstReview) return firstReview;
     return visiblePins[0] || pins[0] || null;
   }, [activeFingerprint, pins, visiblePins]);
+
+  const activePairSummary = activePin && describeTouchTargetPair(activePin.groupedIssue);
 
   // Calculate Fit scale dynamically via ResizeObserver
   useEffect(() => {
@@ -402,8 +436,8 @@ export function VisualCanvasOverlay({
     setTimeout(() => {
       if (!scrollContainerRef.current) return;
       const container = scrollContainerRef.current;
-      const targetElementCenterX = (LEFT_GUTTER + pin.boundingBox.x + pin.boundingBox.width / 2) * targetScale;
-      const targetElementCenterY = (pin.boundingBox.y + pin.boundingBox.height / 2) * targetScale;
+      const targetElementCenterX = (LEFT_GUTTER + pin.focusBounds.x + pin.focusBounds.width / 2) * targetScale;
+      const targetElementCenterY = (pin.focusBounds.y + pin.focusBounds.height / 2) * targetScale;
 
       const targetScrollLeft = Math.max(0, targetElementCenterX - container.clientWidth / 2);
       const targetScrollTop = Math.max(0, targetElementCenterY - container.clientHeight / 2);
@@ -432,10 +466,10 @@ export function VisualCanvasOverlay({
     if (!autoFocusEnabled || !scrollContainerRef.current) return;
     const container = scrollContainerRef.current;
 
-    const elemLeft = (LEFT_GUTTER + pin.boundingBox.x) * effectiveScale;
-    const elemTop = pin.boundingBox.y * effectiveScale;
-    const elemWidth = pin.boundingBox.width * effectiveScale;
-    const elemHeight = pin.boundingBox.height * effectiveScale;
+    const elemLeft = (LEFT_GUTTER + pin.focusBounds.x) * effectiveScale;
+    const elemTop = pin.focusBounds.y * effectiveScale;
+    const elemWidth = pin.focusBounds.width * effectiveScale;
+    const elemHeight = pin.focusBounds.height * effectiveScale;
 
     const pad = 24;
     const isHorizontallyVisible =
@@ -1268,8 +1302,9 @@ export function VisualCanvasOverlay({
 
   return (
     <div
-      className={`visual-canvas-component ${isFullScreen ? 'is-fullpage' : ''} ${isSidePanelOpen && activePin ? 'has-side-panel' : ''}`}
+      className={`visual-canvas-component scroll-mt-20 ${isFullScreen ? 'is-fullpage' : ''} ${isSidePanelOpen && activePin ? 'has-side-panel' : ''}`}
       id="visual-canvas-section"
+      tabIndex={-1}
       aria-label="Visual Canvas Review"
     >
       {/* Box 1: Canvas Card Box (Contains Toolbar + Stage inside one unified box with border & radius) */}
@@ -1284,7 +1319,7 @@ export function VisualCanvasOverlay({
                 Visual Canvas Overlay
               </span>
               <span className="canvas-pins-counter">
-                <strong>{pins.length}</strong> {pins.length === 1 ? 'pin placed' : 'pins placed'}
+                <strong>{visiblePins.length}</strong> {visiblePins.length === 1 ? 'pin placed' : 'pins placed'}
               </span>
 
               {/* Viewport Selector */}
@@ -1694,13 +1729,15 @@ export function VisualCanvasOverlay({
                       const isHovered = hoveredFingerprint === pin.fingerprint;
                       const isBoxVisible = boxDisplayMode === 'all' || isSelected || isHovered;
                       const colors = getStatusColor(pin.status);
-                      const box = pin.boundingBox;
+                      const targets = [{ selector: pin.selector, boundingBox: pin.boundingBox }, ...(pin.partner ? [pin.partner] : [])];
 
                       return (
                         <React.Fragment key={pin.fingerprint}>
                           {/* Bounding Box Highlight - Transparent background, offset by LEFT_GUTTER */}
-                          {isBoxVisible && (
+                          {isBoxVisible && targets.map(({ selector, boundingBox: box }) => (
                             <div
+                              key={selector}
+                              data-target-selector={selector}
                               className={`canvas-bounding-box ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''} tone-${colors.tone}`}
                               style={{
                                 left: `${LEFT_GUTTER + box.x}px`,
@@ -1715,12 +1752,12 @@ export function VisualCanvasOverlay({
                               onMouseLeave={() => setHoveredFingerprint(null)}
                               title={`Pin ${pin.index}: ${pin.title} (${Math.round(box.width)}×${Math.round(box.height)}px)`}
                             />
-                          )}
+                          ))}
 
                           {/* Pin Button in the Left Gutter */}
                           <button
                             type="button"
-                            className={`canvas-pin-marker ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''} tone-${colors.tone}`}
+                            className={`canvas-pin-marker ${isSelected ? 'is-selected' : ''} ${isHovered ? 'is-hovered' : ''}`}
                             style={{
                               left: `${pin.pinX}px`,
                               top: `${pin.pinY}px`,
@@ -1730,7 +1767,7 @@ export function VisualCanvasOverlay({
                             onClick={() => handlePinClick(pin)}
                             onMouseEnter={() => setHoveredFingerprint(pin.fingerprint)}
                             onMouseLeave={() => setHoveredFingerprint(null)}
-                            title={`${pin.title} (${Math.round(box.width)}×${Math.round(box.height)}px)`}
+                            title={`${pin.title} (${Math.round(pin.boundingBox.width)}×${Math.round(pin.boundingBox.height)}px)`}
                             aria-label={`Pin ${pin.index}: ${pin.title}`}
                           >
                             <span className="pin-number" style={{ backgroundColor: colors.bg }}>{pin.index}</span>
@@ -1752,7 +1789,7 @@ export function VisualCanvasOverlay({
               </span>
               <div className="notice-text">
                 <strong>{pageLevelIssues.length} page-level finding{pageLevelIssues.length > 1 ? 's' : ''}</strong>
-                <span>(Overflow or layout issues without a single bounding box):</span>
+                <span>(No pin geometry at this viewport):</span>
                 <div className="notice-chips">
                   {pageLevelIssues.map((issue) => issue.status === 'pass' ? (
                     <span key={issue.fingerprint} className="page-issue-chip">{issue.representative.title}</span>
@@ -1860,7 +1897,7 @@ export function VisualCanvasOverlay({
             {/* Title & Key Facts */}
             <div className="summary-headline-row">
               <h3 id="popup-issue-title" className="summary-rule-title">
-                {getCleanRuleTitle(activePin)}
+                {activePairSummary ? activePin.title : getCleanRuleTitle(activePin)}
               </h3>
             </div>
 
@@ -1877,7 +1914,13 @@ export function VisualCanvasOverlay({
             </div>
 
             {/* 3-Column Metric Display: Measured | Required | Estimated */}
-            {activePin.status === 'pass' ? (
+            {activePairSummary ? (
+              <div className="space-y-2 p-3 text-sm">
+                <p>{activePairSummary}</p>
+                <p>Viewport {selectedViewport.width}×{selectedViewport.height} · {String(activePin.measured.distance)} CSS px{activePin.measured.overlap === true && ' · Overlap'}</p>
+                <p className="text-zinc-600">8 CSS px project advisory</p>
+              </div>
+            ) : activePin.status === 'pass' ? (
               <div className="space-y-2 p-3 text-sm">
                 <p>Viewport {selectedViewport.width}×{selectedViewport.height}</p>
                 <code className="safe-wrap">{activePin.selector}</code>
@@ -1893,7 +1936,7 @@ export function VisualCanvasOverlay({
             ) : renderMetricThreeColumns(activePin)}
 
             {/* EVIDENCE FIRST: Visual Before vs After Simulation Cards */}
-            {activePin.status !== 'pass' && <div className="inspector-visual-comparison">
+            {activePin.status !== 'pass' && !activePairSummary && <div className="inspector-visual-comparison">
             <div className="comparison-header">
               <span className="comparison-eyebrow">Visual Spec Comparison</span>
               <div className="spec-view-segmented" role="tablist" aria-label="Visual spec comparison view">
@@ -2059,7 +2102,7 @@ export function VisualCanvasOverlay({
           </div>
 
           {/* 3. Footer: Fixed solid block outside the scroll area, NEVER overlaying content */}
-          {!readOnly && activePin.status !== 'pass' && <footer className="inspector-actions-footer">
+          {!readOnly && activePin.status !== 'pass' && !activePairSummary && <footer className="inspector-actions-footer">
             {(() => {
               const iterComp = activePin.groupedIssue.iterationComparison;
               const isVerifiedPass =

@@ -38,11 +38,19 @@ test.describe('Audit Run Result Ordering & New Audit Toggle', () => {
     const banner = page.locator('#audit-run-banner');
     await expect(banner).toBeVisible();
     await expect(banner.getByRole('heading', { level: 2 })).toHaveText('UI-01 · Audit completed');
-    const failCount = banner.getByRole('button', { name: '1 Candidate fail', exact: true });
-    const reviewCount = banner.getByRole('button', { name: '2 Needs review', exact: true });
+    const failCount = banner.getByRole('button', { name: 'Candidate fail (1)', exact: true });
+    const reviewCount = banner.getByRole('button', { name: 'Needs review (2)', exact: true });
+    const passCount = banner.getByRole('button', { name: 'Pass (9)', exact: true });
     await expect(failCount).toBeVisible();
     await expect(reviewCount).toBeVisible();
-    await expect(banner.getByText('9 Pass')).toBeVisible();
+    await expect(passCount).toBeVisible();
+    await page.keyboard.press('Tab');
+    for (const pill of [failCount, reviewCount, passCount]) {
+      await expect(pill).toHaveCSS('height', '44px');
+      await expect(pill).toHaveCSS('padding-inline-start', '12px');
+      await pill.focus();
+      await expect(pill).not.toHaveCSS('box-shadow', 'none');
+    }
     const history = page.getByRole('region', { name: 'Recent Audit Runs' });
     await expect(history.getByRole('link')).toHaveAttribute('aria-current', 'page');
     await expect(history.getByRole('link')).toHaveAttribute('href', `/?runId=${run.id}`);
@@ -66,7 +74,8 @@ test.describe('Audit Run Result Ordering & New Audit Toggle', () => {
     await failCount.click();
     await expect(resultsSection.getByRole('heading', { name: 'Candidate fail (1)', exact: true })).toBeFocused();
     await expect(resultsSection.getByRole('heading', { name: 'Needs review (2)', exact: true })).toHaveCount(0);
-    await resultsSection.locator('summary', { hasText: /^Passed checks \(9\)$/ }).click();
+    await passCount.press('Enter');
+    await expect(resultsSection.locator('#passed-checks > summary')).toBeFocused();
     await expect(passCard).toBeVisible();
 
     // Click 'New audit' button to reveal the setup form
@@ -96,6 +105,50 @@ test.describe('Audit Run Result Ordering & New Audit Toggle', () => {
     await expect(setupSection).not.toHaveClass(/hidden/);
   });
 
+  test('a pass-only run opens its measured evidence from the banner', async ({ page }) => {
+    const run = makeUiAuditRun({
+      id: 'run-ui-06-all-passed',
+      fixtureId: 'pilot-ui-06',
+      summary: { totalRawFindings: 10, totalGroupedIssues: 10, passCount: 10, candidateFailCount: 0, needsReviewCount: 0 },
+    });
+    const group = run.groupedIssues[0];
+    run.groupedIssues = Array.from({ length: 10 }, (_, index) => ({
+      ...group,
+      fingerprint: `passed-check-${index}`,
+      status: 'pass',
+      representative: { ...group.representative, id: `passed-${index}`, selector: `#passed-${index}`, status: 'pass' },
+      occurrences: [{ ...group.representative, id: `passed-${index}`, selector: `#passed-${index}`, status: 'pass' }],
+    }));
+    await page.route('**/api/audit', route => route.fulfill({ json: { success: true, runs: [] } }));
+    await page.route('**/api/audit?*', route => route.fulfill({ json: { success: true, run } }));
+    await page.goto(`/?runId=${run.id}`);
+
+    const banner = page.locator('#audit-run-banner');
+    await expect(banner.getByRole('heading', { name: 'UI-06 · Audit completed' })).toBeVisible();
+    await expect(page.getByText(/Audit completed/)).toHaveCount(1);
+    await expect(banner.getByText('Candidate fail (0)', { exact: true })).toBeVisible();
+    await expect(banner.getByText('Needs review (0)', { exact: true })).toBeVisible();
+    await expect(banner.getByRole('button', { name: /^(Candidate fail|Needs review) \(0\)$/ })).toHaveCount(0);
+
+    const results = page.getByRole('region', { name: 'Audit evidence' });
+    await expect(results.getByText('10 grouped results', { exact: true })).toBeVisible();
+    await expect(results.getByText('All 10 grouped results passed.', { exact: true })).toBeVisible();
+    await expect(results.getByRole('group', { name: 'Filter audit issues by status' })).toHaveCount(0);
+    await expect(page.locator('a[href^="/studio"]')).toHaveCount(1);
+
+    const viewPassed = banner.getByRole('button', { name: 'Pass (10)', exact: true });
+    const summary = results.locator('#passed-checks > summary');
+    const firstCheck = results.locator('#issue-card-passed-check-0');
+    await expect(firstCheck).toBeHidden();
+    await viewPassed.press('Enter');
+    await expect(summary).toBeFocused();
+    await expect(firstCheck).toBeVisible();
+    await summary.press('Enter');
+    await expect(firstCheck).toBeHidden();
+    await viewPassed.click();
+    await expect(firstCheck).toBeVisible();
+  });
+
   test('warns when measurements cannot be saved, then lists a confirmed run only once', async ({ page }) => {
     const unsaved = makeUiAuditRun({ id: 'run-unsaved', fixtureId: 'pilot-ui-01' });
     const saved = { ...unsaved, id: 'run-saved-after-retry' };
@@ -117,6 +170,9 @@ test.describe('Audit Run Result Ordering & New Audit Toggle', () => {
     await expect(history.getByText('No saved audit runs yet.')).toHaveCount(0);
     await expect(history.getByRole('link')).toHaveCount(0);
     await expect(page.getByRole('heading', { name: 'Audit evidence', exact: true })).toBeVisible();
+    const banner = page.locator('#audit-run-banner');
+    await expect(banner.getByText('Pass (0)', { exact: true })).toBeVisible();
+    await expect(banner.getByRole('button', { name: 'Pass (0)', exact: true })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Accept Issue', exact: true })).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Open in Critique Studio', exact: true })).toHaveCount(0);
     expect(new URL(page.url()).searchParams.has('runId')).toBe(false);

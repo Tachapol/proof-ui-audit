@@ -69,7 +69,7 @@ export function TopBar({
 
       <div className="top-bar-meta flex items-center gap-2 sm:gap-3">
 
-        {status !== 'ready' && (
+        {status !== 'ready' && status !== 'completed' && (
           <span
             className={`audit-status status-${status} inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${currentStatusStyle.badge} transition-colors`}
             role="status"

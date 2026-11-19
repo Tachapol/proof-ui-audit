@@ -2,6 +2,7 @@ import { ReviewDispositionSchema, effectiveReviewDisposition, type ReviewDisposi
 import fs from 'fs/promises';
 import path from 'path';
 import { AuditRun, AuditRunSchema, DesignerDecision, GroupedUXIssue, Priority } from '@/lib/schema/ux-issue';
+import { normalizeTouchTargetGroups } from '@/lib/audit/grouping';
 
 const DATA_DIR = path.resolve(process.cwd(), '.proofui-data');
 const RUNS_DIR = path.join(DATA_DIR, 'runs');
@@ -67,7 +68,7 @@ export async function getAuditRun(id: string): Promise<AuditRun | null> {
 
   try {
     const parsed = JSON.parse(raw);
-    return AuditRunSchema.parse(parsed);
+    return normalizeTouchTargetGroups(AuditRunSchema.parse(parsed));
   } catch (err: any) {
     // Fail safely: throw a descriptive error rather than silently returning null or overwriting corrupt files
     throw new Error(`CorruptedAuditRunError: Audit run '${id}' is corrupted or invalid: ${err.message}`);
@@ -85,7 +86,7 @@ export async function listAuditRuns(): Promise<
     if (file.endsWith('.json')) {
       try {
         const raw = await fs.readFile(path.join(RUNS_DIR, file), 'utf-8');
-        const run = AuditRunSchema.parse(JSON.parse(raw));
+        const run = normalizeTouchTargetGroups(AuditRunSchema.parse(JSON.parse(raw)));
         runs.push({
           id: run.id,
           targetUrl: run.targetUrl,

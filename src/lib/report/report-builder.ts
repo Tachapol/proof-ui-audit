@@ -1,4 +1,5 @@
 import { AuditRun, effectiveReviewDisposition } from '@/lib/schema/ux-issue';
+import { describeTouchTargetPair, touchTargetViewportEvidence } from '@/lib/audit/touch-target-pair';
 import {
   ReportModel,
   ReportModelSchema,
@@ -83,9 +84,11 @@ export function buildNormalizedReport(run: AuditRun, exportTimestamp?: string): 
       }
     }
     const viewports = Array.from(viewportMap.values());
+    const touchSpacingSummary = describeTouchTargetPair(group);
 
     return {
       metric: rep.metric,
+      touchSpacing: touchSpacingSummary ? { summary: touchSpacingSummary, byViewport: touchTargetViewportEvidence(group) } : undefined,
       fingerprint: group.fingerprint,
       ruleId: rep.ruleId,
       wcagCriterion: rep.wcagCriterion,

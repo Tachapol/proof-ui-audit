@@ -109,7 +109,7 @@ test('passed checks stay out of the review queue and show read-only evidence in 
   await expect(page.getByText(/Mobile measurement unavailable/)).toBeVisible();
 });
 
-test('compact Canvas pins sit beside edge-to-edge evidence and work with the keyboard', async ({ page }) => {
+test('compact Canvas pins remain round at the preview edge and work with the keyboard', async ({ page }) => {
   const run = makeUiAuditRun({ fixtureId: 'target-size-demo' });
   const issue = run.groupedIssues[0];
   const measure = { ...issue.representative, boundingBox: { ...issue.representative.boundingBox, x: 0 } };
@@ -119,8 +119,13 @@ test('compact Canvas pins sit beside edge-to-edge evidence and work with the key
   await page.goto(`/?runId=${run.id}`, { waitUntil: 'domcontentloaded' });
   const canvas = page.locator('#visual-canvas-section');
   const pin = canvas.getByRole('button', { name: /Pin 1: Text contrast/ });
-  await expect(pin.locator('.pin-number')).toHaveCSS('width', '16px');
+  const badge = pin.locator('.pin-number');
+  await expect(badge).toHaveCSS('width', '16px');
+  await expect(badge).toHaveCSS('height', '16px');
+  await expect(badge).toHaveCSS('border-radius', '9999px');
   await expect(pin).toHaveCSS('width', '44px');
+  await expect(pin).toHaveCSS('height', '44px');
+  await expect(pin).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
   await expect.poll(() => pin.evaluate(element => {
     const frame = element.closest('.canvas-viewport-inner')?.querySelector('iframe');
     return !!frame && element.getBoundingClientRect().left >= frame.getBoundingClientRect().left - 2;

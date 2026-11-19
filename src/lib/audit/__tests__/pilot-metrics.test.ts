@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { evaluateTouchTargetSpacing, evaluateHeadingHierarchy, rectangleGap, unavailablePilotMetric } from '../pilot-metrics';
 import type { PilotSnapshot, PointerTarget, HeadingNode } from '../pilot-extraction';
-import { groupUXIssues, calculateAuditSummary, computeIssueFingerprint } from '../grouping';
+import { groupUXIssues, calculateAuditSummary, computeIssueFingerprint, normalizeTouchTargetGroups } from '../grouping';
 import { AuditRunSchema, type AuditRun, type BoundingBox } from '@/lib/schema/ux-issue';
 import { PilotMetricResultSchema, PilotScopeSchema } from '@/lib/schema/pilot-metric';
 import { buildNormalizedReport } from '@/lib/report/report-builder';
@@ -107,8 +107,9 @@ describe('Pilot metric pipeline contracts', () => {
     const singleton = evaluateTouchTargetSpacing(snapshot({ targets: [target('#only')] }), url, viewport);
     const rawIssues = [...spacing.issues, ...headingResult.issues];
     const groupedIssues = groupUXIssues([...rawIssues, ...rawIssues.map(issue => ({ ...issue, id: `${issue.id}-copy`, viewport: { width: 1440, height: 900 } }))]);
-    expect(groupedIssues).toHaveLength(3);
-    expect(groupedIssues.every(group => group.occurrences.length === 2)).toBe(true);
+    expect(groupedIssues).toHaveLength(2);
+    expect(groupedIssues.map(group => group.occurrences.length)).toEqual([4, 2]);
+    expect(computeIssueFingerprint(spacing.issues[0])).toBe(computeIssueFingerprint(spacing.issues[1]));
     expect(computeIssueFingerprint(spacing.issues[0])).not.toEqual(computeIssueFingerprint({ ...spacing.issues[0], ruleId: 'target-size' }));
     expect(computeIssueFingerprint({ ...spacing.issues[0], selector: '#A' })).not.toEqual(computeIssueFingerprint({ ...spacing.issues[0], selector: '#a' }));
     const run: AuditRun = {
@@ -122,6 +123,10 @@ describe('Pilot metric pipeline contracts', () => {
     expect(json.groupedIssues[0].metric).toMatchObject({ metricVersion: '1.0.0', unit: 'CSS px', basis: 'project-advisory' });
     expect(json.rawOccurrences[0].measured.nearestTarget.selector).toBe('#b');
     expect(json.groupedIssues[0].occurrences[0].metric.executionStatus).toBe('completed');
+    expect(json.groupedIssues[0].touchSpacing).toMatchObject({
+      summary: '4 CSS px across 2 viewports',
+      byViewport: [{ distance: 4, needsReview: true }, { distance: 4, needsReview: true }],
+    });
     const markdown = generateMarkdownReport(report);
     expect(markdown).toContain('## Pilot Metric Evidence');
     expect(markdown).toContain('"distance": null');
@@ -131,5 +136,38 @@ describe('Pilot metric pipeline contracts', () => {
       expect(extractEvidenceMetrics(issue.ruleId, issue.measured).length).toBeGreaterThan(0);
       expect(getDefaultRecommendation(issue)).not.toContain('allowable exception');
     }
+  });
+
+  it('keeps a shared control’s other neighbor separate and retains mixed viewport evidence and legacy review', () => {
+    const desktop = { width: 1440, height: 900 };
+    const mobileIssues = evaluateTouchTargetSpacing(snapshot({ targets: [target('#a'), target('#b', 28)] }), url, viewport).issues;
+    const desktopIssues = evaluateTouchTargetSpacing(snapshot({ targets: [target('#a'), target('#b', 40), target('#c', -25)] }), url, desktop).issues;
+    const rawIssues = [...mobileIssues, ...desktopIssues];
+    const grouped = groupUXIssues(rawIssues);
+    expect(grouped.map(group => [group.representative.title, group.status, group.hasMixedStatus, group.rawOccurrencesCount])).toEqual([
+      ['#a ↔ #b', 'needsReview', true, 3],
+      ['#c ↔ #a', 'needsReview', false, 2],
+    ]);
+
+    const timestamp = '2026-11-20T00:00:00.000Z';
+    const legacyGroups = mobileIssues.map((issue, index) => ({
+      ...grouped[0], fingerprint: `legacy-${index}`, representative: issue, occurrences: [issue], rawOccurrencesCount: 1,
+      decisionHistory: index === 1 ? [{ id: 'old-review', action: 'review_disposition' as const, timestamp, newDisposition: 'confirmed_issue' as const }] : [
+        { id: 'earlier-review', action: 'review_disposition' as const, timestamp: '2026-11-19T00:00:00.000Z', newDisposition: 'false_positive' as const },
+        { id: 'later-adjustment', action: 'reprioritize' as const, timestamp: '2026-11-21T00:00:00.000Z', newDisposition: 'false_positive' as const },
+      ],
+      reviewDisposition: index === 1 ? 'confirmed_issue' as const : 'false_positive' as const,
+      reviewReason: index === 1 ? 'Saved before grouping changed' : undefined,
+    }));
+    const run: AuditRun = { id: 'legacy-pair', targetUrl: url, timestamp, viewports: [viewport], rawIssues: mobileIssues,
+      groupedIssues: legacyGroups, summary: calculateAuditSummary(mobileIssues, legacyGroups) };
+    const normalized = normalizeTouchTargetGroups(run);
+    expect(normalized.rawIssues).toBe(run.rawIssues);
+    expect(normalized.summary).toMatchObject({ totalRawFindings: 2, totalGroupedIssues: 1, needsReviewCount: 1 });
+    expect(normalized.groupedIssues[0]).toMatchObject({
+      fingerprint: grouped[0].fingerprint, reviewDisposition: 'confirmed_issue', reviewReason: 'Saved before grouping changed',
+      decisionHistory: [{ id: 'earlier-review' }, { id: 'old-review' }, { id: 'later-adjustment' }],
+    });
+    expect(normalizeTouchTargetGroups(normalized)).toBe(normalized);
   });
 });

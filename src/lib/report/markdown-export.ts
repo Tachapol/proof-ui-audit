@@ -81,6 +81,12 @@ function formatIssueSection(issue: ReportGroupedIssue, index: number): string {
   if (issue.metric) {
     lines.push(`- **Metric**: ${issue.metric.metricId} v${issue.metric.metricVersion}; ${issue.metric.unit}; ${issue.metric.executionStatus}; ${issue.metric.applicability}; project advisory`);
   }
+  if (issue.touchSpacing) {
+    lines.push(`- **Touch target pair**: ${issue.touchSpacing.summary}`);
+    for (const { viewport, distance, overlap, needsReview } of issue.touchSpacing.byViewport) {
+      lines.push(`  - ${viewport.width}×${viewport.height}: ${distance} CSS px · ${needsReview ? 'Needs review' : 'Pass'}${overlap ? ' · Overlap' : ''}`);
+    }
+  }
   lines.push(`- **Project Priority**: **${issue.currentPriority}** (Initial: ${issue.initialPriority})`);
   lines.push(`- **Priority Rationale**: ${escapeHtml(sanitizeMarkdownProse(issue.priorityRationale))}`);
   lines.push(`- **Occurrence Count**: ${issue.occurrenceCount} across ${issue.viewports.map((v) => `${v.width}×${v.height}`).join(', ')}`);

@@ -1,5 +1,6 @@
-import { UXIssue, GroupedUXIssue, AuditSummary } from '@/lib/schema/ux-issue';
+import { UXIssue, GroupedUXIssue, AuditSummary, type AuditRun } from '@/lib/schema/ux-issue';
 import { resolveGroupedPriority } from './priority-engine';
+import { collectTouchTargetLabels, labelTouchTargetPair, touchTargetPairFingerprint } from './touch-target-pair';
 
 export function createMeasurementSignature(issue: UXIssue): string {
   const measured = issue.measured || {};
@@ -62,6 +63,8 @@ export function createMeasurementSignature(issue: UXIssue): string {
 }
 
 export function computeIssueFingerprint(issue: UXIssue): string {
+  const pairFingerprint = touchTargetPairFingerprint(issue);
+  if (pairFingerprint) return pairFingerprint;
   const normSelector = issue.metric ? issue.selector.trim() : issue.selector.trim().toLowerCase().replace(/\s+/g, ' ');
   const sig = createMeasurementSignature(issue);
   return `${issue.ruleId}::${normSelector}::${sig}`;
@@ -69,6 +72,7 @@ export function computeIssueFingerprint(issue: UXIssue): string {
 
 export function groupUXIssues(issues: UXIssue[]): GroupedUXIssue[] {
   const groups = new Map<string, UXIssue[]>();
+  const actionLabels = collectTouchTargetLabels(issues);
 
   for (const issue of issues) {
     const fp = computeIssueFingerprint(issue);
@@ -96,11 +100,13 @@ export function groupUXIssues(issues: UXIssue[]): GroupedUXIssue[] {
     const needsReview =
       occurrences.find((i) => i.status === 'needsReview' && i.screenshotPath) ||
       occurrences.find((i) => i.status === 'needsReview');
-    const representative =
+    const measuredRepresentative =
       candidateFail ||
       needsReview ||
       occurrences.find((i) => i.screenshotPath) ||
       occurrences[0];
+    const pairTitle = labelTouchTargetPair(measuredRepresentative, actionLabels);
+    const representative = pairTitle ? { ...measuredRepresentative, title: pairTitle } : measuredRepresentative;
 
     // Priority ordering via Priority Engine
     const { priority: currentPriority, initialPriority } = resolveGroupedPriority(occurrences);
@@ -127,6 +133,52 @@ export function groupUXIssues(issues: UXIssue[]): GroupedUXIssue[] {
   }
 
   return grouped;
+}
+
+/** Rebuild legacy directional spacing groups when opening a saved run. Raw findings stay intact. */
+export function normalizeTouchTargetGroups(run: AuditRun): AuditRun {
+  const spacingGroups = new Map<string, GroupedUXIssue[]>();
+  for (const group of run.groupedIssues) {
+    const key = touchTargetPairFingerprint(group.representative);
+    if (!key) continue;
+    const sources = spacingGroups.get(key) ?? [];
+    sources.push(group);
+    spacingGroups.set(key, sources);
+  }
+  const legacy = [...spacingGroups].filter(([key, groups]) => groups.length > 1 || groups[0].fingerprint !== key);
+  if (!legacy.length) return run;
+
+  const rebuilt = new Map(groupUXIssues([...spacingGroups.values()].flatMap(groups => groups.flatMap(group => group.occurrences)))
+    .map(group => [group.fingerprint, group]));
+  const mostRecentDecision = (source: GroupedUXIssue) => source.reviewedAt ??
+    source.decisionHistory.filter(record => ['review_disposition', 'accept', 'reject'].includes(record.action)).at(-1)?.timestamp ?? '';
+  const replacements = new Map<string, GroupedUXIssue | undefined>();
+  for (const [key, groups] of legacy) {
+    const group = rebuilt.get(key);
+    if (!group) continue;
+    const source = groups.slice().sort((a, b) => mostRecentDecision(b).localeCompare(mostRecentDecision(a)) ||
+      Number(Boolean(b.reviewDisposition || b.designerDecision)) - Number(Boolean(a.reviewDisposition || a.designerDecision)) ||
+      b.decisionHistory.length - a.decisionHistory.length)[0];
+    const history = new Map(groups.flatMap(item => item.decisionHistory).map(record => [record.id, record]));
+    replacements.set(groups[0].fingerprint, {
+      ...group,
+      ...source,
+      fingerprint: key,
+      representative: group.representative,
+      occurrences: group.occurrences,
+      rawOccurrencesCount: group.rawOccurrencesCount,
+      status: group.status,
+      hasMixedStatus: group.hasMixedStatus,
+      decisionHistory: [...history.values()].sort((a, b) => a.timestamp.localeCompare(b.timestamp)),
+    });
+    for (const duplicate of groups.slice(1)) replacements.set(duplicate.fingerprint, undefined);
+  }
+  const groupedIssues = run.groupedIssues.flatMap(group => {
+    if (!replacements.has(group.fingerprint)) return [group];
+    const replacement = replacements.get(group.fingerprint);
+    return replacement ? [replacement] : [];
+  });
+  return { ...run, groupedIssues, summary: calculateAuditSummary(run.rawIssues, groupedIssues) };
 }
 
 export function calculateAuditSummary(rawIssues: UXIssue[], groupedIssues: GroupedUXIssue[]): AuditSummary {

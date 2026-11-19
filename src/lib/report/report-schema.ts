@@ -97,6 +97,15 @@ export type ReportIterationComparison = z.infer<typeof ReportIterationComparison
 
 export const ReportGroupedIssueSchema = z.object({
   metric: PilotMetricMetadataSchema.optional(),
+  touchSpacing: z.object({
+    summary: z.string(),
+    byViewport: z.array(z.object({
+      viewport: ViewportSchema,
+      distance: z.number().nonnegative(),
+      overlap: z.boolean(),
+      needsReview: z.boolean(),
+    })),
+  }).optional(),
   fingerprint: z.string(),
   ruleId: z.string(),
   wcagCriterion: z.string(),

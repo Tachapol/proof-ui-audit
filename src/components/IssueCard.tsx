@@ -9,15 +9,17 @@ import { DecisionLog } from './DecisionLog';
 import { IterationProofView } from './IterationProofView';
 import { getDefaultRecommendation } from '@/lib/audit/recommendation';
 import { PRIORITY_METADATA, PRIORITY_DISCLAIMER } from '@/lib/audit/priority-engine';
+import { describeTouchTargetPair, touchTargetViewportEvidence } from '@/lib/audit/touch-target-pair';
 
 interface IssueCardProps {
   issue: GroupedUXIssue;
   runId: string;
   readOnly?: boolean;
   onDecisionSaved?: (updated: GroupedUXIssue) => void;
+  onShowPair?: (fingerprint: string) => void;
 }
 
-export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDecisionSaved }: IssueCardProps) {
+export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDecisionSaved, onShowPair }: IssueCardProps) {
   const [issue, setIssue] = useState<GroupedUXIssue>(initialIssue);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [customRecommendation, setCustomRecommendation] = useState<string>(
@@ -39,6 +41,7 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
   useEffect(() => { setIssue(initialIssue); }, [initialIssue]);
 
   const rep = issue.representative;
+  const pairSummary = describeTouchTargetPair(issue);
   const isPassedCheck = issue.status === 'pass';
   const canReview = !isPassedCheck && !readOnly;
   const aiResult = issue.aiExplanationResult || rep.aiExplanationResult;
@@ -208,7 +211,7 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
       {/* 1. Plain-Language Title */}
       <div className="issue-title-block" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
         <h3 style={{ fontSize: '17px', fontWeight: 600, color: 'var(--foreground)' }}>
-          {rep.title}
+          {rep.title}{pairSummary && ` · ${pairSummary}`}
         </h3>
         {issue.rawOccurrencesCount > 1 && (
           <span
@@ -248,6 +251,8 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
           {rep.metric && issue.status === 'pass' ? 'Project advisory checked' : statusConfig.label}
         </span>
 
+        {pairSummary && <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-semibold text-zinc-700">Project advisory</span>}
+
         <span
           title={`${PRIORITY_METADATA[issue.currentPriority]?.fullDescription || ''} (${PRIORITY_DISCLAIMER})`}
           style={{
@@ -263,9 +268,9 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
           {priorityConfig.label}
         </span>
 
-        <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
+        {!pairSummary && <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
           Viewport: {rep.viewport.width}px
-        </span>
+        </span>}
 
         {(issue.designerDecision || issue.reviewDisposition) && (
           <span
@@ -284,6 +289,23 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
           </span>
         )}
       </div>
+
+      {pairSummary && (
+        <div className="mt-3 space-y-2 text-sm text-zinc-700">
+          <ul aria-label="Pair measurements by viewport" className="space-y-1">
+            {touchTargetViewportEvidence(issue).map(({ viewport, distance, overlap, needsReview }) => (
+              <li key={`${viewport.width}×${viewport.height}`}>
+                {viewport.width}×{viewport.height} · {distance} CSS px · {needsReview ? 'Needs review' : 'Pass'}{overlap && ' · Overlap'}
+              </li>
+            ))}
+          </ul>
+          {onShowPair && (
+            <button type="button" className="rounded-md border border-zinc-200 px-3 text-xs font-semibold hover:bg-zinc-50 focus-visible:ring-2 focus-visible:ring-blue-600" onClick={() => onShowPair(issue.fingerprint)}>
+              Show pair on Visual Canvas
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Transparent Occurrence Inspection */}
       <div className="issue-occurrences">
@@ -337,7 +359,7 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
           Project advisory · v{rep.metric.metricVersion} · {rep.metric.unit} · Execution: {rep.metric.executionStatus} · Applicability: {rep.metric.applicability}. No automatic WCAG failure.
         </p>}
         <p style={{ fontSize: '14px', color: 'var(--foreground)', lineHeight: 1.6 }}>
-          {rep.description}
+          {pairSummary ? 'Review the gaps between these controls against the 8 CSS px project advisory.' : rep.description}
         </p>
         {rep.exception && (
           <p style={{ fontSize: '13px', color: 'var(--foreground-muted)', marginTop: '4px' }}>

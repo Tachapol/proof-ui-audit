@@ -43,7 +43,7 @@ export function AuditSummary({ summary, targetUrl, timestamp, runId, fixtureId }
 
   const metrics = [
     { label: 'Raw findings', value: summary.totalRawFindings, id: 'summary-raw-findings-count', tone: 'neutral' },
-    { label: 'Grouped issues', value: summary.totalGroupedIssues, tone: 'neutral' },
+    { label: 'Grouped results', value: summary.totalGroupedIssues, tone: 'neutral' },
     { label: 'Candidate fail', value: summary.candidateFailCount, tone: 'danger' },
     { label: 'Needs review', value: summary.needsReviewCount, tone: 'warning' },
     { label: 'Pass', value: summary.passCount, tone: 'success' },

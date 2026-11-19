@@ -2276,18 +2276,6 @@ body.canvas-drawer-resizing iframe {
   transform: scale(1.18);
 }
 
-.canvas-pin-marker.tone-danger {
-  background-color: #b42318;
-}
-
-.canvas-pin-marker.tone-warning {
-  background-color: #b54708;
-}
-
-.canvas-pin-marker.tone-success {
-  background-color: #067647;
-}
-
 .canvas-global-notice {
   display: flex;
   align-items: flex-start;

@@ -41,7 +41,7 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
     const summarySection = page.locator('.audit-summary');
     await expect(summarySection).toBeVisible();
     await expect(summarySection.locator('dt', { hasText: 'Raw findings' })).toBeVisible();
-    await expect(summarySection.locator('dt', { hasText: 'Grouped issues' })).toBeVisible();
+    await expect(summarySection.locator('dt', { hasText: 'Grouped results' })).toBeVisible();
     await expect(summarySection.locator('dt', { hasText: 'Pass' })).toBeVisible();
     await expect(summarySection.locator('dt', { hasText: 'Candidate fail' })).toBeVisible();
     await expect(summarySection.locator('dt', { hasText: 'Needs review' })).toBeVisible();
