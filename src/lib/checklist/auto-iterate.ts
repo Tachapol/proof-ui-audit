@@ -425,8 +425,12 @@ async function generatePatchWithLlm(
     prioritizedMetricIds
   );
 
-  // Focus on top 6 FAILING issues per iteration (do not auto-patch needsReview items)
-  const focusedIssues = worksheet.issues.filter((i) => i.status === 'fail').slice(0, 6);
+  // Focus on top 6 issues; include needsReview only when explicitly confirmed by designer
+  const focusedIssues = (
+    prioritizedMetricIds && prioritizedMetricIds.length > 0
+      ? worksheet.issues
+      : worksheet.issues.filter((i) => i.status === 'fail')
+  ).slice(0, 6);
   if (focusedIssues.length === 0) {
     const emptyPatch: ChecklistJsonPatch = { cssAdditions: [], attributePatches: [], notes: 'No failing issues to patch.' };
     return { html, patch: emptyPatch, mode: 'deterministic-fallback', notes: 'No failing metrics to patch.' };

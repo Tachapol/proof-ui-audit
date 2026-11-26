@@ -8,8 +8,8 @@ import {
 import type { UXIssue } from '@/lib/schema/ux-issue';
 import type { ChecklistJsonPatch } from '../types';
 
-describe('24-Metric UX/UI Checklist Aggregator & Patching', () => {
-  it('groups metrics into 6 pillars (12 UX + 12 UI) and orders priorityList P0 -> P3', () => {
+describe('36-Metric UX/UI Checklist Aggregator & Patching', () => {
+  it('groups metrics into 6 pillars (18 UX + 18 UI) and orders priorityList P0 -> P3', () => {
     const fakeIssues: UXIssue[] = [
       {
         id: 'issue-1',
@@ -66,12 +66,12 @@ describe('24-Metric UX/UI Checklist Aggregator & Patching', () => {
       },
     });
 
-    expect(summary.totalMetrics).toBe(23);
+    expect(summary.totalMetrics).toBe(35);
     expect(summary.totalNotApplicable).toBe(1);
-    expect(summary.ux.total).toBe(12);
-    expect(summary.ui.total).toBe(11);
+    expect(summary.ux.total).toBe(18);
+    expect(summary.ui.total).toBe(17);
     expect(summary.pillars).toHaveLength(6);
-    expect(summary.totalPassed).toBe(20);
+    expect(summary.totalPassed).toBe(32);
     expect(summary.priorityList.map((i) => i.id)).toEqual([
       'image-alt',
       'text-contrast',
