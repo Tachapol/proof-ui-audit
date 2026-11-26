@@ -1,3 +1,10 @@
+import type { Page } from '@playwright/test';
+
+export async function selectDebugFixture(page: Page, fixtureId: string) {
+  await page.locator('summary').filter({ hasText: 'Developer & Algorithm Debug Fixtures' }).click();
+  await page.locator('#fixture-select').selectOption(fixtureId);
+}
+
 export function makeUiAuditRun(overrides: Record<string, unknown> = {}) {
   const selector = '#content > main > section[data-purpose="an-intentionally-very-long-selector-value-for-responsive-containment"] > button:nth-child(12)';
   const issue = {

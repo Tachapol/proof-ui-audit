@@ -25,6 +25,12 @@ export function isElementExcluded(status: AuditStatus, exception?: string): bool
  */
 export function getDefaultRecommendation(params: RecommendationParams): string {
   const { ruleId, status, element, selector, exception } = params;
+  if (ruleId === 'touch-target-spacing') return status === 'pass'
+    ? 'Measured spacing meets the project 8 CSS px advisory. This does not establish WCAG conformance.'
+    : 'Review the nearest target pair and overlap in the current UI state. Consider more separation where appropriate; 8 CSS px is a project advisory, separate from the Target Size spacing alternative.';
+  if (ruleId === 'heading-hierarchy') return status === 'pass'
+    ? 'No deeper heading skip was measured in this transition. Confirm the surrounding component and document context.'
+    : 'Review DOM heading order and the component parent heading. A deeper skipped level needs contextual review; returning to a higher rank is allowed. This is not an automatic WCAG failure.';
 
   // 1. Excluded / Not Applicable elements
   if (isElementExcluded(status, exception)) {

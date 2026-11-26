@@ -1,38 +1,57 @@
+import { captureIssueEvidence } from './screenshot-evidence';
 import { chromium, Browser, Page, BrowserContext } from '@playwright/test';
 import path from 'path';
 import fs from 'fs/promises';
 import { TargetMeasurement, evaluateTargetSize, checkSpacingAlternative } from './rules/target-size';
 import { TextContrastMeasurement, evaluateTextContrast } from './rules/text-contrast';
 import { NonTextContrastMeasurement, evaluateNonTextContrast } from './rules/non-text-contrast';
-import { evaluateReflow } from './rules/reflow';
 import { evaluateTextSpacing } from './rules/text-spacing';
+import { evaluateReflow } from './rules/reflow';
+import { extractReflowMeasurement } from './reflow-extraction';
 import { compositeLayers, blendColors, applyElementOpacity, parseColor } from './color-math';
 import { isPrivateOrReservedIP } from './url-validator';
 import { UXIssue, Viewport } from '@/lib/schema/ux-issue';
+import { ProductContext } from '@/lib/schema/product-context';
+import type { PilotScope, PilotMetricResult } from '@/lib/schema/pilot-metric';
+import { extractPilotFromPage } from './pilot-browser';
+import { evaluateTouchTargetSpacing, evaluateHeadingHierarchy, unavailablePilotMetric, PILOT_METRIC_IDS } from './pilot-metrics';
 
 const SCREENSHOTS_DIR = path.resolve(process.cwd(), 'public/screenshots');
 
 export interface AuditOptions {
+  pilotScope?: PilotScope;
+  enablePilotMetrics?: boolean;
   url: string;
   viewports?: Viewport[];
   timeoutMs?: number;
   captureScreenshots?: boolean;
+  captureIssueScreenshots?: boolean;
+  localOrigin?: string;
 }
 
 export const DEFAULT_AUDIT_VIEWPORTS: Viewport[] = [
+  { width: 1440, height: 900 },  // Desktop (Default)
   { width: 375, height: 667 },   // Mobile
-  { width: 1440, height: 900 },  // Desktop
-  { width: 320, height: 667 },   // Reflow & Small Viewport (Item A.4)
+  { width: 320, height: 640 },   // Reflow boundary; evaluate Reflow only at this width.
 ];
 
 async function ensureScreenshotDir() {
   await fs.mkdir(SCREENSHOTS_DIR, { recursive: true });
 }
 
-export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: UXIssue[]; errors: string[] }> {
+export async function runBrowserAudit(options: AuditOptions): Promise<{
+  issues: UXIssue[];
+  errors: string[];
+  pageScreenshots: Array<{ width: number; height: number; path: string }>;
+  detectedContext?: Partial<ProductContext>;
+  metricResults: PilotMetricResult[];
+}> {
   await ensureScreenshotDir();
   const issues: UXIssue[] = [];
   const errors: string[] = [];
+  const metricResults: PilotMetricResult[] = [];
+  const pageScreenshots: Array<{ width: number; height: number; path: string }> = [];
+  let detectedContext: Partial<ProductContext> | undefined = undefined;
   const viewports = options.viewports || DEFAULT_AUDIT_VIEWPORTS;
   const timeout = options.timeoutMs || 25000;
 
@@ -52,8 +71,10 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
         context = await browser.newContext({
           viewport: { width: viewport.width, height: viewport.height },
           deviceScaleFactor: 1,
+          serviceWorkers: 'block',
         });
 
+        await context.routeWebSocket('**', socket => socket.close());
         page = await context.newPage();
         page.setDefaultTimeout(timeout);
 
@@ -66,13 +87,28 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
           try {
             const parsed = new URL(reqUrl);
             const host = parsed.hostname.toLowerCase();
+            const optionsUrl = new URL(options.url);
+            const isLocalHost = (h: string) => h === 'localhost' || h === '127.0.0.1' || h === '[::1]';
+            const isFixtureOrigin =
+              parsed.origin === optionsUrl.origin ||
+              (options.localOrigin && parsed.origin === options.localOrigin) ||
+              (isLocalHost(host) && isLocalHost(optionsUrl.hostname) && parsed.port === optionsUrl.port);
+
+            // Block any audited page (sandbox snippet or external site) from accessing internal application APIs
+            if (parsed.pathname.startsWith('/api/')) {
+              const isInitialNavigation = route.request().isNavigationRequest() && reqUrl === options.url;
+              if (!isInitialNavigation) {
+                return route.abort('blockedbyclient');
+              }
+            }
 
             // Allow local fixture endpoints if navigated from test server
             const isFixtureRequest =
-              (host === 'localhost' || host === '127.0.0.1') &&
-              (parsed.pathname.startsWith('/fixtures/') || parsed.pathname.startsWith('/_next/'));
+              optionsUrl.pathname.startsWith('/fixtures/') &&
+              isFixtureOrigin &&
+              (parsed.pathname.startsWith('/fixtures/') || parsed.pathname.startsWith('/_next/') || parsed.pathname === '/favicon.ico');
 
-            if (!isFixtureRequest) {
+            if (!isFixtureRequest && parsed.origin !== options.localOrigin) {
               if (host === 'localhost' || host.endsWith('.localhost') || isPrivateOrReservedIP(host)) {
                 ssrfViolation = `Blocked SSRF target: ${host}`;
                 return route.abort('blockedbyclient');
@@ -92,11 +128,16 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
               try {
                 const targetUrl = new URL(location, res.url());
                 const targetHost = targetUrl.hostname.toLowerCase();
+                const optionsUrl = new URL(options.url);
+                const isLocalHost = (h: string) => h === 'localhost' || h === '127.0.0.1' || h === '[::1]';
                 const isFixtureLocation =
-                  (targetHost === 'localhost' || targetHost === '127.0.0.1') &&
+                  optionsUrl.pathname.startsWith('/fixtures/') &&
+                  (targetUrl.origin === optionsUrl.origin ||
+                    (options.localOrigin && targetUrl.origin === options.localOrigin) ||
+                    (isLocalHost(targetHost) && isLocalHost(optionsUrl.hostname) && targetUrl.port === optionsUrl.port)) &&
                   targetUrl.pathname.startsWith('/fixtures/');
 
-                if (!isFixtureLocation) {
+                if (!isFixtureLocation && targetUrl.origin !== options.localOrigin) {
                   if (targetHost === 'localhost' || targetHost.endsWith('.localhost') || isPrivateOrReservedIP(targetHost)) {
                     ssrfViolation = `Redirected to disallowed private address: ${targetHost}`;
                   }
@@ -125,26 +166,107 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
 
         await page.waitForTimeout(300);
 
-        // Helper to capture screenshots safely
-        const captureIssueScreenshot = async (issue: UXIssue) => {
-          if (issue.status === 'pass' || options.captureScreenshots === false || !issue.boundingBox) return;
+        if (viewport.width === 320) {
           try {
-            const filename = `issue-${viewport.width}-${issue.id}.png`;
-            const filepath = path.join(SCREENSHOTS_DIR, filename);
-            const clip = {
-              x: Math.max(0, issue.boundingBox.x - 12),
-              y: Math.max(0, issue.boundingBox.y - 12),
-              width: Math.min(viewport.width, issue.boundingBox.width + 24),
-              height: Math.min(viewport.height, issue.boundingBox.height + 24),
-            };
-            if (clip.width > 0 && clip.height > 0) {
-              await page!.screenshot({ path: filepath, clip });
-              issue.screenshotPath = `/screenshots/${filename}`;
-            }
-          } catch {
-            // non-fatal screenshot error
+            const measurement = await page.evaluate(extractReflowMeasurement, { viewport, selector: options.pilotScope?.selector });
+            issues.push(...evaluateReflow(measurement, options.url));
+          } catch (error) {
+            errors.push(`Reflow extraction at 320px failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
           }
-        };
+        }
+
+        // Pilot metrics share one immutable snapshot, before text-spacing overrides.
+        if (options.enablePilotMetrics !== false) {
+          try {
+            const snapshot = await extractPilotFromPage(page, options.pilotScope);
+            for (const evaluate of [evaluateTouchTargetSpacing, evaluateHeadingHierarchy]) {
+              const evaluation = evaluate(snapshot, options.url, viewport);
+              metricResults.push(evaluation.result);
+              issues.push(...evaluation.issues);
+            }
+          } catch (err) {
+            const message = err instanceof Error ? err.message : 'Pilot extraction failed.';
+            for (const id of PILOT_METRIC_IDS) {
+              if (!metricResults.some(r => r.metricId === id && r.viewport.width === viewport.width && r.viewport.height === viewport.height)) {
+                metricResults.push(unavailablePilotMetric(id, options.url, viewport, 'error', message, options.pilotScope?.selector));
+              }
+            }
+            errors.push(`Pilot metrics at ${viewport.width}px: ${message}`);
+          }
+        }
+
+        if (!detectedContext) {
+          try {
+            detectedContext = await page.evaluate(() => {
+              const getMeta = (selectors: string[]) => {
+                for (const sel of selectors) {
+                  const el = document.querySelector(sel);
+                  if (el) {
+                    const content = el.getAttribute('content');
+                    if (content && content.trim()) return content.trim();
+                  }
+                }
+                return '';
+              };
+
+              const title = (document.title || '').trim();
+              const description = getMeta([
+                'meta[name="description"]',
+                'meta[property="og:description"]',
+                'meta[name="twitter:description"]',
+              ]);
+              const siteName = getMeta([
+                'meta[property="og:site_name"]',
+                'meta[name="application-name"]',
+              ]);
+              const rawKeywords = getMeta(['meta[name="keywords"]']);
+              const themeColor = getMeta([
+                'meta[name="theme-color"]',
+                'meta[name="msapplication-TileColor"]',
+              ]);
+
+              const lang = document.documentElement.lang || 'en';
+
+              const productGoal = description
+                ? (title ? `${title}: ${description}` : description).slice(0, 1000)
+                : (title ? title.slice(0, 1000) : '');
+
+              const brandKeywords = [siteName, rawKeywords].filter(Boolean).join(', ').slice(0, 300);
+
+              let validThemeColor = '';
+              if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(themeColor)) {
+                validThemeColor = themeColor;
+              }
+
+              const targetAudience = lang && lang !== 'en'
+                ? `Web users (${lang})`
+                : 'General web audience';
+
+              return {
+                productGoal,
+                brandKeywords,
+                themeColor: validThemeColor,
+                targetAudience,
+                additionalContext: 'Auto-detected from page metadata during audit.',
+              };
+            });
+          } catch {
+            // non-fatal metadata extraction
+          }
+        }
+
+        if (options.captureScreenshots !== false) {
+          const filename = `page-${viewport.width}-${crypto.randomUUID()}.png`;
+          await page.screenshot({path:path.join(SCREENSHOTS_DIR,filename),fullPage:false});
+          pageScreenshots.push({width:viewport.width,height:viewport.height,path:`/screenshots/${filename}`});
+        }
+
+        const captureIssueScreenshot = (issue: UXIssue) =>
+          captureIssueEvidence(page!, issue, SCREENSHOTS_DIR, options.captureScreenshots !== false && options.captureIssueScreenshots !== false);
+
+        for (const issue of issues.filter(issue => (issue.metric || issue.ruleId === 'reflow') && issue.viewport.width === viewport.width && issue.viewport.height === viewport.height)) {
+          await captureIssueScreenshot(issue);
+        }
 
         // 1. Measure Target Size candidates
         const rawTargets: TargetMeasurement[] = await page.evaluate(() => {
@@ -469,247 +591,7 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
           issues.push(issue);
         }
 
-        // 4. Measure Reflow candidates (executed specifically on 320px viewport)
-        if (viewport.width === 320) {
-          const reflowData = await page.evaluate(() => {
-            const docEl = document.documentElement;
-            const scrollW = docEl.scrollWidth;
-            const clientW = docEl.clientWidth;
-            const overflow = Math.max(0, scrollW - clientW);
-
-            function isDecorative(el: Element): boolean {
-              if (
-                el.getAttribute('aria-hidden') === 'true' ||
-                el.getAttribute('role') === 'presentation' ||
-                el.getAttribute('role') === 'none' ||
-                el.getAttribute('data-decorative') === 'true' ||
-                el.closest('[data-decorative="true"]') !== null
-              ) {
-                return true;
-              }
-              if (el.tagName.toLowerCase() === 'svg' && !el.getAttribute('aria-label') && !el.textContent?.trim()) {
-                return true;
-              }
-              return false;
-            }
-
-            function getSelector(el: Element): string {
-              if (el.id) return `#${el.id}`;
-              let sel = el.tagName.toLowerCase();
-              if (el.className && typeof el.className === 'string') {
-                const cls = el.className.trim().split(/\s+/).filter(Boolean).slice(0, 2).join('.');
-                if (cls) sel += `.${cls}`;
-              }
-              return sel;
-            }
-
-            const allEls = Array.from(document.querySelectorAll('body *'));
-            const offenders: any[] = [];
-            let decorativeExcludedCount = 0;
-
-            // 1. Document-level horizontal overflow offenders
-            for (const el of allEls) {
-              const rect = el.getBoundingClientRect();
-              const style = window.getComputedStyle(el);
-
-              if (
-                style.display === 'none' ||
-                style.visibility === 'hidden' ||
-                rect.width === 0 ||
-                rect.height === 0
-              ) {
-                continue;
-              }
-
-              if (isDecorative(el)) {
-                if (rect.right > clientW + 1.0) decorativeExcludedCount++;
-                continue;
-              }
-
-              if (rect.right > clientW + 1.0) {
-                const isEssential =
-                  el.getAttribute('data-essential-2d') === 'true' ||
-                  el.tagName.toLowerCase() === 'table' ||
-                  el.getAttribute('role') === 'table' ||
-                  el.closest('[data-essential-2d="true"]') !== null;
-
-                offenders.push({
-                  elementNode: el,
-                  selector: getSelector(el),
-                  element: el.tagName.toLowerCase(),
-                  role: el.getAttribute('role') || undefined,
-                  accessibleName: el.getAttribute('aria-label') || undefined,
-                  boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-                  computedStyles: {
-                    overflowX: style.overflowX,
-                    overflowY: style.overflowY,
-                    position: style.position,
-                    display: style.display,
-                    width: style.width,
-                    maxWidth: style.maxWidth,
-                  },
-                  isEssential2D: isEssential,
-                });
-              }
-            }
-
-            // Prioritize explicit ID first so designated component IDs are chosen over anonymous wrappers or leaf text nodes
-            const prioritizedOffenders = offenders.slice().sort((a, b) => {
-              const aId = a.selector.startsWith('#') ? 1 : 0;
-              const bId = b.selector.startsWith('#') ? 1 : 0;
-              if (bId !== aId) return bId - aId;
-              if (a.elementNode.contains(b.elementNode)) return 1;
-              if (b.elementNode.contains(a.elementNode)) return -1;
-              const aRight = a.boundingBox.x + a.boundingBox.width;
-              const bRight = b.boundingBox.x + b.boundingBox.width;
-              return bRight - aRight;
-            });
-
-            // 2. Nested horizontal scroll containers
-            const nestedContainers: any[] = [];
-            for (const el of allEls) {
-              const style = window.getComputedStyle(el);
-              if (style.display === 'none' || style.visibility === 'hidden' || isDecorative(el)) continue;
-
-              const isScrollX = style.overflowX === 'scroll' || style.overflowX === 'auto';
-              if (isScrollX && el.scrollWidth > el.clientWidth + 1.0) {
-                const rect = el.getBoundingClientRect();
-                const isEssential =
-                  el.getAttribute('data-essential-2d') === 'true' ||
-                  el.tagName.toLowerCase() === 'table' ||
-                  el.getAttribute('role') === 'table' ||
-                  el.closest('[data-essential-2d="true"]') !== null ||
-                  el.querySelector('table, [role="table"], [data-essential-2d="true"], canvas, video') !== null;
-
-                nestedContainers.push({
-                  selector: getSelector(el),
-                  element: el.tagName.toLowerCase(),
-                  role: el.getAttribute('role') || undefined,
-                  accessibleName: el.getAttribute('aria-label') || undefined,
-                  scrollWidth: el.scrollWidth,
-                  clientWidth: el.clientWidth,
-                  overflowPx: Math.round(el.scrollWidth - el.clientWidth),
-                  isEssential2D: isEssential,
-                  computedStyles: {
-                    overflowX: style.overflowX,
-                    overflowY: style.overflowY,
-                    position: style.position,
-                    display: style.display,
-                  },
-                  boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-                });
-              }
-            }
-
-            // 3. Significant content clipped by ancestor (overflow that does not increase document.scrollWidth)
-            const ancestorClipped: any[] = [];
-            for (const el of allEls) {
-              const style = window.getComputedStyle(el);
-              if (style.display === 'none' || style.visibility === 'hidden' || isDecorative(el)) continue;
-
-              const isClippedX = style.overflowX === 'hidden' || style.overflowX === 'clip';
-              if (isClippedX && el.scrollWidth > el.clientWidth + 1.0) {
-                const rect = el.getBoundingClientRect();
-                const child = Array.from(el.children).find(
-                  (c) => !isDecorative(c) && (c.scrollWidth > el.clientWidth || c.getBoundingClientRect().right > rect.right + 1.0)
-                );
-                // Exclude if all overflowing children are decorative
-                if (!child) continue;
-
-                const targetSel = getSelector(child);
-                const deficit = Math.round(el.scrollWidth - el.clientWidth);
-
-                ancestorClipped.push({
-                  selector: targetSel,
-                  ancestorSelector: getSelector(el),
-                  element: child.tagName.toLowerCase(),
-                  scrollWidth: el.scrollWidth,
-                  clientWidth: el.clientWidth,
-                  clipDeficitPx: deficit,
-                  computedStyles: {
-                    overflowX: style.overflowX,
-                    overflowY: style.overflowY,
-                  },
-                  boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-                });
-              }
-            }
-
-            // 4. Interactive controls positioned outside visible or clipping area
-            const clippedControls: any[] = [];
-            const interactiveEls = Array.from(
-              document.querySelectorAll('button, a[href], input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"])')
-            );
-            for (const ctrl of interactiveEls) {
-              const rect = ctrl.getBoundingClientRect();
-              const style = window.getComputedStyle(ctrl);
-              if (style.display === 'none' || style.visibility === 'hidden' || isDecorative(ctrl)) continue;
-
-              if (rect.right > clientW + 1.0 || rect.left < -1.0) {
-                const deficit = Math.max(0, rect.right - clientW, -rect.left);
-                clippedControls.push({
-                  selector: getSelector(ctrl),
-                  element: ctrl.tagName.toLowerCase(),
-                  role: ctrl.getAttribute('role') || ctrl.tagName.toLowerCase(),
-                  accessibleName: ctrl.getAttribute('aria-label') || (ctrl.textContent || '').trim().slice(0, 30) || undefined,
-                  violation: 'outside-viewport',
-                  clipDeficitPx: Math.round(deficit),
-                  boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-                });
-                continue;
-              }
-
-              let parent = ctrl.parentElement;
-              while (parent && parent !== document.body) {
-                const pStyle = window.getComputedStyle(parent);
-                if (pStyle.overflowX === 'hidden' || pStyle.overflowX === 'clip' || pStyle.overflow === 'hidden') {
-                  const pRect = parent.getBoundingClientRect();
-                  if (rect.right > pRect.right + 1.0 || rect.left < pRect.left - 1.0 || rect.bottom > pRect.bottom + 1.0) {
-                    const deficit = Math.max(0, rect.right - pRect.right, pRect.left - rect.left, rect.bottom - pRect.bottom);
-                    clippedControls.push({
-                      selector: getSelector(ctrl),
-                      element: ctrl.tagName.toLowerCase(),
-                      role: ctrl.getAttribute('role') || ctrl.tagName.toLowerCase(),
-                      accessibleName: ctrl.getAttribute('aria-label') || (ctrl.textContent || '').trim().slice(0, 30) || undefined,
-                      violation: 'outside-clipping-ancestor',
-                      clipDeficitPx: Math.round(deficit),
-                      boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-                    });
-                    break;
-                  }
-                }
-                parent = parent.parentElement;
-              }
-            }
-
-            return {
-              scrollWidth: scrollW,
-              clientWidth: clientW,
-              horizontalOverflowPx: overflow,
-              hasDocumentHorizontalScroll: overflow > 1.0,
-              overflowingElements: prioritizedOffenders.map(({ elementNode, ...rest }: any) => rest),
-              nestedScrollContainers: nestedContainers,
-              ancestorClippedElements: ancestorClipped,
-              clippedControls,
-              decorativeElementsExcludedCount: decorativeExcludedCount,
-            };
-          });
-
-          const reflowIssues = evaluateReflow(
-            {
-              viewport: { width: viewport.width, height: viewport.height },
-              ...reflowData,
-            },
-            options.url
-          );
-
-          for (const issue of reflowIssues) {
-            await captureIssueScreenshot(issue);
-            issues.push(issue);
-          }
-        }
-
-        // 5. Measure Text Spacing candidates (capture baseline, apply minimum-preserving override, capture candidate, restore)
+        // 4. Measure Text Spacing candidates (capture baseline, apply minimum-preserving override, capture candidate, restore)
         try {
           const baselineData = await page.evaluate(() => {
             const targets = Array.from(
@@ -966,5 +848,14 @@ export async function runBrowserAudit(options: AuditOptions): Promise<{ issues: 
     }
   }
 
-  return { issues, errors };
+  for (const viewport of viewports) {
+    for (const id of PILOT_METRIC_IDS) {
+      if (!metricResults.some(r => r.metricId === id && r.viewport.width === viewport.width && r.viewport.height === viewport.height)) {
+        metricResults.push(unavailablePilotMetric(id, options.url, viewport,
+          options.enablePilotMetrics === false ? 'skipped' : 'error',
+          options.enablePilotMetrics === false ? 'Pilot metrics excluded from this audit scope.' : 'Browser or navigation failed before pilot extraction.', options.pilotScope?.selector));
+      }
+    }
+  }
+  return { issues, errors, pageScreenshots, detectedContext, metricResults };
 }

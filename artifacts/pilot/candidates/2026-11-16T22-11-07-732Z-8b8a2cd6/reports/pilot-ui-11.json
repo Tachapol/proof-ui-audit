@@ -1,0 +1,2232 @@
+{
+  "schemaVersion": "1.0.0",
+  "exportTimestamp": "2026-11-16T22:12:32.351Z",
+  "audit": {
+    "metricResults": [
+      {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "skipped",
+        "applicability": "not_applicable",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-11",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+        "measurements": [
+          {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)",
+              "element": "button",
+              "accessibleName": "Browse courses",
+              "boundingBox": {
+                "x": 32,
+                "y": 322.859375,
+                "width": 145.828125,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)"
+            },
+            "nearestTarget": null,
+            "distance": null,
+            "overlap": null,
+            "overlapArea": null,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "skipped",
+        "applicability": "unknown",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-11",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+        "measurements": [
+          {
+            "selector": "#catalog-title",
+            "element": "h2",
+            "accessibleName": "Course catalog",
+            "boundingBox": {
+              "x": 32,
+              "y": 232.859375,
+              "width": 256,
+              "height": 42
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 0,
+            "previousHeading": null,
+            "skippedLevels": null,
+            "boundaryContextKnown": false,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "skipped",
+        "applicability": "not_applicable",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-11",
+        "viewport": {
+          "width": 375,
+          "height": 812
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+        "measurements": [
+          {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)",
+              "element": "button",
+              "accessibleName": "Browse courses",
+              "boundingBox": {
+                "x": 32,
+                "y": 277.171875,
+                "width": 145.828125,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)"
+            },
+            "nearestTarget": null,
+            "distance": null,
+            "overlap": null,
+            "overlapArea": null,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "skipped",
+        "applicability": "unknown",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-11",
+        "viewport": {
+          "width": 375,
+          "height": 812
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+        "measurements": [
+          {
+            "selector": "#catalog-title",
+            "element": "h2",
+            "accessibleName": "Course catalog",
+            "boundingBox": {
+              "x": 32,
+              "y": 211.171875,
+              "width": 311,
+              "height": 42
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 0,
+            "previousHeading": null,
+            "skippedLevels": null,
+            "boundaryContextKnown": false,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "skipped",
+        "applicability": "not_applicable",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-11",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+        "measurements": [
+          {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)",
+              "element": "button",
+              "accessibleName": "Browse courses",
+              "boundingBox": {
+                "x": 32,
+                "y": 224.484375,
+                "width": 145.828125,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)"
+            },
+            "nearestTarget": null,
+            "distance": null,
+            "overlap": null,
+            "overlapArea": null,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "skipped",
+        "applicability": "unknown",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-11",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+        "measurements": [
+          {
+            "selector": "#catalog-title",
+            "element": "h2",
+            "accessibleName": "Course catalog",
+            "boundingBox": {
+              "x": 32,
+              "y": 158.484375,
+              "width": 1376,
+              "height": 42
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 0,
+            "previousHeading": null,
+            "skippedLevels": null,
+            "boundaryContextKnown": false,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      }
+    ],
+    "runId": "pilot-pilot-ui-11-a664982e-3f73-44ec-9dd1-84dd7554e0a0",
+    "timestamp": "2026-11-16T22:12:32.339Z",
+    "targetUrl": "http://localhost:3123/fixtures/pilot-ui-11",
+    "fixtureId": "pilot-ui-11",
+    "viewports": [
+      {
+        "width": 320,
+        "height": 640
+      },
+      {
+        "width": 375,
+        "height": 812
+      },
+      {
+        "width": 1440,
+        "height": 900
+      }
+    ]
+  },
+  "summary": {
+    "rawFindingCount": 22,
+    "groupedIssueCount": 8,
+    "passCount": 8,
+    "candidateFailCount": 0,
+    "needsReviewCount": 0,
+    "priorityCounts": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 0,
+      "P3": 8
+    }
+  },
+  "disclaimers": [
+    "Only five selected WCAG-informed criteria were tested (Text Contrast, Non-text Contrast, Target Size, Reflow, Text Spacing).",
+    "Automated results do not establish complete WCAG conformance.",
+    "'candidateFail' is an automated candidate issue and requires human verification.",
+    "'needsReview' requires human interpretation and design context validation.",
+    "P0–P3 is a project heuristic and not a severity scale defined by WCAG.",
+    "AI-generated explanations and recommendations are advisory decision-support only.",
+    "The UX/UI designer retains authority and makes the final decision on all items.",
+    "Touch Target Spacing and Heading Hierarchy are additional pilot project advisories. A gap below 8 CSS px or a heading-level skip is not an automatic WCAG failure. Metric execution and applicability are separate from findings."
+  ],
+  "limitations": [
+    "Default audit viewports are 1440px, 375px and 320px. Reflow is evaluated at 320 CSS px; explicitly restricted audits may use other viewport sets.",
+    "Dynamic interactive animations, single-page application route transitions, and authenticated states are excluded from automated auditing.",
+    "Text and elements over complex canvas, dynamic video, or multi-layered CSS blend modes require manual designer review."
+  ],
+  "groupedIssues": [
+    {
+      "fingerprint": "reflow::#fixture-content::scroll-288-overflow-0",
+      "ruleId": "reflow",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+      "status": "pass",
+      "title": "Content reflows without 2D scrolling at 320px",
+      "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px.",
+      "occurrenceCount": 1,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        }
+      ],
+      "selector": "#fixture-content",
+      "element": "html",
+      "measured": {
+        "scrollWidth": 288,
+        "clientWidth": 288,
+        "horizontalOverflowPx": 0,
+        "overflowingElementsCount": 0,
+        "metricVersion": "1.1.0",
+        "unit": "CSS px",
+        "scopeSelector": "#fixture-content",
+        "rawHorizontalOverflowPx": 0,
+        "rawDocumentScrollWidth": 320,
+        "rawDocumentClientWidth": 320,
+        "rawScopeScrollWidth": 288,
+        "decorativeElementsExcludedCount": 0
+      },
+      "expected": {
+        "maxOverflowPx": 1,
+        "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 216.859375,
+        "width": 288,
+        "height": 166
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "reflow-664893854",
+          "ruleId": "reflow",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+          "status": "pass",
+          "title": "Content reflows without 2D scrolling at 320px",
+          "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#fixture-content",
+          "element": "html",
+          "measured": {
+            "scrollWidth": 288,
+            "clientWidth": 288,
+            "horizontalOverflowPx": 0,
+            "overflowingElementsCount": 0,
+            "metricVersion": "1.1.0",
+            "unit": "CSS px",
+            "scopeSelector": "#fixture-content",
+            "rawHorizontalOverflowPx": 0,
+            "rawDocumentScrollWidth": 320,
+            "rawDocumentClientWidth": 320,
+            "rawScopeScrollWidth": 288,
+            "decorativeElementsExcludedCount": 0
+          },
+          "expected": {
+            "maxOverflowPx": 1,
+            "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 216.859375,
+            "width": 288,
+            "height": 166
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "target-size::button::146x44",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (145.8×44 px)",
+      "description": "The interactive target \"Browse courses\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 145.8×44 px.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Browse courses",
+      "measured": {
+        "width": 145.8,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 323,
+        "width": 145.8,
+        "height": 44
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "target-size-2016453536",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (145.8×44 px)",
+          "description": "The interactive target \"Browse courses\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 145.8×44 px.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Browse courses",
+          "measured": {
+            "width": 145.8,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 323,
+            "width": 145.8,
+            "height": 44
+          }
+        },
+        {
+          "id": "target-size-2016453536",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (145.8×44 px)",
+          "description": "The interactive target \"Browse courses\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 145.8×44 px.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Browse courses",
+          "measured": {
+            "width": 145.8,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 277,
+            "width": 145.8,
+            "height": 44
+          }
+        },
+        {
+          "id": "target-size-2016453536",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (145.8×44 px)",
+          "description": "The interactive target \"Browse courses\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 145.8×44 px.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Browse courses",
+          "measured": {
+            "width": 145.8,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 224,
+            "width": 145.8,
+            "height": 44
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::span::ratio-5.4",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-1339098563",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          }
+        },
+        {
+          "id": "text-contrast-1339098563",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          }
+        },
+        {
+          "id": "text-contrast-1339098563",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::h1::ratio-15.4",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-11: Course Catalog (Muted Heading)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-11: Course Catalog (Muted Heading)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 288,
+        "height": 62
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-1919708391",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-11: Course Catalog (Muted Heading)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-11: Course Catalog (Muted Heading)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 288,
+            "height": 62
+          }
+        },
+        {
+          "id": "text-contrast-1919708391",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-11: Course Catalog (Muted Heading)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-11: Course Catalog (Muted Heading)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 343,
+            "height": 62
+          }
+        },
+        {
+          "id": "text-contrast-1919708391",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-11: Course Catalog (Muted Heading)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-11: Course Catalog (Muted Heading)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 1408,
+            "height": 31
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::p::ratio-5.4",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Large heading text with 3.5:1 contrast a\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Large heading text with 3.5:1 contrast against whi",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 288,
+        "height": 65.0625
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-1985710625",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Large heading text with 3.5:1 contrast a\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Large heading text with 3.5:1 contrast against whi",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 110.796875,
+            "width": 288,
+            "height": 65.0625
+          }
+        },
+        {
+          "id": "text-contrast-1985710625",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Large heading text with 3.5:1 contrast a\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Large heading text with 3.5:1 contrast against whi",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 110.796875,
+            "width": 343,
+            "height": 43.375
+          }
+        },
+        {
+          "id": "text-contrast-1985710625",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Large heading text with 3.5:1 contrast a\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Large heading text with 3.5:1 contrast against whi",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 79.796875,
+            "width": 1408,
+            "height": 21.6875
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::#catalog-title::ratio-3.5",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (3.54:1)",
+      "description": "The text \"Course catalog\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 3.54:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 3.54:1 satisfies the required 3:1 threshold for large text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#catalog-title",
+      "element": "h2",
+      "accessibleName": "Course catalog",
+      "measured": {
+        "contrastRatio": 3.54,
+        "fontSizePx": 28,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(136, 136, 136)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 232.859375,
+        "width": 256,
+        "height": 42
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-1031604191",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (3.54:1)",
+          "description": "The text \"Course catalog\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 3.54:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#catalog-title",
+          "element": "h2",
+          "accessibleName": "Course catalog",
+          "measured": {
+            "contrastRatio": 3.54,
+            "fontSizePx": 28,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(136, 136, 136)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 232.859375,
+            "width": 256,
+            "height": 42
+          }
+        },
+        {
+          "id": "text-contrast-1031604191",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (3.54:1)",
+          "description": "The text \"Course catalog\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 3.54:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#catalog-title",
+          "element": "h2",
+          "accessibleName": "Course catalog",
+          "measured": {
+            "contrastRatio": 3.54,
+            "fontSizePx": 28,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(136, 136, 136)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 211.171875,
+            "width": 311,
+            "height": 42
+          }
+        },
+        {
+          "id": "text-contrast-1031604191",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (3.54:1)",
+          "description": "The text \"Course catalog\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 3.54:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#catalog-title",
+          "element": "h2",
+          "accessibleName": "Course catalog",
+          "measured": {
+            "contrastRatio": 3.54,
+            "fontSizePx": 28,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(136, 136, 136)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 158.484375,
+            "width": 1376,
+            "height": 42
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::p::ratio-17.7",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Explore available courses for this term.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Explore available courses for this term.",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 274.859375,
+        "width": 256,
+        "height": 48
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-727909306",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Explore available courses for this term.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Explore available courses for this term.",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 274.859375,
+            "width": 256,
+            "height": 48
+          }
+        },
+        {
+          "id": "text-contrast-727909306",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Explore available courses for this term.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Explore available courses for this term.",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 253.171875,
+            "width": 311,
+            "height": 24
+          }
+        },
+        {
+          "id": "text-contrast-727909306",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Explore available courses for this term.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Explore available courses for this term.",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 200.484375,
+            "width": 1376,
+            "height": 24
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::button::ratio-8.7",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Browse courses\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Browse courses",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 322.859375,
+        "width": 145.828125,
+        "height": 44
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-2059645000",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Browse courses\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Browse courses",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 322.859375,
+            "width": 145.828125,
+            "height": 44
+          }
+        },
+        {
+          "id": "text-contrast-2059645000",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Browse courses\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Browse courses",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 277.171875,
+            "width": 145.828125,
+            "height": 44
+          }
+        },
+        {
+          "id": "text-contrast-2059645000",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Browse courses\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Browse courses",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 224.484375,
+            "width": 145.828125,
+            "height": 44
+          }
+        }
+      ]
+    }
+  ],
+  "rawOccurrences": [
+    {
+      "id": "reflow-664893854",
+      "ruleId": "reflow",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+      "status": "pass",
+      "title": "Content reflows without 2D scrolling at 320px",
+      "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#fixture-content",
+      "element": "html",
+      "measured": {
+        "scrollWidth": 288,
+        "clientWidth": 288,
+        "horizontalOverflowPx": 0,
+        "overflowingElementsCount": 0,
+        "metricVersion": "1.1.0",
+        "unit": "CSS px",
+        "scopeSelector": "#fixture-content",
+        "rawHorizontalOverflowPx": 0,
+        "rawDocumentScrollWidth": 320,
+        "rawDocumentClientWidth": 320,
+        "rawScopeScrollWidth": 288,
+        "decorativeElementsExcludedCount": 0
+      },
+      "expected": {
+        "maxOverflowPx": 1,
+        "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 216.859375,
+        "width": 288,
+        "height": 166
+      }
+    },
+    {
+      "id": "target-size-2016453536",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (145.8×44 px)",
+      "description": "The interactive target \"Browse courses\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 145.8×44 px.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Browse courses",
+      "measured": {
+        "width": 145.8,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 323,
+        "width": 145.8,
+        "height": 44
+      }
+    },
+    {
+      "id": "text-contrast-1339098563",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      }
+    },
+    {
+      "id": "text-contrast-1919708391",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-11: Course Catalog (Muted Heading)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-11: Course Catalog (Muted Heading)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 288,
+        "height": 62
+      }
+    },
+    {
+      "id": "text-contrast-1985710625",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Large heading text with 3.5:1 contrast a\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Large heading text with 3.5:1 contrast against whi",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 288,
+        "height": 65.0625
+      }
+    },
+    {
+      "id": "text-contrast-1031604191",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (3.54:1)",
+      "description": "The text \"Course catalog\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 3.54:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#catalog-title",
+      "element": "h2",
+      "accessibleName": "Course catalog",
+      "measured": {
+        "contrastRatio": 3.54,
+        "fontSizePx": 28,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(136, 136, 136)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 232.859375,
+        "width": 256,
+        "height": 42
+      }
+    },
+    {
+      "id": "text-contrast-727909306",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Explore available courses for this term.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Explore available courses for this term.",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 274.859375,
+        "width": 256,
+        "height": 48
+      }
+    },
+    {
+      "id": "text-contrast-2059645000",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Browse courses\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Browse courses",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 322.859375,
+        "width": 145.828125,
+        "height": 44
+      }
+    },
+    {
+      "id": "target-size-2016453536",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (145.8×44 px)",
+      "description": "The interactive target \"Browse courses\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 145.8×44 px.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Browse courses",
+      "measured": {
+        "width": 145.8,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 277,
+        "width": 145.8,
+        "height": 44
+      }
+    },
+    {
+      "id": "text-contrast-1339098563",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      }
+    },
+    {
+      "id": "text-contrast-1919708391",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-11: Course Catalog (Muted Heading)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-11: Course Catalog (Muted Heading)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 343,
+        "height": 62
+      }
+    },
+    {
+      "id": "text-contrast-1985710625",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Large heading text with 3.5:1 contrast a\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Large heading text with 3.5:1 contrast against whi",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 343,
+        "height": 43.375
+      }
+    },
+    {
+      "id": "text-contrast-1031604191",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (3.54:1)",
+      "description": "The text \"Course catalog\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 3.54:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#catalog-title",
+      "element": "h2",
+      "accessibleName": "Course catalog",
+      "measured": {
+        "contrastRatio": 3.54,
+        "fontSizePx": 28,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(136, 136, 136)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 211.171875,
+        "width": 311,
+        "height": 42
+      }
+    },
+    {
+      "id": "text-contrast-727909306",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Explore available courses for this term.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Explore available courses for this term.",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 253.171875,
+        "width": 311,
+        "height": 24
+      }
+    },
+    {
+      "id": "text-contrast-2059645000",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Browse courses\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Browse courses",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 277.171875,
+        "width": 145.828125,
+        "height": 44
+      }
+    },
+    {
+      "id": "target-size-2016453536",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (145.8×44 px)",
+      "description": "The interactive target \"Browse courses\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 145.8×44 px.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Browse courses",
+      "measured": {
+        "width": 145.8,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 224,
+        "width": 145.8,
+        "height": 44
+      }
+    },
+    {
+      "id": "text-contrast-1339098563",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      }
+    },
+    {
+      "id": "text-contrast-1919708391",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-11: Course Catalog (Muted Heading)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-11: Course Catalog (Muted Heading)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 1408,
+        "height": 31
+      }
+    },
+    {
+      "id": "text-contrast-1985710625",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Large heading text with 3.5:1 contrast a\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Large heading text with 3.5:1 contrast against whi",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 79.796875,
+        "width": 1408,
+        "height": 21.6875
+      }
+    },
+    {
+      "id": "text-contrast-1031604191",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (3.54:1)",
+      "description": "The text \"Course catalog\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 3.54:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#catalog-title",
+      "element": "h2",
+      "accessibleName": "Course catalog",
+      "measured": {
+        "contrastRatio": 3.54,
+        "fontSizePx": 28,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(136, 136, 136)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 158.484375,
+        "width": 1376,
+        "height": 42
+      }
+    },
+    {
+      "id": "text-contrast-727909306",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Explore available courses for this term.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Explore available courses for this term.",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 200.484375,
+        "width": 1376,
+        "height": 24
+      }
+    },
+    {
+      "id": "text-contrast-2059645000",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Browse courses\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Browse courses",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 224.484375,
+        "width": 145.828125,
+        "height": 44
+      }
+    }
+  ]
+}

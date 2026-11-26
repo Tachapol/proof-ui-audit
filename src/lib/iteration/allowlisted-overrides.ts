@@ -3,7 +3,12 @@ export type CandidateOverrideId = 'increase-target-size';
 export interface AllowlistedOverride {
   id: CandidateOverrideId;
   name: string;
-  applicableFixtureId: string;
+  /**
+   * Fixture IDs this override is permitted for.
+   * Use `'*'` to allow any fixture or external URL audit target.
+   * Use an array of fixture IDs to restrict to specific fixtures.
+   */
+  applicableFixtureIds: string[] | '*';
   applicableRuleId: string;
   targetSelector: string;
   cssProperties: Record<string, string>;
@@ -16,8 +21,13 @@ export const ALLOWLISTED_OVERRIDES: Record<CandidateOverrideId, AllowlistedOverr
   'increase-target-size': {
     id: 'increase-target-size',
     name: 'Increase Target Size to 24×24 CSS px',
-    applicableFixtureId: 'target-size-demo',
+    // Applies to any target-size audit — fixtures, snippets, or external URLs.
+    // The override uses the issue's own selector from the audit run, so it is
+    // not bound to a specific fixture's DOM structure.
+    applicableFixtureIds: '*',
     applicableRuleId: 'target-size',
+    // Fallback selector used when the issue's representative selector is unavailable.
+    // In practice, isolated-preview.ts always uses rep.selector instead.
     targetSelector:
       'button.small-btn, #submit-btn, button.icon-btn, .action-btn, #btn-fail-tiny-delete, #btn-fail-tiny-edit, .target-fail-delete, .target-fail-edit',
     cssProperties: {
@@ -53,11 +63,23 @@ export function validateOverrideForIssue(
     };
   }
 
-  if (fixtureId && override.applicableFixtureId !== fixtureId) {
-    return {
-      valid: false,
-      error: `Override '${override.id}' applies to fixture '${override.applicableFixtureId}', but run target is '${fixtureId}'.`,
-    };
+  // '*' means unrestricted — any fixture or external URL is permitted.
+  if (override.applicableFixtureIds !== '*') {
+    // For a fixture-based run: the fixture must be in the allowlist.
+    if (fixtureId && !override.applicableFixtureIds.includes(fixtureId)) {
+      return {
+        valid: false,
+        error: `Override '${override.id}' is not permitted for fixture '${fixtureId}'. Allowed fixtures: ${override.applicableFixtureIds.join(', ')}.`,
+      };
+    }
+    // For external URL runs (no fixtureId): only allowed if '*' is set.
+    // Array-restricted overrides are fixture-only for safety.
+    if (!fixtureId) {
+      return {
+        valid: false,
+        error: `Override '${override.id}' is restricted to specific fixtures and cannot be applied to external URL targets.`,
+      };
+    }
   }
 
   return { valid: true };

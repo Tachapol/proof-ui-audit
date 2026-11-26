@@ -108,10 +108,40 @@ describe('Audit URL Validation & Advanced SSRF Rejection (TEST-22)', () => {
     expect(res1.valid).toBe(true);
     expect(res1.isFixture).toBe(true);
     expect(res1.fixtureId).toBe('target-size-demo');
+    expect(res1.localOrigin).toBe('http://localhost:3123');
 
     const res2 = await validateAndNormalizeAuditUrl('fixture://reflow-demo');
     expect(res2.valid).toBe(true);
     expect(res2.isFixture).toBe(true);
+    expect(res2.localOrigin).toBe('http://localhost:3123');
+  });
+
+  it('normalizes local fixture URLs accessed via LAN IP to devServerBaseUrl', async () => {
+    const res1 = await validateAndNormalizeAuditUrl(
+      'https://192.168.1.88:3123/fixtures/mvp-contrast-demo',
+      'http://localhost:3123'
+    );
+    expect(res1.valid).toBe(true);
+    expect(res1.isFixture).toBe(true);
+    expect(res1.fixtureId).toBe('mvp-contrast-demo');
+    expect(res1.normalizedUrl).toBe('http://localhost:3123/fixtures/mvp-contrast-demo');
+    expect(res1.localOrigin).toBe('http://localhost:3123');
+
+    const res2 = await validateAndNormalizeAuditUrl(
+      'http://192.168.1.88:3123/fixtures/target-size-demo',
+      'http://localhost:3123'
+    );
+    expect(res2.valid).toBe(true);
+    expect(res2.isFixture).toBe(true);
+    expect(res2.normalizedUrl).toBe('http://localhost:3123/fixtures/target-size-demo');
+
+    // Non-fixture path on LAN IP must still be blocked by SSRF
+    const res3 = await validateAndNormalizeAuditUrl(
+      'http://192.168.1.88:3123/admin',
+      'http://localhost:3123'
+    );
+    expect(res3.valid).toBe(false);
+    expect(res3.error).toContain('Security restriction');
   });
 
   it('rejects localhost, 127.0.0.1, and cloud metadata targets', async () => {
@@ -129,4 +159,41 @@ describe('Audit URL Validation & Advanced SSRF Rejection (TEST-22)', () => {
     expect(res.valid).toBe(false);
     expect(res.error).toContain('credentials');
   });
+});
+
+
+describe('Explicit localhost audit opt-in', () => {
+ it('allows only exact loopback hosts when opted in',async()=>{
+  const dnsLookup:DnsLookupFn=async()=>[{address:'192.168.1.2',family:4}];
+  for(const host of ['localhost:3210','127.0.0.1:3210','[::1]:3210']) {
+   const result=await validateAndNormalizeAuditUrl('http://'+host+'/design','http://localhost:3123',dnsLookup,{allowLocalhost:true});
+   expect(result.valid).toBe(true);expect(result.localOrigin).toBe('http://'+host);
+  }
+  for(const host of ['192.168.1.2','169.254.169.254','internal.example','app.localhost']) {
+   const result=await validateAndNormalizeAuditUrl('http://'+host,'http://localhost:3123',dnsLookup,{allowLocalhost:true});
+   expect(result.valid).toBe(false);
+  }
+ });
+ it('still blocks loopback by default and URLs with credentials',async()=>{
+  expect((await validateAndNormalizeAuditUrl('http://localhost:3210')).valid).toBe(false);
+  expect((await validateAndNormalizeAuditUrl('http://user:password@localhost:3210','http://localhost:3123',undefined,{allowLocalhost:true})).valid).toBe(false);
+ });
+
+ it('normalizes snippet:// identifiers to the local sandboxed render endpoint', async () => {
+   const res = await validateAndNormalizeAuditUrl('snippet://snip-test123', 'http://localhost:3123');
+   expect(res.valid).toBe(true);
+   expect(res.normalizedUrl).toBe('http://localhost:3123/api/sandbox/render?id=snip-test123');
+   expect(res.isFixture).toBe(false);
+ });
+
+ it('resolves all 12 pilot UI benchmark fixtures (pilot-ui-01 through 12)', async () => {
+   for (let i = 1; i <= 12; i++) {
+     const id = `pilot-ui-${String(i).padStart(2, '0')}`;
+     const res = await validateAndNormalizeAuditUrl(`fixture://${id}`, 'http://localhost:3123');
+     expect(res.valid).toBe(true);
+     expect(res.isFixture).toBe(true);
+     expect(res.fixtureId).toBe(id);
+     expect(res.normalizedUrl).toBe(`http://localhost:3123/fixtures/${id}`);
+   }
+ });
 });

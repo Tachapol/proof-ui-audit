@@ -1,41 +1,49 @@
 'use client';
 
-import React, { useState } from 'react';
-import { GroupedUXIssue, DesignerDecision, Priority } from '@/lib/schema/ux-issue';
+import React, { useEffect, useState } from 'react';
+import { GroupedUXIssue, Priority, extractEvidenceMetrics } from '@/lib/schema/ux-issue';
 import { Icon } from './Icon';
 import { OccurrenceList } from './OccurrenceList';
+import { IssueReview } from './IssueReview';
 import { DecisionLog } from './DecisionLog';
 import { IterationProofView } from './IterationProofView';
 import { getDefaultRecommendation } from '@/lib/audit/recommendation';
+import { PRIORITY_METADATA, PRIORITY_DISCLAIMER } from '@/lib/audit/priority-engine';
+import { describeTouchTargetPair, touchTargetSpacingStatusLabels, touchTargetViewportEvidence } from '@/lib/audit/touch-target-pair';
 
 interface IssueCardProps {
   issue: GroupedUXIssue;
   runId: string;
+  readOnly?: boolean;
   onDecisionSaved?: (updated: GroupedUXIssue) => void;
+  onShowPair?: (fingerprint: string) => void;
 }
 
-export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: IssueCardProps) {
+export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDecisionSaved, onShowPair }: IssueCardProps) {
   const [issue, setIssue] = useState<GroupedUXIssue>(initialIssue);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  const [activeDecision, setActiveDecision] = useState<DesignerDecision | null>(
-    issue.designerDecision || null
-  );
-  const [reason, setReason] = useState<string>(issue.designerReason || '');
   const [customRecommendation, setCustomRecommendation] = useState<string>(
     issue.editedRecommendation || issue.aiRecommendation || issue.representative.aiRecommendation || ''
   );
   const [selectedPriority, setSelectedPriority] = useState<Priority>(
     issue.currentPriority === 'P0' ? 'P1' : 'P0'
   );
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const [activeAdjustment, setActiveAdjustment] = useState<'edit' | 'reprioritize' | null>(null);
+  const [adjustmentReason, setAdjustmentReason] = useState<string>('');
+  const [isSavingAdjustment, setIsSavingAdjustment] = useState<boolean>(false);
+  const [adjustmentSuccess, setAdjustmentSuccess] = useState<boolean>(false);
+  const [adjustmentError, setAdjustmentError] = useState<string | null>(null);
 
   // AI explanation state
   const [isExplaining, setIsExplaining] = useState<boolean>(false);
   const [explainError, setExplainError] = useState<string | null>(null);
 
+  useEffect(() => { setIssue(initialIssue); }, [initialIssue]);
+
   const rep = issue.representative;
+  const pairSummary = describeTouchTargetPair(issue);
+  const isPassedCheck = issue.status === 'pass';
+  const canReview = !isPassedCheck && !readOnly;
   const aiResult = issue.aiExplanationResult || rep.aiExplanationResult;
 
   // Status visual attributes
@@ -60,6 +68,8 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       icon: 'HelpCircle' as const,
     },
   }[issue.status];
+  const statusLabel = pairSummary ? touchTargetSpacingStatusLabels[issue.status]
+    : rep.metric && isPassedCheck ? 'Project advisory checked' : statusConfig.label;
 
   // Priority visual attributes
   const priorityConfig = {
@@ -85,34 +95,29 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
   const currentEffectiveRec =
     issue.editedRecommendation || issue.aiRecommendation || rep.aiRecommendation || defaultGuidance;
 
-  const isReasonRequired = ['reject', 'edit', 'reprioritize'].includes(activeDecision || '');
-  const isReasonValid = !isReasonRequired || reason.trim().length >= 3;
-  const isEditDifferent =
-    activeDecision !== 'edit' ||
-    (customRecommendation.trim().length >= 3 && customRecommendation.trim() !== currentEffectiveRec);
-  const isPriorityDifferent =
-    activeDecision !== 'reprioritize' || selectedPriority !== issue.currentPriority;
-  const canSave = isReasonValid && isEditDifferent && isPriorityDifferent && !isSaving;
-
-  const handleSaveDecision = async (decisionToSave: DesignerDecision) => {
-    if (!canSave) {
-      if (!isReasonValid) {
-        setSaveError(`A descriptive rationale (minimum 3 characters) is required for '${decisionToSave}'.`);
-      } else if (activeDecision === 'edit') {
-        if (customRecommendation.trim().length < 3) {
-          setSaveError('A custom recommendation (minimum 3 characters) is required when editing scope.');
-        } else if (customRecommendation.trim() === currentEffectiveRec) {
-          setSaveError('Edited recommendation must differ from the current effective recommendation.');
-        }
-      } else if (activeDecision === 'reprioritize' && !isPriorityDifferent) {
-        setSaveError('Target priority must differ from the current effective priority.');
+  const handleSaveAdjustment = async (action: 'edit' | 'reprioritize') => {
+    if (adjustmentReason.trim().length < 3) {
+      setAdjustmentError('A descriptive rationale (minimum 3 characters) is required.');
+      return;
+    }
+    if (action === 'edit') {
+      if (customRecommendation.trim().length < 3) {
+        setAdjustmentError('A custom recommendation (minimum 3 characters) is required when editing scope.');
+        return;
       }
+      if (customRecommendation.trim() === currentEffectiveRec) {
+        setAdjustmentError('Edited recommendation must differ from the current effective recommendation.');
+        return;
+      }
+    }
+    if (action === 'reprioritize' && selectedPriority === issue.currentPriority) {
+      setAdjustmentError('Target priority must differ from the current effective priority.');
       return;
     }
 
-    setIsSaving(true);
-    setSaveError(null);
-    setSaveSuccess(false);
+    setIsSavingAdjustment(true);
+    setAdjustmentError(null);
+    setAdjustmentSuccess(false);
 
     try {
       const res = await fetch('/api/decisions', {
@@ -121,10 +126,10 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
         body: JSON.stringify({
           runId,
           fingerprint: issue.fingerprint,
-          decision: decisionToSave,
-          reason: reason.trim(),
-          newPriority: decisionToSave === 'reprioritize' ? selectedPriority : undefined,
-          editedRecommendation: decisionToSave === 'edit' ? customRecommendation.trim() : undefined,
+          decision: action,
+          reason: adjustmentReason.trim(),
+          newPriority: action === 'reprioritize' ? selectedPriority : undefined,
+          editedRecommendation: action === 'edit' ? customRecommendation.trim() : undefined,
         }),
       });
 
@@ -134,16 +139,15 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       }
 
       setIssue(data.updatedGroup);
-      setActiveDecision(decisionToSave);
-      setSaveSuccess(true);
+      setAdjustmentSuccess(true);
       if (onDecisionSaved) {
         onDecisionSaved(data.updatedGroup);
       }
-      setTimeout(() => setSaveSuccess(false), 3500);
+      setTimeout(() => setAdjustmentSuccess(false), 3500);
     } catch (err: any) {
-      setSaveError(err.message || 'Error saving decision.');
+      setAdjustmentError(err.message || 'Error saving decision.');
     } finally {
-      setIsSaving(false);
+      setIsSavingAdjustment(false);
     }
   };
 
@@ -194,6 +198,8 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
 
   return (
     <article
+      id={`issue-card-${issue.fingerprint}`}
+      tabIndex={-1}
       className="issue-card"
       style={{
         background: 'var(--surface)',
@@ -208,7 +214,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       {/* 1. Plain-Language Title */}
       <div className="issue-title-block" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
         <h3 style={{ fontSize: '17px', fontWeight: 600, color: 'var(--foreground)' }}>
-          {rep.title}
+          {rep.title}{pairSummary && ` · ${pairSummary}`}
         </h3>
         {issue.rawOccurrencesCount > 1 && (
           <span
@@ -245,10 +251,13 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
           }}
         >
           <Icon name={statusConfig.icon} size={14} color={statusConfig.color} />
-          {statusConfig.label}
+          Audit result: {statusLabel}
         </span>
 
+        {pairSummary && <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-semibold text-zinc-700">Project advisory</span>}
+
         <span
+          title={`${PRIORITY_METADATA[issue.currentPriority]?.fullDescription || ''} (${PRIORITY_DISCLAIMER})`}
           style={{
             fontSize: '12px',
             fontWeight: 600,
@@ -256,16 +265,17 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
             borderRadius: 'var(--radius-sm)',
             background: priorityConfig.bg,
             color: priorityConfig.color,
+            cursor: 'help',
           }}
         >
           {priorityConfig.label}
         </span>
 
-        <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
+        {!pairSummary && <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
           Viewport: {rep.viewport.width}px
-        </span>
+        </span>}
 
-        {issue.designerDecision && (
+        {(issue.designerDecision === 'edit' || issue.designerDecision === 'reprioritize') && (
           <span
             className="decision-badge"
             style={{
@@ -278,10 +288,27 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
               border: '1px solid var(--accent)',
             }}
           >
-            Decision: {issue.designerDecision}
+            Last adjustment: {issue.designerDecision === 'edit' ? 'Edited recommendation' : 'Changed priority'}
           </span>
         )}
       </div>
+
+      {pairSummary && (
+        <div className="mt-3 space-y-2 text-sm text-zinc-700">
+          <ul aria-label="Pair measurements by viewport" className="space-y-1">
+            {touchTargetViewportEvidence(issue).map(({ viewport, distance, overlap, needsReview }) => (
+              <li key={`${viewport.width}×${viewport.height}`}>
+                {viewport.width}×{viewport.height} · {distance} CSS px · {needsReview ? 'Needs review' : 'Pass'}{overlap && ' · Overlap'}
+              </li>
+            ))}
+          </ul>
+          {onShowPair && (
+            <button type="button" className="rounded-md border border-zinc-200 px-3 text-xs font-semibold hover:bg-zinc-50 focus-visible:ring-2 focus-visible:ring-blue-600" onClick={() => onShowPair(issue.fingerprint)}>
+              Show pair on Visual Canvas
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Transparent Occurrence Inspection */}
       <div className="issue-occurrences">
@@ -300,7 +327,6 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       {(() => {
         const screenshotUrl = rep.screenshotPath || issue.occurrences?.find((o) => o.screenshotPath)?.screenshotPath;
         if (!screenshotUrl) {
-          const isPassedCheck = issue.status === 'pass';
           return (
             <div
               className={`issue-evidence-media screenshot-fallback${isPassedCheck ? ' screenshot-omitted-pass' : ''}`}
@@ -309,8 +335,8 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
             >
               <Icon name="Info" size={18} />
               <div>
-                <strong>{isPassedCheck ? 'Screenshot not captured for this passed check.' : 'Screenshot unavailable'}</strong>
-                <span>Deterministic measurements remain available below.</span>
+                <strong>{isPassedCheck ? 'No image was saved for this check.' : 'Screenshot unavailable'}</strong>
+                <span>Measurements are available below. Run a new audit to capture fresh visual evidence.</span>
               </div>
             </div>
           );
@@ -332,8 +358,11 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
       {/* 4. Concise Deterministic Explanation */}
       <div className="deterministic-evidence" style={{ marginTop: '16px' }}>
         <div className="content-label">Deterministic evidence</div>
+        {rep.metric && <p className="text-xs text-zinc-600">
+          Project advisory · v{rep.metric.metricVersion} · {rep.metric.unit} · Execution: {rep.metric.executionStatus} · Applicability: {rep.metric.applicability}. No automatic WCAG failure.
+        </p>}
         <p style={{ fontSize: '14px', color: 'var(--foreground)', lineHeight: 1.6 }}>
-          {rep.description}
+          {pairSummary ? 'Review the gaps between these controls against the 8 CSS px project advisory.' : rep.description}
         </p>
         {rep.exception && (
           <p style={{ fontSize: '13px', color: 'var(--foreground-muted)', marginTop: '4px' }}>
@@ -342,11 +371,16 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
         )}
         <p style={{ fontSize: '13px', color: 'var(--foreground-muted)', marginTop: '4px' }}>
           <strong>Priority Rationale (Project Heuristic):</strong> {rep.priorityRationale}
+          {issue.currentPriority !== issue.initialPriority && (
+            <span className="ml-1 font-semibold text-amber-700">
+              (Reprioritized by designer: {issue.initialPriority} → {issue.currentPriority})
+            </span>
+          )}
         </p>
       </div>
 
       {/* 5. AI Explanation & Fallback Section */}
-      <div
+      {canReview && <div
         className="assisted-guidance"
         style={{
           marginTop: '16px',
@@ -379,7 +413,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
                   gap: '4px',
                 }}
               >
-                {aiResult.isFallback ? 'Deterministic Fallback' : 'AI-Generated (Gemini)'}
+                {aiResult.isFallback ? 'Deterministic Fallback' : aiResult.provenance === 'cpe' ? `AI-Generated (CPE · ${aiResult.model || 'LLM'})` : 'AI-Generated (Gemini)'}
               </span>
             ) : null}
 
@@ -406,7 +440,8 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
             id={`explain-btn-${issue.fingerprint}`}
             data-testid={`explain-btn-${issue.fingerprint}`}
             onClick={handleRequestExplanation}
-            disabled={isExplaining}
+            disabled={isExplaining || !!rep.metric}
+            title={rep.metric ? 'Pilot metrics use deterministic evidence and project advisory guidance. AI explanation is not enabled for these metrics.' : undefined}
             style={{
               padding: '6px 12px',
               borderRadius: 'var(--radius-sm)',
@@ -422,7 +457,7 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
               gap: '6px',
             }}
           >
-            {isExplaining ? 'Generating...' : aiResult ? 'Regenerate Explanation' : 'Request Explanation'}
+            {rep.metric ? 'Deterministic pilot guidance' : isExplaining ? 'Generating...' : aiResult ? 'Regenerate Explanation' : 'Request Explanation'}
           </button>
         </div>
 
@@ -520,10 +555,9 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
           )}
         </div>
 
-      </div>
-
+      </div>}
       {/* 5.5 Isolated Before/After Optimization Proof */}
-      <div className="iteration-proof-slot">
+      {canReview && <div className="iteration-proof-slot">
         <IterationProofView
           runId={runId}
           fingerprint={issue.fingerprint}
@@ -534,185 +568,192 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
             if (onDecisionSaved) onDecisionSaved({ ...issue, iterationComparison: updated });
           }}
         />
-      </div>
+      </div>}
 
-      {/* 6. Designer Decision Controls */}
-      <div className="designer-actions" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)' }}>
-        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)', marginBottom: '10px' }}>
-          UX/UI Designer Decision
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
-          {(['accept', 'reject', 'edit', 'reprioritize'] as DesignerDecision[]).map((action) => {
-            const isSelected = activeDecision === action;
-            return (
+      {/* 6. Secondary Commands: Scope & Priority Adjustments */}
+      {canReview && (
+        <div className="secondary-commands-slot" style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Scope &amp; Priority Adjustments
+            </span>
+            <div style={{ display: 'flex', gap: '8px' }}>
               <button
-                key={action}
                 type="button"
-                id={`decision-btn-${action}-${issue.fingerprint}`}
+                id={`decision-btn-edit-${issue.fingerprint}`}
                 onClick={() => {
-                  setActiveDecision(action);
-                  setSaveSuccess(false);
-                  setSaveError(null);
+                  setActiveAdjustment((prev) => (prev === 'edit' ? null : 'edit'));
+                  setAdjustmentError(null);
+                  setAdjustmentSuccess(false);
                 }}
-                disabled={isSaving}
-                aria-pressed={isSelected}
-                style={{
-                  padding: '8px 14px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: isSelected ? '1px solid var(--accent)' : '1px solid var(--border)',
-                  background: isSelected ? 'var(--surface)' : 'var(--surface-subtle)',
-                  color: isSelected ? 'var(--accent)' : 'var(--foreground)',
-                  fontWeight: isSelected ? 600 : 400,
-                  cursor: 'pointer',
-                  minHeight: '44px',
-                  fontSize: '13px',
-                }}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md border font-medium transition-colors ${
+                  activeAdjustment === 'edit'
+                    ? 'bg-zinc-900 text-white border-zinc-900'
+                    : 'bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50'
+                }`}
               >
-                {action === 'accept' && 'Accept Issue'}
-                {action === 'reject' && 'Reject (False Positive)'}
-                {action === 'edit' && 'Edit Scope'}
-                {action === 'reprioritize' && 'Reprioritize'}
+                <Icon name="Edit3" size={13} />
+                <span>Edit Scope</span>
               </button>
-            );
-          })}
-        </div>
+              <button
+                type="button"
+                id={`decision-btn-reprioritize-${issue.fingerprint}`}
+                onClick={() => {
+                  setActiveAdjustment((prev) => (prev === 'reprioritize' ? null : 'reprioritize'));
+                  setAdjustmentError(null);
+                  setAdjustmentSuccess(false);
+                }}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md border font-medium transition-colors ${
+                  activeAdjustment === 'reprioritize'
+                    ? 'bg-zinc-900 text-white border-zinc-900'
+                    : 'bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50'
+                }`}
+              >
+                <Icon name="Sliders" size={13} />
+                <span>Reprioritize</span>
+              </button>
+            </div>
+          </div>
 
-        {activeDecision && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px', background: 'var(--surface-subtle)', padding: '14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
-            {activeDecision === 'reprioritize' && (
-              <div>
-                <label htmlFor={`priority-select-${issue.fingerprint}`} style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground)' }}>
-                  Target Priority (Project Heuristic)
-                </label>
-                <div className="priority-control-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                  <select
-                    id={`priority-select-${issue.fingerprint}`}
-                    value={selectedPriority}
-                    onChange={(e) => setSelectedPriority(e.target.value as Priority)}
+          {activeAdjustment && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px', background: 'var(--surface-subtle)', padding: '14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+              {activeAdjustment === 'reprioritize' && (
+                <div>
+                  <label htmlFor={`priority-select-${issue.fingerprint}`} style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground)' }}>
+                    Target Priority (Project Heuristic)
+                  </label>
+                  <div className="priority-control-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                    <select
+                      id={`priority-select-${issue.fingerprint}`}
+                      value={selectedPriority}
+                      onChange={(e) => setSelectedPriority(e.target.value as Priority)}
+                      style={{
+                        padding: '8px 10px',
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--border)',
+                        minHeight: '44px',
+                        fontSize: '13px',
+                        background: 'var(--surface)',
+                      }}
+                    >
+                      <option value="P0">P0 — Critical blocker</option>
+                      <option value="P1">P1 — High priority</option>
+                      <option value="P2">P2 — Medium priority</option>
+                      <option value="P3">P3 — Low / backlog</option>
+                    </select>
+                    <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
+                      Note: P0–P3 is an internal research priority heuristic, not WCAG severity.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {activeAdjustment === 'edit' && (
+                <div>
+                  <label htmlFor={`custom-rec-${issue.fingerprint}`} style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--foreground)', marginBottom: '4px' }}>
+                    Custom Recommendation / Scope (Required)
+                  </label>
+                  <textarea
+                    id={`custom-rec-${issue.fingerprint}`}
+                    value={customRecommendation}
+                    onChange={(e) => setCustomRecommendation(e.target.value)}
+                    placeholder="Define custom designer-authored recommendation..."
+                    rows={3}
                     style={{
-                      padding: '8px 10px',
+                      width: '100%',
+                      padding: '8px 12px',
                       borderRadius: 'var(--radius-sm)',
                       border: '1px solid var(--border)',
-                      minHeight: '44px',
-                      fontSize: '13px',
                       background: 'var(--surface)',
+                      fontSize: '13px',
+                      lineHeight: 1.5,
                     }}
-                  >
-                    <option value="P0">P0 — Critical blocker</option>
-                    <option value="P1">P1 — High priority</option>
-                    <option value="P2">P2 — Medium priority</option>
-                    <option value="P3">P3 — Low / backlog</option>
-                  </select>
-                  <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
-                    Note: P0–P3 is an internal research priority heuristic, not WCAG severity.
-                  </span>
+                  />
                 </div>
-              </div>
-            )}
+              )}
 
-            {activeDecision === 'edit' && (
               <div>
-                <label htmlFor={`custom-rec-${issue.fingerprint}`} style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--foreground)', marginBottom: '4px' }}>
-                  Custom Recommendation / Scope (Required)
+                <label htmlFor={`reason-input-${issue.fingerprint}`} style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: 'var(--foreground)' }}>
+                  Adjustment Rationale (Required, min 3 chars)
                 </label>
-                <textarea
-                  id={`custom-rec-${issue.fingerprint}`}
-                  value={customRecommendation}
-                  onChange={(e) => setCustomRecommendation(e.target.value)}
-                  placeholder="Define custom designer-authored recommendation..."
-                  rows={3}
+                <input
+                  id={`reason-input-${issue.fingerprint}`}
+                  type="text"
+                  value={adjustmentReason}
+                  onChange={(e) => {
+                    setAdjustmentReason(e.target.value);
+                    if (adjustmentError) setAdjustmentError(null);
+                  }}
+                  placeholder={
+                    activeAdjustment === 'edit'
+                      ? 'Explain why this recommendation or scope was edited...'
+                      : 'Explain why the priority was adjusted...'
+                  }
                   style={{
                     width: '100%',
                     padding: '8px 12px',
                     borderRadius: 'var(--radius-sm)',
                     border: '1px solid var(--border)',
                     background: 'var(--surface)',
+                    minHeight: '44px',
                     fontSize: '13px',
-                    lineHeight: 1.5,
                   }}
                 />
               </div>
-            )}
 
-            <div>
-              <label htmlFor={`reason-input-${issue.fingerprint}`} style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px', color: 'var(--foreground)' }}>
-                Designer Rationale / Reason {isReasonRequired ? '(Required)' : '(Optional)'}
-              </label>
-              <input
-                id={`reason-input-${issue.fingerprint}`}
-                type="text"
-                value={reason}
-                onChange={(e) => {
-                  setReason(e.target.value);
-                  if (saveError) setSaveError(null);
-                }}
-                placeholder={
-                  activeDecision === 'reject'
-                    ? 'Explain the UX rationale: why this finding is a false positive or acceptable exception...'
-                    : activeDecision === 'edit'
-                    ? 'Explain the UX rationale: why this scope or recommendation was edited...'
-                    : activeDecision === 'reprioritize'
-                    ? 'Explain the UX rationale: why the priority was adjusted...'
-                    : 'Explain the UX rationale, context, or why this was accepted...'
-                }
-                aria-invalid={!isReasonValid && reason.length > 0 ? 'true' : 'false'}
-                aria-describedby={!isReasonValid && reason.length > 0 ? `reason-error-${issue.fingerprint}` : undefined}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: !isReasonValid && reason.length > 0 ? '1px solid var(--danger)' : '1px solid var(--border)',
-                  background: 'var(--surface)',
-                  minHeight: '44px',
-                  fontSize: '13px',
-                }}
-              />
-              {isReasonRequired && reason.trim().length > 0 && reason.trim().length < 3 && (
-                <span id={`reason-error-${issue.fingerprint}`} style={{ fontSize: '11px', color: 'var(--danger)', marginTop: '2px', display: 'block' }}>
-                  Rationale must be at least 3 characters.
-                </span>
-              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  id={`save-decision-btn-${issue.fingerprint}`}
+                  onClick={() => handleSaveAdjustment(activeAdjustment)}
+                  disabled={isSavingAdjustment || adjustmentReason.trim().length < 3}
+                  style={{
+                    background: adjustmentReason.trim().length >= 3 ? 'var(--accent)' : 'var(--border)',
+                    color: adjustmentReason.trim().length >= 3 ? 'var(--accent-foreground)' : 'var(--foreground-muted)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '8px 18px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: adjustmentReason.trim().length >= 3 ? 'pointer' : 'not-allowed',
+                    minHeight: '44px',
+                  }}
+                >
+                  {isSavingAdjustment ? 'Saving...' : 'Save Decision'}
+                </button>
+
+                {adjustmentSuccess && (
+                  <span role="status" aria-live="polite" style={{ fontSize: '13px', color: 'var(--success)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <Icon name="Check" size={16} color="var(--success)" />
+                    Decision saved to audit log
+                  </span>
+                )}
+
+                {adjustmentError && (
+                  <span role="alert" style={{ fontSize: '13px', color: 'var(--danger)', fontWeight: 500 }}>
+                    {adjustmentError}
+                  </span>
+                )}
+              </div>
             </div>
+          )}
+        </div>
+      )}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                id={`save-decision-btn-${issue.fingerprint}`}
-                onClick={() => handleSaveDecision(activeDecision)}
-                disabled={isSaving || !canSave}
-                style={{
-                  background: canSave ? 'var(--accent)' : 'var(--border)',
-                  color: canSave ? 'var(--accent-foreground)' : 'var(--foreground-muted)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-sm)',
-                  padding: '8px 18px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: canSave ? 'pointer' : 'not-allowed',
-                  minHeight: '44px',
-                }}
-              >
-                {isSaving ? 'Saving...' : 'Save Decision'}
-              </button>
-
-              {saveSuccess && (
-                <span role="status" aria-live="polite" style={{ fontSize: '13px', color: 'var(--success)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  <Icon name="Check" size={16} color="var(--success)" />
-                  Decision saved to audit log
-                </span>
-              )}
-
-              {saveError && (
-                <span role="alert" style={{ fontSize: '13px', color: 'var(--danger)', fontWeight: 500 }}>
-                  {saveError}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
+      {/* 7. Unified Finding Review & Disposition */}
+      {canReview && !activeAdjustment && (
+        <div className="unified-finding-review-slot" style={{ marginTop: '16px' }}>
+          <IssueReview
+            key={`${runId}:${issue.fingerprint}`}
+            issue={issue}
+            runId={runId}
+            onSaved={(updated) => {
+              setIssue(updated);
+              if (onDecisionSaved) onDecisionSaved(updated);
+            }}
+          />
+        </div>
+      )}
       {/* 7. Expandable Technical Evidence (Collapsed by Default) */}
       <div className="technical-evidence" style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
         <button
@@ -756,13 +797,37 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
                 <span style={{ color: 'var(--foreground-muted)' }}>Accessible Name:</span>
                 <div style={{ marginTop: '2px' }}>{rep.accessibleName || '—'}</div>
               </div>
-              <div>
-                <span style={{ color: 'var(--foreground-muted)' }}>Measured Value:</span>
-                <div style={{ marginTop: '2px' }}><code>{JSON.stringify(rep.measured)}</code></div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <span style={{ color: 'var(--foreground-muted)' }}>Measured Evidence:</span>
+                <div className="mt-1.5 flex flex-wrap gap-2">
+                  {extractEvidenceMetrics(rep.ruleId, rep.measured, rep.expected).map((metric) => (
+                    <div
+                      key={metric.key}
+                      className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium border ${
+                        metric.isViolation
+                          ? 'bg-rose-50 text-rose-800 border-rose-200'
+                          : 'bg-zinc-50 text-zinc-700 border-zinc-200'
+                      }`}
+                    >
+                      <span className="font-semibold text-zinc-500">{metric.label}:</span>
+                      <span className="font-mono">{metric.value}{metric.unit && !metric.value.includes(metric.unit) ? ` ${metric.unit}` : ''}</span>
+                    </div>
+                  ))}
+                </div>
+                <details className="mt-2 text-xs text-zinc-500">
+                  <summary className="cursor-pointer hover:text-zinc-800">Raw measurement payload</summary>
+                  <pre className="mt-1 overflow-x-auto rounded bg-zinc-100 p-2 font-mono text-[11px] text-zinc-800">
+                    {JSON.stringify(rep.measured, null, 2)}
+                  </pre>
+                </details>
               </div>
-              <div>
+              <div style={{ gridColumn: '1 / -1' }}>
                 <span style={{ color: 'var(--foreground-muted)' }}>Expected Threshold:</span>
-                <div style={{ marginTop: '2px' }}><code>{JSON.stringify(rep.expected)}</code></div>
+                <div style={{ marginTop: '2px' }} className="text-xs text-zinc-700 font-medium">
+                  {typeof rep.expected?.thresholdDescription === 'string'
+                    ? rep.expected.thresholdDescription
+                    : JSON.stringify(rep.expected)}
+                </div>
               </div>
               <div>
                 <span style={{ color: 'var(--foreground-muted)' }}>WCAG Reference:</span>
@@ -779,7 +844,9 @@ export function IssueCard({ issue: initialIssue, runId, onDecisionSaved }: Issue
 
       {/* Append-Only Decision History Log */}
       <div className="decision-history-slot">
-        <DecisionLog history={issue.decisionHistory || []} fingerprint={issue.fingerprint} />
+        {(canReview || (issue.decisionHistory && issue.decisionHistory.length > 0)) && (
+          <DecisionLog history={issue.decisionHistory || []} fingerprint={issue.fingerprint} />
+        )}
       </div>
 
       {issue.aiGenerationHistory && issue.aiGenerationHistory.length > 1 && (

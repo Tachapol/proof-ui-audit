@@ -70,6 +70,7 @@ export async function POST(req: Request) {
 
       // 2. Project minimal, safe evidence from server persistence only
       const rawInput = {
+        productContext: run.productContext,
         ruleId: rep.ruleId,
         wcagCriterion: rep.wcagCriterion,
         status: targetGroup.status,

@@ -1,4 +1,8 @@
+import { PilotUIFixture } from '@/fixtures/components/PilotUIFixture';
+import { PilotMetricsFixture } from '@/fixtures/components/PilotMetricsFixture';
+import { readStudio } from '@/lib/studio/store';
 import { notFound } from 'next/navigation';
+import { MvpContrastFixture } from '@/fixtures/components/MvpContrastFixture';
 import { FIXTURES } from '@/fixtures/fixture-registry';
 import { TargetSizeFixture } from '@/fixtures/components/TargetSizeFixture';
 import { ContrastFixture } from '@/fixtures/components/ContrastFixture';
@@ -24,10 +28,24 @@ import { OccurrenceFixture } from '@/fixtures/components/OccurrenceFixture';
 
 interface FixturePageProps {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ studioSession?: string }>;
 }
 
-export default async function FixturePage({ params }: FixturePageProps) {
+export default async function FixturePage({ params, searchParams }: FixturePageProps) {
   const { id } = await params;
+  const query = await searchParams;
+  let sessionCss = '';
+  if (query?.studioSession) {
+    try {
+      const session = await readStudio(query.studioSession);
+      for (const [issueId, candidate] of Object.entries(session.candidates)) {
+        const item = session.agenda.find(a => a.id === issueId);
+        const run = session.runs.find(r => r.id === item?.runId);
+        const rep = run?.groupedIssues.find(g => g.fingerprint === item?.fingerprint)?.representative;
+        if (candidate.applied && candidate.verified && run?.fixtureId === id && rep && /^#[a-zA-Z][\w-]*$/.test(rep.selector) && /^#[0-9a-f]{6}$/i.test(candidate.color)) sessionCss += `${rep.selector} { color: ${candidate.color} !important; }\n`;
+      }
+    } catch { /* Invalid session never applies an override. */ }
+  }
   const fixture = FIXTURES.find((f) => f.id === id);
 
   if (!fixture) {
@@ -38,7 +56,7 @@ export default async function FixturePage({ params }: FixturePageProps) {
     <div style={{ padding: '16px', maxWidth: '100%', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
       <header style={{ marginBottom: '24px', borderBottom: '1px solid #dededb', paddingBottom: '16px' }}>
         <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#676767' }}>
-          ProofUI Test Fixture: {fixture.category}
+          {id.startsWith('pilot-ui-') ? 'Interface study' : 'ProofUI Test Fixture: ' + fixture.category}
         </span>
         <h1 style={{ fontSize: '20px', fontWeight: 600, color: '#202123', marginTop: '4px' }}>
           {fixture.name}
@@ -48,7 +66,11 @@ export default async function FixturePage({ params }: FixturePageProps) {
         </p>
       </header>
 
-      <main id="fixture-content">
+      <style>{sessionCss}</style>
+      <main id="fixture-content" data-audit-scope data-audit-parent-heading-level={id === 'pilot-metrics-context' ? '2' : undefined}>
+        {id.startsWith('pilot-metrics-') && <PilotMetricsFixture variant={id.replace('pilot-metrics-', '')} />}
+        {/^pilot-ui-\d{2}$/.test(id) && <PilotUIFixture caseNumber={Number(id.slice(-2))} />}
+        {fixture.id === 'mvp-contrast-demo' && <MvpContrastFixture />}
         {fixture.id === 'target-size-demo' && <TargetSizeFixture />}
         {fixture.id === 'text-contrast-demo' && <ContrastFixture />}
         {fixture.id === 'reflow-demo' && <ReflowFixture />}

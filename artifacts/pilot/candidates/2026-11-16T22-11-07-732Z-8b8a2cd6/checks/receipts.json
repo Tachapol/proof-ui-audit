@@ -1,0 +1,23 @@
+[
+  {
+    "name": "typecheck",
+    "command": "npm run typecheck",
+    "startedAt": "2026-11-16T22:11:08.114Z",
+    "completedAt": "2026-11-16T22:11:10.467Z",
+    "passed": true
+  },
+  {
+    "name": "unit-tests",
+    "command": "npm run test",
+    "startedAt": "2026-11-16T22:11:10.467Z",
+    "completedAt": "2026-11-16T22:11:17.783Z",
+    "passed": true
+  },
+  {
+    "name": "chromium",
+    "command": "npx playwright test tests/pilot-metrics.spec.ts tests/reflow-integration.spec.ts",
+    "startedAt": "2026-11-16T22:11:17.783Z",
+    "completedAt": "2026-11-16T22:11:58.373Z",
+    "passed": true
+  }
+]

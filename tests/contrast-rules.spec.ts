@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 import path from 'path';
 import fs from 'fs';
 
@@ -8,7 +9,7 @@ test.describe('Phase 2: Contrast Rules Integration Test', () => {
     await expect(page.locator('h1')).toHaveText('ProofUI Audit PoC');
 
     // Select contrast suite fixture
-    await page.selectOption('#fixture-select', 'text-contrast-demo');
+    await selectDebugFixture(page, 'text-contrast-demo');
     const runBtn = page.locator('#run-audit-button');
     await expect(runBtn).toBeEnabled();
     await runBtn.click();
@@ -36,7 +37,7 @@ test.describe('Phase 2: Contrast Rules Integration Test', () => {
     await expandBtn.click();
     await expect(textFailCard.locator('text=WCAG 2.2 SC 1.4.3 Contrast (Minimum)')).toBeVisible();
     await expect(textFailCard.locator('text=Grouping Fingerprint:')).toBeVisible();
-    await expect(textFailCard.locator('text=Measured Value:')).toBeVisible();
+    await expect(textFailCard.locator('text=Measured Evidence:')).toBeVisible();
 
     // 2. Text contrast needs review (gradient background)
     const gradientReviewCard = page.locator('article', { hasText: 'Text over complex background requires review' }).first();
@@ -59,7 +60,7 @@ test.describe('Phase 2: Contrast Rules Integration Test', () => {
     await expect(nonTextReviewCard.locator('text=Requires Designer Review')).toBeVisible();
 
     // 5. Inactive / disabled control excluded state (Section D Audit)
-    const passFilterTab = page.locator('button', { hasText: 'Pass (' });
+    const passFilterTab = page.locator('summary', { hasText: /^Passed checks \(/ });
     await passFilterTab.click();
 
     const excludedCard = page.locator('article', { hasText: 'Inactive control excluded from SC 1.4.11' }).first();

@@ -18,6 +18,7 @@
 /.proofui-data/
 /public/screenshots/*.png
 !/public/screenshots/.gitkeep
+/generated_images/
 
 # Environment files
 .env*.local
@@ -29,3 +30,4 @@ yarn-debug.log*
 yarn-error.log*
 .DS_Store
 *.pem
+.agents/

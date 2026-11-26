@@ -1,0 +1,4002 @@
+{
+  "schemaVersion": "1.0.0",
+  "suiteVersion": "seven-metrics-pilot-v1-candidate",
+  "sourceDigest": "cf074916818513f0e6b5643cd72f91e9e7902d54b255763032a6b8da036ed32c",
+  "evidenceDigest": "6569a1a2aabc227a30b57b30f50d74edb964fd69fb398ff88b8102e18ab8597b",
+  "provenance": "unfilled_template",
+  "reviewMode": "blind_before_system_reveal",
+  "experts": [],
+  "inventoryComplete": false,
+  "rows": [
+    {
+      "id": "pilot-ui-01-text-contrast-320",
+      "caseId": "pilot-ui-01",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-text-contrast-375",
+      "caseId": "pilot-ui-01",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-text-contrast-1440",
+      "caseId": "pilot-ui-01",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-non-text-contrast-320",
+      "caseId": "pilot-ui-01",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-non-text-contrast-375",
+      "caseId": "pilot-ui-01",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-non-text-contrast-1440",
+      "caseId": "pilot-ui-01",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-target-size-320",
+      "caseId": "pilot-ui-01",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-target-size-375",
+      "caseId": "pilot-ui-01",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-target-size-1440",
+      "caseId": "pilot-ui-01",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-reflow-320",
+      "caseId": "pilot-ui-01",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-text-spacing-320",
+      "caseId": "pilot-ui-01",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-text-spacing-375",
+      "caseId": "pilot-ui-01",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-text-spacing-1440",
+      "caseId": "pilot-ui-01",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-touch-target-spacing-320",
+      "caseId": "pilot-ui-01",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-touch-target-spacing-375",
+      "caseId": "pilot-ui-01",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-touch-target-spacing-1440",
+      "caseId": "pilot-ui-01",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-heading-hierarchy-320",
+      "caseId": "pilot-ui-01",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-heading-hierarchy-375",
+      "caseId": "pilot-ui-01",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-01-heading-hierarchy-1440",
+      "caseId": "pilot-ui-01",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-text-contrast-320",
+      "caseId": "pilot-ui-02",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-text-contrast-375",
+      "caseId": "pilot-ui-02",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-text-contrast-1440",
+      "caseId": "pilot-ui-02",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-non-text-contrast-320",
+      "caseId": "pilot-ui-02",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-non-text-contrast-375",
+      "caseId": "pilot-ui-02",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-non-text-contrast-1440",
+      "caseId": "pilot-ui-02",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-target-size-320",
+      "caseId": "pilot-ui-02",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-target-size-375",
+      "caseId": "pilot-ui-02",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-target-size-1440",
+      "caseId": "pilot-ui-02",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-reflow-320",
+      "caseId": "pilot-ui-02",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-text-spacing-320",
+      "caseId": "pilot-ui-02",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-text-spacing-375",
+      "caseId": "pilot-ui-02",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-text-spacing-1440",
+      "caseId": "pilot-ui-02",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-touch-target-spacing-320",
+      "caseId": "pilot-ui-02",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-touch-target-spacing-375",
+      "caseId": "pilot-ui-02",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-touch-target-spacing-1440",
+      "caseId": "pilot-ui-02",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-heading-hierarchy-320",
+      "caseId": "pilot-ui-02",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-heading-hierarchy-375",
+      "caseId": "pilot-ui-02",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-02-heading-hierarchy-1440",
+      "caseId": "pilot-ui-02",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-text-contrast-320",
+      "caseId": "pilot-ui-03",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-text-contrast-375",
+      "caseId": "pilot-ui-03",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-text-contrast-1440",
+      "caseId": "pilot-ui-03",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-non-text-contrast-320",
+      "caseId": "pilot-ui-03",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-non-text-contrast-375",
+      "caseId": "pilot-ui-03",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-non-text-contrast-1440",
+      "caseId": "pilot-ui-03",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-target-size-320",
+      "caseId": "pilot-ui-03",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-target-size-375",
+      "caseId": "pilot-ui-03",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-target-size-1440",
+      "caseId": "pilot-ui-03",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-reflow-320",
+      "caseId": "pilot-ui-03",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-text-spacing-320",
+      "caseId": "pilot-ui-03",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-text-spacing-375",
+      "caseId": "pilot-ui-03",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-text-spacing-1440",
+      "caseId": "pilot-ui-03",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-touch-target-spacing-320",
+      "caseId": "pilot-ui-03",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-touch-target-spacing-375",
+      "caseId": "pilot-ui-03",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-touch-target-spacing-1440",
+      "caseId": "pilot-ui-03",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-heading-hierarchy-320",
+      "caseId": "pilot-ui-03",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-heading-hierarchy-375",
+      "caseId": "pilot-ui-03",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-03-heading-hierarchy-1440",
+      "caseId": "pilot-ui-03",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-text-contrast-320",
+      "caseId": "pilot-ui-04",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-text-contrast-375",
+      "caseId": "pilot-ui-04",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-text-contrast-1440",
+      "caseId": "pilot-ui-04",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-non-text-contrast-320",
+      "caseId": "pilot-ui-04",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-non-text-contrast-375",
+      "caseId": "pilot-ui-04",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-non-text-contrast-1440",
+      "caseId": "pilot-ui-04",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-target-size-320",
+      "caseId": "pilot-ui-04",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-target-size-375",
+      "caseId": "pilot-ui-04",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-target-size-1440",
+      "caseId": "pilot-ui-04",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-reflow-320",
+      "caseId": "pilot-ui-04",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-text-spacing-320",
+      "caseId": "pilot-ui-04",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-text-spacing-375",
+      "caseId": "pilot-ui-04",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-text-spacing-1440",
+      "caseId": "pilot-ui-04",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-touch-target-spacing-320",
+      "caseId": "pilot-ui-04",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-touch-target-spacing-375",
+      "caseId": "pilot-ui-04",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-touch-target-spacing-1440",
+      "caseId": "pilot-ui-04",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-heading-hierarchy-320",
+      "caseId": "pilot-ui-04",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-heading-hierarchy-375",
+      "caseId": "pilot-ui-04",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-04-heading-hierarchy-1440",
+      "caseId": "pilot-ui-04",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-text-contrast-320",
+      "caseId": "pilot-ui-05",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-text-contrast-375",
+      "caseId": "pilot-ui-05",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-text-contrast-1440",
+      "caseId": "pilot-ui-05",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-non-text-contrast-320",
+      "caseId": "pilot-ui-05",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-non-text-contrast-375",
+      "caseId": "pilot-ui-05",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-non-text-contrast-1440",
+      "caseId": "pilot-ui-05",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-target-size-320",
+      "caseId": "pilot-ui-05",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-target-size-375",
+      "caseId": "pilot-ui-05",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-target-size-1440",
+      "caseId": "pilot-ui-05",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-reflow-320",
+      "caseId": "pilot-ui-05",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-text-spacing-320",
+      "caseId": "pilot-ui-05",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-text-spacing-375",
+      "caseId": "pilot-ui-05",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-text-spacing-1440",
+      "caseId": "pilot-ui-05",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-touch-target-spacing-320",
+      "caseId": "pilot-ui-05",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-touch-target-spacing-375",
+      "caseId": "pilot-ui-05",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-touch-target-spacing-1440",
+      "caseId": "pilot-ui-05",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-heading-hierarchy-320",
+      "caseId": "pilot-ui-05",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-heading-hierarchy-375",
+      "caseId": "pilot-ui-05",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-05-heading-hierarchy-1440",
+      "caseId": "pilot-ui-05",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-text-contrast-320",
+      "caseId": "pilot-ui-06",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-text-contrast-375",
+      "caseId": "pilot-ui-06",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-text-contrast-1440",
+      "caseId": "pilot-ui-06",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-non-text-contrast-320",
+      "caseId": "pilot-ui-06",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-non-text-contrast-375",
+      "caseId": "pilot-ui-06",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-non-text-contrast-1440",
+      "caseId": "pilot-ui-06",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-target-size-320",
+      "caseId": "pilot-ui-06",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-target-size-375",
+      "caseId": "pilot-ui-06",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-target-size-1440",
+      "caseId": "pilot-ui-06",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-reflow-320",
+      "caseId": "pilot-ui-06",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-text-spacing-320",
+      "caseId": "pilot-ui-06",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-text-spacing-375",
+      "caseId": "pilot-ui-06",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-text-spacing-1440",
+      "caseId": "pilot-ui-06",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-touch-target-spacing-320",
+      "caseId": "pilot-ui-06",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-touch-target-spacing-375",
+      "caseId": "pilot-ui-06",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-touch-target-spacing-1440",
+      "caseId": "pilot-ui-06",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-heading-hierarchy-320",
+      "caseId": "pilot-ui-06",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-heading-hierarchy-375",
+      "caseId": "pilot-ui-06",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-06-heading-hierarchy-1440",
+      "caseId": "pilot-ui-06",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-text-contrast-320",
+      "caseId": "pilot-ui-07",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-text-contrast-375",
+      "caseId": "pilot-ui-07",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-text-contrast-1440",
+      "caseId": "pilot-ui-07",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-non-text-contrast-320",
+      "caseId": "pilot-ui-07",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-non-text-contrast-375",
+      "caseId": "pilot-ui-07",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-non-text-contrast-1440",
+      "caseId": "pilot-ui-07",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-target-size-320",
+      "caseId": "pilot-ui-07",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-target-size-375",
+      "caseId": "pilot-ui-07",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-target-size-1440",
+      "caseId": "pilot-ui-07",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-reflow-320",
+      "caseId": "pilot-ui-07",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-text-spacing-320",
+      "caseId": "pilot-ui-07",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-text-spacing-375",
+      "caseId": "pilot-ui-07",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-text-spacing-1440",
+      "caseId": "pilot-ui-07",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-touch-target-spacing-320",
+      "caseId": "pilot-ui-07",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-touch-target-spacing-375",
+      "caseId": "pilot-ui-07",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-touch-target-spacing-1440",
+      "caseId": "pilot-ui-07",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-heading-hierarchy-320",
+      "caseId": "pilot-ui-07",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-heading-hierarchy-375",
+      "caseId": "pilot-ui-07",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-07-heading-hierarchy-1440",
+      "caseId": "pilot-ui-07",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-text-contrast-320",
+      "caseId": "pilot-ui-08",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-text-contrast-375",
+      "caseId": "pilot-ui-08",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-text-contrast-1440",
+      "caseId": "pilot-ui-08",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-non-text-contrast-320",
+      "caseId": "pilot-ui-08",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-non-text-contrast-375",
+      "caseId": "pilot-ui-08",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-non-text-contrast-1440",
+      "caseId": "pilot-ui-08",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-target-size-320",
+      "caseId": "pilot-ui-08",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-target-size-375",
+      "caseId": "pilot-ui-08",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-target-size-1440",
+      "caseId": "pilot-ui-08",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-reflow-320",
+      "caseId": "pilot-ui-08",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-text-spacing-320",
+      "caseId": "pilot-ui-08",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-text-spacing-375",
+      "caseId": "pilot-ui-08",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-text-spacing-1440",
+      "caseId": "pilot-ui-08",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-touch-target-spacing-320",
+      "caseId": "pilot-ui-08",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-touch-target-spacing-375",
+      "caseId": "pilot-ui-08",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-touch-target-spacing-1440",
+      "caseId": "pilot-ui-08",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-heading-hierarchy-320",
+      "caseId": "pilot-ui-08",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-heading-hierarchy-375",
+      "caseId": "pilot-ui-08",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-08-heading-hierarchy-1440",
+      "caseId": "pilot-ui-08",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-text-contrast-320",
+      "caseId": "pilot-ui-09",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-text-contrast-375",
+      "caseId": "pilot-ui-09",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-text-contrast-1440",
+      "caseId": "pilot-ui-09",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-non-text-contrast-320",
+      "caseId": "pilot-ui-09",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-non-text-contrast-375",
+      "caseId": "pilot-ui-09",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-non-text-contrast-1440",
+      "caseId": "pilot-ui-09",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-target-size-320",
+      "caseId": "pilot-ui-09",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-target-size-375",
+      "caseId": "pilot-ui-09",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-target-size-1440",
+      "caseId": "pilot-ui-09",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-reflow-320",
+      "caseId": "pilot-ui-09",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-text-spacing-320",
+      "caseId": "pilot-ui-09",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-text-spacing-375",
+      "caseId": "pilot-ui-09",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-text-spacing-1440",
+      "caseId": "pilot-ui-09",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-touch-target-spacing-320",
+      "caseId": "pilot-ui-09",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-touch-target-spacing-375",
+      "caseId": "pilot-ui-09",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-touch-target-spacing-1440",
+      "caseId": "pilot-ui-09",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-heading-hierarchy-320",
+      "caseId": "pilot-ui-09",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-heading-hierarchy-375",
+      "caseId": "pilot-ui-09",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-09-heading-hierarchy-1440",
+      "caseId": "pilot-ui-09",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-text-contrast-320",
+      "caseId": "pilot-ui-10",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-text-contrast-375",
+      "caseId": "pilot-ui-10",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-text-contrast-1440",
+      "caseId": "pilot-ui-10",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-non-text-contrast-320",
+      "caseId": "pilot-ui-10",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-non-text-contrast-375",
+      "caseId": "pilot-ui-10",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-non-text-contrast-1440",
+      "caseId": "pilot-ui-10",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-target-size-320",
+      "caseId": "pilot-ui-10",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-target-size-375",
+      "caseId": "pilot-ui-10",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-target-size-1440",
+      "caseId": "pilot-ui-10",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-reflow-320",
+      "caseId": "pilot-ui-10",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-text-spacing-320",
+      "caseId": "pilot-ui-10",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-text-spacing-375",
+      "caseId": "pilot-ui-10",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-text-spacing-1440",
+      "caseId": "pilot-ui-10",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-touch-target-spacing-320",
+      "caseId": "pilot-ui-10",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-touch-target-spacing-375",
+      "caseId": "pilot-ui-10",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-touch-target-spacing-1440",
+      "caseId": "pilot-ui-10",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-heading-hierarchy-320",
+      "caseId": "pilot-ui-10",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-heading-hierarchy-375",
+      "caseId": "pilot-ui-10",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-10-heading-hierarchy-1440",
+      "caseId": "pilot-ui-10",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-text-contrast-320",
+      "caseId": "pilot-ui-11",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-text-contrast-375",
+      "caseId": "pilot-ui-11",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-text-contrast-1440",
+      "caseId": "pilot-ui-11",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-non-text-contrast-320",
+      "caseId": "pilot-ui-11",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-non-text-contrast-375",
+      "caseId": "pilot-ui-11",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-non-text-contrast-1440",
+      "caseId": "pilot-ui-11",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-target-size-320",
+      "caseId": "pilot-ui-11",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-target-size-375",
+      "caseId": "pilot-ui-11",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-target-size-1440",
+      "caseId": "pilot-ui-11",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-reflow-320",
+      "caseId": "pilot-ui-11",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-text-spacing-320",
+      "caseId": "pilot-ui-11",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-text-spacing-375",
+      "caseId": "pilot-ui-11",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-text-spacing-1440",
+      "caseId": "pilot-ui-11",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-touch-target-spacing-320",
+      "caseId": "pilot-ui-11",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-touch-target-spacing-375",
+      "caseId": "pilot-ui-11",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-touch-target-spacing-1440",
+      "caseId": "pilot-ui-11",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-heading-hierarchy-320",
+      "caseId": "pilot-ui-11",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-heading-hierarchy-375",
+      "caseId": "pilot-ui-11",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-11-heading-hierarchy-1440",
+      "caseId": "pilot-ui-11",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-text-contrast-320",
+      "caseId": "pilot-ui-12",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-text-contrast-375",
+      "caseId": "pilot-ui-12",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-text-contrast-1440",
+      "caseId": "pilot-ui-12",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-non-text-contrast-320",
+      "caseId": "pilot-ui-12",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-non-text-contrast-375",
+      "caseId": "pilot-ui-12",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-non-text-contrast-1440",
+      "caseId": "pilot-ui-12",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-target-size-320",
+      "caseId": "pilot-ui-12",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-target-size-375",
+      "caseId": "pilot-ui-12",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-target-size-1440",
+      "caseId": "pilot-ui-12",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-reflow-320",
+      "caseId": "pilot-ui-12",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-text-spacing-320",
+      "caseId": "pilot-ui-12",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-text-spacing-375",
+      "caseId": "pilot-ui-12",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-text-spacing-1440",
+      "caseId": "pilot-ui-12",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-touch-target-spacing-320",
+      "caseId": "pilot-ui-12",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-touch-target-spacing-375",
+      "caseId": "pilot-ui-12",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-touch-target-spacing-1440",
+      "caseId": "pilot-ui-12",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-heading-hierarchy-320",
+      "caseId": "pilot-ui-12",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-heading-hierarchy-375",
+      "caseId": "pilot-ui-12",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-ui-12-heading-hierarchy-1440",
+      "caseId": "pilot-ui-12",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-text-contrast-320",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-text-contrast-375",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-text-contrast-1440",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-non-text-contrast-320",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-non-text-contrast-375",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-non-text-contrast-1440",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-target-size-320",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-target-size-375",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-target-size-1440",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-reflow-320",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-text-spacing-320",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-text-spacing-375",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-text-spacing-1440",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-touch-target-spacing-320",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-touch-target-spacing-375",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-touch-target-spacing-1440",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-heading-hierarchy-320",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-heading-hierarchy-375",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-heading-heading-hierarchy-1440",
+      "caseId": "pilot-metrics-heading",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-text-contrast-320",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-text-contrast-375",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-text-contrast-1440",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-non-text-contrast-320",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-non-text-contrast-375",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-non-text-contrast-1440",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "non-text-contrast",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-target-size-320",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-target-size-375",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-target-size-1440",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "target-size",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-reflow-320",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "reflow",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-text-spacing-320",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-text-spacing-375",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-text-spacing-1440",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "text-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-touch-target-spacing-320",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-touch-target-spacing-375",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-touch-target-spacing-1440",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "touch-target-spacing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-heading-hierarchy-320",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-heading-hierarchy-375",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    },
+    {
+      "id": "pilot-metrics-context-heading-hierarchy-1440",
+      "caseId": "pilot-metrics-context",
+      "ruleId": "heading-hierarchy",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": null,
+      "expectedStatus": null,
+      "reviewerId": null,
+      "rationale": null,
+      "reviewedAt": null,
+      "adjudicatedBy": null
+    }
+  ]
+}

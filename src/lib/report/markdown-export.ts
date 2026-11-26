@@ -78,6 +78,15 @@ function formatIssueSection(issue: ReportGroupedIssue, index: number): string {
   lines.push(`- **Rule ID**: ${safeInlineCode(issue.ruleId)}`);
   lines.push(`- **WCAG Criterion**: ${safeInlineCode(issue.wcagCriterion)}`);
   lines.push(`- **Status**: \`${issue.status}\``);
+  if (issue.metric) {
+    lines.push(`- **Metric**: ${issue.metric.metricId} v${issue.metric.metricVersion}; ${issue.metric.unit}; ${issue.metric.executionStatus}; ${issue.metric.applicability}; project advisory`);
+  }
+  if (issue.touchSpacing) {
+    lines.push(`- **Touch target pair**: ${issue.touchSpacing.summary}`);
+    for (const { viewport, distance, overlap, needsReview } of issue.touchSpacing.byViewport) {
+      lines.push(`  - ${viewport.width}×${viewport.height}: ${distance} CSS px · ${needsReview ? 'Needs review' : 'Pass'}${overlap ? ' · Overlap' : ''}`);
+    }
+  }
   lines.push(`- **Project Priority**: **${issue.currentPriority}** (Initial: ${issue.initialPriority})`);
   lines.push(`- **Priority Rationale**: ${escapeHtml(sanitizeMarkdownProse(issue.priorityRationale))}`);
   lines.push(`- **Occurrence Count**: ${issue.occurrenceCount} across ${issue.viewports.map((v) => `${v.width}×${v.height}`).join(', ')}`);
@@ -114,6 +123,15 @@ function formatIssueSection(issue: ReportGroupedIssue, index: number): string {
     lines.push('');
   }
 
+  if (issue.reviewDisposition) {
+    lines.push('**Issue Review**:');
+    lines.push(`- **Review Status**: ${issue.reviewDisposition}`);
+    if (issue.reviewReason) lines.push(`- **Review Rationale**: ${escapeHtml(sanitizeMarkdownProse(issue.reviewReason))}`);
+    if (issue.reviewer) lines.push(`- **Reviewer (self-reported)**: ${escapeHtml(sanitizeMarkdownProse(issue.reviewer))}`);
+    if (issue.reviewedAt) lines.push(`- **Reviewed At**: ${issue.reviewedAt}`);
+    lines.push('- Review decisions do not change automated evidence or verify a candidate fix.');
+    lines.push('');
+  }
   // Designer Decision
   if (issue.designerDecision) {
     lines.push('**Designer-in-the-Loop Decision**:');
@@ -125,6 +143,91 @@ function formatIssueSection(issue: ReportGroupedIssue, index: number): string {
       lines.push(`- **Designer-Edited Recommendation**: ${escapeHtml(sanitizeMarkdownProse(issue.editedRecommendation))}`);
     }
     lines.push('');
+  }
+
+  if (issue.proposedFix) {
+    lines.push('#### Saved proposed fix');
+    lines.push('Unverified draft — not re-audited.');
+    lines.push('Selector: ' + escapeHtml(issue.proposedFix.selector));
+    lines.push('Viewport: ' + issue.proposedFix.viewport.width + '×' + issue.proposedFix.viewport.height);
+    lines.push('<pre>' + escapeHtml(issue.proposedFix.css) + '</pre>');
+    lines.push('');
+  }
+  // Remediation & Iteration Proof
+  if (issue.iterationComparison) {
+    const iter = issue.iterationComparison;
+    lines.push('#### 🔄 Remediation & Iteration Proof');
+    lines.push('');
+
+    const statusLabel =
+      iter.verificationStatus === 'verified'
+        ? 'Selected checks passed (WCAG 2.5.8 & 1.4.3 only)'
+        : iter.verificationStatus === 'unable_to_verify'
+        ? 'Unable to verify (Incomplete verification)'
+        : iter.verificationStatus === 'failed'
+        ? 'Checks failed'
+        : iter.regressionResult || 'Evaluated';
+
+    lines.push(`- **Verification Status**: \`${statusLabel}\``);
+
+    if (iter.candidateName) {
+      lines.push(`- **Candidate Proposal**: ${escapeHtml(sanitizeMarkdownProse(iter.candidateName))}`);
+    } else if (iter.overrideName) {
+      lines.push(`- **Applied Override**: ${escapeHtml(sanitizeMarkdownProse(iter.overrideName))}`);
+    }
+
+    if (iter.regressionResult) {
+      lines.push(`- **Regression Comparison**: \`${iter.regressionResult}\``);
+    }
+    if (iter.regressionCounts) {
+      lines.push(
+        `- **Occurrence Counts**: ${iter.regressionCounts.resolved} resolved; ${iter.regressionCounts.persistent} persistent; ${iter.regressionCounts.new} new; ${iter.regressionCounts.unverified} unverified`
+      );
+    }
+    if (iter.plainLanguageSummary) {
+      lines.push(`- **Summary**: ${escapeHtml(sanitizeMarkdownProse(iter.plainLanguageSummary))}`);
+    }
+
+    // Warnings if unable to verify or errors present
+    if (iter.verificationErrors && iter.verificationErrors.length > 0) {
+      lines.push('');
+      lines.push('> [!WARNING]');
+      lines.push('> **Verification Incomplete / ตรวจสอบไม่ได้**:');
+      for (const err of iter.verificationErrors) {
+        lines.push(`> - ${escapeHtml(sanitizeMarkdownProse(err))}`);
+      }
+    }
+
+    // Measured comparison table
+    lines.push('');
+    lines.push('| Evidence Phase | Status | Measurement |');
+    lines.push('| :--- | :--- | :--- |');
+    lines.push(
+      `| **Baseline (Before)** | \`${iter.baselineStatus || issue.status}\` | \`${JSON.stringify(iter.baselineMeasurement)}\` |`
+    );
+    lines.push(
+      `| **Candidate (After)** | \`${iter.candidateStatus || (iter.verificationStatus === 'verified' ? 'pass' : 'unverified')}\` | \`${JSON.stringify(iter.candidateMeasurement)}\` |`
+    );
+    lines.push('');
+
+    // Code diff / Applied CSS
+    if (iter.candidateCode) {
+      lines.push('**Candidate Code Snippet**:');
+      lines.push(safeCodeFence(iter.candidateCode, 'html'));
+      lines.push('');
+    } else if (iter.appliedCss) {
+      lines.push('**Applied CSS Override**:');
+      lines.push(safeCodeFence(iter.appliedCss, 'css'));
+      lines.push('');
+    }
+
+    if (iter.finalDesignerDecision) {
+      lines.push(`- **Final Designer Decision**: \`${iter.finalDesignerDecision}\``);
+      if (iter.finalDesignerReason) {
+        lines.push(`- **Decision Reason**: ${escapeHtml(sanitizeMarkdownProse(iter.finalDesignerReason))}`);
+      }
+      lines.push('');
+    }
   }
 
   return lines.join('\n');
@@ -152,6 +255,25 @@ export function generateMarkdownReport(report: ReportModel): string {
   );
   sections.push('');
 
+  if (report.audit.productContext && Object.values(report.audit.productContext).some(Boolean)) {
+    sections.push('## Product Context', '');
+    for (const [key, value] of Object.entries(report.audit.productContext)) {
+      if (value) sections.push(`- **${escapeHtml(key)}**: ${escapeHtml(sanitizeMarkdownProse(value))}`);
+    }
+    sections.push('');
+  }
+
+  if (report.audit.metricResults?.length) {
+    sections.push('## Pilot Metric Evidence', '');
+    sections.push('Project advisories only. Execution status and applicability are independent of the inspection outcome. null means unmeasured or unavailable, never zero.', '');
+    for (const metric of report.audit.metricResults) {
+      sections.push(`### ${metric.metricId} v${metric.metricVersion} — ${metric.viewport.width}×${metric.viewport.height}`, '');
+      sections.push(`- **Execution**: ${metric.executionStatus}; **Applicability**: ${metric.applicability}; **Outcome**: ${metric.outcome ?? 'null'}; **Unit**: ${metric.unit}`);
+      sections.push(escapeHtml(sanitizeMarkdownProse(metric.reason)), '');
+      sections.push(safeCodeFence(JSON.stringify(metric, null, 2), 'json'), '');
+    }
+  }
+
   // 3. Scope and Disclaimers
   sections.push('## Scope and Disclaimers');
   sections.push('');
@@ -173,6 +295,11 @@ export function generateMarkdownReport(report: ReportModel): string {
   sections.push(
     `| Priority Breakdown | P0: ${report.summary.priorityCounts.P0} | P1: ${report.summary.priorityCounts.P1} | P2: ${report.summary.priorityCounts.P2} | P3: ${report.summary.priorityCounts.P3} |`
   );
+  if (report.summary.remediationSummary) {
+    sections.push(
+      `| Remediation & Iteration | Evaluated: ${report.summary.remediationSummary.totalIterated} | Verified: ${report.summary.remediationSummary.verifiedCount} | Regressed: ${report.summary.remediationSummary.regressedCount} | Unverified: ${report.summary.remediationSummary.unableToVerifyCount} |`
+    );
+  }
   sections.push('');
 
   // 5. Candidate Failures
@@ -209,7 +336,7 @@ export function generateMarkdownReport(report: ReportModel): string {
   sections.push('');
 
   // 8. Designer Decisions
-  const decided = report.groupedIssues.filter((i) => Boolean(i.designerDecision));
+  const decided = report.groupedIssues.filter((i) => Boolean(i.designerDecision || i.reviewDisposition));
   sections.push('## Designer Decisions');
   sections.push('');
   if (decided.length === 0) {
@@ -219,9 +346,9 @@ export function generateMarkdownReport(report: ReportModel): string {
     sections.push('| :--- | :--- | :--- | :--- |');
     for (const d of decided) {
       const title = escapeHtml(d.title);
-      const dec = `\`${d.designerDecision}\``;
+      const dec = `\`${d.reviewDisposition || d.designerDecision}\``;
       const prio = `${d.currentPriority}`;
-      const reason = escapeHtml(d.designerReason || '—');
+      const reason = escapeHtml(sanitizeMarkdownProse(d.reviewReason || d.designerReason || '—'));
       sections.push(`| ${title} | ${dec} | ${prio} | ${reason} |`);
     }
   }
@@ -242,8 +369,8 @@ export function generateMarkdownReport(report: ReportModel): string {
       const ts = h.timestamp;
       const act = `\`${h.action}\``;
       const title = escapeHtml(h.issueTitle);
-      const transition = `${h.previousState || 'none'} &rarr; ${h.newState}`;
-      const reason = escapeHtml(h.reason || '—');
+      const transition = h.newDisposition ? `${h.previousDisposition || 'none'} &rarr; ${h.newDisposition}` : `${h.previousState || 'none'} &rarr; ${h.newState || 'none'}`;
+      const reason = escapeHtml(sanitizeMarkdownProse(`${h.reason || '—'}${h.reviewer ? ` (Reviewer, self-reported: ${h.reviewer})` : ''}`));
       sections.push(`| ${ts} | ${act} | ${title} | ${transition} | ${reason} |`);
     }
   }

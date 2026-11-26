@@ -1,0 +1,69 @@
+/* Studio Specific Scoped Helpers (Iframe Scaling & Device Mockups) */
+
+.studio-thumb-frame {
+  width: 104px;
+  height: 164px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+}
+
+.studio-thumb-frame iframe {
+  width: 375px;
+  height: 600px;
+  border: 0;
+  transform: scale(0.277);
+  transform-origin: top left;
+}
+
+.studio-mini-frame-box {
+  width: 56px;
+  height: 110px;
+  overflow: hidden;
+  background: white;
+  pointer-events: none;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+}
+
+.studio-mini-frame-box iframe {
+  width: 375px;
+  height: 740px;
+  border: 0;
+  transform: scale(0.15);
+  transform-origin: top left;
+}
+
+.studio-live-viewport {
+  height: 380px;
+  overflow: auto;
+  background: #f4f4f5;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  border: 1px solid #e4e4e7;
+}
+
+.studio-live-viewport iframe {
+  min-height: 667px;
+  height: 667px;
+  border: 0;
+  background: white;
+  max-width: none;
+  flex-shrink: 0;
+  transform: scale(0.72);
+  transform-origin: top center;
+  margin-bottom: -187px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 768px) {
+  .studio-live-viewport iframe {
+    transform: scale(0.8);
+    transform-origin: top center;
+  }
+}

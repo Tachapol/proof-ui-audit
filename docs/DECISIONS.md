@@ -312,3 +312,67 @@ This document records technical and architectural decisions for `proofui-audit-p
   - **Fixture Entity Fix**: One `react/no-unescaped-entities` error in `ReflowFixture.tsx` was fixed by replacing literal double quotes with `&quot;` entities in JSX text content. This is a linting compliance fix with no behavioral change.
 * **Reason**: Satisfies Phase 8 exit criteria requiring clean ESLint, complete Playwright coverage, and 100% traceability closure without introducing new features or dependencies.
 * **Affected Requirement IDs**: `TEST-24`, `TEST-25`, `DONE-01` through `DONE-20`
+
+---
+
+## DEC-024: Visual Canvas Overlay & Flush Zero-Gutter Viewport Display
+
+* **Date**: 2026-11-19
+* **Decision**:
+  - Eliminate all artificial margins or outer gutter offsets (`LEFT_GUTTER = 0`) on the live audit iframe viewport, rendering the frame flush at `left: 0` with exact 100% viewport dimensions (1440px Desktop, 375px Mobile, 320px Reflow).
+  - Position interactive pin markers directly over element bounding box corners, with a 44×44px transparent touch hit-box (complying with WCAG 2.5.5 / 2.5.8 target size criteria) and a 16×16px high-contrast numbered circle badge.
+  - Draw SVG leader lines connecting pin badges to element boundaries on hover or active selection.
+  - Provide a floating, non-modal resizable Inspector Drawer (320px–680px) displaying authentic extracted text, 3-column comparative metrics (`Measured`, `Required`, `Estimated`), stacked before/after cards (`card-before`, `card-after`), and one-click toggleable CSS fix previews applied directly inside the live iframe.
+* **Reason**: An artificial 48px left rail previously created an unsightly white vertical strip inside the scaled frame, pushing the audited page off-center and clipping responsive content on smaller viewports. Placing pins as true overlays restores authentic full-width viewport fidelity.
+* **Affected Requirement IDs**: `UI-07`, `UI-15`, `TEST-23`
+
+---
+
+## DEC-025: Unified Issue Review Dispositions, Modal Setup Dialog, and URL-First Review Workflow
+
+* **Date**: 2026-11-19
+* **Decision**:
+  - Adopt a URL-first priority: opening a link with `?runId=...` immediately displays the audit results and review queue header (`Audit completed`, `Candidate fail`, `Needs review`, `Pass`), bypassing the initial audit form.
+  - Transform the "New audit" action into a non-disruptive modal dialog / drawer so starting a new run does not push the active evidence and review queue off-screen.
+  - Consolidate finding decisions into a single unified review workflow (**Confirmed Issue**, **False Positive**, **Needs Review**, **Accepted Risk**) with reviewer attribution and rationale, separating `Edit Scope` and `Reprioritize` into auxiliary actions.
+  - Fold passed checks into a collapsed `<details>` section at the bottom of the review feed by default, keeping the primary focus on actionable findings.
+  - Clean up navigation duplicates by establishing a single primary **Open in Critique Studio** action adjacent to the summary.
+* **Reason**: Resolves reviewer fatigue and visual disorientation caused by large forms pushing evidence offscreen, redundant decision buttons, and duplicate action links.
+* **Affected Requirement IDs**: `UI-06`, `UI-10`, `UI-14`, `DATA-05`, `DATA-06`
+
+---
+
+## DEC-026: Multi-Role Critique Studio and CPE Gateway Integration
+
+* **Date**: 2026-11-16
+* **Decision**:
+  - Implement a dedicated multi-role design debate environment (`/studio`) featuring specialized AI perspectives (Lead Coordinator, UX, Design System, Accessibility, Product Manager) powered by Google Gemini via a unified CPE gateway.
+  - Enable bidirectional round-trip navigation between the Audit evidence workspace and Critique Studio, preserving exact scroll position, active issue focus, and status filters across page reloads.
+  - Provide structured design remediation proposals with live color swatches, computed contrast ratios, and copyable CSS snippets.
+* **Reason**: Moves beyond single-point automated linting into collaborative multi-perspective design reasoning while keeping evidence strictly grounded in verified measurements.
+* **Affected Requirement IDs**: `AI-01`, `AI-02`, `AI-03`, `ARCH-08`
+
+---
+
+## DEC-027: Component Sandbox with In-Browser Re-audit Verification and Regression Detection
+
+* **Date**: 2026-11-17
+* **Decision**:
+  - Build an isolated Component Sandbox (`/sandbox`) that generates multi-candidate remediation proposals, applies them inside an isolated Chromium browser environment, and executes automated re-audits.
+  - Enforce a 4-state verification model: `Verified` (re-audit confirms conformance with zero regressions), `Suboptimal` (partially improved but still below thresholds), `Unable to Verify` (selector unreachable or syntax error), and `Unverified` (draft spec not yet tested in sandbox).
+  - Prevent client-side spoofing by requiring server-recorded candidate validation.
+* **Reason**: Guarantees that suggested design fixes actually work in real browser rendering before designers or developers commit them to design specs or codebases.
+* **Affected Requirement IDs**: `ARCH-10`, `TEST-23`, `RULE-01` through `RULE-10`
+
+---
+
+## DEC-028: Pilot Benchmark Evaluation Protocol (UI-01 through UI-12) & Advisory Metrics
+
+* **Date**: 2026-11-17
+* **Decision**:
+  - Establish a standardized benchmark suite of 12 real-world stimuli (`UI-01` to `UI-12`) covering varied layouts, forms, and navigation patterns.
+  - Introduce two pilot advisory metrics (**Touch Target Spacing** with nearest-neighbor Euclidean distance and **Heading Hierarchy** with depth jump analysis) marked clearly with a **Project advisory** badge to avoid claiming formal WCAG non-conformance.
+  - Surface advisory metrics with plain-language summaries (e.g. *Email field and Continue button overlap distance: 0 px*) and expandable multi-viewport breakdowns.
+  - Implement a two-phase blind evaluation protocol for evaluating human expert agreement against automated tool proposals.
+* **Reason**: Expands diagnostic depth to modern layout hazards while rigorously preserving the boundary between established standards and exploratory research heuristics.
+* **Affected Requirement IDs**: `DATA-01`, `RULE-01`, `RULE-09`

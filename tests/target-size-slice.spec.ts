@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 
 test.describe('Phase 1: Target Size Vertical Slice', () => {
   test('executes end-to-end target size audit on local fixture and persists designer decision', async ({ page }) => {
@@ -7,7 +8,7 @@ test.describe('Phase 1: Target Size Vertical Slice', () => {
     await expect(page.locator('h1')).toHaveText('ProofUI Audit PoC');
 
     // 2. Select fixture and trigger audit
-    await page.selectOption('#fixture-select', 'target-size-demo');
+    await selectDebugFixture(page, 'target-size-demo');
     const runBtn = page.locator('#run-audit-button');
     await expect(runBtn).toBeEnabled();
     await runBtn.click();
@@ -46,7 +47,7 @@ test.describe('Phase 1: Target Size Vertical Slice', () => {
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 15000 });
     const reloadedCard = page.locator('article', { hasText: 'Interactive target below 24×24 CSS px' }).first();
     await expect(reloadedCard).toBeVisible();
-    await expect(reloadedCard.locator('.decision-badge')).toHaveText('Decision: reprioritize');
+    await expect(reloadedCard.locator('.decision-badge')).toHaveText('Last adjustment: Changed priority');
     await expect(reloadedCard.locator('text=High-traffic action on mobile: verified candidate issue.')).toBeVisible();
   });
 });

@@ -104,17 +104,51 @@ describe('Phase 6B: Allowlisted Overrides & Iteration Proof Unit Tests', () => {
       expect(result.error).toContain("applies to rule 'target-size', but issue has rule 'reflow'");
     });
 
-    it('rejects override when fixture ID mismatches', () => {
+    it('approves override for any fixture when applicableFixtureIds is wildcard', () => {
+      // 'increase-target-size' uses '*' so any fixture or external URL is permitted.
       const override = ALLOWLISTED_OVERRIDES['increase-target-size'];
-      const result = validateOverrideForIssue(override, 'reflow-demo', 'target-size');
-      expect(result.valid).toBe(false);
-      expect(result.error).toContain("applies to fixture 'target-size-demo', but run target is 'reflow-demo'");
+      expect(override.applicableFixtureIds).toBe('*');
+
+      // Different fixture IDs — all should pass because rule matches and scope is '*'.
+      for (const fixtureId of ['target-size-demo', 'pilot-ui-03', 'pilot-ui-04', 'reflow-demo', undefined]) {
+        const result = validateOverrideForIssue(override, fixtureId, 'target-size');
+        expect(result.valid).toBe(true);
+      }
     });
 
-    it('approves override matching both rule and fixture', () => {
+    it('rejects override when rule ID mismatches regardless of fixture wildcard', () => {
       const override = ALLOWLISTED_OVERRIDES['increase-target-size'];
-      const result = validateOverrideForIssue(override, 'target-size-demo', 'target-size');
-      expect(result.valid).toBe(true);
+      // Even with '*' fixture scope, the rule check is still enforced.
+      const result = validateOverrideForIssue(override, 'any-fixture', 'reflow');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("applies to rule 'target-size', but issue has rule 'reflow'");
+    });
+
+    it('rejects array-restricted override for unlisted fixture', () => {
+      // Simulate a future fixture-restricted override (not in the registry yet).
+      const restrictedOverride = {
+        ...ALLOWLISTED_OVERRIDES['increase-target-size'],
+        id: 'increase-target-size' as const,
+        applicableFixtureIds: ['target-size-demo'] as string[],
+      };
+
+      const failResult = validateOverrideForIssue(restrictedOverride, 'pilot-ui-03', 'target-size');
+      expect(failResult.valid).toBe(false);
+      expect(failResult.error).toContain("is not permitted for fixture 'pilot-ui-03'");
+
+      const passResult = validateOverrideForIssue(restrictedOverride, 'target-size-demo', 'target-size');
+      expect(passResult.valid).toBe(true);
+    });
+
+    it('rejects array-restricted override for external URL targets (no fixtureId)', () => {
+      const restrictedOverride = {
+        ...ALLOWLISTED_OVERRIDES['increase-target-size'],
+        id: 'increase-target-size' as const,
+        applicableFixtureIds: ['target-size-demo'] as string[],
+      };
+      const result = validateOverrideForIssue(restrictedOverride, undefined, 'target-size');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('restricted to specific fixtures');
     });
   });
 

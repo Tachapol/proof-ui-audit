@@ -1,0 +1,41 @@
+{
+  "freezeEligible": false,
+  "expertValidationStatus": "pending",
+  "coverage": [
+    {
+      "ruleId": "text-contrast",
+      "measuredOccurrences": 276
+    },
+    {
+      "ruleId": "non-text-contrast",
+      "measuredOccurrences": 6
+    },
+    {
+      "ruleId": "target-size",
+      "measuredOccurrences": 45
+    },
+    {
+      "ruleId": "reflow",
+      "measuredOccurrences": 14
+    },
+    {
+      "ruleId": "text-spacing",
+      "measuredOccurrences": 6
+    },
+    {
+      "ruleId": "touch-target-spacing",
+      "measuredOccurrences": 54
+    },
+    {
+      "ruleId": "heading-hierarchy",
+      "measuredOccurrences": 24
+    }
+  ],
+  "comparisons": [],
+  "unreviewedFindings": [],
+  "statusAgreementRate": null,
+  "recall": null,
+  "blockers": [
+    "Human expert annotations have not been supplied."
+  ]
+}

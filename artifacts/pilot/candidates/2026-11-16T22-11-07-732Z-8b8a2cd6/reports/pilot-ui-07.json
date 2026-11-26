@@ -1,0 +1,2515 @@
+{
+  "schemaVersion": "1.0.0",
+  "exportTimestamp": "2026-11-16T22:12:20.431Z",
+  "audit": {
+    "metricResults": [
+      {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "skipped",
+        "applicability": "not_applicable",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-07",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+        "measurements": [
+          {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)",
+              "element": "button",
+              "accessibleName": "Confirm delivery",
+              "boundingBox": {
+                "x": 32,
+                "y": 335.171875,
+                "width": 147.59375,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)"
+            },
+            "nearestTarget": null,
+            "distance": null,
+            "overlap": null,
+            "overlapArea": null,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "skipped",
+        "applicability": "unknown",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-07",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+        "measurements": [
+          {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+            "element": "h2",
+            "accessibleName": "Delivery information",
+            "boundingBox": {
+              "x": 32,
+              "y": 211.171875,
+              "width": 256,
+              "height": 36
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 0,
+            "previousHeading": null,
+            "skippedLevels": null,
+            "boundaryContextKnown": false,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "skipped",
+        "applicability": "not_applicable",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-07",
+        "viewport": {
+          "width": 375,
+          "height": 812
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+        "measurements": [
+          {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)",
+              "element": "button",
+              "accessibleName": "Confirm delivery",
+              "boundingBox": {
+                "x": 32,
+                "y": 304.171875,
+                "width": 147.59375,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)"
+            },
+            "nearestTarget": null,
+            "distance": null,
+            "overlap": null,
+            "overlapArea": null,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "skipped",
+        "applicability": "unknown",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-07",
+        "viewport": {
+          "width": 375,
+          "height": 812
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+        "measurements": [
+          {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+            "element": "h2",
+            "accessibleName": "Delivery information",
+            "boundingBox": {
+              "x": 32,
+              "y": 180.171875,
+              "width": 311,
+              "height": 36
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 0,
+            "previousHeading": null,
+            "skippedLevels": null,
+            "boundaryContextKnown": false,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "skipped",
+        "applicability": "not_applicable",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-07",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+        "measurements": [
+          {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)",
+              "element": "button",
+              "accessibleName": "Confirm delivery",
+              "boundingBox": {
+                "x": 32,
+                "y": 282.484375,
+                "width": 147.59375,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(3)"
+            },
+            "nearestTarget": null,
+            "distance": null,
+            "overlap": null,
+            "overlapArea": null,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      },
+      {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "skipped",
+        "applicability": "unknown",
+        "basis": "project-advisory",
+        "url": "http://localhost:3123/fixtures/pilot-ui-07",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "scopeSelector": "#fixture-content",
+        "rawParentHeadingLevel": null,
+        "outcome": null,
+        "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+        "measurements": [
+          {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+            "element": "h2",
+            "accessibleName": "Delivery information",
+            "boundingBox": {
+              "x": 32,
+              "y": 158.484375,
+              "width": 1376,
+              "height": 36
+            },
+            "level": 2,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 0,
+            "previousHeading": null,
+            "skippedLevels": null,
+            "boundaryContextKnown": false,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": null
+          }
+        ],
+        "limitations": [
+          "One rendered DOM state only; interactions are not opened or combined across states.",
+          "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+          "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+        ]
+      }
+    ],
+    "runId": "pilot-pilot-ui-07-ea380609-42cc-4529-af31-d5f4c2c4b107",
+    "timestamp": "2026-11-16T22:12:20.426Z",
+    "targetUrl": "http://localhost:3123/fixtures/pilot-ui-07",
+    "fixtureId": "pilot-ui-07",
+    "viewports": [
+      {
+        "width": 320,
+        "height": 640
+      },
+      {
+        "width": 375,
+        "height": 812
+      },
+      {
+        "width": 1440,
+        "height": 900
+      }
+    ]
+  },
+  "summary": {
+    "rawFindingCount": 25,
+    "groupedIssueCount": 9,
+    "passCount": 8,
+    "candidateFailCount": 1,
+    "needsReviewCount": 0,
+    "priorityCounts": {
+      "P0": 0,
+      "P1": 1,
+      "P2": 0,
+      "P3": 8
+    }
+  },
+  "disclaimers": [
+    "Only five selected WCAG-informed criteria were tested (Text Contrast, Non-text Contrast, Target Size, Reflow, Text Spacing).",
+    "Automated results do not establish complete WCAG conformance.",
+    "'candidateFail' is an automated candidate issue and requires human verification.",
+    "'needsReview' requires human interpretation and design context validation.",
+    "P0–P3 is a project heuristic and not a severity scale defined by WCAG.",
+    "AI-generated explanations and recommendations are advisory decision-support only.",
+    "The UX/UI designer retains authority and makes the final decision on all items.",
+    "Touch Target Spacing and Heading Hierarchy are additional pilot project advisories. A gap below 8 CSS px or a heading-level skip is not an automatic WCAG failure. Metric execution and applicability are separate from findings."
+  ],
+  "limitations": [
+    "Default audit viewports are 1440px, 375px and 320px. Reflow is evaluated at 320 CSS px; explicitly restricted audits may use other viewport sets.",
+    "Dynamic interactive animations, single-page application route transitions, and authenticated states are excluded from automated auditing.",
+    "Text and elements over complex canvas, dynamic video, or multi-layered CSS blend modes require manual designer review."
+  ],
+  "groupedIssues": [
+    {
+      "fingerprint": "reflow::#fixture-content::scroll-288-overflow-0",
+      "ruleId": "reflow",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+      "status": "pass",
+      "title": "Content reflows without 2D scrolling at 320px",
+      "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px.",
+      "occurrenceCount": 1,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        }
+      ],
+      "selector": "#fixture-content",
+      "element": "html",
+      "measured": {
+        "scrollWidth": 288,
+        "clientWidth": 288,
+        "horizontalOverflowPx": 0,
+        "overflowingElementsCount": 0,
+        "metricVersion": "1.1.0",
+        "unit": "CSS px",
+        "scopeSelector": "#fixture-content",
+        "rawHorizontalOverflowPx": 0,
+        "rawDocumentScrollWidth": 320,
+        "rawDocumentClientWidth": 320,
+        "rawScopeScrollWidth": 288,
+        "decorativeElementsExcludedCount": 0
+      },
+      "expected": {
+        "maxOverflowPx": 1,
+        "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 195.171875,
+        "width": 288,
+        "height": 200
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "reflow-786441317",
+          "ruleId": "reflow",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+          "status": "pass",
+          "title": "Content reflows without 2D scrolling at 320px",
+          "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#fixture-content",
+          "element": "html",
+          "measured": {
+            "scrollWidth": 288,
+            "clientWidth": 288,
+            "horizontalOverflowPx": 0,
+            "overflowingElementsCount": 0,
+            "metricVersion": "1.1.0",
+            "unit": "CSS px",
+            "scopeSelector": "#fixture-content",
+            "rawHorizontalOverflowPx": 0,
+            "rawDocumentScrollWidth": 320,
+            "rawDocumentClientWidth": 320,
+            "rawScopeScrollWidth": 288,
+            "decorativeElementsExcludedCount": 0
+          },
+          "expected": {
+            "maxOverflowPx": 1,
+            "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 195.171875,
+            "width": 288,
+            "height": 200
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "target-size::button::148x44",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (147.6×44 px)",
+      "description": "The interactive target \"Confirm delivery\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 147.6×44 px.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Confirm delivery",
+      "measured": {
+        "width": 147.6,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 335,
+        "width": 147.6,
+        "height": 44
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "target-size-1694319097",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (147.6×44 px)",
+          "description": "The interactive target \"Confirm delivery\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 147.6×44 px.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Confirm delivery",
+          "measured": {
+            "width": 147.6,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 335,
+            "width": 147.6,
+            "height": 44
+          }
+        },
+        {
+          "id": "target-size-1694319097",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (147.6×44 px)",
+          "description": "The interactive target \"Confirm delivery\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 147.6×44 px.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Confirm delivery",
+          "measured": {
+            "width": 147.6,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 304,
+            "width": 147.6,
+            "height": 44
+          }
+        },
+        {
+          "id": "target-size-1694319097",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (147.6×44 px)",
+          "description": "The interactive target \"Confirm delivery\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 147.6×44 px.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Confirm delivery",
+          "measured": {
+            "width": 147.6,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 282,
+            "width": 147.6,
+            "height": 44
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::span::ratio-5.4",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-1425590532",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          }
+        },
+        {
+          "id": "text-contrast-1425590532",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          }
+        },
+        {
+          "id": "text-contrast-1425590532",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::h1::ratio-15.4",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-07: Delivery Notice (Fixed Height)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-07: Delivery Notice (Fixed Height)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 288,
+        "height": 62
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-252222478",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-07: Delivery Notice (Fixed Height)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-07: Delivery Notice (Fixed Height)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 288,
+            "height": 62
+          }
+        },
+        {
+          "id": "text-contrast-252222478",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-07: Delivery Notice (Fixed Height)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-07: Delivery Notice (Fixed Height)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 343,
+            "height": 31
+          }
+        },
+        {
+          "id": "text-contrast-252222478",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-07: Delivery Notice (Fixed Height)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-07: Delivery Notice (Fixed Height)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 1408,
+            "height": 31
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::p::ratio-5.4",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Fixed-height container with overflow:hid\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Fixed-height container with overflow:hidden trunca",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 288,
+        "height": 43.375
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-1554549640",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Fixed-height container with overflow:hid\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Fixed-height container with overflow:hidden trunca",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 110.796875,
+            "width": 288,
+            "height": 43.375
+          }
+        },
+        {
+          "id": "text-contrast-1554549640",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Fixed-height container with overflow:hid\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Fixed-height container with overflow:hidden trunca",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 79.796875,
+            "width": 343,
+            "height": 43.375
+          }
+        },
+        {
+          "id": "text-contrast-1554549640",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Fixed-height container with overflow:hid\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Fixed-height container with overflow:hidden trunca",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 79.796875,
+            "width": 1408,
+            "height": 21.6875
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::h2::ratio-17.7",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Delivery information\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Delivery information",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 211.171875,
+        "width": 256,
+        "height": 36
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-562093055",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Delivery information\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Delivery information",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 211.171875,
+            "width": 256,
+            "height": 36
+          }
+        },
+        {
+          "id": "text-contrast-562093055",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Delivery information\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Delivery information",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 180.171875,
+            "width": 311,
+            "height": 36
+          }
+        },
+        {
+          "id": "text-contrast-562093055",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Delivery information\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Delivery information",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 158.484375,
+            "width": 1376,
+            "height": 36
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::#delivery-details::ratio-17.7",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Your order arrives on Monday. Please kee\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#delivery-details",
+      "element": "p",
+      "accessibleName": "Your order arrives on Monday. Please keep your pho",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 247.171875,
+        "width": 256,
+        "height": 72
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-78587113",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Your order arrives on Monday. Please kee\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#delivery-details",
+          "element": "p",
+          "accessibleName": "Your order arrives on Monday. Please keep your pho",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 247.171875,
+            "width": 256,
+            "height": 72
+          }
+        },
+        {
+          "id": "text-contrast-78587113",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Your order arrives on Monday. Please kee\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#delivery-details",
+          "element": "p",
+          "accessibleName": "Your order arrives on Monday. Please keep your pho",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 216.171875,
+            "width": 260,
+            "height": 72
+          }
+        },
+        {
+          "id": "text-contrast-78587113",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Your order arrives on Monday. Please kee\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#delivery-details",
+          "element": "p",
+          "accessibleName": "Your order arrives on Monday. Please keep your pho",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 194.484375,
+            "width": 260,
+            "height": 72
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-contrast::button::ratio-8.7",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Confirm delivery\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "currentPriority": "P3",
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Confirm delivery",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 335.171875,
+        "width": 147.59375,
+        "height": 44
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-contrast-705044095",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Confirm delivery\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Confirm delivery",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 335.171875,
+            "width": 147.59375,
+            "height": 44
+          }
+        },
+        {
+          "id": "text-contrast-705044095",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Confirm delivery\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Confirm delivery",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 304.171875,
+            "width": 147.59375,
+            "height": 44
+          }
+        },
+        {
+          "id": "text-contrast-705044095",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Confirm delivery\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Confirm delivery",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 282.484375,
+            "width": 147.59375,
+            "height": 44
+          }
+        }
+      ]
+    },
+    {
+      "fingerprint": "text-spacing::#delivery-details::clipped-24",
+      "ruleId": "text-spacing",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.12 Text Spacing",
+      "status": "candidateFail",
+      "title": "Text content vertically clipped under text spacing override (24px clipped)",
+      "description": "When WCAG 2.2 SC 1.4.12 text spacing styles (line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, p margin-bottom >= 2em) are applied, content in \"delivery-details\" is vertically clipped by 24px.",
+      "currentPriority": "P1",
+      "initialPriority": "P1",
+      "priorityRationale": "Project Heuristic P1 (Not WCAG Severity): Severe vertical text clipping (>15px hidden) under WCAG text-spacing overrides. Content is permanently truncated.",
+      "occurrenceCount": 3,
+      "viewports": [
+        {
+          "width": 320,
+          "height": 640
+        },
+        {
+          "width": 375,
+          "height": 812
+        },
+        {
+          "width": 1440,
+          "height": 900
+        }
+      ],
+      "selector": "#delivery-details",
+      "element": "p",
+      "accessibleName": "delivery-details",
+      "measured": {
+        "baselineHeight": 72,
+        "candidateHeight": 72,
+        "baselineScrollHeight": 72,
+        "candidateScrollHeight": 96,
+        "candidateClientHeight": 72,
+        "clipDeficitPx": 24,
+        "horizontalClipDeficitPx": 0,
+        "isClipped": true,
+        "hasTextOverlap": false,
+        "isControlObscured": false,
+        "isBoundingBoxEscaped": false
+      },
+      "expected": {
+        "maxClipDeficitPx": 0,
+        "thresholdDescription": "No loss of content or functionality when line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, and p margin-bottom >= 2em are applied"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 332.859375,
+        "width": 256,
+        "height": 72
+      },
+      "decisionHistory": [],
+      "occurrences": [
+        {
+          "id": "text-spacing-7890579542",
+          "ruleId": "text-spacing",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.12 Text Spacing",
+          "status": "candidateFail",
+          "title": "Text content vertically clipped under text spacing override (24px clipped)",
+          "description": "When WCAG 2.2 SC 1.4.12 text spacing styles (line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, p margin-bottom >= 2em) are applied, content in \"delivery-details\" is vertically clipped by 24px.",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#delivery-details",
+          "element": "p",
+          "accessibleName": "delivery-details",
+          "measured": {
+            "baselineHeight": 72,
+            "candidateHeight": 72,
+            "baselineScrollHeight": 72,
+            "candidateScrollHeight": 96,
+            "candidateClientHeight": 72,
+            "clipDeficitPx": 24,
+            "horizontalClipDeficitPx": 0,
+            "isClipped": true,
+            "hasTextOverlap": false,
+            "isControlObscured": false,
+            "isBoundingBoxEscaped": false
+          },
+          "expected": {
+            "maxClipDeficitPx": 0,
+            "thresholdDescription": "No loss of content or functionality when line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, and p margin-bottom >= 2em are applied"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 332.859375,
+            "width": 256,
+            "height": 72
+          }
+        },
+        {
+          "id": "text-spacing-7890579542",
+          "ruleId": "text-spacing",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.12 Text Spacing",
+          "status": "candidateFail",
+          "title": "Text content vertically clipped under text spacing override (24px clipped)",
+          "description": "When WCAG 2.2 SC 1.4.12 text spacing styles (line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, p margin-bottom >= 2em) are applied, content in \"delivery-details\" is vertically clipped by 24px.",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#delivery-details",
+          "element": "p",
+          "accessibleName": "delivery-details",
+          "measured": {
+            "baselineHeight": 72,
+            "candidateHeight": 72,
+            "baselineScrollHeight": 72,
+            "candidateScrollHeight": 96,
+            "candidateClientHeight": 72,
+            "clipDeficitPx": 24,
+            "horizontalClipDeficitPx": 0,
+            "isClipped": true,
+            "hasTextOverlap": false,
+            "isControlObscured": false,
+            "isBoundingBoxEscaped": false
+          },
+          "expected": {
+            "maxClipDeficitPx": 0,
+            "thresholdDescription": "No loss of content or functionality when line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, and p margin-bottom >= 2em are applied"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 296.859375,
+            "width": 260,
+            "height": 72
+          }
+        },
+        {
+          "id": "text-spacing-7890579542",
+          "ruleId": "text-spacing",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.12 Text Spacing",
+          "status": "candidateFail",
+          "title": "Text content vertically clipped under text spacing override (24px clipped)",
+          "description": "When WCAG 2.2 SC 1.4.12 text spacing styles (line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, p margin-bottom >= 2em) are applied, content in \"delivery-details\" is vertically clipped by 24px.",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#delivery-details",
+          "element": "p",
+          "accessibleName": "delivery-details",
+          "measured": {
+            "baselineHeight": 72,
+            "candidateHeight": 72,
+            "baselineScrollHeight": 72,
+            "candidateScrollHeight": 96,
+            "candidateClientHeight": 72,
+            "clipDeficitPx": 24,
+            "horizontalClipDeficitPx": 0,
+            "isClipped": true,
+            "hasTextOverlap": false,
+            "isControlObscured": false,
+            "isBoundingBoxEscaped": false
+          },
+          "expected": {
+            "maxClipDeficitPx": 0,
+            "thresholdDescription": "No loss of content or functionality when line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, and p margin-bottom >= 2em are applied"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 222.484375,
+            "width": 260,
+            "height": 72
+          }
+        }
+      ]
+    }
+  ],
+  "rawOccurrences": [
+    {
+      "id": "reflow-786441317",
+      "ruleId": "reflow",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+      "status": "pass",
+      "title": "Content reflows without 2D scrolling at 320px",
+      "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#fixture-content",
+      "element": "html",
+      "measured": {
+        "scrollWidth": 288,
+        "clientWidth": 288,
+        "horizontalOverflowPx": 0,
+        "overflowingElementsCount": 0,
+        "metricVersion": "1.1.0",
+        "unit": "CSS px",
+        "scopeSelector": "#fixture-content",
+        "rawHorizontalOverflowPx": 0,
+        "rawDocumentScrollWidth": 320,
+        "rawDocumentClientWidth": 320,
+        "rawScopeScrollWidth": 288,
+        "decorativeElementsExcludedCount": 0
+      },
+      "expected": {
+        "maxOverflowPx": 1,
+        "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 195.171875,
+        "width": 288,
+        "height": 200
+      }
+    },
+    {
+      "id": "target-size-1694319097",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (147.6×44 px)",
+      "description": "The interactive target \"Confirm delivery\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 147.6×44 px.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Confirm delivery",
+      "measured": {
+        "width": 147.6,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 335,
+        "width": 147.6,
+        "height": 44
+      }
+    },
+    {
+      "id": "text-contrast-1425590532",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      }
+    },
+    {
+      "id": "text-contrast-252222478",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-07: Delivery Notice (Fixed Height)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-07: Delivery Notice (Fixed Height)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 288,
+        "height": 62
+      }
+    },
+    {
+      "id": "text-contrast-1554549640",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Fixed-height container with overflow:hid\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Fixed-height container with overflow:hidden trunca",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 288,
+        "height": 43.375
+      }
+    },
+    {
+      "id": "text-contrast-562093055",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Delivery information\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Delivery information",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 211.171875,
+        "width": 256,
+        "height": 36
+      }
+    },
+    {
+      "id": "text-contrast-78587113",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Your order arrives on Monday. Please kee\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#delivery-details",
+      "element": "p",
+      "accessibleName": "Your order arrives on Monday. Please keep your pho",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 247.171875,
+        "width": 256,
+        "height": 72
+      }
+    },
+    {
+      "id": "text-contrast-705044095",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Confirm delivery\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Confirm delivery",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 335.171875,
+        "width": 147.59375,
+        "height": 44
+      }
+    },
+    {
+      "id": "text-spacing-7890579542",
+      "ruleId": "text-spacing",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.12 Text Spacing",
+      "status": "candidateFail",
+      "title": "Text content vertically clipped under text spacing override (24px clipped)",
+      "description": "When WCAG 2.2 SC 1.4.12 text spacing styles (line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, p margin-bottom >= 2em) are applied, content in \"delivery-details\" is vertically clipped by 24px.",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#delivery-details",
+      "element": "p",
+      "accessibleName": "delivery-details",
+      "measured": {
+        "baselineHeight": 72,
+        "candidateHeight": 72,
+        "baselineScrollHeight": 72,
+        "candidateScrollHeight": 96,
+        "candidateClientHeight": 72,
+        "clipDeficitPx": 24,
+        "horizontalClipDeficitPx": 0,
+        "isClipped": true,
+        "hasTextOverlap": false,
+        "isControlObscured": false,
+        "isBoundingBoxEscaped": false
+      },
+      "expected": {
+        "maxClipDeficitPx": 0,
+        "thresholdDescription": "No loss of content or functionality when line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, and p margin-bottom >= 2em are applied"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 332.859375,
+        "width": 256,
+        "height": 72
+      }
+    },
+    {
+      "id": "target-size-1694319097",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (147.6×44 px)",
+      "description": "The interactive target \"Confirm delivery\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 147.6×44 px.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Confirm delivery",
+      "measured": {
+        "width": 147.6,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 304,
+        "width": 147.6,
+        "height": 44
+      }
+    },
+    {
+      "id": "text-contrast-1425590532",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      }
+    },
+    {
+      "id": "text-contrast-252222478",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-07: Delivery Notice (Fixed Height)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-07: Delivery Notice (Fixed Height)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 343,
+        "height": 31
+      }
+    },
+    {
+      "id": "text-contrast-1554549640",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Fixed-height container with overflow:hid\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Fixed-height container with overflow:hidden trunca",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 79.796875,
+        "width": 343,
+        "height": 43.375
+      }
+    },
+    {
+      "id": "text-contrast-562093055",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Delivery information\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Delivery information",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 180.171875,
+        "width": 311,
+        "height": 36
+      }
+    },
+    {
+      "id": "text-contrast-78587113",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Your order arrives on Monday. Please kee\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#delivery-details",
+      "element": "p",
+      "accessibleName": "Your order arrives on Monday. Please keep your pho",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 216.171875,
+        "width": 260,
+        "height": 72
+      }
+    },
+    {
+      "id": "text-contrast-705044095",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Confirm delivery\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Confirm delivery",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 304.171875,
+        "width": 147.59375,
+        "height": 44
+      }
+    },
+    {
+      "id": "text-spacing-7890579542",
+      "ruleId": "text-spacing",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.12 Text Spacing",
+      "status": "candidateFail",
+      "title": "Text content vertically clipped under text spacing override (24px clipped)",
+      "description": "When WCAG 2.2 SC 1.4.12 text spacing styles (line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, p margin-bottom >= 2em) are applied, content in \"delivery-details\" is vertically clipped by 24px.",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#delivery-details",
+      "element": "p",
+      "accessibleName": "delivery-details",
+      "measured": {
+        "baselineHeight": 72,
+        "candidateHeight": 72,
+        "baselineScrollHeight": 72,
+        "candidateScrollHeight": 96,
+        "candidateClientHeight": 72,
+        "clipDeficitPx": 24,
+        "horizontalClipDeficitPx": 0,
+        "isClipped": true,
+        "hasTextOverlap": false,
+        "isControlObscured": false,
+        "isBoundingBoxEscaped": false
+      },
+      "expected": {
+        "maxClipDeficitPx": 0,
+        "thresholdDescription": "No loss of content or functionality when line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, and p margin-bottom >= 2em are applied"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 296.859375,
+        "width": 260,
+        "height": 72
+      }
+    },
+    {
+      "id": "target-size-1694319097",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (147.6×44 px)",
+      "description": "The interactive target \"Confirm delivery\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 147.6×44 px.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Confirm delivery",
+      "measured": {
+        "width": 147.6,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 282,
+        "width": 147.6,
+        "height": 44
+      }
+    },
+    {
+      "id": "text-contrast-1425590532",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      }
+    },
+    {
+      "id": "text-contrast-252222478",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-07: Delivery Notice (Fixed Height)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-07: Delivery Notice (Fixed Height)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 1408,
+        "height": 31
+      }
+    },
+    {
+      "id": "text-contrast-1554549640",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Fixed-height container with overflow:hid\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Fixed-height container with overflow:hidden trunca",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 79.796875,
+        "width": 1408,
+        "height": 21.6875
+      }
+    },
+    {
+      "id": "text-contrast-562093055",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Delivery information\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Delivery information",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 158.484375,
+        "width": 1376,
+        "height": 36
+      }
+    },
+    {
+      "id": "text-contrast-78587113",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Your order arrives on Monday. Please kee\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#delivery-details",
+      "element": "p",
+      "accessibleName": "Your order arrives on Monday. Please keep your pho",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 194.484375,
+        "width": 260,
+        "height": 72
+      }
+    },
+    {
+      "id": "text-contrast-705044095",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Confirm delivery\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Confirm delivery",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 282.484375,
+        "width": 147.59375,
+        "height": 44
+      }
+    },
+    {
+      "id": "text-spacing-7890579542",
+      "ruleId": "text-spacing",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.12 Text Spacing",
+      "status": "candidateFail",
+      "title": "Text content vertically clipped under text spacing override (24px clipped)",
+      "description": "When WCAG 2.2 SC 1.4.12 text spacing styles (line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, p margin-bottom >= 2em) are applied, content in \"delivery-details\" is vertically clipped by 24px.",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#delivery-details",
+      "element": "p",
+      "accessibleName": "delivery-details",
+      "measured": {
+        "baselineHeight": 72,
+        "candidateHeight": 72,
+        "baselineScrollHeight": 72,
+        "candidateScrollHeight": 96,
+        "candidateClientHeight": 72,
+        "clipDeficitPx": 24,
+        "horizontalClipDeficitPx": 0,
+        "isClipped": true,
+        "hasTextOverlap": false,
+        "isControlObscured": false,
+        "isBoundingBoxEscaped": false
+      },
+      "expected": {
+        "maxClipDeficitPx": 0,
+        "thresholdDescription": "No loss of content or functionality when line-height >= 1.5, letter-spacing >= 0.12em, word-spacing >= 0.16em, and p margin-bottom >= 2em are applied"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 222.484375,
+        "width": 260,
+        "height": 72
+      }
+    }
+  ]
+}

@@ -1,0 +1,5140 @@
+{
+  "id": "pilot-pilot-ui-03-d7f9f7f8-ff84-4c32-be21-331302c19f9e",
+  "fixtureId": "pilot-ui-03",
+  "targetUrl": "http://localhost:3123/fixtures/pilot-ui-03",
+  "timestamp": "2026-11-16T22:12:11.627Z",
+  "viewports": [
+    {
+      "width": 320,
+      "height": 640
+    },
+    {
+      "width": 375,
+      "height": 812
+    },
+    {
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "rawIssues": [
+    {
+      "id": "reflow-1255695391",
+      "ruleId": "reflow",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+      "status": "pass",
+      "title": "Content reflows without 2D scrolling at 320px",
+      "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#fixture-content",
+      "element": "html",
+      "measured": {
+        "scrollWidth": 288,
+        "clientWidth": 288,
+        "horizontalOverflowPx": 0,
+        "overflowingElementsCount": 0,
+        "metricVersion": "1.1.0",
+        "unit": "CSS px",
+        "scopeSelector": "#fixture-content",
+        "rawHorizontalOverflowPx": 0,
+        "rawDocumentScrollWidth": 320,
+        "rawDocumentClientWidth": 320,
+        "rawScopeScrollWidth": 288,
+        "decorativeElementsExcludedCount": 0
+      },
+      "expected": {
+        "maxOverflowPx": 1,
+        "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 216.859375,
+        "width": 288,
+        "height": 134
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px."
+    },
+    {
+      "id": "touch-target-spacing-320-63880a32-e975-43dd-8b57-e9c39ee416a8",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "boundingBox": {
+        "x": 32,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "measured": {
+        "target": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-320-70120f2c-2923-4352-a7d1-a55e2e5a4a85",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "boundingBox": {
+        "x": 52,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "measured": {
+        "target": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "nearestTarget": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-320-59ca7b1d-df29-4f40-a438-cc719d2ff2fe",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "boundingBox": {
+        "x": 72,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "measured": {
+        "target": {
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "boundingBox": {
+            "x": 72,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-18"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "target-size-919880822",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 317,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P2",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+    },
+    {
+      "id": "target-size-1807384503",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 317,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P2",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+    },
+    {
+      "id": "target-size-1600079112",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 317,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P2",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+    },
+    {
+      "id": "text-contrast-1008947328",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-2047009034",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 288,
+        "height": 62
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-232423036",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 288,
+        "height": 65.0625
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1938087685",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Choose a delivery date",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 232.859375,
+        "width": 256,
+        "height": 36
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+    },
+    {
+      "id": "text-contrast-1424752439",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Select an available day in November.",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 268.859375,
+        "width": 256,
+        "height": 48
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-2019233930",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-83573643",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1852086644",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 316.859375,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "touch-target-spacing-375-d994827f-dd04-4e6d-a4cd-bbcd7d119d23",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "boundingBox": {
+        "x": 32,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      },
+      "measured": {
+        "target": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-375-095b9b20-ecf6-42e0-95cc-90583e56842d",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "boundingBox": {
+        "x": 52,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      },
+      "measured": {
+        "target": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "nearestTarget": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-375-b75eb75e-4b15-4fce-aa97-a1fbe285a1fe",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "boundingBox": {
+        "x": 72,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      },
+      "measured": {
+        "target": {
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "boundingBox": {
+            "x": 72,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-18"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "target-size-919880822",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 271,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P2",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+    },
+    {
+      "id": "target-size-1807384503",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 271,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P2",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+    },
+    {
+      "id": "target-size-1600079112",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 271,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P2",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+    },
+    {
+      "id": "text-contrast-1008947328",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-2047009034",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 343,
+        "height": 62
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-232423036",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 343,
+        "height": 43.375
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1938087685",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Choose a delivery date",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 211.171875,
+        "width": 311,
+        "height": 36
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+    },
+    {
+      "id": "text-contrast-1424752439",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Select an available day in November.",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 247.171875,
+        "width": 311,
+        "height": 24
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-2019233930",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-83573643",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1852086644",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 271.171875,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "touch-target-spacing-1440-48691a33-04e5-4591-9854-9c5751e6983e",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "boundingBox": {
+        "x": 32,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      },
+      "measured": {
+        "target": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-1440-2584ae2a-0c44-43db-8f04-19393aa3834c",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "boundingBox": {
+        "x": 52,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      },
+      "measured": {
+        "target": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "nearestTarget": {
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-16"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-1440-213a2fa3-3123-4a6e-a87b-06e2690152d2",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "boundingBox": {
+        "x": 72,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      },
+      "measured": {
+        "target": {
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "boundingBox": {
+            "x": 72,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-18"
+        },
+        "nearestTarget": {
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "actionId": "#day-17"
+        },
+        "distance": 2,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "target-size-919880822",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 218,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P2",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+    },
+    {
+      "id": "target-size-1807384503",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 218,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P2",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+    },
+    {
+      "id": "target-size-1600079112",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "candidateFail",
+      "title": "Interactive target below 24×24 CSS px (18×18 px)",
+      "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "width": 18,
+        "height": 18,
+        "isInline": false,
+        "hasSufficientSpacing": false
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 218,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P2",
+      "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+    },
+    {
+      "id": "text-contrast-1008947328",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-2047009034",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 1408,
+        "height": 31
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-232423036",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 79.796875,
+        "width": 1408,
+        "height": 21.6875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1938087685",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Choose a delivery date",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 158.484375,
+        "width": 1376,
+        "height": 36
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+    },
+    {
+      "id": "text-contrast-1424752439",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Select an available day in November.",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 194.484375,
+        "width": 1376,
+        "height": 24
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-2019233930",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-16",
+      "element": "button",
+      "accessibleName": "November 16",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-83573643",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-17",
+      "element": "button",
+      "accessibleName": "November 17",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 52,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1852086644",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#day-18",
+      "element": "button",
+      "accessibleName": "November 18",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 72,
+        "y": 218.484375,
+        "width": 18,
+        "height": 18
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    }
+  ],
+  "groupedIssues": [
+    {
+      "fingerprint": "reflow::#fixture-content::scroll-288-overflow-0",
+      "representative": {
+        "id": "reflow-1255695391",
+        "ruleId": "reflow",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+        "status": "pass",
+        "title": "Content reflows without 2D scrolling at 320px",
+        "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#fixture-content",
+        "element": "html",
+        "measured": {
+          "scrollWidth": 288,
+          "clientWidth": 288,
+          "horizontalOverflowPx": 0,
+          "overflowingElementsCount": 0,
+          "metricVersion": "1.1.0",
+          "unit": "CSS px",
+          "scopeSelector": "#fixture-content",
+          "rawHorizontalOverflowPx": 0,
+          "rawDocumentScrollWidth": 320,
+          "rawDocumentClientWidth": 320,
+          "rawScopeScrollWidth": 288,
+          "decorativeElementsExcludedCount": 0
+        },
+        "expected": {
+          "maxOverflowPx": 1,
+          "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 216.859375,
+          "width": 288,
+          "height": 134
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px."
+      },
+      "rawOccurrencesCount": 1,
+      "occurrences": [
+        {
+          "id": "reflow-1255695391",
+          "ruleId": "reflow",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+          "status": "pass",
+          "title": "Content reflows without 2D scrolling at 320px",
+          "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#fixture-content",
+          "element": "html",
+          "measured": {
+            "scrollWidth": 288,
+            "clientWidth": 288,
+            "horizontalOverflowPx": 0,
+            "overflowingElementsCount": 0,
+            "metricVersion": "1.1.0",
+            "unit": "CSS px",
+            "scopeSelector": "#fixture-content",
+            "rawHorizontalOverflowPx": 0,
+            "rawDocumentScrollWidth": 320,
+            "rawDocumentClientWidth": 320,
+            "rawScopeScrollWidth": 288,
+            "decorativeElementsExcludedCount": 0
+          },
+          "expected": {
+            "maxOverflowPx": 1,
+            "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 216.859375,
+            "width": 288,
+            "height": 134
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "touch-target-spacing::#day-16::{\"version\":\"1.0.0\",\"nearestSelector\":\"#day-17\",\"distance\":2,\"overlap\":false}",
+      "representative": {
+        "id": "touch-target-spacing-320-63880a32-e975-43dd-8b57-e9c39ee416a8",
+        "ruleId": "touch-target-spacing",
+        "wcagCriterion": "Project advisory — no automatic WCAG failure",
+        "metric": {
+          "metricId": "touch-target-spacing",
+          "metricVersion": "1.0.0",
+          "unit": "CSS px",
+          "executionStatus": "completed",
+          "applicability": "applicable",
+          "basis": "project-advisory"
+        },
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#day-16",
+        "element": "button",
+        "accessibleName": "November 16",
+        "boundingBox": {
+          "x": 32,
+          "y": 316.859375,
+          "width": 18,
+          "height": 18
+        },
+        "measured": {
+          "target": {
+            "selector": "#day-16",
+            "element": "button",
+            "accessibleName": "November 16",
+            "boundingBox": {
+              "x": 32,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-16"
+          },
+          "nearestTarget": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        "expected": {
+          "advisoryMinGap": 8,
+          "unit": "CSS px",
+          "basis": "project-advisory"
+        },
+        "status": "needsReview",
+        "title": "Touch target spacing requires review",
+        "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+        "initialPriority": "P3",
+        "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "touch-target-spacing-320-63880a32-e975-43dd-8b57-e9c39ee416a8",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "measured": {
+            "target": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-375-d994827f-dd04-4e6d-a4cd-bbcd7d119d23",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "measured": {
+            "target": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-1440-48691a33-04e5-4591-9854-9c5751e6983e",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "measured": {
+            "target": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-16; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        }
+      ],
+      "status": "needsReview",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "touch-target-spacing::#day-17::{\"version\":\"1.0.0\",\"nearestSelector\":\"#day-16\",\"distance\":2,\"overlap\":false}",
+      "representative": {
+        "id": "touch-target-spacing-320-70120f2c-2923-4352-a7d1-a55e2e5a4a85",
+        "ruleId": "touch-target-spacing",
+        "wcagCriterion": "Project advisory — no automatic WCAG failure",
+        "metric": {
+          "metricId": "touch-target-spacing",
+          "metricVersion": "1.0.0",
+          "unit": "CSS px",
+          "executionStatus": "completed",
+          "applicability": "applicable",
+          "basis": "project-advisory"
+        },
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#day-17",
+        "element": "button",
+        "accessibleName": "November 17",
+        "boundingBox": {
+          "x": 52,
+          "y": 316.859375,
+          "width": 18,
+          "height": 18
+        },
+        "measured": {
+          "target": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "nearestTarget": {
+            "selector": "#day-16",
+            "element": "button",
+            "accessibleName": "November 16",
+            "boundingBox": {
+              "x": 32,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-16"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        "expected": {
+          "advisoryMinGap": 8,
+          "unit": "CSS px",
+          "basis": "project-advisory"
+        },
+        "status": "needsReview",
+        "title": "Touch target spacing requires review",
+        "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+        "initialPriority": "P3",
+        "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "touch-target-spacing-320-70120f2c-2923-4352-a7d1-a55e2e5a4a85",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "measured": {
+            "target": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "nearestTarget": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-375-095b9b20-ecf6-42e0-95cc-90583e56842d",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "measured": {
+            "target": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "nearestTarget": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-1440-2584ae2a-0c44-43db-8f04-19393aa3834c",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "boundingBox": {
+            "x": 52,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "measured": {
+            "target": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "nearestTarget": {
+              "selector": "#day-16",
+              "element": "button",
+              "accessibleName": "November 16",
+              "boundingBox": {
+                "x": 32,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-16"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-16 is 2.00 CSS px from #day-17; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        }
+      ],
+      "status": "needsReview",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "touch-target-spacing::#day-18::{\"version\":\"1.0.0\",\"nearestSelector\":\"#day-17\",\"distance\":2,\"overlap\":false}",
+      "representative": {
+        "id": "touch-target-spacing-320-59ca7b1d-df29-4f40-a438-cc719d2ff2fe",
+        "ruleId": "touch-target-spacing",
+        "wcagCriterion": "Project advisory — no automatic WCAG failure",
+        "metric": {
+          "metricId": "touch-target-spacing",
+          "metricVersion": "1.0.0",
+          "unit": "CSS px",
+          "executionStatus": "completed",
+          "applicability": "applicable",
+          "basis": "project-advisory"
+        },
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#day-18",
+        "element": "button",
+        "accessibleName": "November 18",
+        "boundingBox": {
+          "x": 72,
+          "y": 316.859375,
+          "width": 18,
+          "height": 18
+        },
+        "measured": {
+          "target": {
+            "selector": "#day-18",
+            "element": "button",
+            "accessibleName": "November 18",
+            "boundingBox": {
+              "x": 72,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-18"
+          },
+          "nearestTarget": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        "expected": {
+          "advisoryMinGap": 8,
+          "unit": "CSS px",
+          "basis": "project-advisory"
+        },
+        "status": "needsReview",
+        "title": "Touch target spacing requires review",
+        "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+        "initialPriority": "P3",
+        "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "touch-target-spacing-320-59ca7b1d-df29-4f40-a438-cc719d2ff2fe",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "boundingBox": {
+            "x": 72,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "measured": {
+            "target": {
+              "selector": "#day-18",
+              "element": "button",
+              "accessibleName": "November 18",
+              "boundingBox": {
+                "x": 72,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-18"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 316.859375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-375-b75eb75e-4b15-4fce-aa97-a1fbe285a1fe",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "boundingBox": {
+            "x": 72,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "measured": {
+            "target": {
+              "selector": "#day-18",
+              "element": "button",
+              "accessibleName": "November 18",
+              "boundingBox": {
+                "x": 72,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-18"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 271.171875,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-1440-213a2fa3-3123-4a6e-a87b-06e2690152d2",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "boundingBox": {
+            "x": 72,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "measured": {
+            "target": {
+              "selector": "#day-18",
+              "element": "button",
+              "accessibleName": "November 18",
+              "boundingBox": {
+                "x": 72,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-18"
+            },
+            "nearestTarget": {
+              "selector": "#day-17",
+              "element": "button",
+              "accessibleName": "November 17",
+              "boundingBox": {
+                "x": 52,
+                "y": 218.484375,
+                "width": 18,
+                "height": 18
+              },
+              "actionId": "#day-17"
+            },
+            "distance": 2,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #day-17 is 2.00 CSS px from #day-18; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        }
+      ],
+      "status": "needsReview",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "target-size::#day-16::18x18",
+      "representative": {
+        "id": "target-size-919880822",
+        "ruleId": "target-size",
+        "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+        "status": "candidateFail",
+        "title": "Interactive target below 24×24 CSS px (18×18 px)",
+        "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#day-16",
+        "element": "button",
+        "role": "button",
+        "accessibleName": "November 16",
+        "measured": {
+          "width": 18,
+          "height": 18,
+          "isInline": false,
+          "hasSufficientSpacing": false
+        },
+        "expected": {
+          "minWidth": 24,
+          "minHeight": 24,
+          "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+        },
+        "boundingBox": {
+          "x": 32,
+          "y": 317,
+          "width": 18,
+          "height": 18
+        },
+        "initialPriority": "P2",
+        "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "target-size-919880822",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 317,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P2",
+          "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+        },
+        {
+          "id": "target-size-919880822",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 271,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P2",
+          "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+        },
+        {
+          "id": "target-size-919880822",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 16\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 218,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P2",
+          "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+        }
+      ],
+      "status": "candidateFail",
+      "hasMixedStatus": false,
+      "initialPriority": "P1",
+      "currentPriority": "P1",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "target-size::#day-17::18x18",
+      "representative": {
+        "id": "target-size-1807384503",
+        "ruleId": "target-size",
+        "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+        "status": "candidateFail",
+        "title": "Interactive target below 24×24 CSS px (18×18 px)",
+        "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#day-17",
+        "element": "button",
+        "role": "button",
+        "accessibleName": "November 17",
+        "measured": {
+          "width": 18,
+          "height": 18,
+          "isInline": false,
+          "hasSufficientSpacing": false
+        },
+        "expected": {
+          "minWidth": 24,
+          "minHeight": 24,
+          "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+        },
+        "boundingBox": {
+          "x": 52,
+          "y": 317,
+          "width": 18,
+          "height": 18
+        },
+        "initialPriority": "P2",
+        "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "target-size-1807384503",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 317,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P2",
+          "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+        },
+        {
+          "id": "target-size-1807384503",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 271,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P2",
+          "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+        },
+        {
+          "id": "target-size-1807384503",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 17\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 218,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P2",
+          "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+        }
+      ],
+      "status": "candidateFail",
+      "hasMixedStatus": false,
+      "initialPriority": "P1",
+      "currentPriority": "P1",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "target-size::#day-18::18x18",
+      "representative": {
+        "id": "target-size-1600079112",
+        "ruleId": "target-size",
+        "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+        "status": "candidateFail",
+        "title": "Interactive target below 24×24 CSS px (18×18 px)",
+        "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#day-18",
+        "element": "button",
+        "role": "button",
+        "accessibleName": "November 18",
+        "measured": {
+          "width": 18,
+          "height": 18,
+          "isInline": false,
+          "hasSufficientSpacing": false
+        },
+        "expected": {
+          "minWidth": 24,
+          "minHeight": 24,
+          "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+        },
+        "boundingBox": {
+          "x": 72,
+          "y": 317,
+          "width": 18,
+          "height": 18
+        },
+        "initialPriority": "P2",
+        "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "target-size-1600079112",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 317,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P2",
+          "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+        },
+        {
+          "id": "target-size-1600079112",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 271,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P2",
+          "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+        },
+        {
+          "id": "target-size-1600079112",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "candidateFail",
+          "title": "Interactive target below 24×24 CSS px (18×18 px)",
+          "description": "The interactive element \"November 18\" has a bounding box of 18×18 px, failing the WCAG 2.2 SC 2.5.8 minimum target size requirement.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "width": 18,
+            "height": 18,
+            "isInline": false,
+            "hasSufficientSpacing": false
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 218,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P2",
+          "priorityRationale": "Moderate target size failure (18–23 px): interactive target is slightly below the 24×24 CSS px threshold without surrounding spacing."
+        }
+      ],
+      "status": "candidateFail",
+      "hasMixedStatus": false,
+      "initialPriority": "P1",
+      "currentPriority": "P1",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::span::ratio-5.4",
+      "representative": {
+        "id": "text-contrast-1008947328",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (5.42:1)",
+        "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "span",
+        "element": "span",
+        "accessibleName": "Interface study",
+        "measured": {
+          "contrastRatio": 5.42,
+          "fontSizePx": 12,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(103, 103, 103)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 22,
+          "width": 117.234375,
+          "height": 15
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1008947328",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1008947328",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1008947328",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::h1::ratio-15.4",
+      "representative": {
+        "id": "text-contrast-2047009034",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (15.44:1)",
+        "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "h1",
+        "element": "h1",
+        "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+        "measured": {
+          "contrastRatio": 15.44,
+          "fontSizePx": 20,
+          "fontWeight": 600,
+          "isLargeText": false,
+          "color": "rgb(32, 33, 35)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 44.796875,
+          "width": 288,
+          "height": 62
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-2047009034",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 288,
+            "height": 62
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-2047009034",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 343,
+            "height": 62
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-2047009034",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-03: Date Picker (Compact 18px Targets\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-03: Date Picker (Compact 18px Targets)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 1408,
+            "height": 31
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::p::ratio-5.4",
+      "representative": {
+        "id": "text-contrast-232423036",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (5.42:1)",
+        "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "p",
+        "element": "p",
+        "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+        "measured": {
+          "contrastRatio": 5.42,
+          "fontSizePx": 14,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(103, 103, 103)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 110.796875,
+          "width": 288,
+          "height": 65.0625
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-232423036",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 110.796875,
+            "width": 288,
+            "height": 65.0625
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-232423036",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 110.796875,
+            "width": 343,
+            "height": 43.375
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-232423036",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Date selection buttons measuring 18x18px\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Date selection buttons measuring 18x18px, failing ",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 79.796875,
+            "width": 1408,
+            "height": 21.6875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::h2::ratio-17.7",
+      "representative": {
+        "id": "text-contrast-1938087685",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 3:1 (17.74:1)",
+        "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "h2",
+        "element": "h2",
+        "accessibleName": "Choose a delivery date",
+        "measured": {
+          "contrastRatio": 17.74,
+          "fontSizePx": 24,
+          "fontWeight": 400,
+          "isLargeText": true,
+          "color": "rgb(17, 24, 39)",
+          "backgroundColor": "rgba(255, 255, 255, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 3,
+          "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+        },
+        "boundingBox": {
+          "x": 32,
+          "y": 232.859375,
+          "width": 256,
+          "height": 36
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1938087685",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Choose a delivery date",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 232.859375,
+            "width": 256,
+            "height": 36
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+        },
+        {
+          "id": "text-contrast-1938087685",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Choose a delivery date",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 211.171875,
+            "width": 311,
+            "height": 36
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+        },
+        {
+          "id": "text-contrast-1938087685",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Choose a delivery date\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Choose a delivery date",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 158.484375,
+            "width": 1376,
+            "height": 36
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::p::ratio-17.7",
+      "representative": {
+        "id": "text-contrast-1424752439",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (17.74:1)",
+        "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "p",
+        "element": "p",
+        "accessibleName": "Select an available day in November.",
+        "measured": {
+          "contrastRatio": 17.74,
+          "fontSizePx": 16,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(17, 24, 39)",
+          "backgroundColor": "rgba(255, 255, 255, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 32,
+          "y": 268.859375,
+          "width": 256,
+          "height": 48
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1424752439",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Select an available day in November.",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 268.859375,
+            "width": 256,
+            "height": 48
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1424752439",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Select an available day in November.",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 247.171875,
+            "width": 311,
+            "height": 24
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1424752439",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Select an available day in November.\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Select an available day in November.",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 194.484375,
+            "width": 1376,
+            "height": 24
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::#day-16::ratio-8.7",
+      "representative": {
+        "id": "text-contrast-2019233930",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (8.72:1)",
+        "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#day-16",
+        "element": "button",
+        "accessibleName": "November 16",
+        "measured": {
+          "contrastRatio": 8.72,
+          "fontSizePx": 12,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(30, 64, 175, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 32,
+          "y": 316.859375,
+          "width": 18,
+          "height": 18
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-2019233930",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-2019233930",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-2019233930",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"16\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-16",
+          "element": "button",
+          "accessibleName": "November 16",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::#day-17::ratio-8.7",
+      "representative": {
+        "id": "text-contrast-83573643",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (8.72:1)",
+        "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#day-17",
+        "element": "button",
+        "accessibleName": "November 17",
+        "measured": {
+          "contrastRatio": 8.72,
+          "fontSizePx": 12,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(30, 64, 175, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 52,
+          "y": 316.859375,
+          "width": 18,
+          "height": 18
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-83573643",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-83573643",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-83573643",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"17\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-17",
+          "element": "button",
+          "accessibleName": "November 17",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 52,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::#day-18::ratio-8.7",
+      "representative": {
+        "id": "text-contrast-1852086644",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (8.72:1)",
+        "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-03",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#day-18",
+        "element": "button",
+        "accessibleName": "November 18",
+        "measured": {
+          "contrastRatio": 8.72,
+          "fontSizePx": 12,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(30, 64, 175, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 72,
+          "y": 316.859375,
+          "width": 18,
+          "height": 18
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1852086644",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 316.859375,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1852086644",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 271.171875,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1852086644",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"18\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-03",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#day-18",
+          "element": "button",
+          "accessibleName": "November 18",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 72,
+            "y": 218.484375,
+            "width": 18,
+            "height": 18
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    }
+  ],
+  "summary": {
+    "totalRawFindings": 43,
+    "totalGroupedIssues": 15,
+    "passCount": 9,
+    "candidateFailCount": 3,
+    "needsReviewCount": 3
+  },
+  "metricResults": [
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "needsReview",
+      "reason": "Nearest target edge distances in the same rendered UI state. The 8 CSS px threshold is a project advisory only.",
+      "measurements": [
+        {
+          "target": {
+            "selector": "#day-16",
+            "element": "button",
+            "accessibleName": "November 16",
+            "boundingBox": {
+              "x": 32,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-16"
+          },
+          "nearestTarget": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "target": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "nearestTarget": {
+            "selector": "#day-16",
+            "element": "button",
+            "accessibleName": "November 16",
+            "boundingBox": {
+              "x": 32,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-16"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "target": {
+            "selector": "#day-18",
+            "element": "button",
+            "accessibleName": "November 18",
+            "boundingBox": {
+              "x": 72,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-18"
+          },
+          "nearestTarget": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 316.859375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "skipped",
+      "applicability": "unknown",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+      "measurements": [
+        {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+          "element": "h2",
+          "accessibleName": "Choose a delivery date",
+          "boundingBox": {
+            "x": 32,
+            "y": 232.859375,
+            "width": 256,
+            "height": 36
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "needsReview",
+      "reason": "Nearest target edge distances in the same rendered UI state. The 8 CSS px threshold is a project advisory only.",
+      "measurements": [
+        {
+          "target": {
+            "selector": "#day-16",
+            "element": "button",
+            "accessibleName": "November 16",
+            "boundingBox": {
+              "x": 32,
+              "y": 271.171875,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-16"
+          },
+          "nearestTarget": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 271.171875,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "target": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 271.171875,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "nearestTarget": {
+            "selector": "#day-16",
+            "element": "button",
+            "accessibleName": "November 16",
+            "boundingBox": {
+              "x": 32,
+              "y": 271.171875,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-16"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "target": {
+            "selector": "#day-18",
+            "element": "button",
+            "accessibleName": "November 18",
+            "boundingBox": {
+              "x": 72,
+              "y": 271.171875,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-18"
+          },
+          "nearestTarget": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 271.171875,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "skipped",
+      "applicability": "unknown",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+      "measurements": [
+        {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+          "element": "h2",
+          "accessibleName": "Choose a delivery date",
+          "boundingBox": {
+            "x": 32,
+            "y": 211.171875,
+            "width": 311,
+            "height": 36
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "needsReview",
+      "reason": "Nearest target edge distances in the same rendered UI state. The 8 CSS px threshold is a project advisory only.",
+      "measurements": [
+        {
+          "target": {
+            "selector": "#day-16",
+            "element": "button",
+            "accessibleName": "November 16",
+            "boundingBox": {
+              "x": 32,
+              "y": 218.484375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-16"
+          },
+          "nearestTarget": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 218.484375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "target": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 218.484375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "nearestTarget": {
+            "selector": "#day-16",
+            "element": "button",
+            "accessibleName": "November 16",
+            "boundingBox": {
+              "x": 32,
+              "y": 218.484375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-16"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "target": {
+            "selector": "#day-18",
+            "element": "button",
+            "accessibleName": "November 18",
+            "boundingBox": {
+              "x": 72,
+              "y": 218.484375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-18"
+          },
+          "nearestTarget": {
+            "selector": "#day-17",
+            "element": "button",
+            "accessibleName": "November 17",
+            "boundingBox": {
+              "x": 52,
+              "y": 218.484375,
+              "width": 18,
+              "height": 18
+            },
+            "actionId": "#day-17"
+          },
+          "distance": 2,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "skipped",
+      "applicability": "unknown",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-03",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+      "measurements": [
+        {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+          "element": "h2",
+          "accessibleName": "Choose a delivery date",
+          "boundingBox": {
+            "x": 32,
+            "y": 158.484375,
+            "width": 1376,
+            "height": 36
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    }
+  ],
+  "pageScreenshots": [
+    {
+      "width": 320,
+      "height": 640,
+      "path": "/screenshots/page-320-ba260409-b12c-4a5e-a0c9-d5db99c04661.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "path": "/screenshots/page-375-d7cb81d1-de4d-46e3-9911-927a62cee8c9.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "path": "/screenshots/page-1440-a271bc86-2810-49ce-9d80-921ef454a301.png"
+    }
+  ]
+}

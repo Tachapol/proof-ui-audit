@@ -1,0 +1,3141 @@
+{
+  "id": "pilot-pilot-ui-05-2ec0b9ab-2fa1-4f06-be81-a7ed6ed1f3d2",
+  "fixtureId": "pilot-ui-05",
+  "targetUrl": "http://localhost:3123/fixtures/pilot-ui-05",
+  "timestamp": "2026-11-16T22:09:36.188Z",
+  "viewports": [
+    {
+      "width": 320,
+      "height": 640
+    },
+    {
+      "width": 375,
+      "height": 812
+    },
+    {
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "rawIssues": [
+    {
+      "id": "reflow-195966588",
+      "ruleId": "reflow",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+      "status": "candidateFail",
+      "title": "Unintended horizontal overflow at 320px (188px overflow)",
+      "description": "The page requires two-dimensional scrolling at 320 CSS px (document scroll width: 476px exceeds client width: 288px by 188px). Offending element: #course-card. Measurement scope: #fixture-content.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#course-card",
+      "element": "article",
+      "measured": {
+        "scrollWidth": 476,
+        "clientWidth": 288,
+        "horizontalOverflowPx": 188,
+        "computedStyles": {
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "position": "static",
+          "display": "block",
+          "width": "460px",
+          "maxWidth": "none"
+        },
+        "metricVersion": "1.1.0",
+        "unit": "CSS px",
+        "scopeSelector": "#fixture-content",
+        "rawHorizontalOverflowPx": 188,
+        "rawDocumentScrollWidth": 492,
+        "rawDocumentClientWidth": 320,
+        "rawScopeScrollWidth": 476,
+        "decorativeElementsExcludedCount": 0
+      },
+      "expected": {
+        "maxOverflowPx": 1,
+        "thresholdDescription": "Content must reflow without two-dimensional scrolling at 320 CSS px"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 247.171875,
+        "width": 460,
+        "height": 152
+      },
+      "initialPriority": "P1",
+      "priorityRationale": "Project Heuristic P1 (Not WCAG Severity): Severe horizontal overflow (>50px) forcing bidirectional scrolling on mobile. Designer reprioritization supported."
+    },
+    {
+      "id": "heading-hierarchy-320-ed84c1d1-a5cf-4a23-944a-438c0719b7dd",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#course-card > h3:nth-child(1)",
+      "element": "h3",
+      "accessibleName": "Introduction to product design",
+      "boundingBox": {
+        "x": 50,
+        "y": 265.171875,
+        "width": 424,
+        "height": 24
+      },
+      "measured": {
+        "selector": "#course-card > h3:nth-child(1)",
+        "element": "h3",
+        "accessibleName": "Introduction to product design",
+        "boundingBox": {
+          "x": 50,
+          "y": 265.171875,
+          "width": 424,
+          "height": 24
+        },
+        "level": 3,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 1,
+        "previousHeading": {
+          "level": 2,
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "target-size-1383428676",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (112.9×44 px)",
+      "description": "The interactive target \"Add course\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 112.9×44 px.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Add course",
+      "measured": {
+        "width": 112.9,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 337,
+        "width": 112.9,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+    },
+    {
+      "id": "text-contrast-930214718",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1149615756",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-05: Course Card (Fixed 460px)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-05: Course Card (Fixed 460px)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 288,
+        "height": 62
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-661063302",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Fixed-width container overflowing horizo\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Fixed-width container overflowing horizontal viewp",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 288,
+        "height": 43.375
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1459486333",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Course details\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Course details",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 211.171875,
+        "width": 256,
+        "height": 36
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+    },
+    {
+      "id": "text-contrast-1373900964",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Introduction to product design\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h3",
+      "element": "h3",
+      "accessibleName": "Introduction to product design",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 265.171875,
+        "width": 424,
+        "height": 24
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1672898933",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Learn to plan interfaces, review evidenc\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Learn to plan interfaces, review evidence and expl",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 289.171875,
+        "width": 424,
+        "height": 48
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1650761155",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Add course\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Add course",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 337.171875,
+        "width": 112.9375,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "heading-hierarchy-375-04a86587-378f-446a-8420-974d2c55c5fc",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#course-card > h3:nth-child(1)",
+      "element": "h3",
+      "accessibleName": "Introduction to product design",
+      "boundingBox": {
+        "x": 50,
+        "y": 234.171875,
+        "width": 424,
+        "height": 24
+      },
+      "measured": {
+        "selector": "#course-card > h3:nth-child(1)",
+        "element": "h3",
+        "accessibleName": "Introduction to product design",
+        "boundingBox": {
+          "x": 50,
+          "y": 234.171875,
+          "width": 424,
+          "height": 24
+        },
+        "level": 3,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 1,
+        "previousHeading": {
+          "level": 2,
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "target-size-1383428676",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (112.9×44 px)",
+      "description": "The interactive target \"Add course\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 112.9×44 px.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Add course",
+      "measured": {
+        "width": 112.9,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 306,
+        "width": 112.9,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+    },
+    {
+      "id": "text-contrast-930214718",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1149615756",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-05: Course Card (Fixed 460px)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-05: Course Card (Fixed 460px)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 343,
+        "height": 31
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-661063302",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Fixed-width container overflowing horizo\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Fixed-width container overflowing horizontal viewp",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 79.796875,
+        "width": 343,
+        "height": 43.375
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1459486333",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Course details\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Course details",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 180.171875,
+        "width": 311,
+        "height": 36
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+    },
+    {
+      "id": "text-contrast-1373900964",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Introduction to product design\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h3",
+      "element": "h3",
+      "accessibleName": "Introduction to product design",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 234.171875,
+        "width": 424,
+        "height": 24
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1672898933",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Learn to plan interfaces, review evidenc\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Learn to plan interfaces, review evidence and expl",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 258.171875,
+        "width": 424,
+        "height": 48
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1650761155",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Add course\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Add course",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 306.171875,
+        "width": 112.9375,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "heading-hierarchy-1440-c7234fda-aa90-4929-aa94-42ffdb64923a",
+      "ruleId": "heading-hierarchy",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "heading-hierarchy",
+        "metricVersion": "1.0.0",
+        "unit": "heading level",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#course-card > h3:nth-child(1)",
+      "element": "h3",
+      "accessibleName": "Introduction to product design",
+      "boundingBox": {
+        "x": 50,
+        "y": 212.484375,
+        "width": 424,
+        "height": 24
+      },
+      "measured": {
+        "selector": "#course-card > h3:nth-child(1)",
+        "element": "h3",
+        "accessibleName": "Introduction to product design",
+        "boundingBox": {
+          "x": 50,
+          "y": 212.484375,
+          "width": 424,
+          "height": 24
+        },
+        "level": 3,
+        "rawAriaLevel": null,
+        "source": "native",
+        "domIndex": 1,
+        "previousHeading": {
+          "level": 2,
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)"
+        },
+        "skippedLevels": 0,
+        "boundaryContextKnown": true,
+        "unit": "heading level",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "maxDeeperStep": 1,
+        "upwardTransitionsAllowed": true,
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Heading transition follows DOM hierarchy advisory",
+      "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "target-size-1383428676",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (112.9×44 px)",
+      "description": "The interactive target \"Add course\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 112.9×44 px.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Add course",
+      "measured": {
+        "width": 112.9,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 284,
+        "width": 112.9,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+    },
+    {
+      "id": "text-contrast-930214718",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1149615756",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-05: Course Card (Fixed 460px)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-05: Course Card (Fixed 460px)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 1408,
+        "height": 31
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-661063302",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Fixed-width container overflowing horizo\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Fixed-width container overflowing horizontal viewp",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 79.796875,
+        "width": 1408,
+        "height": 21.6875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1459486333",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Course details\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Course details",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 158.484375,
+        "width": 1376,
+        "height": 36
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+    },
+    {
+      "id": "text-contrast-1373900964",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Introduction to product design\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h3",
+      "element": "h3",
+      "accessibleName": "Introduction to product design",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 212.484375,
+        "width": 424,
+        "height": 24
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1672898933",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Learn to plan interfaces, review evidenc\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Learn to plan interfaces, review evidence and expl",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 236.484375,
+        "width": 424,
+        "height": 48
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1650761155",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Add course\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Add course",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 50,
+        "y": 284.484375,
+        "width": 112.9375,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    }
+  ],
+  "groupedIssues": [
+    {
+      "fingerprint": "reflow::#course-card::scroll-476-overflow-188",
+      "representative": {
+        "id": "reflow-195966588",
+        "ruleId": "reflow",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+        "status": "candidateFail",
+        "title": "Unintended horizontal overflow at 320px (188px overflow)",
+        "description": "The page requires two-dimensional scrolling at 320 CSS px (document scroll width: 476px exceeds client width: 288px by 188px). Offending element: #course-card. Measurement scope: #fixture-content.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-05",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#course-card",
+        "element": "article",
+        "measured": {
+          "scrollWidth": 476,
+          "clientWidth": 288,
+          "horizontalOverflowPx": 188,
+          "computedStyles": {
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "display": "block",
+            "width": "460px",
+            "maxWidth": "none"
+          },
+          "metricVersion": "1.1.0",
+          "unit": "CSS px",
+          "scopeSelector": "#fixture-content",
+          "rawHorizontalOverflowPx": 188,
+          "rawDocumentScrollWidth": 492,
+          "rawDocumentClientWidth": 320,
+          "rawScopeScrollWidth": 476,
+          "decorativeElementsExcludedCount": 0
+        },
+        "expected": {
+          "maxOverflowPx": 1,
+          "thresholdDescription": "Content must reflow without two-dimensional scrolling at 320 CSS px"
+        },
+        "boundingBox": {
+          "x": 32,
+          "y": 247.171875,
+          "width": 460,
+          "height": 152
+        },
+        "initialPriority": "P1",
+        "priorityRationale": "Project Heuristic P1 (Not WCAG Severity): Severe horizontal overflow (>50px) forcing bidirectional scrolling on mobile. Designer reprioritization supported."
+      },
+      "rawOccurrencesCount": 1,
+      "occurrences": [
+        {
+          "id": "reflow-195966588",
+          "ruleId": "reflow",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+          "status": "candidateFail",
+          "title": "Unintended horizontal overflow at 320px (188px overflow)",
+          "description": "The page requires two-dimensional scrolling at 320 CSS px (document scroll width: 476px exceeds client width: 288px by 188px). Offending element: #course-card. Measurement scope: #fixture-content.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#course-card",
+          "element": "article",
+          "measured": {
+            "scrollWidth": 476,
+            "clientWidth": 288,
+            "horizontalOverflowPx": 188,
+            "computedStyles": {
+              "overflowX": "visible",
+              "overflowY": "visible",
+              "position": "static",
+              "display": "block",
+              "width": "460px",
+              "maxWidth": "none"
+            },
+            "metricVersion": "1.1.0",
+            "unit": "CSS px",
+            "scopeSelector": "#fixture-content",
+            "rawHorizontalOverflowPx": 188,
+            "rawDocumentScrollWidth": 492,
+            "rawDocumentClientWidth": 320,
+            "rawScopeScrollWidth": 476,
+            "decorativeElementsExcludedCount": 0
+          },
+          "expected": {
+            "maxOverflowPx": 1,
+            "thresholdDescription": "Content must reflow without two-dimensional scrolling at 320 CSS px"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 247.171875,
+            "width": 460,
+            "height": 152
+          },
+          "initialPriority": "P1",
+          "priorityRationale": "Project Heuristic P1 (Not WCAG Severity): Severe horizontal overflow (>50px) forcing bidirectional scrolling on mobile. Designer reprioritization supported."
+        }
+      ],
+      "status": "candidateFail",
+      "hasMixedStatus": false,
+      "initialPriority": "P1",
+      "currentPriority": "P1",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "heading-hierarchy::#course-card > h3:nth-child(1)::{\"version\":\"1.0.0\",\"level\":3,\"previousHeading\":{\"level\":2,\"selector\":\"#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)\"},\"skippedLevels\":0}",
+      "representative": {
+        "id": "heading-hierarchy-320-ed84c1d1-a5cf-4a23-944a-438c0719b7dd",
+        "ruleId": "heading-hierarchy",
+        "wcagCriterion": "Project advisory — no automatic WCAG failure",
+        "metric": {
+          "metricId": "heading-hierarchy",
+          "metricVersion": "1.0.0",
+          "unit": "heading level",
+          "executionStatus": "completed",
+          "applicability": "applicable",
+          "basis": "project-advisory"
+        },
+        "url": "http://localhost:3123/fixtures/pilot-ui-05",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#course-card > h3:nth-child(1)",
+        "element": "h3",
+        "accessibleName": "Introduction to product design",
+        "boundingBox": {
+          "x": 50,
+          "y": 265.171875,
+          "width": 424,
+          "height": 24
+        },
+        "measured": {
+          "selector": "#course-card > h3:nth-child(1)",
+          "element": "h3",
+          "accessibleName": "Introduction to product design",
+          "boundingBox": {
+            "x": 50,
+            "y": 265.171875,
+            "width": 424,
+            "height": 24
+          },
+          "level": 3,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 1,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        "expected": {
+          "maxDeeperStep": 1,
+          "upwardTransitionsAllowed": true,
+          "basis": "project-advisory"
+        },
+        "status": "pass",
+        "title": "Heading transition follows DOM hierarchy advisory",
+        "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+        "initialPriority": "P3",
+        "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "heading-hierarchy-320-ed84c1d1-a5cf-4a23-944a-438c0719b7dd",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#course-card > h3:nth-child(1)",
+          "element": "h3",
+          "accessibleName": "Introduction to product design",
+          "boundingBox": {
+            "x": 50,
+            "y": 265.171875,
+            "width": 424,
+            "height": 24
+          },
+          "measured": {
+            "selector": "#course-card > h3:nth-child(1)",
+            "element": "h3",
+            "accessibleName": "Introduction to product design",
+            "boundingBox": {
+              "x": 50,
+              "y": 265.171875,
+              "width": 424,
+              "height": 24
+            },
+            "level": 3,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 1,
+            "previousHeading": {
+              "level": 2,
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "heading-hierarchy-375-04a86587-378f-446a-8420-974d2c55c5fc",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#course-card > h3:nth-child(1)",
+          "element": "h3",
+          "accessibleName": "Introduction to product design",
+          "boundingBox": {
+            "x": 50,
+            "y": 234.171875,
+            "width": 424,
+            "height": 24
+          },
+          "measured": {
+            "selector": "#course-card > h3:nth-child(1)",
+            "element": "h3",
+            "accessibleName": "Introduction to product design",
+            "boundingBox": {
+              "x": 50,
+              "y": 234.171875,
+              "width": 424,
+              "height": 24
+            },
+            "level": 3,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 1,
+            "previousHeading": {
+              "level": 2,
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "heading-hierarchy-1440-c7234fda-aa90-4929-aa94-42ffdb64923a",
+          "ruleId": "heading-hierarchy",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "heading-hierarchy",
+            "metricVersion": "1.0.0",
+            "unit": "heading level",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#course-card > h3:nth-child(1)",
+          "element": "h3",
+          "accessibleName": "Introduction to product design",
+          "boundingBox": {
+            "x": 50,
+            "y": 212.484375,
+            "width": 424,
+            "height": 24
+          },
+          "measured": {
+            "selector": "#course-card > h3:nth-child(1)",
+            "element": "h3",
+            "accessibleName": "Introduction to product design",
+            "boundingBox": {
+              "x": 50,
+              "y": 212.484375,
+              "width": 424,
+              "height": 24
+            },
+            "level": 3,
+            "rawAriaLevel": null,
+            "source": "native",
+            "domIndex": 1,
+            "previousHeading": {
+              "level": 2,
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)"
+            },
+            "skippedLevels": 0,
+            "boundaryContextKnown": true,
+            "unit": "heading level",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "maxDeeperStep": 1,
+            "upwardTransitionsAllowed": true,
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Heading transition follows DOM hierarchy advisory",
+          "description": "Heading level 2 → 3 in DOM order. Equal levels and returns to higher-ranked sections do not require a skip warning.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "target-size::button::113x44",
+      "representative": {
+        "id": "target-size-1383428676",
+        "ruleId": "target-size",
+        "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+        "status": "pass",
+        "title": "Target size meets 24×24 CSS px (112.9×44 px)",
+        "description": "The interactive target \"Add course\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 112.9×44 px.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-05",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "button",
+        "element": "button",
+        "role": "button",
+        "accessibleName": "Add course",
+        "measured": {
+          "width": 112.9,
+          "height": 44,
+          "isInline": false,
+          "hasSufficientSpacing": true
+        },
+        "expected": {
+          "minWidth": 24,
+          "minHeight": 24,
+          "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+        },
+        "boundingBox": {
+          "x": 50,
+          "y": 337,
+          "width": 112.9,
+          "height": 44
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "target-size-1383428676",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (112.9×44 px)",
+          "description": "The interactive target \"Add course\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 112.9×44 px.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Add course",
+          "measured": {
+            "width": 112.9,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 337,
+            "width": 112.9,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+        },
+        {
+          "id": "target-size-1383428676",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (112.9×44 px)",
+          "description": "The interactive target \"Add course\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 112.9×44 px.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Add course",
+          "measured": {
+            "width": 112.9,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 306,
+            "width": 112.9,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+        },
+        {
+          "id": "target-size-1383428676",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (112.9×44 px)",
+          "description": "The interactive target \"Add course\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 112.9×44 px.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Add course",
+          "measured": {
+            "width": 112.9,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 284,
+            "width": 112.9,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::span::ratio-5.4",
+      "representative": {
+        "id": "text-contrast-930214718",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (5.42:1)",
+        "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-05",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "span",
+        "element": "span",
+        "accessibleName": "Interface study",
+        "measured": {
+          "contrastRatio": 5.42,
+          "fontSizePx": 12,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(103, 103, 103)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 22,
+          "width": 117.234375,
+          "height": 15
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-930214718",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-930214718",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-930214718",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::h1::ratio-15.4",
+      "representative": {
+        "id": "text-contrast-1149615756",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (15.44:1)",
+        "description": "The text \"UI-05: Course Card (Fixed 460px)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-05",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "h1",
+        "element": "h1",
+        "accessibleName": "UI-05: Course Card (Fixed 460px)",
+        "measured": {
+          "contrastRatio": 15.44,
+          "fontSizePx": 20,
+          "fontWeight": 600,
+          "isLargeText": false,
+          "color": "rgb(32, 33, 35)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 44.796875,
+          "width": 288,
+          "height": 62
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1149615756",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-05: Course Card (Fixed 460px)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-05: Course Card (Fixed 460px)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 288,
+            "height": 62
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1149615756",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-05: Course Card (Fixed 460px)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-05: Course Card (Fixed 460px)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 343,
+            "height": 31
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1149615756",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-05: Course Card (Fixed 460px)\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-05: Course Card (Fixed 460px)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 1408,
+            "height": 31
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::p::ratio-5.4",
+      "representative": {
+        "id": "text-contrast-661063302",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (5.42:1)",
+        "description": "The text \"Fixed-width container overflowing horizo\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-05",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "p",
+        "element": "p",
+        "accessibleName": "Fixed-width container overflowing horizontal viewp",
+        "measured": {
+          "contrastRatio": 5.42,
+          "fontSizePx": 14,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(103, 103, 103)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 110.796875,
+          "width": 288,
+          "height": 43.375
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-661063302",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Fixed-width container overflowing horizo\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Fixed-width container overflowing horizontal viewp",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 110.796875,
+            "width": 288,
+            "height": 43.375
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-661063302",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Fixed-width container overflowing horizo\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Fixed-width container overflowing horizontal viewp",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 79.796875,
+            "width": 343,
+            "height": 43.375
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-661063302",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Fixed-width container overflowing horizo\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Fixed-width container overflowing horizontal viewp",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 79.796875,
+            "width": 1408,
+            "height": 21.6875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::h2::ratio-17.7",
+      "representative": {
+        "id": "text-contrast-1459486333",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 3:1 (17.74:1)",
+        "description": "The text \"Course details\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-05",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "h2",
+        "element": "h2",
+        "accessibleName": "Course details",
+        "measured": {
+          "contrastRatio": 17.74,
+          "fontSizePx": 24,
+          "fontWeight": 400,
+          "isLargeText": true,
+          "color": "rgb(17, 24, 39)",
+          "backgroundColor": "rgba(255, 255, 255, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 3,
+          "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+        },
+        "boundingBox": {
+          "x": 32,
+          "y": 211.171875,
+          "width": 256,
+          "height": 36
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1459486333",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Course details\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Course details",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 211.171875,
+            "width": 256,
+            "height": 36
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+        },
+        {
+          "id": "text-contrast-1459486333",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Course details\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Course details",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 180.171875,
+            "width": 311,
+            "height": 36
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+        },
+        {
+          "id": "text-contrast-1459486333",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Course details\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Course details",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 158.484375,
+            "width": 1376,
+            "height": 36
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::h3::ratio-17.7",
+      "representative": {
+        "id": "text-contrast-1373900964",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (17.74:1)",
+        "description": "The text \"Introduction to product design\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-05",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "h3",
+        "element": "h3",
+        "accessibleName": "Introduction to product design",
+        "measured": {
+          "contrastRatio": 17.74,
+          "fontSizePx": 16,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(17, 24, 39)",
+          "backgroundColor": "rgba(255, 255, 255, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 50,
+          "y": 265.171875,
+          "width": 424,
+          "height": 24
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1373900964",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Introduction to product design\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h3",
+          "element": "h3",
+          "accessibleName": "Introduction to product design",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 265.171875,
+            "width": 424,
+            "height": 24
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1373900964",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Introduction to product design\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h3",
+          "element": "h3",
+          "accessibleName": "Introduction to product design",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 234.171875,
+            "width": 424,
+            "height": 24
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1373900964",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Introduction to product design\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h3",
+          "element": "h3",
+          "accessibleName": "Introduction to product design",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 212.484375,
+            "width": 424,
+            "height": 24
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::p::ratio-17.7",
+      "representative": {
+        "id": "text-contrast-1672898933",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (17.74:1)",
+        "description": "The text \"Learn to plan interfaces, review evidenc\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-05",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "p",
+        "element": "p",
+        "accessibleName": "Learn to plan interfaces, review evidence and expl",
+        "measured": {
+          "contrastRatio": 17.74,
+          "fontSizePx": 16,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(17, 24, 39)",
+          "backgroundColor": "rgba(255, 255, 255, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 50,
+          "y": 289.171875,
+          "width": 424,
+          "height": 48
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1672898933",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Learn to plan interfaces, review evidenc\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Learn to plan interfaces, review evidence and expl",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 289.171875,
+            "width": 424,
+            "height": 48
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1672898933",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Learn to plan interfaces, review evidenc\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Learn to plan interfaces, review evidence and expl",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 258.171875,
+            "width": 424,
+            "height": 48
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1672898933",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Learn to plan interfaces, review evidenc\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Learn to plan interfaces, review evidence and expl",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 236.484375,
+            "width": 424,
+            "height": 48
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::button::ratio-8.7",
+      "representative": {
+        "id": "text-contrast-1650761155",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (8.72:1)",
+        "description": "The text \"Add course\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-05",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "button",
+        "element": "button",
+        "accessibleName": "Add course",
+        "measured": {
+          "contrastRatio": 8.72,
+          "fontSizePx": 16,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(30, 64, 175, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 50,
+          "y": 337.171875,
+          "width": 112.9375,
+          "height": 44
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1650761155",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Add course\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Add course",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 337.171875,
+            "width": 112.9375,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1650761155",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Add course\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Add course",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 306.171875,
+            "width": 112.9375,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1650761155",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Add course\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-05",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Add course",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 50,
+            "y": 284.484375,
+            "width": 112.9375,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    }
+  ],
+  "summary": {
+    "totalRawFindings": 28,
+    "totalGroupedIssues": 10,
+    "passCount": 9,
+    "candidateFailCount": 1,
+    "needsReviewCount": 0
+  },
+  "metricResults": [
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "skipped",
+      "applicability": "not_applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+      "measurements": [
+        {
+          "target": {
+            "selector": "#course-card > button:nth-child(3)",
+            "element": "button",
+            "accessibleName": "Add course",
+            "boundingBox": {
+              "x": 50,
+              "y": 337.171875,
+              "width": 112.9375,
+              "height": 44
+            },
+            "actionId": "#course-card > button:nth-child(3)"
+          },
+          "nearestTarget": null,
+          "distance": null,
+          "overlap": null,
+          "overlapArea": null,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "pass",
+      "reason": "DOM heading order within the designated UI; deeper skips request context review. Returning to a higher rank is allowed.",
+      "measurements": [
+        {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+          "element": "h2",
+          "accessibleName": "Course details",
+          "boundingBox": {
+            "x": 32,
+            "y": 211.171875,
+            "width": 256,
+            "height": 36
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        },
+        {
+          "selector": "#course-card > h3:nth-child(1)",
+          "element": "h3",
+          "accessibleName": "Introduction to product design",
+          "boundingBox": {
+            "x": 50,
+            "y": 265.171875,
+            "width": 424,
+            "height": 24
+          },
+          "level": 3,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 1,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "skipped",
+      "applicability": "not_applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+      "measurements": [
+        {
+          "target": {
+            "selector": "#course-card > button:nth-child(3)",
+            "element": "button",
+            "accessibleName": "Add course",
+            "boundingBox": {
+              "x": 50,
+              "y": 306.171875,
+              "width": 112.9375,
+              "height": 44
+            },
+            "actionId": "#course-card > button:nth-child(3)"
+          },
+          "nearestTarget": null,
+          "distance": null,
+          "overlap": null,
+          "overlapArea": null,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "pass",
+      "reason": "DOM heading order within the designated UI; deeper skips request context review. Returning to a higher rank is allowed.",
+      "measurements": [
+        {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+          "element": "h2",
+          "accessibleName": "Course details",
+          "boundingBox": {
+            "x": 32,
+            "y": 180.171875,
+            "width": 311,
+            "height": 36
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        },
+        {
+          "selector": "#course-card > h3:nth-child(1)",
+          "element": "h3",
+          "accessibleName": "Introduction to product design",
+          "boundingBox": {
+            "x": 50,
+            "y": 234.171875,
+            "width": 424,
+            "height": 24
+          },
+          "level": 3,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 1,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "skipped",
+      "applicability": "not_applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "Fewer than two independent pointer targets; no nearest pair is available.",
+      "measurements": [
+        {
+          "target": {
+            "selector": "#course-card > button:nth-child(3)",
+            "element": "button",
+            "accessibleName": "Add course",
+            "boundingBox": {
+              "x": 50,
+              "y": 284.484375,
+              "width": 112.9375,
+              "height": 44
+            },
+            "actionId": "#course-card > button:nth-child(3)"
+          },
+          "nearestTarget": null,
+          "distance": null,
+          "overlap": null,
+          "overlapArea": null,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-05",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "pass",
+      "reason": "DOM heading order within the designated UI; deeper skips request context review. Returning to a higher rank is allowed.",
+      "measurements": [
+        {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+          "element": "h2",
+          "accessibleName": "Course details",
+          "boundingBox": {
+            "x": 32,
+            "y": 158.484375,
+            "width": 1376,
+            "height": 36
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        },
+        {
+          "selector": "#course-card > h3:nth-child(1)",
+          "element": "h3",
+          "accessibleName": "Introduction to product design",
+          "boundingBox": {
+            "x": 50,
+            "y": 212.484375,
+            "width": 424,
+            "height": 24
+          },
+          "level": 3,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 1,
+          "previousHeading": {
+            "level": 2,
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)"
+          },
+          "skippedLevels": 0,
+          "boundaryContextKnown": true,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    }
+  ],
+  "pageScreenshots": [
+    {
+      "width": 320,
+      "height": 640,
+      "path": "/screenshots/page-320-12a33dd0-ffac-4fe6-8576-f223e0328fed.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "path": "/screenshots/page-375-29451114-0189-4cb9-8402-ed944ebc84be.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "path": "/screenshots/page-1440-ef982e0b-c1bf-4410-aafc-0726cfcc3557.png"
+    }
+  ]
+}

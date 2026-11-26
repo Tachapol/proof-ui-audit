@@ -1,12 +1,106 @@
 export interface FixtureDefinition {
   id: string;
   name: string;
-  category: 'target-size' | 'contrast' | 'reflow' | 'text-spacing';
+  category: 'target-size' | 'contrast' | 'reflow' | 'text-spacing' | 'pilot-metrics';
   description: string;
   path: string;
 }
 
+export const PILOT_UI_FIXTURES: FixtureDefinition[] = [
+  {
+    id: 'pilot-ui-01',
+    name: 'UI-01: Account Registration (Muted)',
+    category: 'contrast',
+    description: 'Registration form with muted helper text (2.3:1) below the WCAG 4.5:1 minimum threshold.',
+    path: '/fixtures/pilot-ui-01',
+  },
+  {
+    id: 'pilot-ui-02',
+    name: 'UI-02: Account Registration (High Contrast)',
+    category: 'contrast',
+    description: 'Registration form baseline meeting WCAG 4.5:1 text contrast requirements.',
+    path: '/fixtures/pilot-ui-02',
+  },
+  {
+    id: 'pilot-ui-03',
+    name: 'UI-03: Date Picker (Compact 18px Targets)',
+    category: 'target-size',
+    description: 'Date selection buttons measuring 18x18px, failing WCAG 2.2 24x24px minimum target size.',
+    path: '/fixtures/pilot-ui-03',
+  },
+  {
+    id: 'pilot-ui-04',
+    name: 'UI-04: Date Picker (Standard 44px Targets)',
+    category: 'target-size',
+    description: 'Date selection buttons measuring 44x44px, comfortably passing target size standards.',
+    path: '/fixtures/pilot-ui-04',
+  },
+  {
+    id: 'pilot-ui-05',
+    name: 'UI-05: Course Card (Fixed 460px)',
+    category: 'reflow',
+    description: 'Fixed-width container overflowing horizontal viewport at 320 CSS pixels.',
+    path: '/fixtures/pilot-ui-05',
+  },
+  {
+    id: 'pilot-ui-06',
+    name: 'UI-06: Course Card (Fluid Responsive)',
+    category: 'reflow',
+    description: 'Fluid container reflowing cleanly down to 320 CSS pixels without horizontal scroll.',
+    path: '/fixtures/pilot-ui-06',
+  },
+  {
+    id: 'pilot-ui-07',
+    name: 'UI-07: Delivery Notice (Fixed Height)',
+    category: 'text-spacing',
+    description: 'Fixed-height container with overflow:hidden truncating text under expanded line height.',
+    path: '/fixtures/pilot-ui-07',
+  },
+  {
+    id: 'pilot-ui-08',
+    name: 'UI-08: Delivery Notice (Adaptive Height)',
+    category: 'text-spacing',
+    description: 'Flexible container expanding naturally to prevent clipping under expanded text spacing.',
+    path: '/fixtures/pilot-ui-08',
+  },
+  {
+    id: 'pilot-ui-09',
+    name: 'UI-09: Notification Settings (Light Border)',
+    category: 'contrast',
+    description: 'Form input field with subtle 1.2:1 border contrast, requiring non-text contrast review.',
+    path: '/fixtures/pilot-ui-09',
+  },
+  {
+    id: 'pilot-ui-10',
+    name: 'UI-10: Notification Settings (High Contrast)',
+    category: 'contrast',
+    description: 'Form input field with 3:1 border contrast meeting graphical object requirements.',
+    path: '/fixtures/pilot-ui-10',
+  },
+  {
+    id: 'pilot-ui-11',
+    name: 'UI-11: Course Catalog (Muted Heading)',
+    category: 'contrast',
+    description: 'Large heading text with 3.5:1 contrast against white background (evaluated against 3:1 threshold).',
+    path: '/fixtures/pilot-ui-11',
+  },
+  {
+    id: 'pilot-ui-12',
+    name: 'UI-12: Quarterly Financial Table (2D Data)',
+    category: 'reflow',
+    description: 'Complex two-dimensional financial data table in a scrollable region (essential 2D presentation).',
+    path: '/fixtures/pilot-ui-12',
+  },
+];
+
 export const FIXTURES: FixtureDefinition[] = [
+  ...PILOT_UI_FIXTURES,
+  ...['spacing', 'heading', 'context', 'exceptions', 'invalid', 'single', 'empty'].map(variant => ({
+    id: `pilot-metrics-${variant}`, name: `Pilot Metrics: ${variant}`, category: 'pilot-metrics' as const,
+    description: `Controlled ${variant} evidence for the two pilot project advisory metrics.`, path: `/fixtures/pilot-metrics-${variant}`,
+  })),
+  { id: 'mvp-contrast-demo', name: 'Text Contrast MVP — Happy Path', category: 'contrast',
+    description: 'Four controlled text cases: code measures, CPE LLM critiques one candidate issue, designer reviews.', path: '/fixtures/mvp-contrast-demo' },
   {
     id: 'target-size-demo',
     name: 'Target Size Test Suite',

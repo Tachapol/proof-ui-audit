@@ -1,29 +1,77 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
-import { FIXTURES } from '@/fixtures/fixture-registry';
+import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { Icon } from './Icon';
 
 interface NavigationRailProps {
   isOpen: boolean;
+  isCollapsed?: boolean;
   onClose: () => void;
-  currentRunId?: string;
-  currentFixtureId?: string;
+  onToggleCollapse?: () => void;
+  currentRun: RecentRunItem | null;
+  isUnsavedRun: boolean;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
+}
+
+interface RecentRunItem {
+  id: string;
+  targetUrl: string;
+  fixtureId?: string;
+  timestamp: string;
+  summary: {
+    candidateFailCount: number;
+    needsReviewCount: number;
+    passCount: number;
+  };
 }
 
 export function NavigationRail({
   isOpen,
+  isCollapsed = false,
   onClose,
-  currentRunId,
-  currentFixtureId,
+  onToggleCollapse,
+  currentRun,
+  isUnsavedRun,
   triggerRef,
 }: NavigationRailProps) {
   const drawerRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const [recentRuns, setRecentRuns] = useState<RecentRunItem[]>([]);
+  const [isLoadingRuns, setIsLoadingRuns] = useState(true);
+  const [historyError, setHistoryError] = useState(false);
+  const currentRunId = currentRun?.id;
+  const savedRunId = isUnsavedRun ? undefined : currentRunId;
+  const savedRuns = currentRun && savedRunId
+    ? [currentRun, ...recentRuns.filter(run => run.id !== savedRunId)]
+    : recentRuns.filter(run => run.id !== currentRunId);
+
+  useEffect(() => {
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
+    const shouldLoad = isOpen || (isDesktop && !isCollapsed);
+    if (!shouldLoad) return;
+    const controller = new AbortController();
+    setIsLoadingRuns(true);
+    setHistoryError(false);
+    fetch('/api/audit', { cache: 'no-store', signal: controller.signal })
+      .then((r) => {
+        if (!r.ok) throw new Error('Unable to load audit history.');
+        return r.json();
+      })
+      .then((d) => {
+        if (!d.success || !Array.isArray(d.runs)) throw new Error('Invalid audit history response.');
+        if (!controller.signal.aborted) setRecentRuns(d.runs);
+      })
+      .catch(() => { if (!controller.signal.aborted) setHistoryError(true); })
+      .finally(() => { if (!controller.signal.aborted) setIsLoadingRuns(false); });
+    return () => controller.abort();
+  }, [isOpen, isCollapsed, savedRunId]);
 
   useEffect(() => {
     if (!isOpen) return;
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
+    if (isDesktop) return;
+
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     closeRef.current?.focus();
@@ -61,8 +109,44 @@ export function NavigationRail({
   }, [isOpen, onClose, triggerRef]);
 
   const handleClose = () => {
-    onClose();
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      if (onToggleCollapse) {
+        onToggleCollapse();
+      } else {
+        onClose();
+      }
+    } else {
+      onClose();
+    }
     triggerRef.current?.focus();
+  };
+
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      handleClose();
+    }
+
+    if (target === '#audit-input') {
+      const el = document.getElementById('audit-input');
+      el?.scrollIntoView({ behavior: 'smooth' });
+    } else if (target === '#local-fixtures') {
+      window.dispatchEvent(new CustomEvent('proofui:select-fixture-tab'));
+      const el = document.getElementById('audit-input');
+      el?.scrollIntoView({ behavior: 'smooth' });
+    } else if (target === '#visual-canvas-section') {
+      const el =
+        document.getElementById('visual-canvas-section') ||
+        document.getElementById('audit-results') ||
+        document.getElementById('audit-input');
+      el?.scrollIntoView({ behavior: 'smooth' });
+    } else if (target === '#audit-results') {
+      const el =
+        document.getElementById('audit-results') ||
+        document.getElementById('empty-state') ||
+        document.getElementById('audit-input');
+      el?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -71,62 +155,191 @@ export function NavigationRail({
       <aside
         ref={drawerRef}
         id="primary-navigation"
-        className={`navigation-rail${isOpen ? ' is-open' : ''}`}
+        className={`navigation-rail${isOpen ? ' is-open' : ''}${isCollapsed ? ' is-collapsed' : ''}`}
         aria-label="Primary navigation"
         aria-modal={isOpen ? 'true' : undefined}
         role={isOpen ? 'dialog' : undefined}
       >
-        <div className="rail-brand">
-          <div className="brand-mark" aria-hidden="true">P</div>
-          <div>
-            <strong>ProofUI</strong>
-            <span>Audit workspace</span>
+        <div className="rail-brand flex items-center justify-between gap-2.5 min-h-[48px] mx-0.5 mb-5">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="brand-mark shrink-0" aria-hidden="true">P</div>
+            <div className="min-w-0">
+              <strong className="truncate block font-semibold text-zinc-900 text-sm">ProofUI</strong>
+              <span className="truncate block text-xs text-zinc-500">Audit workspace</span>
+            </div>
           </div>
-          <button ref={closeRef} className="icon-button rail-close" type="button" onClick={handleClose} aria-label="Close navigation drawer">
-            <Icon name="X" size={19} />
+          <button
+            ref={closeRef}
+            className="rail-close inline-flex items-center justify-center rounded-md p-1.5 text-zinc-500 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 transition-colors shrink-0"
+            type="button"
+            onClick={handleClose}
+            aria-label="Close navigation drawer"
+            title="Collapse sidebar (⌘B)"
+          >
+            <Icon name="PanelLeftClose" size={17} />
           </button>
         </div>
 
-        <nav aria-label="Audit workspace">
-          <a className="rail-link is-current" href="#audit-input" aria-current="page">
+        <nav aria-label="Audit workspace" className="rail-nav-links">
+          <a
+            className="rail-link"
+            href="#audit-input"
+            onClick={(e) => handleAnchorClick(e, '#audit-input')}
+          >
             <Icon name="Target" size={17} />
-            <span>Current audit</span>
+            <div className="rail-link-text">
+              <span>Target & Context</span>
+              <small>Configure URL or Fixture</small>
+            </div>
           </a>
-          <a className="rail-link" href="#local-fixtures">
+
+          <a
+            className="rail-link"
+            href="#local-fixtures"
+            onClick={(e) => handleAnchorClick(e, '#local-fixtures')}
+          >
             <Icon name="FlaskConical" size={17} />
-            <span>Local fixtures</span>
+            <div className="rail-link-text">
+              <span>Local Test Fixtures</span>
+              <small>Fixtures for selected WCAG 2.2 checks</small>
+            </div>
           </a>
-          <a className="rail-link" href={currentRunId ? '#audit-results' : '#empty-state'} aria-disabled={!currentRunId}>
+
+          <a
+            className={`rail-link ${!currentRunId ? 'is-disabled' : ''}`}
+            href="#visual-canvas-section"
+            aria-disabled={!currentRunId}
+            onClick={(e) => {
+              if (currentRunId) handleAnchorClick(e, '#visual-canvas-section');
+            }}
+          >
+            <Icon name="Maximize2" size={17} />
+            <div className="rail-link-text">
+              <span>Visual Canvas</span>
+              <small>{currentRunId ? 'Live overlay & Before/After' : 'Run audit to preview'}</small>
+            </div>
+          </a>
+
+          <a
+            className={`rail-link ${!currentRunId ? 'is-disabled' : ''}`}
+            href="#audit-results"
+            aria-disabled={!currentRunId}
+            onClick={(e) => {
+              if (currentRunId) handleAnchorClick(e, '#audit-results');
+            }}
+          >
             <Icon name="FileText" size={17} />
-            <span>Report access</span>
+            <div className="rail-link-text">
+              <span>Audit Findings</span>
+              <small>{currentRunId ? 'Grouped evidence & decisions' : 'No audit results yet'}</small>
+            </div>
           </a>
+
+          <Link
+            className="rail-link"
+            href="/sandbox"
+            onClick={handleClose}
+          >
+            <Icon name="Layers" size={17} />
+            <div className="rail-link-text">
+              <span>Code Sandbox</span>
+              <small>Live component iteration</small>
+            </div>
+            <Icon name="ArrowRight" size={14} className="ml-auto opacity-60" />
+          </Link>
+
+          {!currentRunId && (
+            <Link
+              className="rail-link rail-studio-link"
+              href="/studio"
+              onClick={handleClose}
+            >
+              <Icon name="Users" size={17} />
+              <div className="rail-link-text">
+                <span>Critique Studio</span>
+                <small>Run audit first</small>
+              </div>
+              <Icon name="ArrowRight" size={14} className="ml-auto opacity-60" />
+            </Link>
+          )}
         </nav>
 
-        <section className="rail-section" aria-labelledby="fixture-nav-title">
-          <h2 id="fixture-nav-title">Fixture library</h2>
-          <ul className="rail-list">
-            {FIXTURES.slice(0, 4).map((fixture) => (
-              <li key={fixture.id} className={fixture.id === currentFixtureId ? 'is-active' : ''}>
-                <span className="rail-list-dot" aria-hidden="true" />
-                <span>{fixture.name.replace(' Test Suite', '').replace(' Suite', '')}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
         <section className="rail-section rail-recent" aria-labelledby="recent-title">
-          <h2 id="recent-title">Recent audit runs</h2>
-          {currentRunId ? (
-            <a className="recent-run" href={`?runId=${encodeURIComponent(currentRunId)}`}>
-              <Icon name="History" size={15} />
-              <span className="safe-wrap">{currentRunId}</span>
-            </a>
-          ) : (
-            <p>No saved run in this session.</p>
+          <div className="rail-section-header flex items-center justify-between pb-1">
+            <h2 id="recent-title" className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              Recent Audit Runs
+            </h2>
+            {savedRuns.length > 0 && (
+              <span className="text-[10px] text-zinc-400 font-mono">{savedRuns.length} saved</span>
+            )}
+          </div>
+
+          {currentRun && isUnsavedRun && (
+            <div className="my-2 space-y-1 rounded-lg border border-amber-200 bg-amber-50 p-3" role="status">
+              <strong className="block text-xs text-amber-900">Unsaved run</strong>
+              <p className="safe-wrap text-xs text-amber-900">{currentRun.fixtureId ? `fixture://${currentRun.fixtureId}` : currentRun.targetUrl}</p>
+            </div>
+          )}
+          {historyError && (
+            <p className="py-2 text-xs text-zinc-600" role="status">Audit history could not be refreshed.</p>
+          )}
+          {isLoadingRuns && savedRuns.length === 0 && !currentRun ? (
+            <div className="py-4 text-center text-xs text-zinc-400">Loading history…</div>
+          ) : savedRuns.length > 0 ? (
+            <div className="recent-runs-list">
+              {savedRuns.slice(0, 8).map((run) => {
+                const isSelected = run.id === savedRunId;
+                const displayName = run.fixtureId ? `fixture://${run.fixtureId}` : run.targetUrl;
+                let dateStr = '';
+                try {
+                  dateStr = new Date(run.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                } catch {
+                  dateStr = '';
+                }
+
+                return (
+                  <a
+                    key={run.id}
+                    className={`recent-run-card ${isSelected ? 'is-current' : ''}`}
+                    href={`/?runId=${encodeURIComponent(run.id)}`}
+                    aria-current={isSelected ? 'page' : undefined}
+                    onClick={handleClose}
+                  >
+                    <div className="run-card-top flex items-center justify-between gap-2">
+                      <span className="run-card-target truncate font-mono text-xs font-medium text-zinc-800" title={displayName}>
+                        {displayName}
+                      </span>
+                      {dateStr && (
+                        <span className="run-card-time text-[10px] text-zinc-400 shrink-0">
+                          {dateStr}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="run-card-badges flex items-center gap-1.5 mt-1 text-[10px]">
+                      {run.summary.candidateFailCount > 0 ? (
+                        <span className="run-badge badge-fail text-red-700 bg-red-50 border border-red-200 px-1.5 py-0.2 rounded font-medium">
+                          {run.summary.candidateFailCount} {run.summary.candidateFailCount === 1 ? 'fail' : 'fails'}
+                        </span>
+                      ) : run.summary.needsReviewCount === 0 && run.summary.passCount > 0 ? (
+                        <span className="run-badge badge-pass text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded font-medium">
+                          Pass
+                        </span>
+                      ) : null}
+                      {run.summary.needsReviewCount > 0 && (
+                        <span className="run-badge badge-review text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded font-medium">
+                          {run.summary.needsReviewCount} review
+                        </span>
+                      )}
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          ) : !currentRun && !historyError && !isLoadingRuns && (
+            <p className="text-xs text-zinc-400 py-4 text-center">No saved audit runs yet.</p>
           )}
         </section>
-
-        <p className="rail-note">Decision support only. Automated evidence does not establish WCAG conformance.</p>
       </aside>
     </>
   );

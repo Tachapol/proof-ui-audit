@@ -1,0 +1,51 @@
+
+> proofui-audit-poc@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /Users/mysteriouz/Projects/proof-ui-audit
+
+ ✓ src/lib/storage/__tests__/db.test.ts (6 tests) 71ms
+ ✓ src/lib/studio/__tests__/color-extractor.test.ts (7 tests) 162ms
+ ✓ src/lib/research/__tests__/pilot-validation.test.ts (8 tests) 79ms
+ ✓ src/app/api/explain/__tests__/explain-route.test.ts (7 tests) 191ms
+ ✓ src/app/api/decisions/__tests__/decisions-route.test.ts (16 tests) 239ms
+ ✓ src/lib/ai/__tests__/prompt.test.ts (3 tests) 10ms
+ ✓ src/lib/audit/__tests__/pilot-metrics.test.ts (17 tests) 16ms
+ ✓ src/lib/report/__tests__/report-export.test.ts (20 tests) 98ms
+ ✓ src/lib/sandbox/__tests__/sandbox-fixes.test.ts (5 tests) 979ms
+   ✓ Sandbox fixes & verification > 4. rejects spoofed client verification when candidate ID is not in server-recorded candidates  966ms
+ ✓ src/lib/studio/__tests__/service.test.ts (6 tests) 44ms
+ ✓ src/lib/ai/__tests__/cpe.test.ts (3 tests) 15ms
+ ✓ src/lib/audit/rules/__tests__/target-size.test.ts (6 tests) 6ms
+ ✓ src/lib/audit/__tests__/url-validator.test.ts (15 tests) 13ms
+ ✓ src/lib/ai/__tests__/grounding.test.ts (23 tests) 14ms
+ ✓ src/lib/audit/__tests__/grouping.test.ts (11 tests) 24ms
+ ✓ src/lib/iteration/__tests__/iteration.test.ts (10 tests) 24ms
+ ✓ src/lib/ai/__tests__/fallback.test.ts (6 tests) 7ms
+ ✓ src/lib/schema/__tests__/evidence.test.ts (15 tests) 23ms
+ ✓ src/app/api/context/detect/__tests__/detect-route.test.ts (3 tests) 10ms
+ ✓ src/lib/audit/rules/__tests__/reflow.test.ts (10 tests) 15ms
+ ✓ src/lib/sandbox/__tests__/iteration.test.ts (16 tests) 22ms
+ ✓ src/lib/audit/__tests__/screenshot-evidence.test.ts (5 tests) 8ms
+ ✓ src/lib/ai/__tests__/service.test.ts (17 tests) 15ms
+ ✓ src/lib/audit/rules/__tests__/text-contrast.test.ts (13 tests) 7ms
+ ✓ src/lib/schema/__tests__/ux-issue.test.ts (5 tests) 9ms
+ ✓ src/lib/audit/rules/__tests__/text-spacing.test.ts (8 tests) 12ms
+ ✓ src/lib/audit/__tests__/priority-engine.test.ts (13 tests) 43ms
+ ✓ src/lib/research/__tests__/expert-rubric.test.ts (4 tests) 16ms
+ ✓ src/lib/__tests__/smoke.test.ts (2 tests) 12ms
+ ✓ src/lib/audit/__tests__/recommendation.test.ts (5 tests) 95ms
+ ✓ src/lib/schema/__tests__/product-context.test.ts (2 tests) 14ms
+ ✓ src/lib/sandbox/__tests__/regression.test.ts (11 tests) 7ms
+ ✓ src/lib/research/__tests__/pilot-suite.test.ts (3 tests) 17ms
+ ✓ src/lib/audit/__tests__/color-math.test.ts (4 tests) 5ms
+ ✓ src/lib/audit/rules/__tests__/non-text-contrast.test.ts (6 tests) 5ms
+ ✓ src/app/api/audit/__tests__/code-snippet-audit.test.ts (1 test) 4934ms
+   ✓ Audit API - HTML Code Snippet & Pre-Deployment Audit > renders pasted HTML in sandboxed browser, computes DOM measurements, and persists code version & viewports  4933ms
+
+ Test Files  36 passed (36)
+      Tests  312 passed (312)
+   Start at  05:11:11
+   Duration  6.41s (transform 1.33s, setup 0ms, collect 5.91s, tests 7.26s, environment 10ms, prepare 5.77s)
+

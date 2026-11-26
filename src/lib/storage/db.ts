@@ -1,6 +1,8 @@
+import { ReviewDispositionSchema, effectiveReviewDisposition, type ReviewDisposition } from '@/lib/schema/ux-issue';
 import fs from 'fs/promises';
 import path from 'path';
 import { AuditRun, AuditRunSchema, DesignerDecision, GroupedUXIssue, Priority } from '@/lib/schema/ux-issue';
+import { normalizeTouchTargetGroups } from '@/lib/audit/grouping';
 
 const DATA_DIR = path.resolve(process.cwd(), '.proofui-data');
 const RUNS_DIR = path.join(DATA_DIR, 'runs');
@@ -18,9 +20,8 @@ async function atomicWriteFile(filePath: string, data: string): Promise<void> {
 
 export async function saveAuditRun(run: AuditRun): Promise<void> {
   await ensureDirs();
-  const validated = AuditRunSchema.parse(run);
-  const filePath = path.join(RUNS_DIR, `${validated.id}.json`);
-  await atomicWriteFile(filePath, JSON.stringify(validated, null, 2));
+  const filePath = path.join(RUNS_DIR, `${run.id}.json`);
+  await atomicWriteFile(filePath, JSON.stringify(run, null, 2));
 }
 
 // In-process per-run mutex queue for serialized atomic updates
@@ -67,7 +68,7 @@ export async function getAuditRun(id: string): Promise<AuditRun | null> {
 
   try {
     const parsed = JSON.parse(raw);
-    return AuditRunSchema.parse(parsed);
+    return normalizeTouchTargetGroups(AuditRunSchema.parse(parsed));
   } catch (err: any) {
     // Fail safely: throw a descriptive error rather than silently returning null or overwriting corrupt files
     throw new Error(`CorruptedAuditRunError: Audit run '${id}' is corrupted or invalid: ${err.message}`);
@@ -78,32 +79,31 @@ export async function listAuditRuns(): Promise<
   Array<{ id: string; targetUrl: string; fixtureId?: string; timestamp: string; summary: AuditRun['summary'] }>
 > {
   await ensureDirs();
-  try {
-    const files = await fs.readdir(RUNS_DIR);
-    const runs = [];
+  const files = await fs.readdir(RUNS_DIR);
+  const jsonFiles = files.filter((file) => file.endsWith('.json'));
+  // Sort descending by name so recent timestamp runs are first
+  jsonFiles.sort((a, b) => b.localeCompare(a));
+  const runs = [];
 
-    for (const file of files) {
-      if (file.endsWith('.json')) {
-        try {
-          const raw = await fs.readFile(path.join(RUNS_DIR, file), 'utf-8');
-          const run = AuditRunSchema.parse(JSON.parse(raw));
-          runs.push({
-            id: run.id,
-            targetUrl: run.targetUrl,
-            fixtureId: run.fixtureId,
-            timestamp: run.timestamp,
-            summary: run.summary,
-          });
-        } catch {
-          // ignore corrupted or unvalidated file in listing
-        }
+  for (const file of jsonFiles.slice(0, 50)) {
+    try {
+      const raw = await fs.readFile(path.join(RUNS_DIR, file), 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (parsed.id && parsed.targetUrl && parsed.timestamp && parsed.summary) {
+        runs.push({
+          id: parsed.id,
+          targetUrl: parsed.targetUrl,
+          fixtureId: parsed.fixtureId,
+          timestamp: parsed.timestamp,
+          summary: parsed.summary,
+        });
       }
+    } catch {
+      // Skip unreadable or invalid records.
     }
-
-    return runs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  } catch {
-    return [];
   }
+
+  return runs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
 export async function getLatestAuditRun(): Promise<AuditRun | null> {
@@ -129,6 +129,7 @@ export async function updateDesignerDecision(
 
     const trimmedReason = reason?.trim();
     const previousDecision = targetGroup.designerDecision;
+    const previousDisposition = effectiveReviewDisposition(targetGroup);
     const previousPriority = targetGroup.currentPriority;
     const originalRec = targetGroup.representative.aiRecommendation || targetGroup.representative.description;
     const currentEffectiveRec =
@@ -168,6 +169,15 @@ export async function updateDesignerDecision(
       }
     }
 
+    // Legacy accept/reject API actions also update the independent issue disposition.
+    // Do not assign an old reviewer's name to a new, unidentified legacy action.
+    if (decision === 'accept' || decision === 'reject') {
+      targetGroup.reviewDisposition = decision === 'accept' ? 'confirmed_issue' : 'false_positive';
+      targetGroup.reviewReason = trimmedReason || undefined;
+      targetGroup.reviewer = undefined;
+      targetGroup.reviewedAt = new Date().toISOString();
+    }
+
     // Apply mutable designer-authored state
     targetGroup.designerDecision = decision;
     targetGroup.designerReason = trimmedReason || undefined;
@@ -191,6 +201,8 @@ export async function updateDesignerDecision(
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
       action: decision,
+      previousDisposition,
+      newDisposition: effectiveReviewDisposition(targetGroup),
       reason: trimmedReason || undefined,
       previousState: previousDecision || undefined,
       newState: decision,
@@ -202,6 +214,10 @@ export async function updateDesignerDecision(
     });
 
     // Update representative issue without touching deterministic evidence
+    Object.assign(targetGroup.representative, {
+      reviewDisposition: targetGroup.reviewDisposition, reviewReason: targetGroup.reviewReason,
+      reviewer: targetGroup.reviewer, reviewedAt: targetGroup.reviewedAt,
+    });
     targetGroup.representative.designerDecision = decision;
     targetGroup.representative.designerReason = trimmedReason || undefined;
 
@@ -239,6 +255,7 @@ export async function updateAIExplanation(
       requiresDesignerReview: aiResult.requiresDesignerReview,
       evidenceFingerprint: fingerprint,
       durationMs: aiResult.durationMs,
+      model: aiResult.model,
     };
 
     targetGroup.aiGenerationHistory.push(record);
@@ -267,3 +284,44 @@ export async function updateAIExplanation(
   });
 }
 
+
+/** Reviewer names are self-reported in this single-user PoC, not authenticated identities. */
+export async function updateReviewDisposition(
+  runId: string, fingerprint: string, disposition: ReviewDisposition, reason: string, reviewer: string
+): Promise<GroupedUXIssue | null> {
+  const parsed = ReviewDispositionSchema.parse(disposition);
+  const trimmedReason = reason.trim(), trimmedReviewer = reviewer.trim();
+  if (trimmedReason.length < 3 || trimmedReason.length > 2000)
+    throw new Error('A review rationale of 3–2000 characters is required.');
+  if (!trimmedReviewer || trimmedReviewer.length > 120)
+    throw new Error('A reviewer name of 1–120 characters is required.');
+  return withRunLock(runId, async () => {
+    const run = await getAuditRun(runId);
+    const group = run?.groupedIssues.find(g => g.fingerprint === fingerprint);
+    if (!run || !group) return null;
+    const previousDisposition = effectiveReviewDisposition(group);
+    const timestamp = new Date().toISOString();
+    const review = { reviewDisposition: parsed, reviewReason: trimmedReason, reviewer: trimmedReviewer, reviewedAt: timestamp };
+    Object.assign(group, review);
+    Object.assign(group.representative, review);
+    group.decisionHistory.push({ id: crypto.randomUUID(), timestamp, action: 'review_disposition',
+      reason: trimmedReason, reviewer: trimmedReviewer, previousDisposition, newDisposition: parsed });
+    await saveAuditRun(run);
+    return group;
+  });
+}
+
+/** Save an unverified draft independently of issue disposition and verification. */
+export async function saveProposedFix(runId: string, fingerprint: string, proposal: import('zod').z.infer<typeof import('@/lib/schema/ux-issue').ProposedFixSchema>) {
+  return withRunLock(runId, async () => {
+    const run = await getAuditRun(runId);
+    const group = run?.groupedIssues.find(g => g.fingerprint === fingerprint);
+    if (!run || !group) return null;
+    if (!group.occurrences.some(o => o.selector === proposal.selector && o.viewport.width === proposal.viewport.width && o.viewport.height === proposal.viewport.height)) {
+      throw new Error('Proposal does not match an audited occurrence.');
+    }
+    group.proposedFix = { ...proposal, savedAt: new Date().toISOString() };
+    await saveAuditRun(run);
+    return group;
+  });
+}

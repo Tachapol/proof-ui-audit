@@ -8,6 +8,7 @@ export interface URLValidationResult {
   isFixture?: boolean;
   fixtureId?: string;
   resolvedIP?: string;
+  localOrigin?: string;
 }
 
 export function isPrivateOrReservedIP(ip: string): boolean {
@@ -82,7 +83,8 @@ export type DnsLookupFn = (hostname: string, options: { all: true }) => Promise<
 export async function validateAndNormalizeAuditUrl(
   input: string,
   devServerBaseUrl = 'http://localhost:3123',
-  dnsLookup: DnsLookupFn = (h, opts) => dns.lookup(h, opts)
+  dnsLookup: DnsLookupFn = (h, opts) => dns.lookup(h, opts),
+  options: { allowLocalhost?: boolean } = {}
 ): Promise<URLValidationResult> {
   if (!input || typeof input !== 'string') {
     return { valid: false, error: 'Target URL or fixture identifier is required.' };
@@ -95,12 +97,32 @@ export async function validateAndNormalizeAuditUrl(
     (f) => f.id === trimmed || f.path === trimmed || trimmed === `fixture://${f.id}`
   );
 
+  let devOrigin: string;
+  try {
+    devOrigin = new URL(devServerBaseUrl).origin;
+  } catch {
+    devOrigin = 'http://localhost:3123';
+  }
+
   if (matchingFixture) {
     return {
       valid: true,
       normalizedUrl: `${devServerBaseUrl}${matchingFixture.path}`,
       isFixture: true,
       fixtureId: matchingFixture.id,
+      localOrigin: devOrigin,
+    };
+  }
+
+  // Handle uploaded or pasted code snippet identifier
+  if (trimmed.startsWith('snippet://')) {
+    const snippetId = trimmed.replace('snippet://', '').trim();
+    return {
+      valid: true,
+      normalizedUrl: `${devServerBaseUrl}/api/sandbox/render?id=${encodeURIComponent(snippetId)}`,
+      isFixture: false,
+      fixtureId: `snippet-${snippetId}`,
+      localOrigin: devOrigin,
     };
   }
 
@@ -114,6 +136,7 @@ export async function validateAndNormalizeAuditUrl(
         normalizedUrl: `${devServerBaseUrl}${trimmed}`,
         isFixture: true,
         fixtureId,
+        localOrigin: devOrigin,
       };
     }
   }
@@ -135,24 +158,41 @@ export async function validateAndNormalizeAuditUrl(
     return { valid: false, error: 'Authenticated URLs containing user credentials are not permitted.' };
   }
 
-  // Internal fixture check
-  const isInternalFixture =
-    parsed.origin === devServerBaseUrl && parsed.pathname.startsWith('/fixtures/');
-
-  if (isInternalFixture) {
-    const fixtureId = parsed.pathname.replace('/fixtures/', '').split('/')[0];
+  // Internal fixture check (from dev server, loopback, or same-origin / LAN client)
+  if (parsed.pathname.startsWith('/fixtures/')) {
+    const fixtureId = parsed.pathname.replace('/fixtures/', '').split('/')[0].split('?')[0];
     const exists = FIXTURES.some((f) => f.id === fixtureId);
     if (exists) {
-      return {
-        valid: true,
-        normalizedUrl: parsed.toString(),
-        isFixture: true,
-        fixtureId,
-      };
+      let devParsed: URL;
+      try {
+        devParsed = new URL(devServerBaseUrl);
+      } catch {
+        devParsed = new URL('http://localhost:3123');
+      }
+
+      const isLocalHost = ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname.toLowerCase());
+      const devPort = devParsed.port || (devParsed.protocol === 'https:' ? '443' : '80');
+      const parsedPort = parsed.port || (parsed.protocol === 'https:' ? '443' : '80');
+      const isSameHost = parsed.origin === devParsed.origin || (isPrivateOrReservedIP(parsed.hostname) && parsedPort === devPort);
+
+      if (isLocalHost || isSameHost) {
+        return {
+          valid: true,
+          normalizedUrl: `${devServerBaseUrl}${parsed.pathname}${parsed.search}`,
+          isFixture: true,
+          fixtureId,
+          localOrigin: devOrigin,
+        };
+      }
     }
   }
 
   const hostname = parsed.hostname.toLowerCase();
+
+  // Explicit loopback development target only; never allow LAN or metadata addresses.
+  if (options.allowLocalhost && ['localhost', '127.0.0.1', '[::1]'].includes(hostname)) {
+    return { valid:true, normalizedUrl:parsed.toString(), isFixture:false, localOrigin:parsed.origin };
+  }
 
   // Block localhost names
   if (hostname === 'localhost' || hostname.endsWith('.localhost')) {

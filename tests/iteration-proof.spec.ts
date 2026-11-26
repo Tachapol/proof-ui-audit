@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 
 test.describe('Phase 6B: Isolated Before/After Iteration Proof', () => {
   test('executes end-to-end iteration proof loop with approval gate, isolation, comparison, final decision, reload persistence, and 320px responsiveness', async ({
@@ -12,7 +13,7 @@ test.describe('Phase 6B: Isolated Before/After Iteration Proof', () => {
     await expect(page.locator('h1')).toHaveText('ProofUI Audit PoC');
     await page.waitForLoadState('networkidle');
 
-    await page.selectOption('#fixture-select', 'target-size-demo');
+    await selectDebugFixture(page, 'target-size-demo');
     await page.click('#run-audit-button');
 
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 60000 });

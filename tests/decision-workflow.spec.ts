@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { selectDebugFixture } from './ui-fixtures';
 
 test.describe('Phase 4: Complete Grouping & Review Workflow Verification', () => {
   test('executes 15-step decision workflow, verifies occurrences, immutability, reload, and responsiveness', async ({ page }) => {
@@ -9,7 +10,7 @@ test.describe('Phase 4: Complete Grouping & Review Workflow Verification', () =>
     await expect(page.locator('h1')).toHaveText('ProofUI Audit PoC');
     await page.waitForLoadState('networkidle');
 
-    await page.selectOption('#fixture-select', 'occurrence-demo');
+    await selectDebugFixture(page, 'occurrence-demo');
     await page.click('#run-audit-button');
 
     // Wait for audit summary
@@ -72,23 +73,25 @@ test.describe('Phase 4: Complete Grouping & Review Workflow Verification', () =>
     const reasonInput = tagCard.locator('input[id^="reason-input"]');
 
     // Step 4: Accept
-    const acceptBtn = tagCard.locator('button', { hasText: 'Accept Issue' });
-    await acceptBtn.click();
+    const reviewStatus = tagCard.getByLabel('Review status', { exact: true });
+    await reviewStatus.selectOption('confirmed_issue');
+    await tagCard.getByLabel('Reviewer / risk approver (self-reported)').fill('Workflow reviewer');
+    await reasonInput.fill('Confirmed based on the measured spacing evidence.');
     await expect(saveBtn).toBeEnabled();
     await saveBtn.click();
     await expect(tagCard.locator('text=Decision saved to audit log')).toBeVisible();
-    await expect(tagCard.locator('.decision-badge')).toHaveText('Decision: accept');
+    await expect(tagCard.getByText('Current review: Confirmed Issue', { exact: true })).toBeVisible();
 
     // Step 5: Reject later with a reason
-    const rejectBtn = tagCard.locator('button', { hasText: 'Reject (False Positive)' });
-    await rejectBtn.click();
-    // Verify reason validation (< 3 chars disabled)
-    await expect(saveBtn).toBeDisabled();
+    await reviewStatus.selectOption('false_positive');
+    await reasonInput.clear();
+    await saveBtn.click();
+    await expect(tagCard.getByText('Current review: Confirmed Issue', { exact: true })).toBeVisible();
     await reasonInput.fill('Valid rejection: Desktop chip has sufficient surrounding tap clearance.');
     await expect(saveBtn).toBeEnabled();
     await saveBtn.click();
     await expect(tagCard.locator('text=Decision saved to audit log')).toBeVisible();
-    await expect(tagCard.locator('.decision-badge')).toHaveText('Decision: reject');
+    await expect(tagCard.getByText('Current review: False Positive', { exact: true })).toBeVisible();
 
     // Step 6: Edit the recommendation with changed content and a reason
     const editBtn = tagCard.locator('button', { hasText: 'Edit Scope' });
@@ -100,7 +103,7 @@ test.describe('Phase 4: Complete Grouping & Review Workflow Verification', () =>
     await expect(saveBtn).toBeEnabled();
     await saveBtn.click();
     await expect(tagCard.locator('text=Decision saved to audit log')).toBeVisible();
-    await expect(tagCard.locator('.decision-badge')).toHaveText('Decision: edit');
+    await expect(tagCard.locator('.decision-badge')).toHaveText('Last adjustment: Edited recommendation');
     await expect(tagCard.locator('p', { hasText: 'Use CSS ::after pseudo-element' }).first()).toBeVisible();
 
     // Step 7: Reprioritize to a different priority with a reason
@@ -112,7 +115,7 @@ test.describe('Phase 4: Complete Grouping & Review Workflow Verification', () =>
     await expect(saveBtn).toBeEnabled();
     await saveBtn.click();
     await expect(tagCard.locator('text=Decision saved to audit log')).toBeVisible();
-    await expect(tagCard.locator('.decision-badge')).toHaveText('Decision: reprioritize');
+    await expect(tagCard.locator('.decision-badge')).toHaveText('Last adjustment: Changed priority');
     await expect(tagCard.getByText('P0 — Critical', { exact: true })).toBeVisible();
 
     // Step 8: Reload
@@ -122,7 +125,7 @@ test.describe('Phase 4: Complete Grouping & Review Workflow Verification', () =>
     // Step 9: Verify final effective decision and priority after reload
     const reloadedTagCard = page.locator('article', { hasText: 'Candidate spacing offset exception' }).first();
     await expect(reloadedTagCard).toBeVisible();
-    await expect(reloadedTagCard.locator('.decision-badge')).toHaveText('Decision: reprioritize');
+    await expect(reloadedTagCard.locator('.decision-badge')).toHaveText('Last adjustment: Changed priority');
     await expect(reloadedTagCard.getByText('P0 — Critical', { exact: true })).toBeVisible();
 
     // Step 10: Verify all four earlier events remain in chronological history

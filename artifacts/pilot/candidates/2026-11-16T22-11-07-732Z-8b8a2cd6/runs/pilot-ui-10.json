@@ -1,0 +1,4344 @@
+{
+  "id": "pilot-pilot-ui-10-8e21e28a-6c08-4d23-8151-19093a0f55ed",
+  "fixtureId": "pilot-ui-10",
+  "targetUrl": "http://localhost:3123/fixtures/pilot-ui-10",
+  "timestamp": "2026-11-16T22:12:27.494Z",
+  "viewports": [
+    {
+      "width": 320,
+      "height": 640
+    },
+    {
+      "width": 375,
+      "height": 812
+    },
+    {
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "rawIssues": [
+    {
+      "id": "reflow-154359677",
+      "ruleId": "reflow",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+      "status": "pass",
+      "title": "Content reflows without 2D scrolling at 320px",
+      "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#fixture-content",
+      "element": "html",
+      "measured": {
+        "scrollWidth": 288,
+        "clientWidth": 288,
+        "horizontalOverflowPx": 0,
+        "overflowingElementsCount": 0,
+        "metricVersion": "1.1.0",
+        "unit": "CSS px",
+        "scopeSelector": "#fixture-content",
+        "rawHorizontalOverflowPx": 0,
+        "rawDocumentScrollWidth": 320,
+        "rawDocumentClientWidth": 320,
+        "rawScopeScrollWidth": 288,
+        "decorativeElementsExcludedCount": 0
+      },
+      "expected": {
+        "maxOverflowPx": 1,
+        "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 195.171875,
+        "width": 288,
+        "height": 180
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px."
+    },
+    {
+      "id": "touch-target-spacing-320-4c1924cd-2972-48f6-aea5-05ed606a3cad",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+      "element": "label",
+      "accessibleName": "Send updates to",
+      "boundingBox": {
+        "x": 32,
+        "y": 250.171875,
+        "width": 116.546875,
+        "height": 17
+      },
+      "measured": {
+        "target": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+          "element": "label",
+          "accessibleName": "Send updates to",
+          "boundingBox": {
+            "x": 32,
+            "y": 250.171875,
+            "width": 116.546875,
+            "height": 17
+          },
+          "actionId": "#notification-email"
+        },
+        "nearestTarget": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 315.171875,
+            "width": 128.0625,
+            "height": 44
+          },
+          "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+        },
+        "distance": 48,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Touch target spacing meets project advisory",
+      "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 48.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-320-e9c443a3-3be7-4003-ba34-45e7f307677c",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#notification-email",
+      "element": "input",
+      "accessibleName": "",
+      "boundingBox": {
+        "x": 32,
+        "y": 271.171875,
+        "width": 256,
+        "height": 44
+      },
+      "measured": {
+        "target": {
+          "selector": "#notification-email",
+          "element": "input",
+          "accessibleName": "",
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 256,
+            "height": 44
+          },
+          "actionId": "#notification-email"
+        },
+        "nearestTarget": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 315.171875,
+            "width": 128.0625,
+            "height": 44
+          },
+          "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+        },
+        "distance": 0,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 0.00 CSS px from #notification-email; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-320-e582e8ae-e599-4723-9e90-7e42d0d2d855",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+      "element": "button",
+      "accessibleName": "Save settings",
+      "boundingBox": {
+        "x": 32,
+        "y": 315.171875,
+        "width": 128.0625,
+        "height": 44
+      },
+      "measured": {
+        "target": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 315.171875,
+            "width": 128.0625,
+            "height": 44
+          },
+          "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+        },
+        "nearestTarget": {
+          "selector": "#notification-email",
+          "element": "input",
+          "accessibleName": "",
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 256,
+            "height": 44
+          },
+          "actionId": "#notification-email"
+        },
+        "distance": 0,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #notification-email is 0.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "target-size-1026184607",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (128.1×44 px)",
+      "description": "The interactive target \"Save settings\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 128.1×44 px.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Save settings",
+      "measured": {
+        "width": 128.1,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 315,
+        "width": 128.1,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+    },
+    {
+      "id": "text-contrast-369517540",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1926562266",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-10: Notification Settings (High Contr\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-10: Notification Settings (High Contrast)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 288,
+        "height": 62
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-608516192",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Form input field with 3:1 border contras\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Form input field with 3:1 border contrast meeting ",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 288,
+        "height": 43.375
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1616691689",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Notification settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Notification settings",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 211.171875,
+        "width": 256,
+        "height": 36
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+    },
+    {
+      "id": "text-contrast-1439540969",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Send updates to\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "label",
+      "element": "label",
+      "accessibleName": "Send updates to",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 250.171875,
+        "width": 116.546875,
+        "height": 17
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1090063977",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Save settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Save settings",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 315.171875,
+        "width": 128.0625,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "non-text-contrast-1804776266",
+      "ruleId": "non-text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.11 Non-text Contrast",
+      "status": "pass",
+      "title": "Non-text contrast meets 3:1 (7.46:1)",
+      "description": "The UI component visual indicator \"notification-email\" meets WCAG 2.2 SC 1.4.11 with a measured contrast ratio of 7.46:1.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "selector": "#notification-email",
+      "element": "input",
+      "role": "input",
+      "accessibleName": "notification-email",
+      "measured": {
+        "contrastRatio": 7.46,
+        "componentType": "ui-component-border",
+        "indicatorColor": "rgb(85, 85, 85)",
+        "adjacentColor": "#ffffff",
+        "isInactiveOrDisabled": false,
+        "isStateMeaningUncertain": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 against adjacent colors for UI components and meaningful graphics"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 271.171875,
+        "width": 256,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Non-text contrast ratio of 7.46:1 meets or exceeds the required 3:1 threshold."
+    },
+    {
+      "id": "touch-target-spacing-375-fb7fcc80-0f10-4814-a556-50d1518f5e2c",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+      "element": "label",
+      "accessibleName": "Send updates to",
+      "boundingBox": {
+        "x": 32,
+        "y": 250.171875,
+        "width": 116.546875,
+        "height": 17
+      },
+      "measured": {
+        "target": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+          "element": "label",
+          "accessibleName": "Send updates to",
+          "boundingBox": {
+            "x": 32,
+            "y": 250.171875,
+            "width": 116.546875,
+            "height": 17
+          },
+          "actionId": "#notification-email"
+        },
+        "nearestTarget": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 315.171875,
+            "width": 128.0625,
+            "height": 44
+          },
+          "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+        },
+        "distance": 48,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Touch target spacing meets project advisory",
+      "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 48.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-375-23ded139-f66e-4605-9a7b-06eb6b38467a",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#notification-email",
+      "element": "input",
+      "accessibleName": "",
+      "boundingBox": {
+        "x": 32,
+        "y": 271.171875,
+        "width": 311,
+        "height": 44
+      },
+      "measured": {
+        "target": {
+          "selector": "#notification-email",
+          "element": "input",
+          "accessibleName": "",
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 311,
+            "height": 44
+          },
+          "actionId": "#notification-email"
+        },
+        "nearestTarget": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 315.171875,
+            "width": 128.0625,
+            "height": 44
+          },
+          "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+        },
+        "distance": 0,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 0.00 CSS px from #notification-email; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-375-112e9274-dd52-40fc-b437-2759e2831b05",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+      "element": "button",
+      "accessibleName": "Save settings",
+      "boundingBox": {
+        "x": 32,
+        "y": 315.171875,
+        "width": 128.0625,
+        "height": 44
+      },
+      "measured": {
+        "target": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 315.171875,
+            "width": 128.0625,
+            "height": 44
+          },
+          "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+        },
+        "nearestTarget": {
+          "selector": "#notification-email",
+          "element": "input",
+          "accessibleName": "",
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 311,
+            "height": 44
+          },
+          "actionId": "#notification-email"
+        },
+        "distance": 0,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #notification-email is 0.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "target-size-1026184607",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (128.1×44 px)",
+      "description": "The interactive target \"Save settings\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 128.1×44 px.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Save settings",
+      "measured": {
+        "width": 128.1,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 315,
+        "width": 128.1,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+    },
+    {
+      "id": "text-contrast-369517540",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1926562266",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-10: Notification Settings (High Contr\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-10: Notification Settings (High Contrast)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 343,
+        "height": 62
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-608516192",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Form input field with 3:1 border contras\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Form input field with 3:1 border contrast meeting ",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 110.796875,
+        "width": 343,
+        "height": 43.375
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1616691689",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Notification settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Notification settings",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 211.171875,
+        "width": 311,
+        "height": 36
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+    },
+    {
+      "id": "text-contrast-1439540969",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Send updates to\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "label",
+      "element": "label",
+      "accessibleName": "Send updates to",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 250.171875,
+        "width": 116.546875,
+        "height": 17
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1090063977",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Save settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Save settings",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 315.171875,
+        "width": 128.0625,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "non-text-contrast-1804776266",
+      "ruleId": "non-text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.11 Non-text Contrast",
+      "status": "pass",
+      "title": "Non-text contrast meets 3:1 (7.46:1)",
+      "description": "The UI component visual indicator \"notification-email\" meets WCAG 2.2 SC 1.4.11 with a measured contrast ratio of 7.46:1.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "selector": "#notification-email",
+      "element": "input",
+      "role": "input",
+      "accessibleName": "notification-email",
+      "measured": {
+        "contrastRatio": 7.46,
+        "componentType": "ui-component-border",
+        "indicatorColor": "rgb(85, 85, 85)",
+        "adjacentColor": "#ffffff",
+        "isInactiveOrDisabled": false,
+        "isStateMeaningUncertain": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 against adjacent colors for UI components and meaningful graphics"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 271.171875,
+        "width": 311,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Non-text contrast ratio of 7.46:1 meets or exceeds the required 3:1 threshold."
+    },
+    {
+      "id": "touch-target-spacing-1440-bb2c6ec4-8d2f-42d3-ad41-44a7e82e587c",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+      "element": "label",
+      "accessibleName": "Send updates to",
+      "boundingBox": {
+        "x": 32,
+        "y": 197.484375,
+        "width": 116.546875,
+        "height": 17
+      },
+      "measured": {
+        "target": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+          "element": "label",
+          "accessibleName": "Send updates to",
+          "boundingBox": {
+            "x": 32,
+            "y": 197.484375,
+            "width": 116.546875,
+            "height": 17
+          },
+          "actionId": "#notification-email"
+        },
+        "nearestTarget": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 262.484375,
+            "width": 128.0625,
+            "height": 44
+          },
+          "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+        },
+        "distance": 48,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "pass"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "pass",
+      "title": "Touch target spacing meets project advisory",
+      "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 48.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-1440-a16d6a5b-c198-4e6e-8ab0-cce445d417b0",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#notification-email",
+      "element": "input",
+      "accessibleName": "",
+      "boundingBox": {
+        "x": 32,
+        "y": 218.484375,
+        "width": 1376,
+        "height": 44
+      },
+      "measured": {
+        "target": {
+          "selector": "#notification-email",
+          "element": "input",
+          "accessibleName": "",
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 1376,
+            "height": 44
+          },
+          "actionId": "#notification-email"
+        },
+        "nearestTarget": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 262.484375,
+            "width": 128.0625,
+            "height": 44
+          },
+          "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+        },
+        "distance": 0,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 0.00 CSS px from #notification-email; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "touch-target-spacing-1440-6871f3d6-00c9-4738-b2c7-e6cbbd1a5909",
+      "ruleId": "touch-target-spacing",
+      "wcagCriterion": "Project advisory — no automatic WCAG failure",
+      "metric": {
+        "metricId": "touch-target-spacing",
+        "metricVersion": "1.0.0",
+        "unit": "CSS px",
+        "executionStatus": "completed",
+        "applicability": "applicable",
+        "basis": "project-advisory"
+      },
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+      "element": "button",
+      "accessibleName": "Save settings",
+      "boundingBox": {
+        "x": 32,
+        "y": 262.484375,
+        "width": 128.0625,
+        "height": 44
+      },
+      "measured": {
+        "target": {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 262.484375,
+            "width": 128.0625,
+            "height": 44
+          },
+          "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+        },
+        "nearestTarget": {
+          "selector": "#notification-email",
+          "element": "input",
+          "accessibleName": "",
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 1376,
+            "height": 44
+          },
+          "actionId": "#notification-email"
+        },
+        "distance": 0,
+        "overlap": false,
+        "overlapArea": 0,
+        "geometryValid": true,
+        "unit": "CSS px",
+        "metricVersion": "1.0.0",
+        "outcome": "needsReview"
+      },
+      "expected": {
+        "advisoryMinGap": 8,
+        "unit": "CSS px",
+        "basis": "project-advisory"
+      },
+      "status": "needsReview",
+      "title": "Touch target spacing requires review",
+      "description": "Nearest target #notification-email is 0.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+      "initialPriority": "P3",
+      "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+    },
+    {
+      "id": "target-size-1026184607",
+      "ruleId": "target-size",
+      "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+      "status": "pass",
+      "title": "Target size meets 24×24 CSS px (128.1×44 px)",
+      "description": "The interactive target \"Save settings\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 128.1×44 px.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "button",
+      "element": "button",
+      "role": "button",
+      "accessibleName": "Save settings",
+      "measured": {
+        "width": 128.1,
+        "height": 44,
+        "isInline": false,
+        "hasSufficientSpacing": true
+      },
+      "expected": {
+        "minWidth": 24,
+        "minHeight": 24,
+        "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 262,
+        "width": 128.1,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+    },
+    {
+      "id": "text-contrast-369517540",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "span",
+      "element": "span",
+      "accessibleName": "Interface study",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 12,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 22,
+        "width": 117.234375,
+        "height": 15
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1926562266",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (15.44:1)",
+      "description": "The text \"UI-10: Notification Settings (High Contr\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h1",
+      "element": "h1",
+      "accessibleName": "UI-10: Notification Settings (High Contrast)",
+      "measured": {
+        "contrastRatio": 15.44,
+        "fontSizePx": 20,
+        "fontWeight": 600,
+        "isLargeText": false,
+        "color": "rgb(32, 33, 35)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 44.796875,
+        "width": 1408,
+        "height": 31
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-608516192",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (5.42:1)",
+      "description": "The text \"Form input field with 3:1 border contras\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "p",
+      "element": "p",
+      "accessibleName": "Form input field with 3:1 border contrast meeting ",
+      "measured": {
+        "contrastRatio": 5.42,
+        "fontSizePx": 14,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(103, 103, 103)",
+        "backgroundColor": "rgba(250, 250, 250, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 79.796875,
+        "width": 1408,
+        "height": 21.6875
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1616691689",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 3:1 (17.74:1)",
+      "description": "The text \"Notification settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "h2",
+      "element": "h2",
+      "accessibleName": "Notification settings",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 24,
+        "fontWeight": 400,
+        "isLargeText": true,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 158.484375,
+        "width": 1376,
+        "height": 36
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+    },
+    {
+      "id": "text-contrast-1439540969",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (17.74:1)",
+      "description": "The text \"Send updates to\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "label",
+      "element": "label",
+      "accessibleName": "Send updates to",
+      "measured": {
+        "contrastRatio": 17.74,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(17, 24, 39)",
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 197.484375,
+        "width": 116.546875,
+        "height": 17
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "text-contrast-1090063977",
+      "ruleId": "text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+      "status": "pass",
+      "title": "Text contrast meets 4.5:1 (8.72:1)",
+      "description": "The text \"Save settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "button",
+      "element": "button",
+      "accessibleName": "Save settings",
+      "measured": {
+        "contrastRatio": 8.72,
+        "fontSizePx": 16,
+        "fontWeight": 400,
+        "isLargeText": false,
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(30, 64, 175, 1)",
+        "hasComplexBackground": false
+      },
+      "expected": {
+        "minRatio": 4.5,
+        "thresholdDescription": "At least 4.5:1 for normal text"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 262.484375,
+        "width": 128.0625,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+    },
+    {
+      "id": "non-text-contrast-1804776266",
+      "ruleId": "non-text-contrast",
+      "wcagCriterion": "WCAG 2.2 SC 1.4.11 Non-text Contrast",
+      "status": "pass",
+      "title": "Non-text contrast meets 3:1 (7.46:1)",
+      "description": "The UI component visual indicator \"notification-email\" meets WCAG 2.2 SC 1.4.11 with a measured contrast ratio of 7.46:1.",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selector": "#notification-email",
+      "element": "input",
+      "role": "input",
+      "accessibleName": "notification-email",
+      "measured": {
+        "contrastRatio": 7.46,
+        "componentType": "ui-component-border",
+        "indicatorColor": "rgb(85, 85, 85)",
+        "adjacentColor": "#ffffff",
+        "isInactiveOrDisabled": false,
+        "isStateMeaningUncertain": false
+      },
+      "expected": {
+        "minRatio": 3,
+        "thresholdDescription": "At least 3:1 against adjacent colors for UI components and meaningful graphics"
+      },
+      "boundingBox": {
+        "x": 32,
+        "y": 218.484375,
+        "width": 1376,
+        "height": 44
+      },
+      "initialPriority": "P3",
+      "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Non-text contrast ratio of 7.46:1 meets or exceeds the required 3:1 threshold."
+    }
+  ],
+  "groupedIssues": [
+    {
+      "fingerprint": "reflow::#fixture-content::scroll-288-overflow-0",
+      "representative": {
+        "id": "reflow-154359677",
+        "ruleId": "reflow",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+        "status": "pass",
+        "title": "Content reflows without 2D scrolling at 320px",
+        "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#fixture-content",
+        "element": "html",
+        "measured": {
+          "scrollWidth": 288,
+          "clientWidth": 288,
+          "horizontalOverflowPx": 0,
+          "overflowingElementsCount": 0,
+          "metricVersion": "1.1.0",
+          "unit": "CSS px",
+          "scopeSelector": "#fixture-content",
+          "rawHorizontalOverflowPx": 0,
+          "rawDocumentScrollWidth": 320,
+          "rawDocumentClientWidth": 320,
+          "rawScopeScrollWidth": 288,
+          "decorativeElementsExcludedCount": 0
+        },
+        "expected": {
+          "maxOverflowPx": 1,
+          "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 195.171875,
+          "width": 288,
+          "height": 180
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px."
+      },
+      "rawOccurrencesCount": 1,
+      "occurrences": [
+        {
+          "id": "reflow-154359677",
+          "ruleId": "reflow",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.10 Reflow",
+          "status": "pass",
+          "title": "Content reflows without 2D scrolling at 320px",
+          "description": "The page reflows into a single column at 320 CSS px without requiring horizontal scrolling, nested horizontal scrolling, or clipping (scroll width: 288px, client width: 288px). Measurement scope: #fixture-content.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#fixture-content",
+          "element": "html",
+          "measured": {
+            "scrollWidth": 288,
+            "clientWidth": 288,
+            "horizontalOverflowPx": 0,
+            "overflowingElementsCount": 0,
+            "metricVersion": "1.1.0",
+            "unit": "CSS px",
+            "scopeSelector": "#fixture-content",
+            "rawHorizontalOverflowPx": 0,
+            "rawDocumentScrollWidth": 320,
+            "rawDocumentClientWidth": 320,
+            "rawScopeScrollWidth": 288,
+            "decorativeElementsExcludedCount": 0
+          },
+          "expected": {
+            "maxOverflowPx": 1,
+            "thresholdDescription": "No horizontal scrolling required at 320 CSS px (overflow <= 1.0px tolerance)"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 195.171875,
+            "width": 288,
+            "height": 180
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Content reflows cleanly without horizontal overflow or clipping at 320 CSS px."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "touch-target-spacing::#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)::{\"version\":\"1.0.0\",\"nearestSelector\":\"#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)\",\"distance\":48,\"overlap\":false}",
+      "representative": {
+        "id": "touch-target-spacing-320-4c1924cd-2972-48f6-aea5-05ed606a3cad",
+        "ruleId": "touch-target-spacing",
+        "wcagCriterion": "Project advisory — no automatic WCAG failure",
+        "metric": {
+          "metricId": "touch-target-spacing",
+          "metricVersion": "1.0.0",
+          "unit": "CSS px",
+          "executionStatus": "completed",
+          "applicability": "applicable",
+          "basis": "project-advisory"
+        },
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+        "element": "label",
+        "accessibleName": "Send updates to",
+        "boundingBox": {
+          "x": 32,
+          "y": 250.171875,
+          "width": 116.546875,
+          "height": 17
+        },
+        "measured": {
+          "target": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+            "element": "label",
+            "accessibleName": "Send updates to",
+            "boundingBox": {
+              "x": 32,
+              "y": 250.171875,
+              "width": 116.546875,
+              "height": 17
+            },
+            "actionId": "#notification-email"
+          },
+          "nearestTarget": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 315.171875,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "distance": 48,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        "expected": {
+          "advisoryMinGap": 8,
+          "unit": "CSS px",
+          "basis": "project-advisory"
+        },
+        "status": "pass",
+        "title": "Touch target spacing meets project advisory",
+        "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 48.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+        "initialPriority": "P3",
+        "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "touch-target-spacing-320-4c1924cd-2972-48f6-aea5-05ed606a3cad",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+          "element": "label",
+          "accessibleName": "Send updates to",
+          "boundingBox": {
+            "x": 32,
+            "y": 250.171875,
+            "width": 116.546875,
+            "height": 17
+          },
+          "measured": {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+              "element": "label",
+              "accessibleName": "Send updates to",
+              "boundingBox": {
+                "x": 32,
+                "y": 250.171875,
+                "width": 116.546875,
+                "height": 17
+              },
+              "actionId": "#notification-email"
+            },
+            "nearestTarget": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+              "element": "button",
+              "accessibleName": "Save settings",
+              "boundingBox": {
+                "x": 32,
+                "y": 315.171875,
+                "width": 128.0625,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+            },
+            "distance": 48,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Touch target spacing meets project advisory",
+          "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 48.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-375-fb7fcc80-0f10-4814-a556-50d1518f5e2c",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+          "element": "label",
+          "accessibleName": "Send updates to",
+          "boundingBox": {
+            "x": 32,
+            "y": 250.171875,
+            "width": 116.546875,
+            "height": 17
+          },
+          "measured": {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+              "element": "label",
+              "accessibleName": "Send updates to",
+              "boundingBox": {
+                "x": 32,
+                "y": 250.171875,
+                "width": 116.546875,
+                "height": 17
+              },
+              "actionId": "#notification-email"
+            },
+            "nearestTarget": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+              "element": "button",
+              "accessibleName": "Save settings",
+              "boundingBox": {
+                "x": 32,
+                "y": 315.171875,
+                "width": 128.0625,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+            },
+            "distance": 48,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Touch target spacing meets project advisory",
+          "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 48.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-1440-bb2c6ec4-8d2f-42d3-ad41-44a7e82e587c",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+          "element": "label",
+          "accessibleName": "Send updates to",
+          "boundingBox": {
+            "x": 32,
+            "y": 197.484375,
+            "width": 116.546875,
+            "height": 17
+          },
+          "measured": {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+              "element": "label",
+              "accessibleName": "Send updates to",
+              "boundingBox": {
+                "x": 32,
+                "y": 197.484375,
+                "width": 116.546875,
+                "height": 17
+              },
+              "actionId": "#notification-email"
+            },
+            "nearestTarget": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+              "element": "button",
+              "accessibleName": "Save settings",
+              "boundingBox": {
+                "x": 32,
+                "y": 262.484375,
+                "width": 128.0625,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+            },
+            "distance": 48,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "pass"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "pass",
+          "title": "Touch target spacing meets project advisory",
+          "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 48.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "touch-target-spacing::#notification-email::{\"version\":\"1.0.0\",\"nearestSelector\":\"#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)\",\"distance\":0,\"overlap\":false}",
+      "representative": {
+        "id": "touch-target-spacing-320-e9c443a3-3be7-4003-ba34-45e7f307677c",
+        "ruleId": "touch-target-spacing",
+        "wcagCriterion": "Project advisory — no automatic WCAG failure",
+        "metric": {
+          "metricId": "touch-target-spacing",
+          "metricVersion": "1.0.0",
+          "unit": "CSS px",
+          "executionStatus": "completed",
+          "applicability": "applicable",
+          "basis": "project-advisory"
+        },
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#notification-email",
+        "element": "input",
+        "accessibleName": "",
+        "boundingBox": {
+          "x": 32,
+          "y": 271.171875,
+          "width": 256,
+          "height": 44
+        },
+        "measured": {
+          "target": {
+            "selector": "#notification-email",
+            "element": "input",
+            "accessibleName": "",
+            "boundingBox": {
+              "x": 32,
+              "y": 271.171875,
+              "width": 256,
+              "height": 44
+            },
+            "actionId": "#notification-email"
+          },
+          "nearestTarget": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 315.171875,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "distance": 0,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        "expected": {
+          "advisoryMinGap": 8,
+          "unit": "CSS px",
+          "basis": "project-advisory"
+        },
+        "status": "needsReview",
+        "title": "Touch target spacing requires review",
+        "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 0.00 CSS px from #notification-email; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+        "initialPriority": "P3",
+        "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "touch-target-spacing-320-e9c443a3-3be7-4003-ba34-45e7f307677c",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#notification-email",
+          "element": "input",
+          "accessibleName": "",
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 256,
+            "height": 44
+          },
+          "measured": {
+            "target": {
+              "selector": "#notification-email",
+              "element": "input",
+              "accessibleName": "",
+              "boundingBox": {
+                "x": 32,
+                "y": 271.171875,
+                "width": 256,
+                "height": 44
+              },
+              "actionId": "#notification-email"
+            },
+            "nearestTarget": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+              "element": "button",
+              "accessibleName": "Save settings",
+              "boundingBox": {
+                "x": 32,
+                "y": 315.171875,
+                "width": 128.0625,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+            },
+            "distance": 0,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 0.00 CSS px from #notification-email; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-375-23ded139-f66e-4605-9a7b-06eb6b38467a",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#notification-email",
+          "element": "input",
+          "accessibleName": "",
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 311,
+            "height": 44
+          },
+          "measured": {
+            "target": {
+              "selector": "#notification-email",
+              "element": "input",
+              "accessibleName": "",
+              "boundingBox": {
+                "x": 32,
+                "y": 271.171875,
+                "width": 311,
+                "height": 44
+              },
+              "actionId": "#notification-email"
+            },
+            "nearestTarget": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+              "element": "button",
+              "accessibleName": "Save settings",
+              "boundingBox": {
+                "x": 32,
+                "y": 315.171875,
+                "width": 128.0625,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+            },
+            "distance": 0,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 0.00 CSS px from #notification-email; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-1440-a16d6a5b-c198-4e6e-8ab0-cce445d417b0",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#notification-email",
+          "element": "input",
+          "accessibleName": "",
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 1376,
+            "height": 44
+          },
+          "measured": {
+            "target": {
+              "selector": "#notification-email",
+              "element": "input",
+              "accessibleName": "",
+              "boundingBox": {
+                "x": 32,
+                "y": 218.484375,
+                "width": 1376,
+                "height": 44
+              },
+              "actionId": "#notification-email"
+            },
+            "nearestTarget": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+              "element": "button",
+              "accessibleName": "Save settings",
+              "boundingBox": {
+                "x": 32,
+                "y": 262.484375,
+                "width": 128.0625,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+            },
+            "distance": 0,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4) is 0.00 CSS px from #notification-email; overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        }
+      ],
+      "status": "needsReview",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "touch-target-spacing::#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)::{\"version\":\"1.0.0\",\"nearestSelector\":\"#notification-email\",\"distance\":0,\"overlap\":false}",
+      "representative": {
+        "id": "touch-target-spacing-320-e582e8ae-e599-4723-9e90-7e42d0d2d855",
+        "ruleId": "touch-target-spacing",
+        "wcagCriterion": "Project advisory — no automatic WCAG failure",
+        "metric": {
+          "metricId": "touch-target-spacing",
+          "metricVersion": "1.0.0",
+          "unit": "CSS px",
+          "executionStatus": "completed",
+          "applicability": "applicable",
+          "basis": "project-advisory"
+        },
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+        "element": "button",
+        "accessibleName": "Save settings",
+        "boundingBox": {
+          "x": 32,
+          "y": 315.171875,
+          "width": 128.0625,
+          "height": 44
+        },
+        "measured": {
+          "target": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 315.171875,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "nearestTarget": {
+            "selector": "#notification-email",
+            "element": "input",
+            "accessibleName": "",
+            "boundingBox": {
+              "x": 32,
+              "y": 271.171875,
+              "width": 256,
+              "height": 44
+            },
+            "actionId": "#notification-email"
+          },
+          "distance": 0,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        "expected": {
+          "advisoryMinGap": 8,
+          "unit": "CSS px",
+          "basis": "project-advisory"
+        },
+        "status": "needsReview",
+        "title": "Touch target spacing requires review",
+        "description": "Nearest target #notification-email is 0.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+        "initialPriority": "P3",
+        "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "touch-target-spacing-320-e582e8ae-e599-4723-9e90-7e42d0d2d855",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 315.171875,
+            "width": 128.0625,
+            "height": 44
+          },
+          "measured": {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+              "element": "button",
+              "accessibleName": "Save settings",
+              "boundingBox": {
+                "x": 32,
+                "y": 315.171875,
+                "width": 128.0625,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+            },
+            "nearestTarget": {
+              "selector": "#notification-email",
+              "element": "input",
+              "accessibleName": "",
+              "boundingBox": {
+                "x": 32,
+                "y": 271.171875,
+                "width": 256,
+                "height": 44
+              },
+              "actionId": "#notification-email"
+            },
+            "distance": 0,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #notification-email is 0.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-375-112e9274-dd52-40fc-b437-2759e2831b05",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 315.171875,
+            "width": 128.0625,
+            "height": 44
+          },
+          "measured": {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+              "element": "button",
+              "accessibleName": "Save settings",
+              "boundingBox": {
+                "x": 32,
+                "y": 315.171875,
+                "width": 128.0625,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+            },
+            "nearestTarget": {
+              "selector": "#notification-email",
+              "element": "input",
+              "accessibleName": "",
+              "boundingBox": {
+                "x": 32,
+                "y": 271.171875,
+                "width": 311,
+                "height": 44
+              },
+              "actionId": "#notification-email"
+            },
+            "distance": 0,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #notification-email is 0.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        },
+        {
+          "id": "touch-target-spacing-1440-6871f3d6-00c9-4738-b2c7-e6cbbd1a5909",
+          "ruleId": "touch-target-spacing",
+          "wcagCriterion": "Project advisory — no automatic WCAG failure",
+          "metric": {
+            "metricId": "touch-target-spacing",
+            "metricVersion": "1.0.0",
+            "unit": "CSS px",
+            "executionStatus": "completed",
+            "applicability": "applicable",
+            "basis": "project-advisory"
+          },
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 262.484375,
+            "width": 128.0625,
+            "height": 44
+          },
+          "measured": {
+            "target": {
+              "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+              "element": "button",
+              "accessibleName": "Save settings",
+              "boundingBox": {
+                "x": 32,
+                "y": 262.484375,
+                "width": 128.0625,
+                "height": 44
+              },
+              "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+            },
+            "nearestTarget": {
+              "selector": "#notification-email",
+              "element": "input",
+              "accessibleName": "",
+              "boundingBox": {
+                "x": 32,
+                "y": 218.484375,
+                "width": 1376,
+                "height": 44
+              },
+              "actionId": "#notification-email"
+            },
+            "distance": 0,
+            "overlap": false,
+            "overlapArea": 0,
+            "geometryValid": true,
+            "unit": "CSS px",
+            "metricVersion": "1.0.0",
+            "outcome": "needsReview"
+          },
+          "expected": {
+            "advisoryMinGap": 8,
+            "unit": "CSS px",
+            "basis": "project-advisory"
+          },
+          "status": "needsReview",
+          "title": "Touch target spacing requires review",
+          "description": "Nearest target #notification-email is 0.00 CSS px from #fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4); overlap: false. Below 8 CSS px requests contextual review only; this is not a WCAG failure.",
+          "initialPriority": "P3",
+          "priorityRationale": "Pilot project advisory; contextual designer review, not WCAG severity."
+        }
+      ],
+      "status": "needsReview",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "target-size::button::128x44",
+      "representative": {
+        "id": "target-size-1026184607",
+        "ruleId": "target-size",
+        "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+        "status": "pass",
+        "title": "Target size meets 24×24 CSS px (128.1×44 px)",
+        "description": "The interactive target \"Save settings\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 128.1×44 px.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "button",
+        "element": "button",
+        "role": "button",
+        "accessibleName": "Save settings",
+        "measured": {
+          "width": 128.1,
+          "height": 44,
+          "isInline": false,
+          "hasSufficientSpacing": true
+        },
+        "expected": {
+          "minWidth": 24,
+          "minHeight": 24,
+          "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+        },
+        "boundingBox": {
+          "x": 32,
+          "y": 315,
+          "width": 128.1,
+          "height": 44
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "target-size-1026184607",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (128.1×44 px)",
+          "description": "The interactive target \"Save settings\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 128.1×44 px.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Save settings",
+          "measured": {
+            "width": 128.1,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 315,
+            "width": 128.1,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+        },
+        {
+          "id": "target-size-1026184607",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (128.1×44 px)",
+          "description": "The interactive target \"Save settings\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 128.1×44 px.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Save settings",
+          "measured": {
+            "width": 128.1,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 315,
+            "width": 128.1,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+        },
+        {
+          "id": "target-size-1026184607",
+          "ruleId": "target-size",
+          "wcagCriterion": "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+          "status": "pass",
+          "title": "Target size meets 24×24 CSS px (128.1×44 px)",
+          "description": "The interactive target \"Save settings\" satisfies WCAG 2.2 SC 2.5.8 with dimensions 128.1×44 px.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "button",
+          "element": "button",
+          "role": "button",
+          "accessibleName": "Save settings",
+          "measured": {
+            "width": 128.1,
+            "height": 44,
+            "isInline": false,
+            "hasSufficientSpacing": true
+          },
+          "expected": {
+            "minWidth": 24,
+            "minHeight": 24,
+            "thresholdDescription": "At least 24 × 24 CSS px or qualifying WCAG 2.2 spacing exception"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 262,
+            "width": 128.1,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Target meets or exceeds the 24×24 CSS px minimum requirement."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::span::ratio-5.4",
+      "representative": {
+        "id": "text-contrast-369517540",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (5.42:1)",
+        "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "span",
+        "element": "span",
+        "accessibleName": "Interface study",
+        "measured": {
+          "contrastRatio": 5.42,
+          "fontSizePx": 12,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(103, 103, 103)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 22,
+          "width": 117.234375,
+          "height": 15
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-369517540",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-369517540",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-369517540",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Interface study\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "span",
+          "element": "span",
+          "accessibleName": "Interface study",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 12,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 22,
+            "width": 117.234375,
+            "height": 15
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::h1::ratio-15.4",
+      "representative": {
+        "id": "text-contrast-1926562266",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (15.44:1)",
+        "description": "The text \"UI-10: Notification Settings (High Contr\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "h1",
+        "element": "h1",
+        "accessibleName": "UI-10: Notification Settings (High Contrast)",
+        "measured": {
+          "contrastRatio": 15.44,
+          "fontSizePx": 20,
+          "fontWeight": 600,
+          "isLargeText": false,
+          "color": "rgb(32, 33, 35)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 44.796875,
+          "width": 288,
+          "height": 62
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1926562266",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-10: Notification Settings (High Contr\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-10: Notification Settings (High Contrast)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 288,
+            "height": 62
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1926562266",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-10: Notification Settings (High Contr\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-10: Notification Settings (High Contrast)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 343,
+            "height": 62
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1926562266",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (15.44:1)",
+          "description": "The text \"UI-10: Notification Settings (High Contr\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 15.44:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h1",
+          "element": "h1",
+          "accessibleName": "UI-10: Notification Settings (High Contrast)",
+          "measured": {
+            "contrastRatio": 15.44,
+            "fontSizePx": 20,
+            "fontWeight": 600,
+            "isLargeText": false,
+            "color": "rgb(32, 33, 35)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 44.796875,
+            "width": 1408,
+            "height": 31
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 15.44:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::p::ratio-5.4",
+      "representative": {
+        "id": "text-contrast-608516192",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (5.42:1)",
+        "description": "The text \"Form input field with 3:1 border contras\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "p",
+        "element": "p",
+        "accessibleName": "Form input field with 3:1 border contrast meeting ",
+        "measured": {
+          "contrastRatio": 5.42,
+          "fontSizePx": 14,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(103, 103, 103)",
+          "backgroundColor": "rgba(250, 250, 250, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 16,
+          "y": 110.796875,
+          "width": 288,
+          "height": 43.375
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-608516192",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Form input field with 3:1 border contras\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Form input field with 3:1 border contrast meeting ",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 110.796875,
+            "width": 288,
+            "height": 43.375
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-608516192",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Form input field with 3:1 border contras\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Form input field with 3:1 border contrast meeting ",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 110.796875,
+            "width": 343,
+            "height": 43.375
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-608516192",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (5.42:1)",
+          "description": "The text \"Form input field with 3:1 border contras\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 5.42:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "p",
+          "element": "p",
+          "accessibleName": "Form input field with 3:1 border contrast meeting ",
+          "measured": {
+            "contrastRatio": 5.42,
+            "fontSizePx": 14,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(103, 103, 103)",
+            "backgroundColor": "rgba(250, 250, 250, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 16,
+            "y": 79.796875,
+            "width": 1408,
+            "height": 21.6875
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 5.42:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::h2::ratio-17.7",
+      "representative": {
+        "id": "text-contrast-1616691689",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 3:1 (17.74:1)",
+        "description": "The text \"Notification settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "h2",
+        "element": "h2",
+        "accessibleName": "Notification settings",
+        "measured": {
+          "contrastRatio": 17.74,
+          "fontSizePx": 24,
+          "fontWeight": 400,
+          "isLargeText": true,
+          "color": "rgb(17, 24, 39)",
+          "backgroundColor": "rgba(255, 255, 255, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 3,
+          "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+        },
+        "boundingBox": {
+          "x": 32,
+          "y": 211.171875,
+          "width": 256,
+          "height": 36
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1616691689",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Notification settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Notification settings",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 211.171875,
+            "width": 256,
+            "height": 36
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+        },
+        {
+          "id": "text-contrast-1616691689",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Notification settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Notification settings",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 211.171875,
+            "width": 311,
+            "height": 36
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+        },
+        {
+          "id": "text-contrast-1616691689",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 3:1 (17.74:1)",
+          "description": "The text \"Notification settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "h2",
+          "element": "h2",
+          "accessibleName": "Notification settings",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 24,
+            "fontWeight": 400,
+            "isLargeText": true,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 for large text (>= 24px or >= 18.66px bold [weight >= 700])"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 158.484375,
+            "width": 1376,
+            "height": 36
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 3:1 threshold for large text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::label::ratio-17.7",
+      "representative": {
+        "id": "text-contrast-1439540969",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (17.74:1)",
+        "description": "The text \"Send updates to\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "label",
+        "element": "label",
+        "accessibleName": "Send updates to",
+        "measured": {
+          "contrastRatio": 17.74,
+          "fontSizePx": 16,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(17, 24, 39)",
+          "backgroundColor": "rgba(255, 255, 255, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 32,
+          "y": 250.171875,
+          "width": 116.546875,
+          "height": 17
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1439540969",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Send updates to\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "label",
+          "element": "label",
+          "accessibleName": "Send updates to",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 250.171875,
+            "width": 116.546875,
+            "height": 17
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1439540969",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Send updates to\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "label",
+          "element": "label",
+          "accessibleName": "Send updates to",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 250.171875,
+            "width": 116.546875,
+            "height": 17
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1439540969",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (17.74:1)",
+          "description": "The text \"Send updates to\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 17.74:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "label",
+          "element": "label",
+          "accessibleName": "Send updates to",
+          "measured": {
+            "contrastRatio": 17.74,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(17, 24, 39)",
+            "backgroundColor": "rgba(255, 255, 255, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 197.484375,
+            "width": 116.546875,
+            "height": 17
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 17.74:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "text-contrast::button::ratio-8.7",
+      "representative": {
+        "id": "text-contrast-1090063977",
+        "ruleId": "text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+        "status": "pass",
+        "title": "Text contrast meets 4.5:1 (8.72:1)",
+        "description": "The text \"Save settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "button",
+        "element": "button",
+        "accessibleName": "Save settings",
+        "measured": {
+          "contrastRatio": 8.72,
+          "fontSizePx": 16,
+          "fontWeight": 400,
+          "isLargeText": false,
+          "color": "rgb(255, 255, 255)",
+          "backgroundColor": "rgba(30, 64, 175, 1)",
+          "hasComplexBackground": false
+        },
+        "expected": {
+          "minRatio": 4.5,
+          "thresholdDescription": "At least 4.5:1 for normal text"
+        },
+        "boundingBox": {
+          "x": 32,
+          "y": 315.171875,
+          "width": 128.0625,
+          "height": 44
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "text-contrast-1090063977",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Save settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 315.171875,
+            "width": 128.0625,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1090063977",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Save settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 315.171875,
+            "width": 128.0625,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        },
+        {
+          "id": "text-contrast-1090063977",
+          "ruleId": "text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.3 Contrast (Minimum)",
+          "status": "pass",
+          "title": "Text contrast meets 4.5:1 (8.72:1)",
+          "description": "The text \"Save settings\" satisfies WCAG 2.2 SC 1.4.3 with a measured contrast ratio of 8.72:1 against its background.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "button",
+          "element": "button",
+          "accessibleName": "Save settings",
+          "measured": {
+            "contrastRatio": 8.72,
+            "fontSizePx": 16,
+            "fontWeight": 400,
+            "isLargeText": false,
+            "color": "rgb(255, 255, 255)",
+            "backgroundColor": "rgba(30, 64, 175, 1)",
+            "hasComplexBackground": false
+          },
+          "expected": {
+            "minRatio": 4.5,
+            "thresholdDescription": "At least 4.5:1 for normal text"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 262.484375,
+            "width": 128.0625,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Contrast ratio of 8.72:1 satisfies the required 4.5:1 threshold for normal text."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    },
+    {
+      "fingerprint": "non-text-contrast::#notification-email::ratio-7.5",
+      "representative": {
+        "id": "non-text-contrast-1804776266",
+        "ruleId": "non-text-contrast",
+        "wcagCriterion": "WCAG 2.2 SC 1.4.11 Non-text Contrast",
+        "status": "pass",
+        "title": "Non-text contrast meets 3:1 (7.46:1)",
+        "description": "The UI component visual indicator \"notification-email\" meets WCAG 2.2 SC 1.4.11 with a measured contrast ratio of 7.46:1.",
+        "url": "http://localhost:3123/fixtures/pilot-ui-10",
+        "viewport": {
+          "width": 320,
+          "height": 640
+        },
+        "selector": "#notification-email",
+        "element": "input",
+        "role": "input",
+        "accessibleName": "notification-email",
+        "measured": {
+          "contrastRatio": 7.46,
+          "componentType": "ui-component-border",
+          "indicatorColor": "rgb(85, 85, 85)",
+          "adjacentColor": "#ffffff",
+          "isInactiveOrDisabled": false,
+          "isStateMeaningUncertain": false
+        },
+        "expected": {
+          "minRatio": 3,
+          "thresholdDescription": "At least 3:1 against adjacent colors for UI components and meaningful graphics"
+        },
+        "boundingBox": {
+          "x": 32,
+          "y": 271.171875,
+          "width": 256,
+          "height": 44
+        },
+        "initialPriority": "P3",
+        "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Non-text contrast ratio of 7.46:1 meets or exceeds the required 3:1 threshold."
+      },
+      "rawOccurrencesCount": 3,
+      "occurrences": [
+        {
+          "id": "non-text-contrast-1804776266",
+          "ruleId": "non-text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.11 Non-text Contrast",
+          "status": "pass",
+          "title": "Non-text contrast meets 3:1 (7.46:1)",
+          "description": "The UI component visual indicator \"notification-email\" meets WCAG 2.2 SC 1.4.11 with a measured contrast ratio of 7.46:1.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 320,
+            "height": 640
+          },
+          "selector": "#notification-email",
+          "element": "input",
+          "role": "input",
+          "accessibleName": "notification-email",
+          "measured": {
+            "contrastRatio": 7.46,
+            "componentType": "ui-component-border",
+            "indicatorColor": "rgb(85, 85, 85)",
+            "adjacentColor": "#ffffff",
+            "isInactiveOrDisabled": false,
+            "isStateMeaningUncertain": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 against adjacent colors for UI components and meaningful graphics"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 256,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Non-text contrast ratio of 7.46:1 meets or exceeds the required 3:1 threshold."
+        },
+        {
+          "id": "non-text-contrast-1804776266",
+          "ruleId": "non-text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.11 Non-text Contrast",
+          "status": "pass",
+          "title": "Non-text contrast meets 3:1 (7.46:1)",
+          "description": "The UI component visual indicator \"notification-email\" meets WCAG 2.2 SC 1.4.11 with a measured contrast ratio of 7.46:1.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "selector": "#notification-email",
+          "element": "input",
+          "role": "input",
+          "accessibleName": "notification-email",
+          "measured": {
+            "contrastRatio": 7.46,
+            "componentType": "ui-component-border",
+            "indicatorColor": "rgb(85, 85, 85)",
+            "adjacentColor": "#ffffff",
+            "isInactiveOrDisabled": false,
+            "isStateMeaningUncertain": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 against adjacent colors for UI components and meaningful graphics"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 271.171875,
+            "width": 311,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Non-text contrast ratio of 7.46:1 meets or exceeds the required 3:1 threshold."
+        },
+        {
+          "id": "non-text-contrast-1804776266",
+          "ruleId": "non-text-contrast",
+          "wcagCriterion": "WCAG 2.2 SC 1.4.11 Non-text Contrast",
+          "status": "pass",
+          "title": "Non-text contrast meets 3:1 (7.46:1)",
+          "description": "The UI component visual indicator \"notification-email\" meets WCAG 2.2 SC 1.4.11 with a measured contrast ratio of 7.46:1.",
+          "url": "http://localhost:3123/fixtures/pilot-ui-10",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "selector": "#notification-email",
+          "element": "input",
+          "role": "input",
+          "accessibleName": "notification-email",
+          "measured": {
+            "contrastRatio": 7.46,
+            "componentType": "ui-component-border",
+            "indicatorColor": "rgb(85, 85, 85)",
+            "adjacentColor": "#ffffff",
+            "isInactiveOrDisabled": false,
+            "isStateMeaningUncertain": false
+          },
+          "expected": {
+            "minRatio": 3,
+            "thresholdDescription": "At least 3:1 against adjacent colors for UI components and meaningful graphics"
+          },
+          "boundingBox": {
+            "x": 32,
+            "y": 218.484375,
+            "width": 1376,
+            "height": 44
+          },
+          "initialPriority": "P3",
+          "priorityRationale": "Project Heuristic P3 (Not WCAG Severity): Non-text contrast ratio of 7.46:1 meets or exceeds the required 3:1 threshold."
+        }
+      ],
+      "status": "pass",
+      "hasMixedStatus": false,
+      "initialPriority": "P3",
+      "currentPriority": "P3",
+      "decisionHistory": []
+    }
+  ],
+  "summary": {
+    "totalRawFindings": 34,
+    "totalGroupedIssues": 12,
+    "passCount": 10,
+    "candidateFailCount": 0,
+    "needsReviewCount": 2
+  },
+  "metricResults": [
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "needsReview",
+      "reason": "Nearest target edge distances in the same rendered UI state. The 8 CSS px threshold is a project advisory only.",
+      "measurements": [
+        {
+          "target": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+            "element": "label",
+            "accessibleName": "Send updates to",
+            "boundingBox": {
+              "x": 32,
+              "y": 250.171875,
+              "width": 116.546875,
+              "height": 17
+            },
+            "actionId": "#notification-email"
+          },
+          "nearestTarget": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 315.171875,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "distance": 48,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        {
+          "target": {
+            "selector": "#notification-email",
+            "element": "input",
+            "accessibleName": "",
+            "boundingBox": {
+              "x": 32,
+              "y": 271.171875,
+              "width": 256,
+              "height": 44
+            },
+            "actionId": "#notification-email"
+          },
+          "nearestTarget": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 315.171875,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "distance": 0,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "target": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 315.171875,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "nearestTarget": {
+            "selector": "#notification-email",
+            "element": "input",
+            "accessibleName": "",
+            "boundingBox": {
+              "x": 32,
+              "y": 271.171875,
+              "width": 256,
+              "height": 44
+            },
+            "actionId": "#notification-email"
+          },
+          "distance": 0,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "skipped",
+      "applicability": "unknown",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 320,
+        "height": 640
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+      "measurements": [
+        {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+          "element": "h2",
+          "accessibleName": "Notification settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 211.171875,
+            "width": 256,
+            "height": 36
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "needsReview",
+      "reason": "Nearest target edge distances in the same rendered UI state. The 8 CSS px threshold is a project advisory only.",
+      "measurements": [
+        {
+          "target": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+            "element": "label",
+            "accessibleName": "Send updates to",
+            "boundingBox": {
+              "x": 32,
+              "y": 250.171875,
+              "width": 116.546875,
+              "height": 17
+            },
+            "actionId": "#notification-email"
+          },
+          "nearestTarget": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 315.171875,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "distance": 48,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        {
+          "target": {
+            "selector": "#notification-email",
+            "element": "input",
+            "accessibleName": "",
+            "boundingBox": {
+              "x": 32,
+              "y": 271.171875,
+              "width": 311,
+              "height": 44
+            },
+            "actionId": "#notification-email"
+          },
+          "nearestTarget": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 315.171875,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "distance": 0,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "target": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 315.171875,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "nearestTarget": {
+            "selector": "#notification-email",
+            "element": "input",
+            "accessibleName": "",
+            "boundingBox": {
+              "x": 32,
+              "y": 271.171875,
+              "width": 311,
+              "height": 44
+            },
+            "actionId": "#notification-email"
+          },
+          "distance": 0,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "skipped",
+      "applicability": "unknown",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+      "measurements": [
+        {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+          "element": "h2",
+          "accessibleName": "Notification settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 211.171875,
+            "width": 311,
+            "height": 36
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "touch-target-spacing",
+      "metricVersion": "1.0.0",
+      "unit": "CSS px",
+      "executionStatus": "completed",
+      "applicability": "applicable",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": "needsReview",
+      "reason": "Nearest target edge distances in the same rendered UI state. The 8 CSS px threshold is a project advisory only.",
+      "measurements": [
+        {
+          "target": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > label:nth-child(2)",
+            "element": "label",
+            "accessibleName": "Send updates to",
+            "boundingBox": {
+              "x": 32,
+              "y": 197.484375,
+              "width": 116.546875,
+              "height": 17
+            },
+            "actionId": "#notification-email"
+          },
+          "nearestTarget": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 262.484375,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "distance": 48,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "pass"
+        },
+        {
+          "target": {
+            "selector": "#notification-email",
+            "element": "input",
+            "accessibleName": "",
+            "boundingBox": {
+              "x": 32,
+              "y": 218.484375,
+              "width": 1376,
+              "height": 44
+            },
+            "actionId": "#notification-email"
+          },
+          "nearestTarget": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 262.484375,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "distance": 0,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        },
+        {
+          "target": {
+            "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)",
+            "element": "button",
+            "accessibleName": "Save settings",
+            "boundingBox": {
+              "x": 32,
+              "y": 262.484375,
+              "width": 128.0625,
+              "height": 44
+            },
+            "actionId": "#fixture-content > div:nth-child(1) > section:nth-child(1) > button:nth-child(4)"
+          },
+          "nearestTarget": {
+            "selector": "#notification-email",
+            "element": "input",
+            "accessibleName": "",
+            "boundingBox": {
+              "x": 32,
+              "y": 218.484375,
+              "width": 1376,
+              "height": 44
+            },
+            "actionId": "#notification-email"
+          },
+          "distance": 0,
+          "overlap": false,
+          "overlapArea": 0,
+          "geometryValid": true,
+          "unit": "CSS px",
+          "metricVersion": "1.0.0",
+          "outcome": "needsReview"
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    },
+    {
+      "metricId": "heading-hierarchy",
+      "metricVersion": "1.0.0",
+      "unit": "heading level",
+      "executionStatus": "skipped",
+      "applicability": "unknown",
+      "basis": "project-advisory",
+      "url": "http://localhost:3123/fixtures/pilot-ui-10",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scopeSelector": "#fixture-content",
+      "outcome": null,
+      "reason": "No comparable heading transition; the first heading needs an explicit component parent level to assess its outer boundary.",
+      "measurements": [
+        {
+          "selector": "#fixture-content > div:nth-child(1) > section:nth-child(1) > h2:nth-child(1)",
+          "element": "h2",
+          "accessibleName": "Notification settings",
+          "boundingBox": {
+            "x": 32,
+            "y": 158.484375,
+            "width": 1376,
+            "height": 36
+          },
+          "level": 2,
+          "rawAriaLevel": null,
+          "source": "native",
+          "domIndex": 0,
+          "previousHeading": null,
+          "skippedLevels": null,
+          "boundaryContextKnown": false,
+          "unit": "heading level",
+          "metricVersion": "1.0.0",
+          "outcome": null
+        }
+      ],
+      "limitations": [
+        "One rendered DOM state only; interactions are not opened or combined across states.",
+        "Pointer candidates use native controls, interactive roles, direct pointer listeners/handlers and data-audit-pointer-target. Arbitrary delegated JavaScript actions may be missed.",
+        "Axis-aligned bounding boxes; shadow DOM, iframe contents and non-rectangular hit areas are outside this pilot."
+      ],
+      "rawParentHeadingLevel": null
+    }
+  ],
+  "pageScreenshots": [
+    {
+      "width": 320,
+      "height": 640,
+      "path": "/screenshots/page-320-4446f6aa-ffa1-4e0a-bd46-7418624df025.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "path": "/screenshots/page-375-9313284d-6db3-4b9d-948f-468cef4d1ac8.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "path": "/screenshots/page-1440-1bcc49a3-3b74-4d17-8434-fc43bfaed121.png"
+    }
+  ]
+}

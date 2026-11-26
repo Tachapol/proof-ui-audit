@@ -28,7 +28,7 @@ test.describe('Phase 7: application states and keyboard accessibility', () => {
 
   test('invalid and blocked URLs preserve input and focus the blocking field', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('tab', { name: 'Public URL' }).click();
+    await page.getByRole('tab', { name: /Website URL|Public URL/ }).click();
     const input = page.locator('#custom-url-input');
     await input.fill('not-a-url');
     await page.locator('#run-audit-button').click();
@@ -62,6 +62,7 @@ test.describe('Phase 7: application states and keyboard accessibility', () => {
     await expect(page.getByRole('status', { name: '' }).filter({ hasText: 'Partial results' }).first()).toBeVisible();
 
     mode = 'failed';
+    await page.getByRole('button', { name: 'New audit', exact: true }).click();
     await page.locator('#run-audit-button').click();
     await expect(page.getByTestId('state-error')).toContainText('Navigation timed out safely.');
     await expect(page.locator('.audit-status')).toContainText('Audit failed');
@@ -73,10 +74,11 @@ test.describe('Phase 7: application states and keyboard accessibility', () => {
     await page.goto('/');
     await page.locator('#run-audit-button').click();
     const card = page.locator('article').first();
-    await card.getByRole('button', { name: 'Reject (False Positive)' }).click();
+    await card.getByLabel('Review status', { exact: true }).selectOption('false_positive');
+    await card.getByLabel('Reviewer / risk approver (self-reported)').fill('QA reviewer');
     const reason = card.locator('input[id^="reason-input-"]');
     await reason.fill('Keep this rationale after the simulated save failure.');
-    await card.getByRole('button', { name: 'Save Decision' }).click();
+    await card.getByRole('button', { name: 'Save review', exact: true }).click();
     await expect(card.getByRole('alert')).toContainText('Decision store unavailable.');
     await expect(reason).toHaveValue('Keep this rationale after the simulated save failure.');
   });
@@ -116,8 +118,12 @@ test.describe('Phase 7: application states and keyboard accessibility', () => {
       return value;
     });
     expect(['0.01ms', '1e-05s', '0s']).toContain(duration);
+    const reviewForm = page.getByRole('form', { name: 'Issue review' });
+    const reviewStatus = reviewForm.getByLabel('Review status', { exact: true });
+    await reviewStatus.focus();
+    await expect(reviewStatus).toBeFocused();
     await page.keyboard.press('Tab');
-    await expect(page.getByRole('button', { name: 'Accept Issue' })).toBeFocused();
+    await expect(reviewForm.getByLabel('Reviewer / risk approver (self-reported)')).toBeFocused();
   });
 
   test('renders every isolated preview regression status as explicit text', async ({ page }) => {

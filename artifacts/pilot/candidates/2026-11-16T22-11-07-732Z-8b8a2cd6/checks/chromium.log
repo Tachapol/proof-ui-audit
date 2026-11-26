@@ -1,0 +1,25 @@
+
+Running 17 tests using 1 worker
+
+Pilot metrics verified in Chromium 153.0.8010.12 at 375×812
+Pilot geometry also verified at 320×640
+Pilot geometry also verified at 1440×900
+  ✓   1 [chromium] › tests/pilot-metrics.spec.ts:9:1 › Chromium measures boundary, close, contact and overlapping pointer pairs inside the UI only (761ms)
+  ✓   2 [chromium] › tests/pilot-metrics.spec.ts:32:1 › Chromium excludes hidden/disabled/inert/closed-state actions and collapses nested same-action wrappers (702ms)
+  ✓   3 [chromium] › tests/pilot-metrics.spec.ts:43:1 › Chromium discovers direct pointer listeners and preserves separate nested actions (103ms)
+  ✓   4 [chromium] › tests/pilot-metrics.spec.ts:61:1 › Chromium excludes same-action label/control pairs and accepts integer ARIA levels beyond h6 (85ms)
+  ✓   5 [chromium] › tests/pilot-metrics.spec.ts:77:1 › Chromium reads headings in DOM order despite CSS order and does not import the fixture h1 (437ms)
+  ✓   6 [chromium] › tests/pilot-metrics.spec.ts:88:1 › Chromium supports component parent context and preserves invalid or missing ARIA levels as partial (875ms)
+  ✓   7 [chromium] › tests/pilot-metrics.spec.ts:109:1 › Chromium retains null for a single target and distinguishes missing, ambiguous and invalid scopes (899ms)
+  ✓   8 [chromium] › tests/pilot-metrics.spec.ts:128:1 › Chromium exposes incomplete pointer discovery without treating it as a pass (305ms)
+  ✓   9 [chromium] › tests/pilot-metrics.spec.ts:134:1 › browser navigation errors preserve metric error states and invalid API scope is rejected (547ms)
+  ✓  10 [chromium] › tests/pilot-metrics.spec.ts:143:1 › API audit → grouping → saved evidence UI → JSON/Markdown keeps advisory metadata (5.2s)
+  ✓  11 [chromium] › tests/pilot-metrics.spec.ts:171:1 › API spacing audit preserves nearest target pairs independently of the Target Size spacing alternative (8.9s)
+  ✓  12 [chromium] › tests/reflow-integration.spec.ts:8:1 › Chromium extracts clean and rigid layouts from fixture UI, excluding fixture chrome (3.6s)
+  ✓  13 [chromium] › tests/reflow-integration.spec.ts:20:1 › Chromium detects nested scrolling, ancestor clipping and off-screen controls (925ms)
+  ✓  14 [chromium] › tests/reflow-integration.spec.ts:31:1 › Chromium keeps essential 2D candidates as review and excludes contained decoration (1.4s)
+  ✓  15 [chromium] › tests/reflow-integration.spec.ts:44:1 › Reflow scope errors never become clean passes and fixture header overflow is outside scope (130ms)
+  ✓  16 [chromium] › tests/reflow-integration.spec.ts:52:1 › Audit API measures Reflow at 320px and persists it through evidence UI and exports (6.2s)
+  ✓  17 [chromium] › tests/reflow-integration.spec.ts:70:1 › Pilot text-spacing cases emit actual baseline and override measurements (6.6s)
+
+  17 passed (39.3s)

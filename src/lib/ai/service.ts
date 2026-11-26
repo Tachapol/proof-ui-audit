@@ -2,6 +2,7 @@ import { AIExplanationInput, AIExplanationResult, AIFallbackReason } from '@/lib
 import { ExplanationProvider } from './provider';
 import { DeterministicExplanationProvider } from './fallback';
 import { GeminiExplanationProvider } from './gemini-adapter';
+import { CpeExplanationProvider } from './cpe-adapter';
 
 export interface ExplanationServiceOptions {
   provider?: ExplanationProvider;
@@ -21,7 +22,9 @@ export class ExplanationService {
     } else {
       // In automated test environments, never instantiate real Gemini network provider from env
       const isTestEnv = process.env.NODE_ENV === 'test' || !!process.env.VITEST || !!process.env.PLAYWRIGHT_TEST;
-      if (!isTestEnv) {
+      if (!isTestEnv && process.env.CPE_API_KEY && process.env.CPE_MODEL) {
+        this.geminiProvider = new CpeExplanationProvider(process.env.CPE_API_KEY, process.env.CPE_MODEL, process.env.CPE_API_BASE_URL);
+      } else if (!isTestEnv) {
         const apiKey = options?.geminiApiKey ?? process.env.GEMINI_API_KEY;
         if (apiKey && apiKey.trim().length > 0) {
           try {
