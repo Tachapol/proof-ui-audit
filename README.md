@@ -24,6 +24,7 @@ Advisory findings are surfaced with human-readable language (e.g. *Email field a
 ## Core Features & Subsystems
 
 - **Audit Workspace (`/`)**: URL-first evidence layout (`?runId=...`) prioritizing actionable review items first, status counter filter badges (*Candidate fail*, *Needs review*), folded pass checks, unified finding review status, and single-click jump to Critique Studio.
+- **36-Metric Self-Audit (`/checklist`)**: Deterministic 36-metric evaluation (18 UX + 18 UI across 6 pillars) grounded in WCAG 2.2, Nielsen's Heuristics, Apple HIG, and Material Design 3. Features a 3-stage stateful stepper (*Input & Context → Audit & Prioritize → Optimize & Approve*), source code upload (HTML/CSS/JS files & folders), Designer confirmation for `needsReview` findings, and AI-assisted JSON-patch auto-iteration.
 - **Visual Canvas Overlay**: Zero-gutter flush live iframe preview across Desktop (1440px), Mobile (375px), and Reflow (320px) viewports; interactive pin badges with 44×44px hit areas, leader lines, smart auto-focus, and a floating resizable Inspector Drawer (320px–680px) with stacked before/after comparison cards and live suggested fix preview.
 - **Multi-Role Critique Studio (`/studio`)**: Multi-role AI critique engine (Lead Coordinator, User Experience, Design System, Accessibility, Product Manager), CPE gateway integration, structured design & color proposals with live swatch previews, and round-trip navigation back to Audit evidence with preserved filters and scroll position.
 - **Component Sandbox (`/sandbox`)**: In-browser remediation playground with automated candidate generation, Playwright browser re-audit verification, regression checks, and a 4-state verification workflow (`Unverified`, `Verified`, `Suboptimal`, `Error`).
@@ -106,7 +107,7 @@ Available fixture categories:
 - **Next.js 15 (App Router)** with TypeScript strict mode
 - **Playwright** for headless browser execution, subpixel DOM geometry, and runtime screenshots
 - **Zod** for schema validation at all network and data boundaries
-- **Vitest** for fast unit and integration testing (313 tests across 36 suites)
+- **Vitest** for fast unit and integration testing (319 tests across 37 suites)
 - **Local JSON Storage** with atomic file writing (`.proofui-data/`)
 - **Lucide Icons** for consistent accessible iconography
 

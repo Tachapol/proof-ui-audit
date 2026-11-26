@@ -19,6 +19,7 @@
 5. [Standard Audit Viewports](#5-standard-audit-viewports)
 6. [Quality & Verification Metrics](#6-quality--verification-metrics)
 7. [Traceability & File Mapping](#7-traceability--file-mapping)
+8. [36-Metric Self-Audit Checklist (`/checklist`)](#8-36-metric-self-audit-checklist-checklist)
 
 ---
 
@@ -219,7 +220,7 @@ Documented in [`RELEASE_NOTES.md`](file:///Users/mysteriouz/Projects/proof-ui-au
 |---|:---:|:---:|
 | **Traceability Requirements** | 131 / 131 verified | **100% Conformance** |
 | **Prohibited Features Scan** | 20 / 20 absent | **100% Verified** (Zero decorative scope creep) |
-| **Vitest Unit Tests** | 175 / 175 passed | **100% Pass** (Hermetic, offline-capable) |
+| **Vitest Unit Tests** | 319 / 319 passed (37 suites) | **100% Pass** (Hermetic, offline-capable) |
 | **Playwright E2E Tests** | 31 / 31 passed | **100% Pass** (Full pipeline validation) |
 | **Total Automated Tests** | **206 / 206 passed** | **100% Pass Rate** |
 | **TypeScript Strict Check** | 0 errors | **Clean** |
@@ -241,3 +242,52 @@ Documented in [`RELEASE_NOTES.md`](file:///Users/mysteriouz/Projects/proof-ui-au
 | **Issue Grouping** | [`grouping.ts`](src/lib/audit/grouping.ts) | [`grouping.test.ts`](src/lib/audit/__tests__/grouping.test.ts) |
 | **Iteration Sandbox**| [`isolated-preview.ts`](src/lib/iteration/isolated-preview.ts) | [`iteration.test.ts`](src/lib/iteration/__tests__/iteration.test.ts) |
 | **Report Export** | [`report-schema.ts`](src/lib/report/report-schema.ts) | [`report-export.test.ts`](src/lib/report/__tests__/report-export.test.ts) |
+| **36-Metric Checklist** | [`types.ts`](src/lib/checklist/types.ts), [`dom-evaluators.ts`](src/lib/checklist/dom-evaluators.ts) | [`checklist.test.ts`](src/lib/checklist/__tests__/checklist.test.ts) |
+
+---
+
+## 8. 36-Metric Self-Audit Checklist (`/checklist`)
+
+The **Self-Audit (`/checklist`)** workspace extends the 5 core WCAG rules to **36 deterministic metrics** (**18 UX + 18 UI** across **6 pillars**, 6 metrics per pillar), combining **WCAG 2.2**, **Nielsen's 10 Heuristics**, **Apple HIG**, and **Material Design 3**.
+
+- **Pass Rate Calculation (`passRate`)**: Computed over applicable metrics (`totalApplicable = totalMetrics - totalNotApplicable`), excluding `notApplicable` items from the denominator.
+- **Designer-in-the-Loop**: Metrics marked `needsReview` are excluded from automated remediation unless explicitly confirmed by the designer via **Confirm for fix**.
+
+| Group | Pillar | Metric ID | Title | Criterion / Standard | Priority |
+|---|---|---|---|---|---|
+| UX | Interaction & Touch | `target-size` | Target Size | WCAG 2.2 SC 2.5.8 | P1 |
+| UX | Interaction & Touch | `touch-target-spacing` | Touch Target Spacing | Project Advisory | P2 |
+| UX | Interaction & Touch | `interactive-cursor` | Interactive Cursor | UX Affordance | P2 |
+| UX | Interaction & Touch | `valid-interactive-actions` | Valid Links & Actions | UX Reliability | P1 |
+| UX | Interaction & Touch | `active-state-indicator` | Active Navigation Indicator | Nielsen H1: System Status | P2 |
+| UX | Interaction & Touch | `ergonomic-target-advisory` | Ergonomic Touch Target (44px) | Apple HIG / Material 3 | P3 |
+| UX | Accessibility & Keyboard | `interactive-label` | Interactive Labels | WCAG 2.2 SC 4.1.2 | P0 |
+| UX | Accessibility & Keyboard | `focus-visible` | Keyboard Focus Visible | WCAG 2.2 SC 2.4.7 | P1 |
+| UX | Accessibility & Keyboard | `tab-order-sanity` | Tab Order & No Hidden Focus | WCAG 2.2 SC 2.4.3 | P1 |
+| UX | Accessibility & Keyboard | `image-alt` | Image Alt Text | WCAG 2.2 SC 1.1.1 | P0 |
+| UX | Accessibility & Keyboard | `modal-dismiss-affordance` | Modal Dismiss Control | Nielsen H3: User Control | P1 |
+| UX | Accessibility & Keyboard | `placeholder-not-sole-label` | Persistent Field Labels | Nielsen H6: Recognition | P2 |
+| UX | Structure & Semantics | `heading-hierarchy` | Heading Hierarchy | Project Advisory | P2 |
+| UX | Structure & Semantics | `landmark-structure` | Semantic Landmarks | WCAG 2.2 SC 1.3.1 | P2 |
+| UX | Structure & Semantics | `form-input-semantics` | Form Input Semantics | WCAG 2.2 SC 1.3.5 | P2 |
+| UX | Structure & Semantics | `document-metadata` | Page Title & Language | WCAG 2.2 SC 2.4.2 / 3.1.1 | P2 |
+| UX | Structure & Semantics | `form-required-clarity` | Required Field Clarity | Nielsen H5: Error Prevention | P2 |
+| UX | Structure & Semantics | `nav-item-count` | Navigation Item Count | Apple HIG: Simplicity | P3 |
+| UI | Color & Contrast | `text-contrast` | Text Contrast | WCAG 2.2 SC 1.4.3 | P0 |
+| UI | Color & Contrast | `non-text-contrast` | Non-text Contrast | WCAG 2.2 SC 1.4.11 | P1 |
+| UI | Color & Contrast | `link-distinguishability` | Link Distinguishability | WCAG 2.2 SC 1.4.1 | P2 |
+| UI | Color & Contrast | `status-not-color-only` | Status Not Color-Only | WCAG 2.2 SC 1.4.1 | P2 |
+| UI | Color & Contrast | `card-surface-separation` | Card Surface Separation | Material Design 3: Elevation | P3 |
+| UI | Color & Contrast | `input-border-contrast` | Input Boundary Affordance | Material Design 3: Inputs | P2 |
+| UI | Typography & Readability | `text-spacing` | Text Spacing Resilience | WCAG 2.2 SC 1.4.12 | P1 |
+| UI | Typography & Readability | `min-font-size` | Readable Font Size | UI Readability | P2 |
+| UI | Typography & Readability | `line-height-measure` | Line Height & Line Length | UI Readability | P3 |
+| UI | Typography & Readability | `font-consistency` | Font Loading & Consistency | UI Consistency | P3 |
+| UI | Typography & Readability | `heading-body-scale` | Heading-to-Body Scale | Apple HIG: Hierarchy | P2 |
+| UI | Typography & Readability | `content-density-spacing` | Paragraph Breathing Space | Nielsen H8: Minimalism | P3 |
+| UI | Layout & Media | `reflow` | Mobile Reflow (320px) | WCAG 2.2 SC 1.4.10 | P0 |
+| UI | Layout & Media | `visual-overlap` | No Visual Overlap | UI Layout | P1 |
+| UI | Layout & Media | `broken-media` | Media & SVG Integrity | UI Polish | P1 |
+| UI | Layout & Media | `overflow-clipping` | No Unintended Clipping | UI Layout | P2 |
+| UI | Layout & Media | `button-consistency` | Button Style Consistency | Nielsen H4: Consistency | P3 |
+| UI | Layout & Media | `container-padding-breathing` | Container Padding | Material Design 3: Spacing | P3 |
