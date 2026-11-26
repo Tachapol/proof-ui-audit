@@ -9,17 +9,17 @@ import {
   ArrowUp,
   Check,
   CheckCircle2,
-  ChevronDown,
-  ChevronUp,
   Code2,
   Copy,
   Eye,
+  FolderUp,
   Link2,
   Loader2,
   Maximize2,
   MinusCircle,
   Play,
   Sparkles,
+  Upload,
   X,
   XCircle,
 } from 'lucide-react';
@@ -158,8 +158,18 @@ export function ChecklistWorkspace({
 }: ChecklistWorkspaceProps) {
   const [selectedPage, setSelectedPage] = useState<string>(baselinePages[0] || 'index.html');
   const [htmlInput, setHtmlInput] = useState<string>(initialHtml);
+  const [uploadedProject, setUploadedProject] = useState<{
+    name: string;
+    files: Record<string, string>;
+    htmlPages: string[];
+  } | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
   const [baselineViewMode, setBaselineViewMode] = useState<'preview' | 'code'>('preview');
-  const [inputExpanded, setInputExpanded] = useState<boolean>(true);
+  const [activeStage, setActiveStage] = useState<'input' | 'audit' | 'optimize'>('input');
+  const [auditTab, setAuditTab] = useState<'priority' | 'checklist'>('priority');
+  const [optimizeTab, setOptimizeTab] = useState<'compare' | 'checklist'>('compare');
 
   // Step 1: Context & Requirements
   const [productGoal, setProductGoal] = useState<string>('Hotel search & booking conversion');
@@ -172,6 +182,7 @@ export function ChecklistWorkspace({
   // Step 3: Designer Prioritization & Evidence Inspection
   const [priorityOrder, setPriorityOrder] = useState<string[]>([]);
   const [selectedMetricIds, setSelectedMetricIds] = useState<Set<string>>(new Set());
+  const [reviewedMetricIds, setReviewedMetricIds] = useState<Set<string>>(new Set());
   const [inspectedMetricId, setInspectedMetricId] = useState<string | null>(null);
 
   // Step 5 & 6: Loop & Approval
@@ -284,12 +295,12 @@ export function ChecklistWorkspace({
       const nextResult: AutoIterationResult = data.result;
       setResult(nextResult);
       setSelectedIter(nextResult.bestIteration ?? 0);
-      setInputExpanded(false);
 
       if (mode === 'audit') {
         const baselinePriority = nextResult.iterations[0]?.summary.priorityList || [];
         const ids = baselinePriority.map((i) => i.id);
         setPriorityOrder(ids);
+        setReviewedMetricIds(new Set());
         // Auto-select only fail items by default; needsReview requires human evidence review first
         setSelectedMetricIds(new Set(baselinePriority.filter((i) => i.status === 'fail').map((i) => i.id)));
         const firstFail = baselinePriority[0];
@@ -297,6 +308,11 @@ export function ChecklistWorkspace({
           setInspectedMetricId(firstFail.id);
           setPreviewViewport(firstFail.id === 'reflow' ? 'mobile320' : 'desktop');
         }
+        setActiveStage('audit');
+        setAuditTab('priority');
+      } else {
+        setActiveStage('optimize');
+        setOptimizeTab('compare');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed');
@@ -322,9 +338,101 @@ export function ChecklistWorkspace({
   const selectedReadyCount = useMemo(() => {
     return priorityOrder.filter((id) => {
       if (!selectedMetricIds.has(id)) return false;
-      return priorityItemMap.get(id)?.status === 'fail';
+      const item = priorityItemMap.get(id);
+      if (!item) return false;
+      return item.status === 'fail' || reviewedMetricIds.has(id);
     }).length;
-  }, [priorityOrder, selectedMetricIds, priorityItemMap]);
+  }, [priorityOrder, selectedMetricIds, priorityItemMap, reviewedMetricIds]);
+
+  const bundleUploadedHtml = (pageName: string, files: Record<string, string>): string => {
+    let html = files[pageName] || '';
+    const findAsset = (ref: string) => {
+      const clean = ref.replace(/^\.\//, '').split('?')[0].split('#')[0];
+      if (files[clean] !== undefined) return files[clean];
+      const base = clean.split('/').pop() || clean;
+      const matchKey = Object.keys(files).find((k) => k === base || k.endsWith(`/${base}`));
+      return matchKey ? files[matchKey] : undefined;
+    };
+
+    html = html.replace(
+      /<link\s+[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*\/?>/gi,
+      (full, href) => {
+        const css = findAsset(href);
+        return css !== undefined ? `<style data-source="${href}">\n${css}\n</style>` : full;
+      }
+    );
+
+    html = html.replace(
+      /<script\s+[^>]*src=["']([^"']+)["'][^>]*>\s*<\/script>/gi,
+      (full, src) => {
+        const js = findAsset(src);
+        if (js === undefined) return full;
+        const safeJs = js.replace(/<\/script>/gi, '<\\/script>');
+        return `<script data-source="${src}">\n${safeJs}\n</script>`;
+      }
+    );
+
+    return html;
+  };
+
+  const handleUploadedFileList = async (fileList: FileList | null) => {
+    if (!fileList || fileList.length === 0) return;
+    const files: Record<string, string> = {};
+    let rootFolderName = 'Uploaded Source';
+
+    for (const file of Array.from(fileList)) {
+      const lower = file.name.toLowerCase();
+      if (!/\.(html?|css|js)$/i.test(lower)) continue;
+      const rel = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
+      const parts = rel.split('/');
+      if (parts.length > 1 && rootFolderName === 'Uploaded Source') {
+        rootFolderName = parts[0];
+      }
+      const key = parts.length > 1 ? parts.slice(1).join('/') : rel;
+      files[key] = await file.text();
+    }
+
+    const htmlPages = Object.keys(files)
+      .filter((k) => /\.html?$/i.test(k))
+      .sort((a, b) => (a === 'index.html' ? -1 : b === 'index.html' ? 1 : a.localeCompare(b)));
+
+    if (htmlPages.length === 0) {
+      setError('No .html file found in the uploaded selection.');
+      return;
+    }
+
+    const firstPage = htmlPages[0];
+    setUploadedProject({ name: rootFolderName, files, htmlPages });
+    setSelectedPage(firstPage);
+    setHtmlInput(bundleUploadedHtml(firstPage, files));
+    setResult(null);
+    setPriorityOrder([]);
+    setReviewedMetricIds(new Set());
+    setError('');
+  };
+
+  const resetToBaseline = async () => {
+    setUploadedProject(null);
+    const defaultPage = baselinePages[0] || 'index.html';
+    setSelectedPage(defaultPage);
+    setResult(null);
+    setPriorityOrder([]);
+    setReviewedMetricIds(new Set());
+    try {
+      const res = await fetch(`/api/checklist?page=${encodeURIComponent(defaultPage)}`);
+      const data = await res.json();
+      if (res.ok && data.success) setHtmlInput(data.html);
+    } catch {
+      setHtmlInput(initialHtml);
+    }
+  };
+
+  const activePages = uploadedProject ? uploadedProject.htmlPages : baselinePages;
+
+  const confirmNeedsReview = (id: string) => {
+    setReviewedMetricIds((prev) => new Set(prev).add(id));
+    setSelectedMetricIds((prev) => new Set(prev).add(id));
+  };
 
   const selectedReviewCount = useMemo(() => {
     return priorityOrder.filter((id) => {
@@ -430,7 +538,7 @@ export function ChecklistWorkspace({
             Audit
           </Link>
           <span className="text-white/20">/</span>
-          <h1 className="font-semibold text-white">UX/UI Optimization Pipeline (24-Metric Self-Audit)</h1>
+          <h1 className="font-semibold text-white">UX/UI Optimization Pipeline (36-Metric Self-Audit)</h1>
         </div>
         <Link href="/knowledge" className="text-xs text-[#10a37f] hover:underline">
           Knowledge Wiki
@@ -438,55 +546,78 @@ export function ChecklistWorkspace({
       </header>
 
       <main className="max-w-7xl mx-auto p-6 space-y-5">
-        {/* Step 1: Input & Context (collapses into compact bar after audit) */}
-        {result && !inputExpanded ? (
-          <section className="rounded-xl bg-[#171717] border border-white/[0.08] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              <span className="font-semibold text-white">Booking · {selectedPage}</span>
-              <span className="text-white/20">·</span>
-              <span className="text-[#9b9b9b] truncate max-w-md">{productGoal}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setInputExpanded(true)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
-              >
-                Edit input
-                <ChevronDown className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => runPipeline('audit')}
-                disabled={loadingPhase !== 'idle'}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#ececec] text-[#171717] font-medium text-xs hover:bg-white disabled:opacity-50"
-              >
-                {loadingPhase === 'audit' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-                Re-run Audit
-              </button>
-            </div>
-          </section>
-        ) : (
+        {/* 3-Stage Stateful Stepper Bar */}
+        <nav className="rounded-xl bg-[#171717] border border-white/[0.08] px-3 py-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setActiveStage('input')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                activeStage === 'input'
+                  ? 'bg-[#2f2f2f] text-white border border-[#10a37f]'
+                  : 'text-[#d4d4d4] hover:bg-[#262626]'
+              }`}
+            >
+              1. Input &amp; Context
+            </button>
+            <span className="text-white/20 text-xs">&rarr;</span>
+            <button
+              type="button"
+              disabled={!result}
+              onClick={() => result && setActiveStage('audit')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                activeStage === 'audit'
+                  ? 'bg-[#2f2f2f] text-white border border-[#10a37f]'
+                  : 'text-[#d4d4d4] hover:bg-[#262626]'
+              }`}
+            >
+              2. Audit &amp; Prioritize
+            </button>
+            <span className="text-white/20 text-xs">&rarr;</span>
+            <button
+              type="button"
+              disabled={!hasOptimizationRuns}
+              onClick={() => hasOptimizationRuns && setActiveStage('optimize')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                activeStage === 'optimize'
+                  ? 'bg-[#2f2f2f] text-white border border-[#10a37f]'
+                  : 'text-[#d4d4d4] hover:bg-[#262626]'
+              }`}
+            >
+              3. Optimize &amp; Approve
+            </button>
+          </div>
+          <div className="text-xs text-[#9b9b9b] px-2">
+            {uploadedProject ? uploadedProject.name : 'Booking'} &middot; {selectedPage}
+          </div>
+        </nav>
+
+        {/* Stage 1: Input & Context */}
+        {activeStage === 'input' && (
           <section className="rounded-xl bg-[#171717] border border-white/[0.08] p-4 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-semibold text-white">1. Input &amp; Context</span>
-                {baselinePages.length > 0 && (
+                {activePages.length > 0 && (
                   <select
-                    title={baselineDir}
+                    title={uploadedProject ? uploadedProject.name : baselineDir}
                     value={selectedPage}
                     onChange={async (e) => {
                       const page = e.target.value;
                       setSelectedPage(page);
                       setError('');
+                      setResult(null);
+                      setPriorityOrder([]);
+                      setReviewedMetricIds(new Set());
+                      if (uploadedProject) {
+                        setHtmlInput(bundleUploadedHtml(page, uploadedProject.files));
+                        return;
+                      }
                       try {
                         const res = await fetch(`/api/checklist?page=${encodeURIComponent(page)}`);
                         const data = await res.json();
                         if (res.ok && data.success) {
                           setHtmlInput(data.html);
-                          setResult(null);
-                          setPriorityOrder([]);
-                          setInputExpanded(true);
                         } else {
                           setError(data.error || 'Failed to load page');
                         }
@@ -496,7 +627,7 @@ export function ChecklistWorkspace({
                     }}
                     className="px-2.5 py-1 rounded-lg bg-[#2f2f2f] border border-white/[0.12] text-xs"
                   >
-                    {baselinePages.map((p) => (
+                    {activePages.map((p) => (
                       <option key={p} value={p}>{p}</option>
                     ))}
                   </select>
@@ -504,16 +635,6 @@ export function ChecklistWorkspace({
               </div>
 
               <div className="flex items-center gap-2">
-                {result && (
-                  <button
-                    type="button"
-                    onClick={() => setInputExpanded(false)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
-                  >
-                    Collapse
-                    <ChevronUp className="w-3.5 h-3.5" />
-                  </button>
-                )}
                 <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#212121] p-0.5">
                   <button
                     type="button"
@@ -545,6 +666,90 @@ export function ChecklistWorkspace({
                   {loadingPhase === 'audit' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
                   {loadingPhase === 'audit' ? 'Auditing...' : 'Run Audit'}
                 </button>
+              </div>
+            </div>
+
+            {/* Upload Source Code Section */}
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                void handleUploadedFileList(e.dataTransfer.files);
+              }}
+              className={`rounded-lg border border-dashed px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-3 transition-colors ${
+                isDragging
+                  ? 'border-[#10a37f] bg-[#10a37f]/10'
+                  : 'border-white/[0.15] bg-[#212121]'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 text-xs">
+                <Upload className="w-4 h-4 text-[#10a37f] shrink-0" />
+                {uploadedProject ? (
+                  <span>
+                    Loaded <strong className="text-white">{uploadedProject.name}</strong> ({uploadedProject.htmlPages.length} HTML{' '}
+                    {uploadedProject.htmlPages.length === 1 ? 'page' : 'pages'})
+                  </span>
+                ) : (
+                  <span className="text-[#9b9b9b]">
+                    Upload <strong className="text-[#ececec]">HTML/CSS/JS files</strong> or a <strong className="text-[#ececec]">website folder</strong> (or drag &amp; drop here)
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".html,.htm,.css,.js"
+                  className="hidden"
+                  onChange={(e) => {
+                    void handleUploadedFileList(e.target.files);
+                    e.target.value = '';
+                  }}
+                />
+                <input
+                  ref={folderInputRef}
+                  type="file"
+                  // @ts-expect-error webkitdirectory is standard in Chromium/Safari for folder upload
+                  webkitdirectory=""
+                  directory=""
+                  className="hidden"
+                  onChange={(e) => {
+                    void handleUploadedFileList(e.target.files);
+                    e.target.value = '';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  Upload Files
+                </button>
+                <button
+                  type="button"
+                  onClick={() => folderInputRef.current?.click()}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
+                >
+                  <FolderUp className="w-3.5 h-3.5" />
+                  Upload Folder
+                </button>
+                {uploadedProject && (
+                  <button
+                    type="button"
+                    onClick={() => void resetToBaseline()}
+                    className="px-2.5 py-1 rounded-md border border-white/[0.12] hover:bg-[#2f2f2f] text-xs text-[#9b9b9b]"
+                  >
+                    Use Default Baseline
+                  </button>
+                )}
               </div>
             </div>
 
@@ -610,8 +815,8 @@ export function ChecklistWorkspace({
           </section>
         )}
 
-        {/* Baseline / Active Results Section */}
-        {result && activeSnapshot && (
+        {/* Stage 2 & 3 Shared Scoreboard */}
+        {activeStage !== 'input' && result && activeSnapshot && (
           <>
             {/* Scoreboard */}
             <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -655,8 +860,40 @@ export function ChecklistWorkspace({
               </div>
             </section>
 
-            {/* Baseline Results + Priority Selection + Single Preview (shown before/with optimization) */}
-            {baselineSnapshot && priorityOrder.length > 0 && (
+            {/* Stage 2: Audit & Prioritize */}
+            {activeStage === 'audit' && baselineSnapshot && (
+              <>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#171717] p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setAuditTab('priority')}
+                      className={`px-3 py-1 rounded-md text-xs font-medium ${
+                        auditTab === 'priority' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b] hover:text-white'
+                      }`}
+                    >
+                      Priority &amp; Preview ({priorityOrder.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAuditTab('checklist')}
+                      className={`px-3 py-1 rounded-md text-xs font-medium ${
+                        auditTab === 'checklist' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b] hover:text-white'
+                      }`}
+                    >
+                      Full Checklist ({baselineSnapshot.summary.totalMetrics})
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveStage('input')}
+                    className="px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#d4d4d4]"
+                  >
+                    &larr; Edit Input
+                  </button>
+                </div>
+
+                {auditTab === 'priority' && priorityOrder.length > 0 && (
               <section className="rounded-xl bg-[#171717] border border-white/[0.08] p-4 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
@@ -701,6 +938,7 @@ export function ChecklistWorkspace({
                         const checked = selectedMetricIds.has(id);
                         const isInspected = inspectedMetricId === id;
                         const isNeedsReview = item.status === 'needsReview';
+                        const isConfirmed = !isNeedsReview || reviewedMetricIds.has(id);
                         return (
                           <div
                             key={id}
@@ -714,16 +952,16 @@ export function ChecklistWorkspace({
                             <div className="flex items-center justify-between gap-2">
                               <label
                                 className={`flex items-center gap-2 min-w-0 flex-1 ${
-                                  isNeedsReview ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+                                  !isConfirmed ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
                                 }`}
                                 onClick={(e) => e.stopPropagation()}
-                                title={isNeedsReview ? 'Manual review required before optimizing' : undefined}
+                                title={!isConfirmed ? 'Click "Review evidence" and "Confirm for fix" to enable' : undefined}
                               >
                                 <input
                                   type="checkbox"
-                                  checked={!isNeedsReview && checked}
-                                  disabled={isNeedsReview}
-                                  onChange={() => !isNeedsReview && toggleMetric(id)}
+                                  checked={isConfirmed && checked}
+                                  disabled={!isConfirmed}
+                                  onChange={() => isConfirmed && toggleMetric(id)}
                                   className="accent-[#10a37f] disabled:opacity-40"
                                 />
                                 <span className="text-[11px] font-mono text-[#8e8e8e]">#{idx + 1}</span>
@@ -764,20 +1002,34 @@ export function ChecklistWorkspace({
 
                             <div className="mt-1 pl-6 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#9b9b9b]">
                               <span className="truncate">
-                                {isNeedsReview
+                                {isNeedsReview && !isConfirmed
                                   ? 'Review the highlighted text before optimizing.'
                                   : item.measuredSummary}
                               </span>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  inspectMetric(item);
-                                }}
-                                className="text-[11px] text-[#10a37f] hover:underline shrink-0"
-                              >
-                                {isNeedsReview ? 'Review evidence' : item.id === 'reflow' ? 'Preview 320px' : 'Inspect'}
-                              </button>
+                              <div className="flex items-center gap-2 shrink-0">
+                                {isNeedsReview && !isConfirmed && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      confirmNeedsReview(id);
+                                    }}
+                                    className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-[11px]"
+                                  >
+                                    Confirm for fix
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    inspectMetric(item);
+                                  }}
+                                  className="text-[11px] text-[#10a37f] hover:underline"
+                                >
+                                  {isNeedsReview ? 'Review evidence' : item.id === 'reflow' ? 'Preview 320px' : 'Inspect'}
+                                </button>
+                              </div>
                             </div>
                           </div>
                         );
@@ -908,10 +1160,65 @@ export function ChecklistWorkspace({
                   </div>
                 </div>
               </section>
+                )}
+
+                {auditTab === 'checklist' && (
+                  <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <h2 className="text-sm font-semibold text-white px-1">
+                        UX Checklist ({baselineSnapshot.summary.ux.passed}/{baselineSnapshot.summary.ux.total})
+                      </h2>
+                      {baselineSnapshot.summary.pillars
+                        .filter((p) => p.group === 'ux')
+                        .map(renderPillarCard)}
+                    </div>
+                    <div className="space-y-3">
+                      <h2 className="text-sm font-semibold text-white px-1">
+                        UI Checklist ({baselineSnapshot.summary.ui.passed}/{baselineSnapshot.summary.ui.total})
+                      </h2>
+                      {baselineSnapshot.summary.pillars
+                        .filter((p) => p.group === 'ui')
+                        .map(renderPillarCard)}
+                    </div>
+                  </section>
+                )}
+              </>
             )}
 
-            {/* Optimization Results: Shown ONLY after optimization iterations exist */}
-            {hasOptimizationRuns && (
+            {/* Stage 3: Optimize & Approve */}
+            {activeStage === 'optimize' && hasOptimizationRuns && (
+              <>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#171717] p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setOptimizeTab('compare')}
+                      className={`px-3 py-1 rounded-md text-xs font-medium ${
+                        optimizeTab === 'compare' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b] hover:text-white'
+                      }`}
+                    >
+                      Compare &amp; Progress
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setOptimizeTab('checklist')}
+                      className={`px-3 py-1 rounded-md text-xs font-medium ${
+                        optimizeTab === 'checklist' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b] hover:text-white'
+                      }`}
+                    >
+                      Updated Checklist ({activeSnapshot.summary.totalPassed}/{activeSnapshot.summary.totalMetrics})
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveStage('audit')}
+                    className="px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#d4d4d4]"
+                  >
+                    &larr; Back to Priorities
+                  </button>
+                </div>
+
+                {optimizeTab === 'compare' && (
               <section className="rounded-xl bg-[#171717] border border-white/[0.08] p-4 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h2 className="font-medium text-white flex items-center gap-2">
@@ -1173,28 +1480,30 @@ export function ChecklistWorkspace({
                   </div>
                 </div>
               </section>
+                )}
+
+                {optimizeTab === 'checklist' && (
+                  <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <h2 className="text-sm font-semibold text-white px-1">
+                        UX Checklist ({activeSnapshot.summary.ux.passed}/{activeSnapshot.summary.ux.total})
+                      </h2>
+                      {activeSnapshot.summary.pillars
+                        .filter((p) => p.group === 'ux')
+                        .map(renderPillarCard)}
+                    </div>
+                    <div className="space-y-3">
+                      <h2 className="text-sm font-semibold text-white px-1">
+                        UI Checklist ({activeSnapshot.summary.ui.passed}/{activeSnapshot.summary.ui.total})
+                      </h2>
+                      {activeSnapshot.summary.pillars
+                        .filter((p) => p.group === 'ui')
+                        .map(renderPillarCard)}
+                    </div>
+                  </section>
+                )}
+              </>
             )}
-
-            {/* 6-Pillar UX & UI Breakdown */}
-            <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <h2 className="text-sm font-semibold text-white px-1">
-                  UX Checklist ({activeSnapshot.summary.ux.passed}/{activeSnapshot.summary.ux.total})
-                </h2>
-                {activeSnapshot.summary.pillars
-                  .filter((p) => p.group === 'ux')
-                  .map(renderPillarCard)}
-              </div>
-
-              <div className="space-y-3">
-                <h2 className="text-sm font-semibold text-white px-1">
-                  UI Checklist ({activeSnapshot.summary.ui.passed}/{activeSnapshot.summary.ui.total})
-                </h2>
-                {activeSnapshot.summary.pillars
-                  .filter((p) => p.group === 'ui')
-                  .map(renderPillarCard)}
-              </div>
-            </section>
           </>
         )}
       </main>

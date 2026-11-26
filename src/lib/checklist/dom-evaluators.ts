@@ -226,7 +226,13 @@ export async function evaluateDomChecklistMetrics(
       const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select, textarea')).filter(isVisible);
       const weakInputs = inputs.filter((el) => {
         if (el.tagName === 'INPUT' && !el.getAttribute('type')) return true;
-        return !el.getAttribute('name') && !el.id && !el.getAttribute('autocomplete');
+        return (
+          !el.getAttribute('name') &&
+          !el.id &&
+          !el.getAttribute('autocomplete') &&
+          !el.getAttribute('placeholder') &&
+          !el.getAttribute('aria-label')
+        );
       });
       result['form-input-semantics'] = {
         id: 'form-input-semantics',
@@ -234,11 +240,11 @@ export async function evaluateDomChecklistMetrics(
         measuredSummary: inputs.length === 0
           ? 'N/A (0 form fields found)'
           : weakInputs.length > 0
-            ? `${weakInputs.length} form field(s) missing type or name/id`
+            ? `${weakInputs.length} form field(s) missing type or identifier`
             : `Checked ${inputs.length} form field(s)`,
         affectedCount: weakInputs.length,
         samples: weakInputs.slice(0, 4).map(sel),
-        recommendation: weakInputs.length > 0 ? 'Specify explicit type, name, and id/autocomplete attributes on form inputs.' : 'Form input semantics are valid.',
+        recommendation: weakInputs.length > 0 ? 'Specify explicit type and name, id, placeholder, or aria-label on form inputs.' : 'Form input semantics are valid.',
       };
 
       // 9. document-metadata
@@ -411,6 +417,257 @@ export async function evaluateDomChecklistMetrics(
         affectedCount: clipped.length,
         samples: clipped.slice(0, 4).map(sel),
         recommendation: clipped.length > 0 ? 'Remove fixed height/width or replace overflow: hidden with responsive sizing.' : 'No clipped containers.',
+      };
+
+      // 18. active-state-indicator (Nielsen H1: Visibility of System Status)
+      const navs = Array.from(document.querySelectorAll('nav, [role="navigation"]')).filter(isVisible);
+      const navLinks = navs.flatMap((n) => Array.from(n.querySelectorAll('a, button')).filter(isVisible));
+      const hasActiveNav = navLinks.some(
+        (el) =>
+          el.hasAttribute('aria-current') ||
+          el.classList.contains('active') ||
+          el.classList.contains('current') ||
+          el.classList.contains('selected')
+      );
+      result['active-state-indicator'] = {
+        id: 'active-state-indicator',
+        status: navLinks.length < 2 ? 'notApplicable' : hasActiveNav ? 'pass' : 'fail',
+        measuredSummary:
+          navLinks.length < 2
+            ? 'N/A (no multi-item navigation found)'
+            : hasActiveNav
+              ? 'Active navigation state indicated'
+              : 'Navigation links lack aria-current or active state',
+        affectedCount: navLinks.length >= 2 && !hasActiveNav ? 1 : 0,
+        samples: navLinks.length >= 2 && !hasActiveNav ? [sel(navs[0])] : [],
+        recommendation: hasActiveNav
+          ? 'Navigation state is visible.'
+          : 'Mark the active navigation item with aria-current="page" or an active style.',
+      };
+
+      // 19. ergonomic-target-advisory (Apple HIG 44px / Material 3 48px)
+      const below44 = interactiveEls.filter((el) => {
+        const r = el.getBoundingClientRect();
+        return r.width < 44 || r.height < 44;
+      });
+      result['ergonomic-target-advisory'] = {
+        id: 'ergonomic-target-advisory',
+        status: interactiveEls.length === 0 ? 'notApplicable' : below44.length > 0 ? 'needsReview' : 'pass',
+        measuredSummary:
+          interactiveEls.length === 0
+            ? 'N/A (0 interactive targets)'
+            : below44.length > 0
+              ? `${below44.length} target(s) below 44×44px ergonomic advisory`
+              : `All ${interactiveEls.length} targets meet 44×44px advisory`,
+        affectedCount: below44.length,
+        samples: below44.slice(0, 4).map(sel),
+        recommendation:
+          below44.length > 0
+            ? 'Consider expanding primary touch targets toward 44×44px (Apple HIG) / 48×48px (Material 3).'
+            : 'Ergonomic touch targets satisfied.',
+      };
+
+      // 20. modal-dismiss-affordance (Nielsen H3: User Control & Freedom)
+      const modals = Array.from(document.querySelectorAll('[role="dialog"], [aria-modal="true"], dialog[open], .modal')).filter(isVisible);
+      const undismissable = modals.filter((m) => {
+        const btns = Array.from(m.querySelectorAll('button, [role="button"], a'));
+        return !btns.some((b) => /close|cancel|dismiss|×|✕|esc/i.test(`${b.textContent || ''} ${b.getAttribute('aria-label') || ''}`));
+      });
+      result['modal-dismiss-affordance'] = {
+        id: 'modal-dismiss-affordance',
+        status: modals.length === 0 ? 'notApplicable' : undismissable.length > 0 ? 'fail' : 'pass',
+        measuredSummary:
+          modals.length === 0
+            ? 'N/A (no visible dialogs/modals)'
+            : undismissable.length > 0
+              ? `${undismissable.length} dialog(s) missing visible close/cancel button`
+              : 'All visible dialogs have dismiss controls',
+        affectedCount: undismissable.length,
+        samples: undismissable.slice(0, 4).map(sel),
+        recommendation: 'Provide an explicit Close or Cancel button inside every modal dialog.',
+      };
+
+      // 21. placeholder-not-sole-label (Nielsen H6: Recognition Rather Than Recall)
+      const placeholderOnly = inputs.filter((el) => {
+        const hasPh = Boolean((el.getAttribute('placeholder') || '').trim());
+        if (!hasPh) return false;
+        const id = el.id;
+        const hasForLabel = Boolean(id && document.querySelector(`label[for="${CSS.escape(id)}"]`));
+        const hasWrappedLabel = Boolean(el.closest('label'));
+        const hasAria = Boolean((el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || '').trim());
+        return !hasForLabel && !hasWrappedLabel && !hasAria;
+      });
+      result['placeholder-not-sole-label'] = {
+        id: 'placeholder-not-sole-label',
+        status: inputs.length === 0 ? 'notApplicable' : placeholderOnly.length > 0 ? 'fail' : 'pass',
+        measuredSummary:
+          inputs.length === 0
+            ? 'N/A (0 form fields found)'
+            : placeholderOnly.length > 0
+              ? `${placeholderOnly.length} field(s) rely on placeholder without persistent label`
+              : 'All form fields have persistent labels',
+        affectedCount: placeholderOnly.length,
+        samples: placeholderOnly.slice(0, 4).map(sel),
+        recommendation: 'Pair each input with a visible <label> or aria-label so context stays visible while typing.',
+      };
+
+      // 22. form-required-clarity (Nielsen H5: Error Prevention)
+      const requiredFields = inputs.filter((el) => el.hasAttribute('required') || el.getAttribute('aria-required') === 'true');
+      const unclearRequired = requiredFields.filter((el) => {
+        const id = el.id;
+        const label = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : el.closest('label');
+        const labelText = label?.textContent || '';
+        return !/\*|required/i.test(labelText) && el.getAttribute('aria-required') !== 'true';
+      });
+      result['form-required-clarity'] = {
+        id: 'form-required-clarity',
+        status: requiredFields.length === 0 ? 'notApplicable' : unclearRequired.length > 0 ? 'fail' : 'pass',
+        measuredSummary:
+          requiredFields.length === 0
+            ? 'N/A (0 required fields)'
+            : unclearRequired.length > 0
+              ? `${unclearRequired.length} required field(s) lack clear visual or ARIA indicator`
+              : `All ${requiredFields.length} required field(s) clearly marked`,
+        affectedCount: unclearRequired.length,
+        samples: unclearRequired.slice(0, 4).map(sel),
+        recommendation: 'Mark required fields clearly with * in the label or aria-required="true".',
+      };
+
+      // 23. nav-item-count (Apple HIG: Navigation Simplicity)
+      const topNavLinks = navs.length > 0 ? Array.from(navs[0].querySelectorAll('a, button')).filter(isVisible) : [];
+      result['nav-item-count'] = {
+        id: 'nav-item-count',
+        status: navs.length === 0 ? 'notApplicable' : topNavLinks.length > 8 ? 'needsReview' : 'pass',
+        measuredSummary:
+          navs.length === 0
+            ? 'N/A (no <nav> found)'
+            : `${topNavLinks.length} top-level navigation item(s)`,
+        affectedCount: topNavLinks.length > 8 ? topNavLinks.length : 0,
+        samples: topNavLinks.length > 8 ? [sel(navs[0])] : [],
+        recommendation: topNavLinks.length > 8 ? 'Keep primary navigation concise (≤ 8 items) to reduce cognitive load.' : 'Navigation item count is concise.',
+      };
+
+      // 24. card-surface-separation (Material Design 3: Surface Elevation)
+      const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+      const cards = Array.from(document.querySelectorAll('article, .card, [class*="card"]')).filter(isVisible);
+      const flatCards = cards.filter((c) => {
+        const s = window.getComputedStyle(c);
+        const hasBorder = s.borderStyle !== 'none' && parseFloat(s.borderWidth) > 0;
+        const hasShadow = s.boxShadow !== 'none' && s.boxShadow.trim() !== '';
+        const diffBg = s.backgroundColor !== 'rgba(0, 0, 0, 0)' && s.backgroundColor !== bodyBg;
+        return !hasBorder && !hasShadow && !diffBg;
+      });
+      result['card-surface-separation'] = {
+        id: 'card-surface-separation',
+        status: cards.length === 0 ? 'notApplicable' : flatCards.length > 0 ? 'needsReview' : 'pass',
+        measuredSummary:
+          cards.length === 0
+            ? 'N/A (0 card containers found)'
+            : flatCards.length > 0
+              ? `${flatCards.length} card(s) lack border, shadow, or surface contrast`
+              : `All ${cards.length} card(s) visually separated`,
+        affectedCount: flatCards.length,
+        samples: flatCards.slice(0, 4).map(sel),
+        recommendation: 'Use subtle border, shadow, or surface tonal contrast to separate cards from the background.',
+      };
+
+      // 25. input-border-contrast (Material Design 3: Input Affordance)
+      const borderlessInputs = inputs.filter((el) => {
+        const s = window.getComputedStyle(el);
+        const hasBorder = s.borderStyle !== 'none' && parseFloat(s.borderWidth) > 0;
+        const parentBg = el.parentElement ? window.getComputedStyle(el.parentElement).backgroundColor : '';
+        const diffBg = s.backgroundColor !== 'rgba(0, 0, 0, 0)' && s.backgroundColor !== parentBg;
+        return !hasBorder && !diffBg;
+      });
+      result['input-border-contrast'] = {
+        id: 'input-border-contrast',
+        status: inputs.length === 0 ? 'notApplicable' : borderlessInputs.length > 0 ? 'fail' : 'pass',
+        measuredSummary:
+          inputs.length === 0
+            ? 'N/A (0 form fields found)'
+            : borderlessInputs.length > 0
+              ? `${borderlessInputs.length} input(s) lack visible border or fill contrast`
+              : `All ${inputs.length} input(s) have clear boundaries`,
+        affectedCount: borderlessInputs.length,
+        samples: borderlessInputs.slice(0, 4).map(sel),
+        recommendation: 'Give inputs a clear border or contrasting background fill.',
+      };
+
+      // 26. heading-body-scale (Apple HIG: Visual Hierarchy)
+      const primaryHeading = Array.from(document.querySelectorAll('h1, h2')).find(isVisible);
+      const primaryBody = Array.from(document.querySelectorAll('p')).find((p) => isVisible(p) && (p.textContent || '').trim().length > 20);
+      let scaleRatio = 0;
+      if (primaryHeading && primaryBody) {
+        const hSize = parseFloat(window.getComputedStyle(primaryHeading).fontSize);
+        const pSize = parseFloat(window.getComputedStyle(primaryBody).fontSize);
+        if (pSize > 0) scaleRatio = hSize / pSize;
+      }
+      result['heading-body-scale'] = {
+        id: 'heading-body-scale',
+        status: !primaryHeading || !primaryBody ? 'notApplicable' : scaleRatio < 1.25 ? 'fail' : 'pass',
+        measuredSummary:
+          !primaryHeading || !primaryBody
+            ? 'N/A (heading or body paragraph not found)'
+            : scaleRatio < 1.25
+              ? `Heading-to-body ratio is ${scaleRatio.toFixed(2)}× (below 1.25× hierarchy)`
+              : `Heading-to-body scale is ${scaleRatio.toFixed(2)}×`,
+        affectedCount: primaryHeading && primaryBody && scaleRatio < 1.25 ? 1 : 0,
+        samples: primaryHeading && primaryBody && scaleRatio < 1.25 ? [sel(primaryHeading)] : [],
+        recommendation: 'Ensure primary headings are at least 1.25× larger than body text for clear visual hierarchy.',
+      };
+
+      // 27. content-density-spacing (Nielsen H8: Aesthetic & Minimalist Design)
+      const paragraphs = Array.from(document.querySelectorAll('p')).filter((p) => isVisible(p) && (p.textContent || '').trim().length > 20);
+      const crampedParagraphs = paragraphs.filter((p) => {
+        const s = window.getComputedStyle(p);
+        return parseFloat(s.marginTop) + parseFloat(s.marginBottom) < 4;
+      });
+      result['content-density-spacing'] = {
+        id: 'content-density-spacing',
+        status: paragraphs.length < 2 ? 'notApplicable' : crampedParagraphs.length > 0 ? 'needsReview' : 'pass',
+        measuredSummary:
+          paragraphs.length < 2
+            ? 'N/A (fewer than 2 body paragraphs)'
+            : crampedParagraphs.length > 0
+              ? `${crampedParagraphs.length} paragraph(s) have minimal vertical spacing`
+              : 'Paragraph spacing provides comfortable breathing room',
+        affectedCount: crampedParagraphs.length,
+        samples: crampedParagraphs.slice(0, 4).map(sel),
+        recommendation: 'Add vertical spacing between paragraphs to avoid dense walls of text.',
+      };
+
+      // 28. button-consistency (Nielsen H4: Consistency & Standards)
+      const visibleButtons = Array.from(document.querySelectorAll('button, .btn')).filter(isVisible);
+      const buttonHeights = new Set(visibleButtons.map((b) => Math.round(b.getBoundingClientRect().height / 4) * 4));
+      result['button-consistency'] = {
+        id: 'button-consistency',
+        status: visibleButtons.length < 2 ? 'notApplicable' : buttonHeights.size > 3 ? 'needsReview' : 'pass',
+        measuredSummary:
+          visibleButtons.length < 2
+            ? 'N/A (fewer than 2 buttons)'
+            : `${buttonHeights.size} distinct button height group(s) across ${visibleButtons.length} buttons`,
+        affectedCount: buttonHeights.size > 3 ? buttonHeights.size : 0,
+        samples: buttonHeights.size > 3 ? visibleButtons.slice(0, 4).map(sel) : [],
+        recommendation: 'Standardize button heights across the interface for visual consistency.',
+      };
+
+      // 29. container-padding-breathing (Material Design 3: Surface & Spacing)
+      const paddedContainers = cards.filter((c) => {
+        const s = window.getComputedStyle(c);
+        return Math.min(parseFloat(s.paddingTop), parseFloat(s.paddingLeft), parseFloat(s.paddingRight)) < 8;
+      });
+      result['container-padding-breathing'] = {
+        id: 'container-padding-breathing',
+        status: cards.length === 0 ? 'notApplicable' : paddedContainers.length > 0 ? 'fail' : 'pass',
+        measuredSummary:
+          cards.length === 0
+            ? 'N/A (0 card containers found)'
+            : paddedContainers.length > 0
+              ? `${paddedContainers.length} card(s) have < 8px inner padding`
+              : `All ${cards.length} card(s) have adequate padding`,
+        affectedCount: paddedContainers.length,
+        samples: paddedContainers.slice(0, 4).map(sel),
+        recommendation: 'Apply at least 12–16px padding inside card containers.',
       };
 
       return result;
