@@ -173,7 +173,7 @@ test.describe('Audit Run Result Ordering & New Audit Toggle', () => {
     const banner = page.locator('#audit-run-banner');
     await expect(banner.getByText('Pass (0)', { exact: true })).toBeVisible();
     await expect(banner.getByRole('button', { name: 'Pass (0)', exact: true })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Accept Issue', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('form', { name: 'Issue review' })).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Open in Critique Studio', exact: true })).toHaveCount(0);
     expect(new URL(page.url()).searchParams.has('runId')).toBe(false);
 

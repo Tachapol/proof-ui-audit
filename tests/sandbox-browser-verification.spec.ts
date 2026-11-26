@@ -47,7 +47,7 @@ test.describe('Sandbox Real Browser Verification: 4 Core Scenarios', () => {
     await expect(evidenceDetails.locator('text=Rule: target-size').first()).toBeVisible();
 
     // Verify Accept Candidate applies to editor and re-audits cleanly
-    const acceptBtn = candidateOpt1.locator('button:has-text("Accept & Apply to Editor")');
+    const acceptBtn = candidateOpt1.locator('button:has-text("Accept & Apply")');
     await acceptBtn.click();
 
     // Textarea editor should now contain min-h-[44px]

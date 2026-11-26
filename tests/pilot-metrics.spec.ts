@@ -17,7 +17,7 @@ test('UI-01 uses one advisory card, pin and review for the same touch target pai
   const review = run.groupedIssues.filter(group => group.status === 'needsReview');
   expect(review).toHaveLength(1);
   const [pair] = review;
-  expect(pair.representative.title).toBe('Email address ↔ Continue');
+  expect(pair.representative.title).toBe('Email address input ↔ Continue button');
   expect(pair.occurrences).toHaveLength(6);
   expect(new Set(pair.occurrences.map(occurrence => occurrence.selector)).size).toBe(2);
   const history = await (await request.get('/api/audit')).json();
@@ -32,7 +32,11 @@ test('UI-01 uses one advisory card, pin and review for the same touch target pai
   const reviewQueue = page.getByRole('region', { name: 'Needs review (1)', exact: true });
   const card = reviewQueue.locator('.issue-card');
   await expect(card).toHaveCount(1);
-  await expect(card.getByRole('heading', { name: 'Email address ↔ Continue · 0 CSS px across 3 viewports' })).toBeVisible();
+  await expect(card.getByRole('heading', { name: 'Email address input ↔ Continue button · 0 CSS px across 3 viewports' })).toBeVisible();
+  await expect(card.getByText('Audit result: Needs review', { exact: true })).toBeVisible();
+  const form = card.getByRole('form', { name: 'Issue review' });
+  await expect(form.getByLabel('Review status', { exact: true })).toHaveValue('');
+  await expect(form.getByText('Current review: Not reviewed', { exact: true })).toBeVisible();
   await expect(card.getByText('Project advisory', { exact: true })).toBeVisible();
   await expect(card.getByRole('list', { name: 'Pair measurements by viewport' }).getByRole('listitem')).toHaveCount(3);
   await card.getByRole('button', { name: 'Inspect All 6 Raw Occurrences' }).click();
@@ -41,7 +45,7 @@ test('UI-01 uses one advisory card, pin and review for the same touch target pai
   await card.getByRole('button', { name: 'Show pair on Visual Canvas' }).click();
   const canvas = page.locator('#visual-canvas-section');
   await expect(canvas.locator('.canvas-pins-counter')).toHaveText('1 pin placed');
-  await expect(canvas.getByRole('button', { name: /^Pin \d+: Email address ↔ Continue$/ })).toHaveCount(1);
+  await expect(canvas.getByRole('button', { name: /^Pin \d+: Email address input ↔ Continue button$/ })).toHaveCount(1);
   const highlights = canvas.locator('.canvas-bounding-box.is-selected');
   await expect(highlights).toHaveCount(2);
   expect(await highlights.evaluateAll(elements => elements.map(element => element.getAttribute('data-target-selector')).sort()))
@@ -49,18 +53,34 @@ test('UI-01 uses one advisory card, pin and review for the same touch target pai
   await canvas.getByRole('button', { name: '320px Reflow' }).click();
   await expect(highlights).toHaveCount(2);
 
-  const decision = await request.post('/api/decisions', { data: {
-    runId: run.id, fingerprint: pair.fingerprint, disposition: 'confirmed_issue', reviewer: 'Test reviewer', reason: 'Review the pair as a single advisory.',
-  } });
-  expect(decision.ok(), await decision.text()).toBe(true);
+  await banner.getByRole('button', { name: 'Pass (9)', exact: true }).click();
+  const labelHeading = page.getByRole('heading', { name: 'Email address label ↔ Continue button · 48 CSS px across 3 viewports' });
+  await expect(labelHeading).toBeVisible();
+  await expect(page.getByRole('article').filter({ has: labelHeading }).getByText('Audit result: Pass', { exact: true })).toBeVisible();
+
+  const inspector = canvas.getByRole('complementary', { name: 'Issue Inspector' });
+  await expect(inspector.getByText('Reviewer decision: Not reviewed', { exact: true })).toBeVisible();
+  await inspector.getByRole('button', { name: 'Review finding' }).click();
+  const reviewStatus = form.getByLabel('Review status', { exact: true });
+  await expect(reviewStatus).toBeFocused();
+  await reviewStatus.selectOption('confirmed_issue');
+  await form.getByLabel('Reviewer / risk approver (self-reported)').fill('Test reviewer');
+  await form.getByLabel('Review rationale').fill('Review the pair as a single advisory.');
+  await form.getByRole('button', { name: 'Save review', exact: true }).click();
+  await expect(form.getByText('Current review: Confirmed Issue', { exact: true })).toBeVisible();
+  await expect(inspector.getByText('Reviewer decision: Confirmed Issue', { exact: true })).toBeVisible();
   const report = await (await request.get(`/api/export?runId=${run.id}&format=json`)).json();
   expect(report.summary).toMatchObject({ rawFindingCount: 34, groupedIssueCount: 11, candidateFailCount: 1, needsReviewCount: 1, passCount: 9 });
   const reportedPair = report.groupedIssues.find((group: { fingerprint: string }) => group.fingerprint === pair.fingerprint);
   expect(reportedPair).toMatchObject({ occurrenceCount: 6, reviewDisposition: 'confirmed_issue', decisionHistory: [expect.objectContaining({ action: 'review_disposition' })], touchSpacing: { summary: '0 CSS px across 3 viewports' } });
   expect(reportedPair.touchSpacing.byViewport).toHaveLength(3);
+  expect(report.groupedIssues).toContainEqual(expect.objectContaining({
+    title: 'Email address label ↔ Continue button', status: 'pass', touchSpacing: expect.objectContaining({ summary: '48 CSS px across 3 viewports' }),
+  }));
   expect(report.rawOccurrences.filter((item: { ruleId: string }) => item.ruleId === 'touch-target-spacing')).toHaveLength(9);
   const markdown = await (await request.get(`/api/export?runId=${run.id}&format=markdown`)).text();
-  expect(markdown).toContain('Email address ↔ Continue');
+  expect(markdown).toContain('Email address input ↔ Continue button');
+  expect(markdown).toContain('Email address label ↔ Continue button');
   expect(markdown).toContain('**Touch target pair**: 0 CSS px across 3 viewports');
 });
 

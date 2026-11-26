@@ -80,23 +80,26 @@ export async function listAuditRuns(): Promise<
 > {
   await ensureDirs();
   const files = await fs.readdir(RUNS_DIR);
+  const jsonFiles = files.filter((file) => file.endsWith('.json'));
+  // Sort descending by name so recent timestamp runs are first
+  jsonFiles.sort((a, b) => b.localeCompare(a));
   const runs = [];
 
-  for (const file of files) {
-    if (file.endsWith('.json')) {
-      try {
-        const raw = await fs.readFile(path.join(RUNS_DIR, file), 'utf-8');
-        const run = normalizeTouchTargetGroups(AuditRunSchema.parse(JSON.parse(raw)));
+  for (const file of jsonFiles.slice(0, 50)) {
+    try {
+      const raw = await fs.readFile(path.join(RUNS_DIR, file), 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (parsed.id && parsed.targetUrl && parsed.timestamp && parsed.summary) {
         runs.push({
-          id: run.id,
-          targetUrl: run.targetUrl,
-          fixtureId: run.fixtureId,
-          timestamp: run.timestamp,
-          summary: run.summary,
+          id: parsed.id,
+          targetUrl: parsed.targetUrl,
+          fixtureId: parsed.fixtureId,
+          timestamp: parsed.timestamp,
+          summary: parsed.summary,
         });
-      } catch {
-        // Skip unreadable or invalid records.
       }
+    } catch {
+      // Skip unreadable or invalid records.
     }
   }
 

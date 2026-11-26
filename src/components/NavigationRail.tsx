@@ -170,7 +170,7 @@ export function NavigationRail({
           </div>
           <button
             ref={closeRef}
-            className="icon-button rail-close inline-flex items-center justify-center rounded-md p-1.5 text-zinc-500 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 transition-colors shrink-0 !bg-transparent !border-0 !shadow-none"
+            className="rail-close inline-flex items-center justify-center rounded-md p-1.5 text-zinc-500 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 transition-colors shrink-0"
             type="button"
             onClick={handleClose}
             aria-label="Close navigation drawer"
@@ -248,17 +248,20 @@ export function NavigationRail({
             <Icon name="ArrowRight" size={14} className="ml-auto opacity-60" />
           </Link>
 
-          {!currentRunId && <Link
-            className="rail-link rail-studio-link"
-            href="/studio"
-            onClick={handleClose}
-          >
-            <Icon name="Users" size={17} />
-            <div className="rail-link-text">
-              <span>Open in Critique Studio</span>
-            </div>
-            <Icon name="ArrowRight" size={14} className="ml-auto opacity-60" />
-          </Link>}
+          {!currentRunId && (
+            <Link
+              className="rail-link rail-studio-link"
+              href="/studio"
+              onClick={handleClose}
+            >
+              <Icon name="Users" size={17} />
+              <div className="rail-link-text">
+                <span>Critique Studio</span>
+                <small>Run audit first</small>
+              </div>
+              <Icon name="ArrowRight" size={14} className="ml-auto opacity-60" />
+            </Link>
+          )}
         </nav>
 
         <section className="rail-section rail-recent" aria-labelledby="recent-title">

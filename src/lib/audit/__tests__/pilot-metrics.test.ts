@@ -145,8 +145,8 @@ describe('Pilot metric pipeline contracts', () => {
     const rawIssues = [...mobileIssues, ...desktopIssues];
     const grouped = groupUXIssues(rawIssues);
     expect(grouped.map(group => [group.representative.title, group.status, group.hasMixedStatus, group.rawOccurrencesCount])).toEqual([
-      ['#a ↔ #b', 'needsReview', true, 3],
-      ['#c ↔ #a', 'needsReview', false, 2],
+      ['#a button ↔ #b button', 'needsReview', true, 3],
+      ['#c button ↔ #a button', 'needsReview', false, 2],
     ]);
 
     const timestamp = '2026-11-20T00:00:00.000Z';
@@ -169,5 +169,14 @@ describe('Pilot metric pipeline contracts', () => {
       decisionHistory: [{ id: 'earlier-review' }, { id: 'old-review' }, { id: 'later-adjustment' }],
     });
     expect(normalizeTouchTargetGroups(normalized)).toBe(normalized);
+
+    const pair = normalized.groupedIssues[0];
+    const previouslySaved = { ...normalized, groupedIssues: [{ ...pair, representative: { ...pair.representative, title: '#a ↔ #b' } }] };
+    const refreshed = normalizeTouchTargetGroups(previouslySaved);
+    expect(refreshed.groupedIssues[0].representative.title).toBe('#a button ↔ #b button');
+    expect(refreshed.groupedIssues[0].fingerprint).toBe(pair.fingerprint);
+    expect(refreshed.groupedIssues[0].decisionHistory).toBe(pair.decisionHistory);
+    expect(refreshed.rawIssues).toBe(previouslySaved.rawIssues);
+    expect(refreshed.summary).toBe(previouslySaved.summary);
   });
 });

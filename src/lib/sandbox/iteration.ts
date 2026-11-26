@@ -170,6 +170,7 @@ function produceCodeVariants(
   v1 = v1.replace(/\btext-(gray|zinc|slate|neutral)-(300|400|500)\b/g, 'text-slate-900');
   v1 = v1.replace(/color:\s*(#[a-fA-F0-9]{3,6}|rgba?\([^)]+\)|gray|silver)/gi, 'color: #0f172a');
   v1 = v1.replace(/font-size:\s*(10|11|12)px/gi, 'font-size: 14px; min-height: 44px');
+  v1 = v1.replace(/\bgap-1(\.5)?\b/g, 'gap-3');
 
   // 2. Variant 2: Modern Accessible Palette
   let v2 = baselineHtml;

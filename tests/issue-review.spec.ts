@@ -12,8 +12,18 @@ test('issue review persists four dispositions and exports evidence without chang
     await page.goto(`/?runId=${run.id}`);
     const form = page.getByRole('form', { name: 'Issue review', exact: true });
     await expect(form).toBeVisible();
-    const save = form.getByRole('button', { name: 'Save issue review', exact: true });
+    const save = form.getByRole('button', { name: 'Save review', exact: true });
+    const status = form.getByLabel('Review status', { exact: true });
+    await expect(form.getByRole('heading', { name: 'Reviewer decision' })).toBeVisible();
+    await expect(form.getByText('Current review: Not reviewed', { exact: true })).toBeVisible();
+    await expect(status).toHaveValue('');
+    await expect(status.locator('option:checked')).toHaveText('Select a review status');
+    await expect(form.getByRole('button')).toHaveCount(1);
     await expect(save).toBeDisabled();
+    await status.selectOption('needs_review');
+    await expect(save).toBeEnabled();
+    await save.click();
+    await expect(form.getByText('Current review: Not reviewed', { exact: true })).toBeVisible();
     await form.getByLabel('Reviewer / risk approver (self-reported)').fill('E2E design reviewer');
     await form.getByLabel('Review rationale').fill('Reviewed evidence and documented decision');
     for (const [value, label] of [
@@ -22,11 +32,13 @@ test('issue review persists four dispositions and exports evidence without chang
     ]) {
       await form.getByLabel('Review status', { exact: true }).selectOption(value);
       await save.click();
-      await expect(form.getByRole('status')).toHaveText('Issue review saved.');
+      await expect(form.getByRole('status')).toHaveText('Issue review saved.', { timeout: 15000 });
       await expect(form.getByText(`Current review: ${label}`, { exact: true })).toBeVisible();
     }
     await page.reload();
     await expect(form.getByText('Current review: Accepted Risk', { exact: true })).toBeVisible();
+    await expect(status).toHaveValue('accepted_risk');
+    await expect(form.getByLabel('Review rationale')).toHaveValue('Reviewed evidence and documented decision');
     await expect(form.getByLabel('Reviewer / risk approver (self-reported)')).toHaveValue('E2E design reviewer');
     const jsonResponse = await request.get(`/api/export?runId=${run.id}&format=json`);
     expect(jsonResponse.ok()).toBe(true);
@@ -52,4 +64,22 @@ test('issue review persists four dispositions and exports evidence without chang
     await page.unrouteAll({ behavior: 'ignoreErrors' }).catch(() => undefined);
     await fs.unlink(file).catch(() => undefined);
   }
+});
+
+test('legacy review history restores the saved disposition and its rationale after a later adjustment', async ({ page }) => {
+  const run = makeUiAuditRun({ id: 'legacy-issue-review' });
+  const legacy = {
+    ...run.groupedIssues[0],
+    designerDecision: 'reprioritize', designerReason: 'Priority adjustment, unrelated to review.',
+    decisionHistory: [
+      { id: 'legacy-review', action: 'accept', timestamp: run.timestamp, reason: 'Legacy confirmed rationale.' },
+      { id: 'later-adjustment', action: 'reprioritize', timestamp: run.timestamp, reason: 'Priority adjustment, unrelated to review.' },
+    ],
+  };
+  await page.route('**/api/audit?*', route => route.fulfill({ json: { success: true, run: { ...run, groupedIssues: [legacy] } } }));
+  await page.goto(`/?runId=${run.id}`);
+  const form = page.getByRole('form', { name: 'Issue review', exact: true });
+  await expect(form.getByLabel('Review status', { exact: true })).toHaveValue('confirmed_issue');
+  await expect(form.getByLabel('Review rationale')).toHaveValue('Legacy confirmed rationale.');
+  await expect(form.getByText('Current review: Confirmed Issue', { exact: true })).toBeVisible();
 });

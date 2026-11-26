@@ -9,7 +9,7 @@ import { DecisionLog } from './DecisionLog';
 import { IterationProofView } from './IterationProofView';
 import { getDefaultRecommendation } from '@/lib/audit/recommendation';
 import { PRIORITY_METADATA, PRIORITY_DISCLAIMER } from '@/lib/audit/priority-engine';
-import { describeTouchTargetPair, touchTargetViewportEvidence } from '@/lib/audit/touch-target-pair';
+import { describeTouchTargetPair, touchTargetSpacingStatusLabels, touchTargetViewportEvidence } from '@/lib/audit/touch-target-pair';
 
 interface IssueCardProps {
   issue: GroupedUXIssue;
@@ -68,6 +68,8 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
       icon: 'HelpCircle' as const,
     },
   }[issue.status];
+  const statusLabel = pairSummary ? touchTargetSpacingStatusLabels[issue.status]
+    : rep.metric && isPassedCheck ? 'Project advisory checked' : statusConfig.label;
 
   // Priority visual attributes
   const priorityConfig = {
@@ -197,6 +199,7 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
   return (
     <article
       id={`issue-card-${issue.fingerprint}`}
+      tabIndex={-1}
       className="issue-card"
       style={{
         background: 'var(--surface)',
@@ -248,7 +251,7 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
           }}
         >
           <Icon name={statusConfig.icon} size={14} color={statusConfig.color} />
-          {rep.metric && issue.status === 'pass' ? 'Project advisory checked' : statusConfig.label}
+          Audit result: {statusLabel}
         </span>
 
         {pairSummary && <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-semibold text-zinc-700">Project advisory</span>}
@@ -272,7 +275,7 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
           Viewport: {rep.viewport.width}px
         </span>}
 
-        {(issue.designerDecision || issue.reviewDisposition) && (
+        {(issue.designerDecision === 'edit' || issue.designerDecision === 'reprioritize') && (
           <span
             className="decision-badge"
             style={{
@@ -285,7 +288,7 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
               border: '1px solid var(--accent)',
             }}
           >
-            Decision: {issue.designerDecision || (issue.reviewDisposition === 'confirmed_issue' ? 'accept' : issue.reviewDisposition === 'false_positive' ? 'reject' : issue.reviewDisposition)}
+            Last adjustment: {issue.designerDecision === 'edit' ? 'Edited recommendation' : 'Changed priority'}
           </span>
         )}
       </div>
@@ -741,6 +744,7 @@ export function IssueCard({ issue: initialIssue, runId, readOnly = false, onDeci
       {canReview && !activeAdjustment && (
         <div className="unified-finding-review-slot" style={{ marginTop: '16px' }}>
           <IssueReview
+            key={`${runId}:${issue.fingerprint}`}
             issue={issue}
             runId={runId}
             onSaved={(updated) => {

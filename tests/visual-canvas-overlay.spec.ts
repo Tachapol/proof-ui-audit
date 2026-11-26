@@ -60,13 +60,9 @@ test.describe('Visual Canvas Overlay Feature', () => {
     await expect(metricCols.locator('.cell-threshold .metric-cell-label')).toHaveText('Required');
     await expect(metricCols.locator('.cell-projected .metric-cell-label')).toHaveText('Estimated');
 
-    // Requirement 5: 3-way disposition buttons (Confirm, Dismiss, Leave for Review)
-    const confirmBtn = inspector.locator('.disposition-btn.btn-confirm');
-    const dismissBtn = inspector.locator('.disposition-btn.btn-reject');
-    const reviewBtn = inspector.locator('.disposition-btn.btn-review');
-    await expect(confirmBtn).toBeVisible();
-    await expect(dismissBtn).toBeVisible();
-    await expect(reviewBtn).toBeVisible();
+    await expect(inspector.getByText('Reviewer decision: Not reviewed', { exact: true })).toBeVisible();
+    await inspector.getByRole('button', { name: 'Review finding' }).click();
+    await expect(page.locator('[data-review-status]:focus')).toHaveValue('');
 
     // Visual spec comparison cards
     await expect(inspector.locator('.card-before')).toBeVisible();

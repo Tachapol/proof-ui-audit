@@ -263,6 +263,17 @@ export default function HomePage() {
     summary?.scrollIntoView({ block: 'start' });
   };
 
+  const openFindingReview = (group: GroupedUXIssue) => {
+    if (group.status === 'pass') return;
+    setStatusFilter(group.status);
+    requestAnimationFrame(() => {
+      const card = document.getElementById(`issue-card-${group.fingerprint}`);
+      const destination = card?.querySelector<HTMLElement>('[data-review-status]') ?? card;
+      destination?.focus({ preventScroll: true });
+      destination?.scrollIntoView({ block: 'center' });
+    });
+  };
+
   const showPairOnCanvas = (fingerprint: string) => {
     const group = groupedIssues.find(issue => issue.fingerprint === fingerprint);
     if (!group) return;
@@ -544,6 +555,7 @@ export default function HomePage() {
                   onSelectIssue={(fp) => {
                     setActiveFingerprint(fp);
                   }}
+                  onOpenReview={openFindingReview}
                   onDecisionSaved={(updated) => {
                     setCurrentRun((previous) =>
                       previous

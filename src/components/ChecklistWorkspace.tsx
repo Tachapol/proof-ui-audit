@@ -1,0 +1,1289 @@
+'use client';
+
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import {
+  AlertTriangle,
+  ArrowDown,
+  ArrowLeft,
+  ArrowUp,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Code2,
+  Copy,
+  Eye,
+  Link2,
+  Loader2,
+  Maximize2,
+  MinusCircle,
+  Play,
+  Sparkles,
+  X,
+  XCircle,
+} from 'lucide-react';
+import type {
+  AutoIterationResult,
+  ChecklistItemResult,
+  ChecklistStatus,
+  StopReason,
+} from '@/lib/checklist/types';
+
+interface ChecklistWorkspaceProps {
+  initialHtml?: string;
+  baselinePages?: string[];
+  baselineDir?: string;
+}
+
+function StatusIcon({ status }: { status: ChecklistStatus }) {
+  if (status === 'pass') return <CheckCircle2 className="w-4 h-4 text-[#10a37f] shrink-0" />;
+  if (status === 'fail') return <XCircle className="w-4 h-4 text-rose-400 shrink-0" />;
+  if (status === 'needsReview') return <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />;
+  return <MinusCircle className="w-4 h-4 text-[#6b7280] shrink-0" />;
+}
+
+function formatStopReason(reason: StopReason): string {
+  switch (reason) {
+    case 'audit_only':
+      return 'Baseline audit complete';
+    case 'all_passed':
+      return 'All checks passed';
+    case 'targets_passed':
+      return 'Selected targets passed';
+    case 'no_improvement':
+      return 'Stopped (no further improvement)';
+    case 'max_iterations':
+      return 'Max iterations reached';
+  }
+}
+
+function injectHighlightCss(html: string, selectors: string[]): string {
+  const valid = selectors
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0 && !s.startsWith('missing '));
+  if (valid.length === 0) return html;
+  const css = `${valid.join(', ')} { outline: 3px solid #f43f5e !important; outline-offset: 2px !important; background-color: rgba(244, 63, 94, 0.08) !important; }`;
+  const tag = `<style data-proofui-highlight="true">${css}</style>`;
+  if (/<\/head>/i.test(html)) return html.replace(/<\/head>/i, `${tag}\n</head>`);
+  return `${tag}\n${html}`;
+}
+
+function ScaledIframePreview({
+  title,
+  html,
+  viewport,
+  zoom = 'fit',
+  heightPx = 540,
+}: {
+  title: string;
+  html: string;
+  viewport: 'desktop' | 'mobile320';
+  zoom?: 'fit' | 'actual';
+  heightPx?: number;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState<number>(720);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const update = () => {
+      if (el.clientWidth > 0) setContainerWidth(el.clientWidth);
+    };
+    update();
+    const obs = new ResizeObserver(update);
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  if (viewport === 'mobile320') {
+    return (
+      <div ref={containerRef} className="w-full flex justify-center bg-[#212121] overflow-auto">
+        <iframe
+          title={title}
+          srcDoc={html}
+          sandbox="allow-same-origin"
+          style={{ width: 320, height: heightPx }}
+          className="bg-white border-0 shrink-0"
+        />
+      </div>
+    );
+  }
+
+  const desktopWidth = 1280;
+  if (zoom === 'actual') {
+    return (
+      <div ref={containerRef} style={{ height: heightPx }} className="w-full overflow-auto bg-white">
+        <iframe
+          title={title}
+          srcDoc={html}
+          sandbox="allow-same-origin"
+          style={{ width: desktopWidth, height: heightPx }}
+          className="bg-white border-0 block"
+        />
+      </div>
+    );
+  }
+
+  const scale = Math.min(1, containerWidth / desktopWidth);
+  const innerHeight = Math.round(heightPx / scale);
+
+  return (
+    <div
+      ref={containerRef}
+      style={{ height: heightPx }}
+      className="w-full overflow-hidden bg-white relative"
+    >
+      <iframe
+        title={title}
+        srcDoc={html}
+        sandbox="allow-same-origin"
+        style={{
+          width: desktopWidth,
+          height: innerHeight,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+        }}
+        className="bg-white border-0 block"
+      />
+    </div>
+  );
+}
+
+export function ChecklistWorkspace({
+  initialHtml = '',
+  baselinePages = [],
+  baselineDir = '',
+}: ChecklistWorkspaceProps) {
+  const [selectedPage, setSelectedPage] = useState<string>(baselinePages[0] || 'index.html');
+  const [htmlInput, setHtmlInput] = useState<string>(initialHtml);
+  const [baselineViewMode, setBaselineViewMode] = useState<'preview' | 'code'>('preview');
+  const [inputExpanded, setInputExpanded] = useState<boolean>(true);
+
+  // Step 1: Context & Requirements
+  const [productGoal, setProductGoal] = useState<string>('Hotel search & booking conversion');
+  const [targetAudience, setTargetAudience] = useState<string>('Travelers on desktop & mobile');
+  const [theme, setTheme] = useState<string>('Booking.com blue (#003580) & yellow (#ffb700)');
+  const [customPrompt, setCustomPrompt] = useState<string>(
+    'Preserve existing layout structure and brand palette while fixing accessibility & UI issues.'
+  );
+
+  // Step 3: Designer Prioritization & Evidence Inspection
+  const [priorityOrder, setPriorityOrder] = useState<string[]>([]);
+  const [selectedMetricIds, setSelectedMetricIds] = useState<Set<string>>(new Set());
+  const [inspectedMetricId, setInspectedMetricId] = useState<string | null>(null);
+
+  // Step 5 & 6: Loop & Approval
+  const [maxIterations, setMaxIterations] = useState<number>(3);
+  const [loadingPhase, setLoadingPhase] = useState<'idle' | 'audit' | 'iterate'>('idle');
+  const [error, setError] = useState<string>('');
+  const [result, setResult] = useState<AutoIterationResult | null>(null);
+  const [selectedIter, setSelectedIter] = useState<number>(0);
+  const [previewCompare, setPreviewCompare] = useState<'active' | 'split'>('split');
+  const [previewViewport, setPreviewViewport] = useState<'desktop' | 'mobile320'>('desktop');
+  const [previewZoom, setPreviewZoom] = useState<'fit' | 'actual'>('fit');
+  const [syncScroll, setSyncScroll] = useState<boolean>(true);
+  const [fullScreenPreview, setFullScreenPreview] = useState<boolean>(false);
+  const [approvedIter, setApprovedIter] = useState<number | null>(null);
+  const [savedApprovalInfo, setSavedApprovalInfo] = useState<{ label: string; score: string; approvedAt: string } | null>(null);
+  const [copied, setCopied] = useState<boolean>(false);
+
+  const leftFrameRef = useRef<HTMLIFrameElement>(null);
+  const rightFrameRef = useRef<HTMLIFrameElement>(null);
+  const modalLeftRef = useRef<HTMLIFrameElement>(null);
+  const modalRightRef = useRef<HTMLIFrameElement>(null);
+  const syncingRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    fetch(`/api/checklist?page=${encodeURIComponent(selectedPage)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && d.savedApproval) {
+          setSavedApprovalInfo({
+            label: d.savedApproval.label,
+            score: d.savedApproval.score,
+            approvedAt: d.savedApproval.approvedAt,
+          });
+        } else {
+          setSavedApprovalInfo(null);
+        }
+      })
+      .catch(() => {});
+  }, [selectedPage]);
+
+  const attachSyncListeners = (
+    leftEl: HTMLIFrameElement | null,
+    rightEl: HTMLIFrameElement | null
+  ) => {
+    if (!syncScroll || !leftEl || !rightEl) return () => {};
+    const leftWin = leftEl.contentWindow;
+    const rightWin = rightEl.contentWindow;
+    if (!leftWin || !rightWin) return () => {};
+
+    const syncTo = (source: Window, target: Window) => {
+      if (syncingRef.current) return;
+      syncingRef.current = true;
+      target.scrollTo(source.scrollX, source.scrollY);
+      requestAnimationFrame(() => {
+        syncingRef.current = false;
+      });
+    };
+
+    const onLeftScroll = () => syncTo(leftWin, rightWin);
+    const onRightScroll = () => syncTo(rightWin, leftWin);
+
+    leftWin.addEventListener('scroll', onLeftScroll, { passive: true });
+    rightWin.addEventListener('scroll', onRightScroll, { passive: true });
+
+    return () => {
+      leftWin.removeEventListener('scroll', onLeftScroll);
+      rightWin.removeEventListener('scroll', onRightScroll);
+    };
+  };
+
+  useEffect(() => {
+    if (!fullScreenPreview) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFullScreenPreview(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [fullScreenPreview]);
+
+  useEffect(() => {
+    return attachSyncListeners(leftFrameRef.current, rightFrameRef.current);
+  });
+
+  useEffect(() => {
+    if (!fullScreenPreview) return;
+    return attachSyncListeners(modalLeftRef.current, modalRightRef.current);
+  });
+
+  const runPipeline = async (mode: 'audit' | 'iterate') => {
+    setLoadingPhase(mode);
+    setError('');
+    setApprovedIter(null);
+    try {
+      const orderedSelected = priorityOrder.filter((id) => selectedMetricIds.has(id));
+      const res = await fetch('/api/checklist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          html: htmlInput,
+          mode,
+          maxIterations,
+          context: { productGoal, targetAudience, theme, customPrompt },
+          prioritizedMetricIds: mode === 'iterate' && orderedSelected.length > 0 ? orderedSelected : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Audit failed');
+      }
+      const nextResult: AutoIterationResult = data.result;
+      setResult(nextResult);
+      setSelectedIter(nextResult.bestIteration ?? 0);
+      setInputExpanded(false);
+
+      if (mode === 'audit') {
+        const baselinePriority = nextResult.iterations[0]?.summary.priorityList || [];
+        const ids = baselinePriority.map((i) => i.id);
+        setPriorityOrder(ids);
+        // Auto-select only fail items by default; needsReview requires human evidence review first
+        setSelectedMetricIds(new Set(baselinePriority.filter((i) => i.status === 'fail').map((i) => i.id)));
+        const firstFail = baselinePriority[0];
+        if (firstFail) {
+          setInspectedMetricId(firstFail.id);
+          setPreviewViewport(firstFail.id === 'reflow' ? 'mobile320' : 'desktop');
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Request failed');
+    } finally {
+      setLoadingPhase('idle');
+    }
+  };
+
+  const baselineSnapshot = result?.iterations[0] || null;
+  const activeSnapshot = result?.iterations[selectedIter] || baselineSnapshot;
+  const hasOptimizationRuns = Boolean(result && result.iterations.length > 1);
+
+  const priorityItemMap = useMemo(() => {
+    const map = new Map<string, ChecklistItemResult>();
+    for (const item of baselineSnapshot?.summary.priorityList || []) {
+      map.set(item.id, item);
+    }
+    return map;
+  }, [baselineSnapshot]);
+
+  const inspectedItem = inspectedMetricId ? priorityItemMap.get(inspectedMetricId) || null : null;
+
+  const selectedReadyCount = useMemo(() => {
+    return priorityOrder.filter((id) => {
+      if (!selectedMetricIds.has(id)) return false;
+      return priorityItemMap.get(id)?.status === 'fail';
+    }).length;
+  }, [priorityOrder, selectedMetricIds, priorityItemMap]);
+
+  const selectedReviewCount = useMemo(() => {
+    return priorityOrder.filter((id) => {
+      if (!selectedMetricIds.has(id)) return false;
+      return priorityItemMap.get(id)?.status === 'needsReview';
+    }).length;
+  }, [priorityOrder, selectedMetricIds, priorityItemMap]);
+
+  const movePriority = (id: string, dir: -1 | 1) => {
+    setPriorityOrder((prev) => {
+      const idx = prev.indexOf(id);
+      const nextIdx = idx + dir;
+      if (idx === -1 || nextIdx < 0 || nextIdx >= prev.length) return prev;
+      const copy = [...prev];
+      [copy[idx], copy[nextIdx]] = [copy[nextIdx], copy[idx]];
+      return copy;
+    });
+  };
+
+  const toggleMetric = (id: string) => {
+    setSelectedMetricIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const inspectMetric = (item: ChecklistItemResult) => {
+    setInspectedMetricId(item.id);
+    if (item.id === 'reflow') {
+      setPreviewViewport('mobile320');
+    } else {
+      setPreviewViewport('desktop');
+    }
+  };
+
+  const handleCopyHtml = async () => {
+    await navigator.clipboard.writeText(activeSnapshot?.html || htmlInput);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  const renderPillarCard = (pillar: NonNullable<typeof activeSnapshot>['summary']['pillars'][number]) => {
+    const pct = pillar.total > 0 ? Math.round((pillar.passed / pillar.total) * 100) : 0;
+    return (
+      <div key={pillar.id} className="rounded-xl bg-[#171717] border border-white/[0.08] p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="font-medium text-white">{pillar.label}</h3>
+          <span className="text-xs font-mono text-[#10a37f]">
+            {pillar.passed}/{pillar.total}
+          </span>
+        </div>
+        <div className="h-1.5 w-full rounded-full bg-[#2f2f2f] overflow-hidden">
+          <div className="h-full bg-[#10a37f] transition-all" style={{ width: `${pct}%` }} />
+        </div>
+        <div className="space-y-2 pt-1">
+          {pillar.items.map((item: ChecklistItemResult) => (
+            <div
+              key={item.id}
+              className={`flex items-start gap-2.5 p-2 rounded-lg bg-[#212121] border border-white/[0.05] ${
+                item.status === 'notApplicable' ? 'opacity-60' : ''
+              }`}
+            >
+              <StatusIcon status={item.status} />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-medium text-[#ececec] text-xs">{item.title}</span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {activeSnapshot?.resolvedIds.includes(item.id) && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#10a37f]/20 text-[#10a37f]">
+                        FIXED
+                      </span>
+                    )}
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#212121] border border-white/[0.08] text-[#8e8e8e]">
+                      {item.viewport}
+                    </span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#2f2f2f] text-[#9b9b9b]">
+                      {item.status === 'notApplicable' ? 'N/A' : item.priority}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-[11px] text-[#9b9b9b] mt-0.5">{item.measuredSummary}</div>
+                {item.status !== 'pass' && item.status !== 'notApplicable' && item.samples.length > 0 && (
+                  <div className="text-[11px] font-mono text-[#8e8e8e] mt-1 truncate">
+                    {item.samples.join(', ')}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-[#212121] text-[#ececec] text-[13px]">
+      <header className="px-6 py-3.5 bg-[#171717] border-b border-white/[0.08] flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-[#9b9b9b] hover:text-white">
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Audit
+          </Link>
+          <span className="text-white/20">/</span>
+          <h1 className="font-semibold text-white">UX/UI Optimization Pipeline (24-Metric Self-Audit)</h1>
+        </div>
+        <Link href="/knowledge" className="text-xs text-[#10a37f] hover:underline">
+          Knowledge Wiki
+        </Link>
+      </header>
+
+      <main className="max-w-7xl mx-auto p-6 space-y-5">
+        {/* Step 1: Input & Context (collapses into compact bar after audit) */}
+        {result && !inputExpanded ? (
+          <section className="rounded-xl bg-[#171717] border border-white/[0.08] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-semibold text-white">Booking · {selectedPage}</span>
+              <span className="text-white/20">·</span>
+              <span className="text-[#9b9b9b] truncate max-w-md">{productGoal}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setInputExpanded(true)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
+              >
+                Edit input
+                <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => runPipeline('audit')}
+                disabled={loadingPhase !== 'idle'}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#ececec] text-[#171717] font-medium text-xs hover:bg-white disabled:opacity-50"
+              >
+                {loadingPhase === 'audit' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+                Re-run Audit
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section className="rounded-xl bg-[#171717] border border-white/[0.08] p-4 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold text-white">1. Input &amp; Context</span>
+                {baselinePages.length > 0 && (
+                  <select
+                    title={baselineDir}
+                    value={selectedPage}
+                    onChange={async (e) => {
+                      const page = e.target.value;
+                      setSelectedPage(page);
+                      setError('');
+                      try {
+                        const res = await fetch(`/api/checklist?page=${encodeURIComponent(page)}`);
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                          setHtmlInput(data.html);
+                          setResult(null);
+                          setPriorityOrder([]);
+                          setInputExpanded(true);
+                        } else {
+                          setError(data.error || 'Failed to load page');
+                        }
+                      } catch {
+                        setError('Failed to load baseline page');
+                      }
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-[#2f2f2f] border border-white/[0.12] text-xs"
+                  >
+                    {baselinePages.map((p) => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {result && (
+                  <button
+                    type="button"
+                    onClick={() => setInputExpanded(false)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
+                  >
+                    Collapse
+                    <ChevronUp className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#212121] p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setBaselineViewMode('preview')}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs ${
+                      baselineViewMode === 'preview' ? 'bg-[#2f2f2f] text-white font-medium' : 'text-[#9b9b9b]'
+                    }`}
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    Preview
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBaselineViewMode('code')}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs ${
+                      baselineViewMode === 'code' ? 'bg-[#2f2f2f] text-white font-medium' : 'text-[#9b9b9b]'
+                    }`}
+                  >
+                    <Code2 className="w-3.5 h-3.5" />
+                    Source Code
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => runPipeline('audit')}
+                  disabled={loadingPhase !== 'idle' || !htmlInput.trim()}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#ececec] text-[#171717] font-medium text-xs hover:bg-white disabled:opacity-50"
+                >
+                  {loadingPhase === 'audit' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+                  {loadingPhase === 'audit' ? 'Auditing...' : 'Run Audit'}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <label htmlFor="ctx-product-goal" className="block text-[11px] font-medium text-[#9b9b9b]">
+                  Product Goal
+                </label>
+                <input
+                  id="ctx-product-goal"
+                  value={productGoal}
+                  onChange={(e) => setProductGoal(e.target.value)}
+                  placeholder="e.g. Hotel search & booking conversion"
+                  className="w-full px-3 py-1.5 rounded-lg bg-[#212121] border border-white/[0.1] text-xs"
+                />
+              </div>
+              <div className="space-y-1">
+                <label htmlFor="ctx-audience" className="block text-[11px] font-medium text-[#9b9b9b]">
+                  Target Audience
+                </label>
+                <input
+                  id="ctx-audience"
+                  value={targetAudience}
+                  onChange={(e) => setTargetAudience(e.target.value)}
+                  placeholder="e.g. Travelers on desktop & mobile"
+                  className="w-full px-3 py-1.5 rounded-lg bg-[#212121] border border-white/[0.1] text-xs"
+                />
+              </div>
+              <div className="space-y-1">
+                <label htmlFor="ctx-theme" className="block text-[11px] font-medium text-[#9b9b9b]">
+                  Theme &amp; Brand Colors
+                </label>
+                <input
+                  id="ctx-theme"
+                  value={theme}
+                  onChange={(e) => setTheme(e.target.value)}
+                  placeholder="e.g. Booking.com blue (#003580) & yellow (#ffb700)"
+                  className="w-full px-3 py-1.5 rounded-lg bg-[#212121] border border-white/[0.1] text-xs"
+                />
+              </div>
+            </div>
+
+            {baselineViewMode === 'preview' ? (
+              <div className="rounded-lg border border-white/[0.1] bg-white overflow-hidden">
+                <iframe
+                  title="Baseline Input Preview"
+                  srcDoc={htmlInput}
+                  sandbox="allow-same-origin"
+                  className="w-full h-[460px] bg-white border-0"
+                />
+              </div>
+            ) : (
+              <textarea
+                value={htmlInput}
+                onChange={(e) => setHtmlInput(e.target.value)}
+                rows={20}
+                placeholder="Paste HTML source..."
+                className="w-full p-3 rounded-lg bg-[#212121] border border-white/[0.1] font-mono text-xs text-[#ececec] focus:outline-none focus:border-white/30"
+              />
+            )}
+
+            {error && <div className="text-xs text-rose-400">{error}</div>}
+          </section>
+        )}
+
+        {/* Baseline / Active Results Section */}
+        {result && activeSnapshot && (
+          <>
+            {/* Scoreboard */}
+            <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="p-3.5 rounded-xl bg-[#171717] border border-white/[0.08]">
+                <div className="text-xs text-[#9b9b9b]">Passed (Applicable)</div>
+                <div className="text-2xl font-semibold text-[#10a37f] mt-1">
+                  {activeSnapshot.summary.totalPassed}{' '}
+                  <span className="text-sm text-[#8e8e8e]">/ {activeSnapshot.summary.totalMetrics}</span>
+                </div>
+                <div className="text-[11px] text-[#9b9b9b] mt-1 space-y-0.5">
+                  <div>{activeSnapshot.summary.passRate}% passed</div>
+                  <div>UX {activeSnapshot.summary.ux.passed}/{activeSnapshot.summary.ux.total}</div>
+                  <div>UI {activeSnapshot.summary.ui.passed}/{activeSnapshot.summary.ui.total}</div>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#171717] border border-white/[0.08]">
+                <div className="text-xs text-[#9b9b9b]">Failed</div>
+                <div className="text-2xl font-semibold text-rose-400 mt-1">
+                  {activeSnapshot.summary.totalFailed}
+                </div>
+                <div className="text-[11px] text-[#9b9b9b] mt-0.5">Eligible for optimization</div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#171717] border border-white/[0.08]">
+                <div className="text-xs text-[#9b9b9b]">Needs review</div>
+                <div className="text-2xl font-semibold text-amber-400 mt-1">
+                  {activeSnapshot.summary.totalNeedsReview}
+                </div>
+                <div className="text-[11px] text-[#9b9b9b] mt-0.5">Manual evidence check</div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#171717] border border-white/[0.08]">
+                <div className="text-xs text-[#9b9b9b]">Status</div>
+                <div className="text-sm font-medium text-white mt-1.5">
+                  {formatStopReason(result.stopReason)}
+                </div>
+                {!hasOptimizationRuns && (
+                  <div className="text-[11px] text-[#9b9b9b] mt-1">Ready for prioritization</div>
+                )}
+              </div>
+            </section>
+
+            {/* Baseline Results + Priority Selection + Single Preview (shown before/with optimization) */}
+            {baselineSnapshot && priorityOrder.length > 0 && (
+              <section className="rounded-xl bg-[#171717] border border-white/[0.08] p-4 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h2 className="text-sm font-semibold text-white">
+                      Baseline results &amp; Priority selection
+                    </h2>
+                    <p className="text-xs text-[#9b9b9b]">
+                      Select issues to fix, reorder priority, or click an item to inspect its preview.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <select
+                      value={maxIterations}
+                      onChange={(e) => setMaxIterations(Number(e.target.value))}
+                      className="px-2.5 py-1.5 rounded-lg bg-[#2f2f2f] border border-white/[0.12] text-xs"
+                    >
+                      <option value={2}>Max 2 iterations</option>
+                      <option value={3}>Max 3 iterations</option>
+                      <option value={5}>Max 5 iterations</option>
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => runPipeline('iterate')}
+                      disabled={loadingPhase !== 'idle' || selectedReadyCount === 0}
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#10a37f] text-white font-medium text-xs hover:opacity-90 disabled:opacity-50"
+                    >
+                      {loadingPhase === 'iterate' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                      {loadingPhase === 'iterate'
+                        ? 'Optimizing...'
+                        : `Run optimization (${selectedReadyCount} ${selectedReadyCount === 1 ? 'issue' : 'issues'})`}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                  {/* Left: Priority Issues List */}
+                  <div className="lg:col-span-5 space-y-2">
+                    <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
+                      {priorityOrder.map((id, idx) => {
+                        const item = priorityItemMap.get(id);
+                        if (!item) return null;
+                        const checked = selectedMetricIds.has(id);
+                        const isInspected = inspectedMetricId === id;
+                        const isNeedsReview = item.status === 'needsReview';
+                        return (
+                          <div
+                            key={id}
+                            onClick={() => inspectMetric(item)}
+                            className={`p-2.5 rounded-lg border cursor-pointer transition-colors ${
+                              isInspected
+                                ? 'bg-[#2a2a2a] border-[#10a37f]'
+                                : 'bg-[#212121] border-white/[0.06] hover:bg-[#262626]'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <label
+                                className={`flex items-center gap-2 min-w-0 flex-1 ${
+                                  isNeedsReview ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+                                }`}
+                                onClick={(e) => e.stopPropagation()}
+                                title={isNeedsReview ? 'Manual review required before optimizing' : undefined}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={!isNeedsReview && checked}
+                                  disabled={isNeedsReview}
+                                  onChange={() => !isNeedsReview && toggleMetric(id)}
+                                  className="accent-[#10a37f] disabled:opacity-40"
+                                />
+                                <span className="text-[11px] font-mono text-[#8e8e8e]">#{idx + 1}</span>
+                                <span className="text-xs font-medium text-white truncate">{item.title}</span>
+                              </label>
+
+                              <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                                <span
+                                  className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                                    isNeedsReview
+                                      ? 'bg-amber-500/20 text-amber-300'
+                                      : 'bg-rose-500/20 text-rose-300'
+                                  }`}
+                                >
+                                  {isNeedsReview ? 'Needs review' : 'Fail'}
+                                </span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#2f2f2f] text-[#9b9b9b]">
+                                  {item.id === 'reflow' ? '320px' : item.viewport}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => movePriority(id, -1)}
+                                  disabled={idx === 0}
+                                  className="p-1 rounded hover:bg-[#2f2f2f] disabled:opacity-30"
+                                >
+                                  <ArrowUp className="w-3 h-3" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => movePriority(id, 1)}
+                                  disabled={idx === priorityOrder.length - 1}
+                                  className="p-1 rounded hover:bg-[#2f2f2f] disabled:opacity-30"
+                                >
+                                  <ArrowDown className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="mt-1 pl-6 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#9b9b9b]">
+                              <span className="truncate">
+                                {isNeedsReview
+                                  ? 'Review the highlighted text before optimizing.'
+                                  : item.measuredSummary}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  inspectMetric(item);
+                                }}
+                                className="text-[11px] text-[#10a37f] hover:underline shrink-0"
+                              >
+                                {isNeedsReview ? 'Review evidence' : item.id === 'reflow' ? 'Preview 320px' : 'Inspect'}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="space-y-1 pt-1">
+                      <label htmlFor="ctx-guidelines" className="block text-[11px] font-medium text-[#9b9b9b]">
+                        Brand &amp; Designer Guidelines (sent to LLM)
+                      </label>
+                      <input
+                        id="ctx-guidelines"
+                        value={customPrompt}
+                        onChange={(e) => setCustomPrompt(e.target.value)}
+                        placeholder="Custom Designer Guidelines / Prompt..."
+                        className="w-full px-3 py-1.5 rounded-lg bg-[#212121] border border-white/[0.1] text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right: Single Contextual Preview (before optimization) or Evidence Panel */}
+                  <div className="lg:col-span-7 space-y-2">
+                    {!hasOptimizationRuns ? (
+                      <div className="rounded-lg border border-white/[0.1] overflow-hidden bg-[#212121] flex flex-col items-center">
+                        <div className="w-full px-3 py-1.5 bg-[#212121] border-b border-white/[0.08] text-xs flex flex-wrap items-center justify-between gap-2">
+                          <span className="text-[#ececec] truncate">
+                            {inspectedItem ? `${inspectedItem.title} (${previewViewport === 'mobile320' ? '320px' : '1280px'})` : 'Baseline Preview'}
+                          </span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <div className="inline-flex rounded border border-white/[0.1] bg-[#171717] p-0.5">
+                              <button
+                                type="button"
+                                onClick={() => setPreviewViewport('desktop')}
+                                className={`px-2 py-0.5 rounded text-[11px] ${
+                                  previewViewport === 'desktop' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
+                                }`}
+                              >
+                                Desktop
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setPreviewViewport('mobile320')}
+                                className={`px-2 py-0.5 rounded text-[11px] ${
+                                  previewViewport === 'mobile320' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
+                                }`}
+                              >
+                                320px
+                              </button>
+                            </div>
+                            {previewViewport === 'desktop' && (
+                              <div className="inline-flex rounded border border-white/[0.1] bg-[#171717] p-0.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewZoom('fit')}
+                                  className={`px-2 py-0.5 rounded text-[11px] ${
+                                    previewZoom === 'fit' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
+                                  }`}
+                                >
+                                  Fit
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewZoom('actual')}
+                                  className={`px-2 py-0.5 rounded text-[11px] ${
+                                    previewZoom === 'actual' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
+                                  }`}
+                                >
+                                  100%
+                                </button>
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setFullScreenPreview(true)}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#2f2f2f] hover:bg-[#383838] text-[11px] text-[#ececec]"
+                            >
+                              <Maximize2 className="w-3 h-3" />
+                              Full Page
+                            </button>
+                          </div>
+                        </div>
+                        <ScaledIframePreview
+                          title="Contextual Baseline Preview"
+                          html={injectHighlightCss(
+                            baselineSnapshot.html,
+                            inspectedItem?.rawSelectors || []
+                          )}
+                          viewport={previewViewport}
+                          zoom={previewZoom}
+                          heightPx={540}
+                        />
+                        {inspectedItem && (
+                          <div className="w-full px-3 py-2 bg-[#171717] border-t border-white/[0.08] space-y-1">
+                            <div className="text-xs text-[#ececec]">
+                              {inspectedItem.measuredSummary}
+                            </div>
+                            {(inspectedItem.rawSelectors?.length || inspectedItem.samples.length) ? (
+                              <details>
+                                <summary className="cursor-pointer text-[11px] text-[#10a37f]">
+                                  Details &amp; technical measurements ({inspectedItem.rawSelectors?.length || inspectedItem.samples.length})
+                                </summary>
+                                <div className="mt-1 text-[11px] font-mono text-[#9b9b9b] whitespace-pre-wrap">
+                                  {inspectedItem.samples.join('\n')}
+                                </div>
+                              </details>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-white/[0.08] bg-[#212121] p-3.5 space-y-2 h-full">
+                        <div className="text-xs font-medium text-white">
+                          {inspectedItem ? `Evidence: ${inspectedItem.title}` : 'Select an issue to inspect evidence'}
+                        </div>
+                        {inspectedItem && (
+                          <>
+                            <div className="text-xs text-[#d4d4d4]">{inspectedItem.measuredSummary}</div>
+                            <div className="text-xs text-[#9b9b9b]">{inspectedItem.recommendation}</div>
+                            {inspectedItem.samples.length > 0 && (
+                              <pre className="p-2.5 rounded bg-[#171717] border border-white/[0.08] text-[11px] text-[#b4b4b4] whitespace-pre-wrap">
+                                {inspectedItem.samples.join('\n')}
+                              </pre>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Optimization Results: Shown ONLY after optimization iterations exist */}
+            {hasOptimizationRuns && (
+              <section className="rounded-xl bg-[#171717] border border-white/[0.08] p-4 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h2 className="font-medium text-white flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#10a37f]" />
+                    Optimization Progress &amp; Approval
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#212121] p-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewCompare('split')}
+                        className={`px-2.5 py-1 rounded-md text-xs ${
+                          previewCompare === 'split' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
+                        }`}
+                      >
+                        Before / After
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewCompare('active')}
+                        className={`px-2.5 py-1 rounded-md text-xs ${
+                          previewCompare === 'active' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
+                        }`}
+                      >
+                        Selected Only
+                      </button>
+                    </div>
+                    <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#212121] p-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewViewport('desktop')}
+                        className={`px-2.5 py-1 rounded-md text-xs ${
+                          previewViewport === 'desktop' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
+                        }`}
+                      >
+                        Desktop
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewViewport('mobile320')}
+                        className={`px-2.5 py-1 rounded-md text-xs ${
+                          previewViewport === 'mobile320' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
+                        }`}
+                      >
+                        Mobile 320px
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSyncScroll((v) => !v)}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border ${
+                        syncScroll
+                          ? 'bg-[#2f2f2f] border-[#10a37f] text-white'
+                          : 'bg-[#212121] border-white/[0.1] text-[#9b9b9b]'
+                      }`}
+                    >
+                      <Link2 className="w-3.5 h-3.5" />
+                      Sync Scroll
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFullScreenPreview(true)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5" />
+                      Full Page
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setApprovedIter(activeSnapshot.iteration);
+                        try {
+                          const res = await fetch('/api/checklist', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              page: selectedPage,
+                              iteration: activeSnapshot.iteration,
+                              label: activeSnapshot.label,
+                              score: `${activeSnapshot.summary.totalPassed}/${activeSnapshot.summary.totalMetrics}`,
+                              html: activeSnapshot.html,
+                            }),
+                          });
+                          const d = await res.json();
+                          if (d.success && d.approval) {
+                            setSavedApprovalInfo({
+                              label: d.approval.label,
+                              score: d.approval.score,
+                              approvedAt: d.approval.approvedAt,
+                            });
+                          }
+                        } catch {
+                          // Keep UI approval state
+                        }
+                      }}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium ${
+                        approvedIter === activeSnapshot.iteration
+                          ? 'bg-[#10a37f] text-white'
+                          : 'bg-[#2f2f2f] hover:bg-[#383838] text-[#ececec]'
+                      }`}
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      {approvedIter === activeSnapshot.iteration ? 'Approved' : 'Approve Version'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCopyHtml}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#ececec] text-[#171717] font-medium text-xs"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      {copied ? 'Copied' : 'Copy HTML'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                  {result.iterations.map((it) => {
+                    const isSelected = selectedIter === it.iteration;
+                    const isBest = result.bestIteration === it.iteration;
+                    return (
+                      <button
+                        key={it.iteration}
+                        type="button"
+                        onClick={() => setSelectedIter(it.iteration)}
+                        className={`text-left p-3 rounded-lg border transition-colors ${
+                          isSelected
+                            ? 'bg-[#2f2f2f] border-[#10a37f]'
+                            : 'bg-[#212121] border-white/[0.08] hover:bg-[#2a2a2a]'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-white">{it.label}</span>
+                          <div className="flex items-center gap-1">
+                            {approvedIter === it.iteration && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#10a37f] text-white">
+                                Approved
+                              </span>
+                            )}
+                            {isBest && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#10a37f]/20 text-[#10a37f]">
+                                Best
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-sm font-mono text-[#ececec] mt-1">
+                          {it.summary.totalPassed}/{it.summary.totalMetrics}
+                          {it.iteration > 0 && (
+                            <span
+                              className={`ml-2 text-xs ${
+                                it.deltaFromBase > 0
+                                  ? 'text-[#10a37f]'
+                                  : it.deltaFromBase < 0
+                                    ? 'text-rose-400'
+                                    : 'text-[#9b9b9b]'
+                              }`}
+                            >
+                              {it.deltaFromBase > 0 ? `+${it.deltaFromBase}` : it.deltaFromBase} vs Iter{' '}
+                              {it.branchedFromIteration ?? 0}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-[#9b9b9b] mt-1 truncate">{it.notes}</div>
+                        {it.resolvedIds.length > 0 && (
+                          <div className="text-[11px] text-[#10a37f] mt-1 truncate">
+                            Fixed: {it.resolvedIds.join(', ')}
+                          </div>
+                        )}
+                        {it.regressedIds.length > 0 && (
+                          <div className="text-[11px] text-rose-400 mt-0.5 truncate">
+                            Regressed: {it.regressedIds.join(', ')}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {activeSnapshot.iteration > 0 && (
+                  <div className="rounded-lg bg-[#212121] border border-white/[0.08] p-3 space-y-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-xs font-medium text-white">
+                        Changes in {activeSnapshot.label}
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {activeSnapshot.resolvedIds.map((id) => (
+                          <span key={id} className="text-[11px] px-2 py-0.5 rounded-full bg-[#10a37f]/20 text-[#10a37f]">
+                            ✓ {id}
+                          </span>
+                        ))}
+                        {activeSnapshot.regressedIds.map((id) => (
+                          <span key={id} className="text-[11px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400">
+                            ✗ {id}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    {savedApprovalInfo && (
+                      <div className="text-[11px] text-[#10a37f]">
+                        Saved approval for {selectedPage}: {savedApprovalInfo.label} ({savedApprovalInfo.score})
+                      </div>
+                    )}
+                    {activeSnapshot.appliedPatch && (
+                      <details>
+                        <summary className="cursor-pointer text-[11px] text-[#10a37f]">
+                          View exact JSON Patch applied (
+                          {activeSnapshot.appliedPatch.operationLogs
+                            ? `${activeSnapshot.appliedPatch.operationLogs.filter((o) => o.status === 'applied').length} applied, ${activeSnapshot.appliedPatch.operationLogs.filter((o) => o.status === 'rejected').length} rejected`
+                            : `${activeSnapshot.appliedPatch.cssAdditions.length} CSS rules, ${activeSnapshot.appliedPatch.attributePatches.length} attribute updates`}
+                          )
+                        </summary>
+                        <pre className="mt-2 p-2.5 rounded bg-[#171717] border border-white/[0.08] text-[11px] text-[#d4d4d4] overflow-x-auto max-h-[200px] whitespace-pre-wrap">
+                          {JSON.stringify(activeSnapshot.appliedPatch, null, 2)}
+                        </pre>
+                      </details>
+                    )}
+                  </div>
+                )}
+
+                <div
+                  className={`grid gap-3 pt-2 ${
+                    previewCompare === 'split' && baselineSnapshot && activeSnapshot.iteration !== 0
+                      ? 'grid-cols-1 lg:grid-cols-2'
+                      : 'grid-cols-1'
+                  }`}
+                >
+                  {previewCompare === 'split' && baselineSnapshot && activeSnapshot.iteration !== 0 && (
+                    <div className="rounded-lg border border-white/[0.1] overflow-hidden bg-[#212121] flex flex-col items-center">
+                      <div className="w-full px-3 py-1.5 bg-[#212121] border-b border-white/[0.08] text-xs text-[#9b9b9b] flex justify-between">
+                        <span>Baseline (Before)</span>
+                        <span className="font-mono">
+                          {baselineSnapshot.summary.totalPassed}/{baselineSnapshot.summary.totalMetrics}
+                        </span>
+                      </div>
+                      <iframe
+                        ref={leftFrameRef}
+                        title="Baseline Preview"
+                        srcDoc={baselineSnapshot.html}
+                        sandbox="allow-same-origin"
+                        className={`h-[520px] bg-white border-0 ${previewViewport === 'mobile320' ? 'w-[320px]' : 'w-full'}`}
+                      />
+                    </div>
+                  )}
+
+                  <div className="rounded-lg border border-[#10a37f]/40 overflow-hidden bg-[#212121] flex flex-col items-center">
+                    <div className="w-full px-3 py-1.5 bg-[#212121] border-b border-white/[0.08] text-xs text-white flex justify-between">
+                      <span>{activeSnapshot.label} (Preview)</span>
+                      <span className="font-mono text-[#10a37f]">
+                        {activeSnapshot.summary.totalPassed}/{activeSnapshot.summary.totalMetrics}
+                      </span>
+                    </div>
+                    <iframe
+                      ref={rightFrameRef}
+                      title="Iteration Preview"
+                      srcDoc={activeSnapshot.html}
+                      sandbox="allow-same-origin"
+                      className={`h-[520px] bg-white border-0 ${previewViewport === 'mobile320' ? 'w-[320px]' : 'w-full'}`}
+                    />
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* 6-Pillar UX & UI Breakdown */}
+            <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <h2 className="text-sm font-semibold text-white px-1">
+                  UX Checklist ({activeSnapshot.summary.ux.passed}/{activeSnapshot.summary.ux.total})
+                </h2>
+                {activeSnapshot.summary.pillars
+                  .filter((p) => p.group === 'ux')
+                  .map(renderPillarCard)}
+              </div>
+
+              <div className="space-y-3">
+                <h2 className="text-sm font-semibold text-white px-1">
+                  UI Checklist ({activeSnapshot.summary.ui.passed}/{activeSnapshot.summary.ui.total})
+                </h2>
+                {activeSnapshot.summary.pillars
+                  .filter((p) => p.group === 'ui')
+                  .map(renderPillarCard)}
+              </div>
+            </section>
+          </>
+        )}
+      </main>
+
+      {/* Full-Page Side-by-Side Synced Comparison Modal */}
+      {fullScreenPreview && result && activeSnapshot && (
+        <div className="fixed inset-0 z-50 bg-[#171717] flex flex-col">
+          <div className="px-4 py-2.5 border-b border-white/[0.08] flex flex-wrap items-center justify-between gap-2 bg-[#171717]">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-white">Full-Page Comparison</span>
+              <select
+                value={selectedIter}
+                onChange={(e) => setSelectedIter(Number(e.target.value))}
+                className="px-2.5 py-1 rounded-md bg-[#2f2f2f] border border-white/[0.12] text-xs text-white"
+              >
+                {result.iterations.map((it) => (
+                  <option key={it.iteration} value={it.iteration}>
+                    {it.label} ({it.summary.totalPassed}/{it.summary.totalMetrics})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSyncScroll((v) => !v)}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border ${
+                  syncScroll
+                    ? 'bg-[#2f2f2f] border-[#10a37f] text-white'
+                    : 'bg-[#212121] border-white/[0.1] text-[#9b9b9b]'
+                }`}
+              >
+                <Link2 className="w-3.5 h-3.5" />
+                Sync Scroll
+              </button>
+              <button
+                type="button"
+                onClick={() => setFullScreenPreview(false)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-white"
+              >
+                <X className="w-3.5 h-3.5" />
+                Close
+              </button>
+            </div>
+          </div>
+
+          <div
+            className={`flex-1 min-h-0 grid ${
+              baselineSnapshot && activeSnapshot.iteration !== 0
+                ? 'grid-cols-1 lg:grid-cols-2'
+                : 'grid-cols-1'
+            }`}
+          >
+            {baselineSnapshot && activeSnapshot.iteration !== 0 && (
+              <div className="flex flex-col border-r border-white/[0.08] bg-white min-h-0">
+                <div className="px-3 py-1.5 bg-[#212121] border-b border-white/[0.08] text-xs text-[#9b9b9b] flex justify-between shrink-0">
+                  <span>Baseline (Before)</span>
+                  <span className="font-mono">
+                    {baselineSnapshot.summary.totalPassed}/{baselineSnapshot.summary.totalMetrics}
+                  </span>
+                </div>
+                <iframe
+                  ref={modalLeftRef}
+                  title="Full Page Baseline Preview"
+                  srcDoc={baselineSnapshot.html}
+                  sandbox="allow-same-origin"
+                  className="w-full flex-1 bg-white border-0"
+                />
+              </div>
+            )}
+
+            <div className="flex flex-col bg-white min-h-0">
+              <div className="px-3 py-1.5 bg-[#212121] border-b border-white/[0.08] text-xs text-white flex justify-between shrink-0">
+                <span>{activeSnapshot.label} (After)</span>
+                <span className="font-mono text-[#10a37f]">
+                  {activeSnapshot.summary.totalPassed}/{activeSnapshot.summary.totalMetrics}
+                </span>
+              </div>
+              <iframe
+                ref={modalRightRef}
+                title="Full Page Iteration Preview"
+                srcDoc={activeSnapshot.html}
+                sandbox="allow-same-origin"
+                className="w-full flex-1 bg-white border-0"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

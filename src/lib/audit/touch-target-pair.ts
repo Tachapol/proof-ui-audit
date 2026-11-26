@@ -1,6 +1,8 @@
 import { BoundingBoxSchema, type GroupedUXIssue, type UXIssue } from '@/lib/schema/ux-issue';
 import { z } from 'zod';
 
+export const touchTargetSpacingStatusLabels = { pass: 'Pass', needsReview: 'Needs review', candidateFail: 'Candidate fail' } as const;
+
 const endpointSchema = z.object({
   selector: z.string().trim().min(1),
   element: z.string().optional(),
@@ -41,7 +43,12 @@ export function labelTouchTargetPair(issue: UXIssue, actionLabels: Map<string, s
     (a.boundingBox?.y ?? 0) - (b.boundingBox?.y ?? 0) ||
     (a.boundingBox?.x ?? 0) - (b.boundingBox?.x ?? 0) ||
     a.selector.localeCompare(b.selector)
-  ).map(target => target.accessibleName?.trim() || actionLabels.get(target.actionId ?? '') || target.selector);
+  ).map(target => {
+    const name = target.accessibleName?.trim() || actionLabels.get(target.actionId ?? '');
+    if (name && target.element) return `${name} ${target.element}`;
+    const label = name || target.element;
+    return label ? `${label} (${target.selector})` : target.selector;
+  });
   return names.join(' ↔ ');
 }
 

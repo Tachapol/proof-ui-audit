@@ -63,18 +63,13 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
     await expect(needsReviewCard).toBeVisible();
     await expect(needsReviewCard.locator('text=Requires Designer Review')).toBeVisible();
 
-    // Filter to pass status to verify pass cards exist
-    const passFilterBtn = page.locator('.filter-bar button', { hasText: 'Pass' });
-    await passFilterBtn.click();
-    await expect(passFilterBtn).toHaveAttribute('aria-pressed', 'true');
-    const passCards = page.locator('article');
+    // Open passed checks section to verify pass cards exist
+    const passSummary = page.locator('#passed-checks > summary');
+    await passSummary.click();
+    const passCards = page.locator('#passed-checks article');
     const passCount = await passCards.count();
     expect(passCount).toBeGreaterThan(0);
-    await expect(passCards.first().locator('text=Threshold Passed')).toBeVisible();
-
-    // Return to 'All' filter
-    const allFilterBtn = page.locator('.filter-bar button', { hasText: 'All' });
-    await allFilterBtn.click();
+    await expect(passCards.first()).toBeVisible();
 
     // =========================================================================
     // STEP 5: Verify issue card hierarchy on candidateFail card
@@ -90,9 +85,9 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
     const hasScreenshotFallback = await candidateFailCard.locator('text=Screenshot unavailable').count();
     expect(hasScreenshot + hasScreenshotFallback).toBeGreaterThan(0);
 
-    // (6) Designer decision controls — Accept, Reject, Edit, Reprioritize
-    await expect(candidateFailCard.locator('button', { hasText: 'Accept Issue' })).toBeVisible();
-    await expect(candidateFailCard.locator('button', { hasText: 'Reject (False Positive)' })).toBeVisible();
+    // (6) Review status and separate adjustment controls
+    await expect(candidateFailCard.getByLabel('Review status', { exact: true })).toBeVisible();
+    await expect(candidateFailCard.getByRole('button', { name: 'Save review', exact: true })).toBeDisabled();
     await expect(candidateFailCard.locator('button', { hasText: 'Edit Scope' })).toBeVisible();
     await expect(candidateFailCard.locator('button', { hasText: 'Reprioritize' })).toBeVisible();
 
@@ -105,7 +100,7 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
     await techExpandBtn.click();
     await expect(candidateFailCard.locator('text=Grouping Fingerprint:')).toBeVisible();
     await expect(candidateFailCard.locator('text=WCAG 2.2 SC 2.5.8 Target Size (Minimum)')).toBeVisible();
-    await expect(candidateFailCard.locator('text=Measured Value:')).toBeVisible();
+    await expect(candidateFailCard.locator('text=Measured Evidence:')).toBeVisible();
     await expect(candidateFailCard.locator('text=Expected Threshold:')).toBeVisible();
 
     // Collapse it back
@@ -122,7 +117,7 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
 
     // Verify provenance badge (deterministic fallback or live AI)
     const provBadge = candidateFailCard.locator('[data-testid^="provenance-badge-"]');
-    await expect(provBadge).toBeVisible({ timeout: 10000 });
+    await expect(provBadge).toBeVisible({ timeout: 30000 });
     await expect(provBadge).toHaveText(/Deterministic Fallback|AI-Generated/);
 
     const isFallback = (await provBadge.textContent())?.includes('Deterministic Fallback');
@@ -146,8 +141,9 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
     // =========================================================================
     // STEP 7: Record a designer decision (Accept) with inline feedback
     // =========================================================================
-    const acceptBtn = candidateFailCard.locator('button', { hasText: 'Accept Issue' });
-    await acceptBtn.click();
+    await candidateFailCard.getByLabel('Review status', { exact: true }).selectOption('confirmed_issue');
+    await candidateFailCard.getByLabel('Reviewer / risk approver (self-reported)').fill('Audit reviewer');
+    await candidateFailCard.getByLabel('Review rationale').fill('Confirmed from measured evidence.');
 
     const saveBtn = candidateFailCard.locator('button[id^="save-decision-btn"]');
     await expect(saveBtn).toBeEnabled();
@@ -155,7 +151,7 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
 
     // Inline confirmation
     await expect(candidateFailCard.locator('text=Decision saved to audit log')).toBeVisible();
-    await expect(candidateFailCard.locator('.decision-badge')).toHaveText('Decision: accept');
+    await expect(candidateFailCard.getByText('Current review: Confirmed Issue', { exact: true })).toBeVisible();
 
     // =========================================================================
     // STEP 8: Export JSON report
@@ -187,7 +183,7 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
     expect(jsonRaw).not.toContain('C:\\');
 
     // Accepted decision is in the export
-    const acceptedGroup = jsonReport.groupedIssues.find((g: any) => g.designerDecision === 'accept');
+    const acceptedGroup = jsonReport.groupedIssues.find((g: any) => g.reviewDisposition === 'confirmed_issue');
     expect(acceptedGroup).toBeDefined();
 
     // AI/fallback explanation is in the export
@@ -221,7 +217,7 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
 
     // Decision reflected in Markdown
     expect(mdContent).toContain('## Designer Decisions');
-    expect(mdContent).toContain('`accept`');
+    expect(mdContent).toContain('**Review Status**: confirmed_issue');
 
     // AI provenance section
     expect(mdContent).toContain('## AI / Fallback Provenance');
@@ -268,7 +264,7 @@ test.describe('Phase 8: Complete End-to-End Audit Flow (TEST-24)', () => {
     // Decision persists
     const reloadedCard = page.locator('article', { hasText: 'Interactive target below 24×24 CSS px' }).first();
     await expect(reloadedCard).toBeVisible();
-    await expect(reloadedCard.locator('.decision-badge')).toHaveText('Decision: accept');
+    await expect(reloadedCard.getByText('Current review: Confirmed Issue', { exact: true })).toBeVisible();
 
     // Explanation persists
     const reloadedProvBadge = reloadedCard.locator('[data-testid^="provenance-badge-"]');

@@ -47,7 +47,7 @@ test.describe('Phase 1: Target Size Vertical Slice', () => {
     await expect(page.locator('text=Audit Result Summary')).toBeVisible({ timeout: 15000 });
     const reloadedCard = page.locator('article', { hasText: 'Interactive target below 24×24 CSS px' }).first();
     await expect(reloadedCard).toBeVisible();
-    await expect(reloadedCard.locator('.decision-badge')).toHaveText('Decision: reprioritize');
+    await expect(reloadedCard.locator('.decision-badge')).toHaveText('Last adjustment: Changed priority');
     await expect(reloadedCard.locator('text=High-traffic action on mobile: verified candidate issue.')).toBeVisible();
   });
 });

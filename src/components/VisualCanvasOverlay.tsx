@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { AuditRun, BoundingBox, GroupedUXIssue, Viewport, DesignerDecision, extractEvidenceMetrics } from '@/lib/schema/ux-issue';
+import { AuditRun, BoundingBox, GroupedUXIssue, Viewport, effectiveReviewDisposition, REVIEW_DISPOSITION_LABELS, extractEvidenceMetrics } from '@/lib/schema/ux-issue';
 import { createSandboxSnippetFromIssue } from '@/lib/sandbox/snippet-builder';
 import { calculateContrastRatioRaw, parseColor } from '@/lib/audit/color-math';
 import { Icon, type IconName } from './Icon';
-import { describeTouchTargetPair, readTouchTargetPair } from '@/lib/audit/touch-target-pair';
+import { describeTouchTargetPair, readTouchTargetPair, touchTargetSpacingStatusLabels } from '@/lib/audit/touch-target-pair';
 
 // Standardized color uppercase hex formatter (e.g. #AAAAAA, #FFFFFF, #0F172A)
 function formatColorHex(colorStr?: string | null): string {
@@ -24,6 +24,7 @@ interface VisualCanvasOverlayProps {
   activeFingerprint: string | null;
   pairRequest?: { group: GroupedUXIssue } | null;
   onSelectIssue: (fingerprint: string) => void;
+  onOpenReview: (group: GroupedUXIssue) => void;
   onDecisionSaved?: (updated: GroupedUXIssue) => void;
 }
 
@@ -61,6 +62,7 @@ export function VisualCanvasOverlay({
   activeFingerprint,
   pairRequest,
   onSelectIssue,
+  onOpenReview,
   onDecisionSaved,
 }: VisualCanvasOverlayProps) {
   // 1. Available viewports (prioritizing 1440px Desktop, 375px Mobile, 320px Reflow)
@@ -304,6 +306,7 @@ export function VisualCanvasOverlay({
   }, [activeFingerprint, pins, visiblePins]);
 
   const activePairSummary = activePin && describeTouchTargetPair(activePin.groupedIssue);
+  const activeReview = activePin && effectiveReviewDisposition(activePin.groupedIssue);
 
   // Calculate Fit scale dynamically via ResizeObserver
   useEffect(() => {
@@ -501,53 +504,6 @@ export function VisualCanvasOverlay({
     smartFocusPin(pin);
   };
 
-  // 3-Way Issue Disposition: Confirm, Dismiss, or Leave for Review
-  const handleDispositionChange = async (disposition: 'confirmed_issue' | 'false_positive' | 'needs_review') => {
-    if (readOnly || !activePin || activePin.status === 'pass' || isSavingDecision) return;
-    setIsSavingDecision(true);
-    setActionFeedback(null);
-
-    const reasons: Record<typeof disposition, string> = {
-      confirmed_issue: 'Confirmed as verified issue for backlog remediation',
-      false_positive: 'Dismissed as acceptable design intent or false positive in context',
-      needs_review: 'Flagged for team review and verification',
-    };
-
-    const feedbackMessages: Record<typeof disposition, string> = {
-      confirmed_issue: 'Confirmed as verified issue (queued for backlog)',
-      false_positive: 'Dismissed as false positive / design intent',
-      needs_review: 'Marked for team review (pending triage)',
-    };
-
-    try {
-      const res = await fetch('/api/decisions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          runId: currentRun.id,
-          fingerprint: activePin.fingerprint,
-          disposition,
-          reason: reasons[disposition],
-          reviewer: 'Visual Canvas',
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.error || 'Failed to update review status');
-
-      setActionFeedback(feedbackMessages[disposition]);
-      if (onDecisionSaved) onDecisionSaved(data.updatedGroup);
-      setTimeout(() => setActionFeedback(null), 3500);
-    } catch (err: unknown) {
-      setActionFeedback(err instanceof Error ? err.message : 'Failed to update review status');
-    } finally {
-      setIsSavingDecision(false);
-    }
-  };
-
-  // Step 1: Confirm Issue into Backlog (Legacy/Direct wrapper)
-  const handleConfirmIssue = () => handleDispositionChange('confirmed_issue');
-
   // Accept Fix into Spec: Records token into spec, explicitly unverified until Sandbox re-audit
   const handleAcceptFixIntoSpec = async () => {
     if (readOnly || !activePin || activePin.status === 'pass' || isSavingDecision) return;
@@ -577,47 +533,6 @@ export function VisualCanvasOverlay({
       setTimeout(() => setActionFeedback(null), 4000);
     } catch (err: unknown) {
       setActionFeedback(err instanceof Error ? err.message : 'Could not accept fix');
-    } finally {
-      setIsSavingDecision(false);
-    }
-  };
-
-  // Step 2: Accept Fix or Dismiss
-  const handleQuickDecision = async (decision: DesignerDecision) => {
-    if (decision === 'accept') {
-      return handleAcceptFixIntoSpec();
-    }
-    if (decision === 'reject') {
-      return handleDispositionChange('false_positive');
-    }
-    if (readOnly || !activePin || activePin.status === 'pass' || isSavingDecision) return;
-    setIsSavingDecision(true);
-    setActionFeedback(null);
-
-    try {
-      const res = await fetch('/api/decisions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          runId: currentRun.id,
-          fingerprint: activePin.fingerprint,
-          decision,
-          reason: 'Reprioritized via Visual Canvas',
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Could not save decision.');
-      }
-
-      setActionFeedback('Reprioritized issue');
-      if (onDecisionSaved) {
-        onDecisionSaved(data.updatedGroup);
-      }
-      setTimeout(() => setActionFeedback(null), 3500);
-    } catch (err: unknown) {
-      setActionFeedback(err instanceof Error ? err.message : 'Failed to save');
     } finally {
       setIsSavingDecision(false);
     }
@@ -1903,7 +1818,7 @@ export function VisualCanvasOverlay({
 
             <div className="inspector-meta-row">
               <span className={`inspector-status-tag tone-${getStatusColor(activePin.status).tone}`}>
-                {getStatusColor(activePin.status).label}
+                Audit result: {activePairSummary ? touchTargetSpacingStatusLabels[activePin.status] : getStatusColor(activePin.status).label}
               </span>
               {activePin.status !== 'pass' && <span className="inspector-priority-tag">
                 {activePin.priority} Priority
@@ -1979,54 +1894,23 @@ export function VisualCanvasOverlay({
               )}
             </div>}
 
-            {/* TRIAGE AFTER EVIDENCE: Confirm | Dismiss | Leave for Review */}
-            {!readOnly && activePin.status !== 'pass' && (() => {
-              const effectiveDisposition =
-                activePin.groupedIssue.reviewDisposition ||
-                (activePin.groupedIssue.designerDecision === 'accept'
-                  ? 'confirmed_issue'
-                  : activePin.groupedIssue.designerDecision === 'reject'
-                    ? 'false_positive'
-                    : 'needs_review');
-
-              return (
-                <div className="inspector-triage-section">
-                  <span className="triage-section-label">Issue Triage Decision</span>
-                  <div className="inspector-disposition-row">
-                    <button
-                      type="button"
-                      className={`disposition-btn btn-confirm ${effectiveDisposition === 'confirmed_issue' ? 'is-selected' : ''}`}
-                      disabled={isSavingDecision}
-                      onClick={() => handleDispositionChange('confirmed_issue')}
-                      title="Confirm this finding as a valid UX issue for backlog"
-                    >
-                      <Icon name="CheckCircle2" size={12} />
-                      <span>Confirm Issue</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`disposition-btn btn-reject ${effectiveDisposition === 'false_positive' ? 'is-selected' : ''}`}
-                      disabled={isSavingDecision}
-                      onClick={() => handleDispositionChange('false_positive')}
-                      title="Dismiss as acceptable design intent or false positive"
-                    >
-                      <Icon name="X" size={12} />
-                      <span>Dismiss</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`disposition-btn btn-review ${effectiveDisposition === 'needs_review' ? 'is-selected' : ''}`}
-                      disabled={isSavingDecision}
-                      onClick={() => handleDispositionChange('needs_review')}
-                      title="Leave for team review without forcing immediate triage"
-                    >
-                      <Icon name="HelpCircle" size={12} />
-                      <span>Leave for Review</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })()}
+            {!readOnly && activePin.status !== 'pass' && (
+              <div className="inspector-triage-section space-y-2">
+                <p className="text-xs text-zinc-600">
+                  Reviewer decision: <strong>{activeReview ? REVIEW_DISPOSITION_LABELS[activeReview] : 'Not reviewed'}</strong>
+                </p>
+                <button
+                  type="button"
+                  className="rounded-md border border-zinc-300 px-3 text-xs font-semibold hover:bg-zinc-50 focus-visible:ring-2 focus-visible:ring-blue-600"
+                  onClick={() => {
+                    setIsFullScreen(false);
+                    onOpenReview(activePin.groupedIssue);
+                  }}
+                >
+                  Review finding
+                </button>
+              </div>
+            )}
 
             {/* Collapsible Selector, RGB Colors & Technical Details */}
             {activePin.status !== 'pass' && <details className="inspector-collapsible-meta">
@@ -2172,16 +2056,6 @@ export function VisualCanvasOverlay({
                       >
                         <Icon name="RefreshCw" size={14} />
                         <span>Adjust Fix & Re-test</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="action-btn btn-accept btn-reject-candidate"
-                        disabled={isSavingDecision}
-                        onClick={() => handleQuickDecision('reject')}
-                        title="Reject this candidate fix"
-                      >
-                        <Icon name="X" size={14} />
-                        <span>Reject Candidate</span>
                       </button>
                     </div>
                   </>

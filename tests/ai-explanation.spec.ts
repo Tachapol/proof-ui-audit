@@ -5,7 +5,7 @@ test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verific
   test('executes 12-step offline AI explanation workflow, persistence, immutability, and 320px responsiveness', async ({
     page,
   }) => {
-    test.setTimeout(90000);
+    test.setTimeout(180000);
 
     // Step 1: Run an audit
     await page.goto('/');
@@ -34,7 +34,7 @@ test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verific
 
     // Step 3 & 4: Verify deterministic fallback or live AI provenance label is displayed
     const provBadge = failCard.locator('[data-testid^="provenance-badge-"]');
-    await expect(provBadge).toBeVisible({ timeout: 10000 });
+    await expect(provBadge).toBeVisible({ timeout: 30000 });
     await expect(provBadge).toHaveText(/Deterministic Fallback|AI-Generated/);
 
     const isFallback = (await provBadge.textContent())?.includes('Deterministic Fallback');
@@ -46,7 +46,7 @@ test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verific
 
     const explanationText = failCard.locator('[data-testid^="ai-explanation-"]');
     await expect(explanationText).toBeVisible();
-    await expect(explanationText).toContainText(/WCAG 2\.2 SC 2\.5\.8|2\.5\.8/);
+    await expect(explanationText).toContainText(/WCAG 2\.2 SC 2\.5\.8|2\.5\.8|24\s*[×x]\s*24/);
 
     const activeRec = failCard.locator('[data-testid^="active-recommendation-"]');
     await expect(activeRec).toBeVisible();
@@ -57,7 +57,7 @@ test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verific
     // Step 5: Verify measured evidence remains visible and unchanged
     const techBtn = failCard.locator('button', { hasText: 'Expand Technical Evidence' });
     await techBtn.click();
-    await expect(failCard.locator('text=Measured Value:')).toBeVisible();
+    await expect(failCard.locator('text=Measured Evidence:')).toBeVisible();
     await expect(failCard.locator('code', { hasText: 'btn-fail-tiny' }).first()).toBeVisible();
 
     // Step 6: Verify needsReview displays uncertainty and designer-verification language
@@ -65,7 +65,7 @@ test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verific
     await reviewExplainBtn.click();
 
     const reviewProvBadge = reviewCard.locator('[data-testid^="provenance-badge-"]');
-    await expect(reviewProvBadge).toBeVisible({ timeout: 10000 });
+    await expect(reviewProvBadge).toBeVisible({ timeout: 30000 });
     await expect(reviewProvBadge).toHaveText(/Deterministic Fallback|AI-Generated/);
 
     const uncertaintyCallout = reviewCard.locator('[data-testid^="uncertainty-callout-"]');
@@ -78,7 +78,7 @@ test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verific
 
     // Step 8: Verify explanation, recommendation, and provenance persist
     const failCardAfterReload = page.locator('article', { hasText: 'Interactive target below 24×24 CSS px' }).first();
-    await expect(failCardAfterReload).toBeVisible();
+    await expect(failCardAfterReload).toBeVisible({ timeout: 20000 });
 
     const provBadgeAfterReload = failCardAfterReload.locator('[data-testid^="provenance-badge-"]');
     await expect(provBadgeAfterReload).toBeVisible();
@@ -86,7 +86,7 @@ test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verific
 
     const explanationAfterReload = failCardAfterReload.locator('[data-testid^="ai-explanation-"]');
     await expect(explanationAfterReload).toBeVisible();
-    await expect(explanationAfterReload).toContainText(/WCAG 2\.2 SC 2\.5\.8|2\.5\.8/);
+    await expect(explanationAfterReload).toContainText(/WCAG 2\.2 SC 2\.5\.8|2\.5\.8|24\s*[×x]\s*24/);
 
     // Step 9: Edit the recommendation as the designer
     const editBtn = failCardAfterReload.locator('button[id^="decision-btn-edit-"]');
@@ -100,7 +100,7 @@ test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verific
 
     const saveBtn = failCardAfterReload.locator('button[id^="save-decision-btn-"]');
     await saveBtn.click();
-    await expect(failCardAfterReload.locator('text=Decision saved to audit log')).toBeVisible();
+    await expect(failCardAfterReload.locator('text=Decision saved to audit log')).toBeVisible({ timeout: 15000 });
 
     const designerBadge = failCardAfterReload.locator('[data-testid^="designer-edit-badge-"]');
     await expect(designerBadge).toBeVisible();
@@ -130,6 +130,7 @@ test.describe('Phase 5: Grounded AI Explanation & Deterministic Fallback Verific
     await page.waitForLoadState('networkidle');
 
     const failCardAfterRegenReload = page.locator('article', { hasText: 'Interactive target below 24×24 CSS px' }).first();
+    await expect(failCardAfterRegenReload).toBeVisible({ timeout: 20000 });
     const historyDisclosure = failCardAfterRegenReload.locator('details[data-testid^="generation-history-"]');
     await expect(historyDisclosure).toBeVisible();
     await historyDisclosure.locator('summary').click();

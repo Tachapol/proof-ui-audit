@@ -37,7 +37,7 @@ test.describe('Phase 2: Contrast Rules Integration Test', () => {
     await expandBtn.click();
     await expect(textFailCard.locator('text=WCAG 2.2 SC 1.4.3 Contrast (Minimum)')).toBeVisible();
     await expect(textFailCard.locator('text=Grouping Fingerprint:')).toBeVisible();
-    await expect(textFailCard.locator('text=Measured Value:')).toBeVisible();
+    await expect(textFailCard.locator('text=Measured Evidence:')).toBeVisible();
 
     // 2. Text contrast needs review (gradient background)
     const gradientReviewCard = page.locator('article', { hasText: 'Text over complex background requires review' }).first();

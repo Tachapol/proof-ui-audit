@@ -12,49 +12,49 @@ export function IssueReview({ issue, runId, onSaved, fixedDisposition }: {
   fixedDisposition?: ReviewDisposition;
 }) {
   const current = effectiveReviewDisposition(issue);
-  const [disposition, setDisposition] = useState<ReviewDisposition>(current || 'needs_review');
-  const [reason, setReason] = useState(issue.reviewReason || issue.designerReason || '');
-  const [reviewer, setReviewer] = useState(issue.reviewer || '');
+  const reviewEvent = current ? issue.decisionHistory.filter(event =>
+    (event.action === 'review_disposition' && event.newDisposition === current) ||
+    (event.action === 'accept' && current === 'confirmed_issue') ||
+    (event.action === 'reject' && current === 'false_positive')
+  ).at(-1) : undefined;
+  const legacyReason = issue.designerDecision === 'accept' || issue.designerDecision === 'reject' ? issue.designerReason : undefined;
+  const savedReason = issue.reviewReason ?? reviewEvent?.reason ?? legacyReason ?? '';
+  const savedReviewer = issue.reviewer ?? reviewEvent?.reviewer ?? '';
+  const [disposition, setDisposition] = useState<ReviewDisposition | ''>(current ?? '');
+  const [reason, setReason] = useState(savedReason);
+  const [reviewer, setReviewer] = useState(savedReviewer);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setDisposition(current || 'needs_review');
-    setReason(issue.reviewReason || issue.designerReason || '');
-    setReviewer(issue.reviewer || '');
+    setDisposition(current ?? '');
+    setReason(savedReason);
+    setReviewer(savedReviewer);
     setError('');
-  }, [issue.fingerprint, current, issue.reviewReason, issue.designerReason, issue.reviewer]);
+  }, [runId, issue.fingerprint, current, savedReason, savedReviewer]);
+
+  useEffect(() => {
+    if (!saved) return;
+    const timeout = setTimeout(() => setSaved(false), 3500);
+    return () => clearTimeout(timeout);
+  }, [saved]);
 
   const prefix = `review-${issue.fingerprint}`;
 
-  const handleSelectQuickDisposition = (targetDisp: ReviewDisposition) => {
-    setDisposition(targetDisp);
-    setSaved(false);
-    setError('');
-    if (!reviewer.trim()) {
-      setReviewer('UX Reviewer');
-    }
-    if (targetDisp === 'confirmed_issue') {
-      if (!reason.trim()) {
-        setReason('Confirmed issue upon visual and evidence review');
-      }
-    } else if (targetDisp === 'false_positive') {
-      if (reason === 'Confirmed issue upon visual and evidence review') {
-        setReason('');
-      }
-    }
-  };
-
   const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    const targetDisp = fixedDisposition ?? disposition;
+    if (!targetDisp || saving) return;
+    const finalReason = reason.trim();
+    const finalReviewer = reviewer.trim();
+    if (finalReason.length < 3 || !finalReviewer) {
+      setError('Enter a reviewer name and a rationale of at least 3 characters.');
+      return;
+    }
     setSaving(true);
     setSaved(false);
     setError('');
-
-    const targetDisp = fixedDisposition ?? disposition;
-    const finalReason = reason.trim() || (targetDisp === 'confirmed_issue' ? 'Confirmed issue upon review' : '');
-    const finalReviewer = reviewer.trim() || 'UX Reviewer';
 
     try {
       const response = await fetch('/api/decisions', {
@@ -76,7 +76,6 @@ export function IssueReview({ issue, runId, onSaved, fixedDisposition }: {
 
       onSaved(result.updatedGroup);
       setSaved(true);
-      setTimeout(() => setSaved(false), 3500);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to save review.');
     } finally {
@@ -84,7 +83,7 @@ export function IssueReview({ issue, runId, onSaved, fixedDisposition }: {
     }
   };
 
-  const canSave = !saving && reason.trim().length >= 3 && reviewer.trim().length >= 1;
+  const canSave = !saving && (fixedDisposition ? reason.trim().length >= 3 && reviewer.trim().length > 0 : Boolean(disposition));
 
   return (
     <form
@@ -93,119 +92,61 @@ export function IssueReview({ issue, runId, onSaved, fixedDisposition }: {
       onSubmit={handleFormSubmit}
     >
       <div className="flex items-center justify-between gap-2 border-b border-zinc-100 pb-2">
-        <h4 className="text-sm font-bold text-zinc-900">Finding Review &amp; Disposition</h4>
+        <h4 className="text-sm font-bold text-zinc-900">Reviewer decision</h4>
         <p className="text-xs text-zinc-600">
           Current review: <strong>{current ? REVIEW_DISPOSITION_LABELS[current] : 'Not reviewed'}</strong>
         </p>
       </div>
 
       <p className="text-xs text-zinc-500 leading-relaxed">
-        Single unified record for this finding. Accepted Risk acknowledges a real issue left unfixed; False Positive marks the finding as incorrect.
+        Accepted Risk acknowledges a real issue left unfixed. False Positive marks the finding as incorrect.
       </p>
 
-      {/* Quick Disposition Action Buttons */}
-      {!fixedDisposition && (
-        <div className="flex flex-wrap gap-2 pt-1" role="group" aria-label="Finding disposition quick actions">
-          <button
-            type="button"
-            id={`decision-btn-accept-${issue.fingerprint}`}
-            onClick={() => handleSelectQuickDisposition('confirmed_issue')}
-            disabled={saving}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border transition-all ${
-              disposition === 'confirmed_issue'
-                ? 'bg-emerald-700 text-white border-emerald-700 shadow-2xs'
-                : 'bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50'
-            }`}
-          >
-            <Icon name="CheckCircle2" size={13} />
-            <span>Accept Issue</span>
-          </button>
-
-          <button
-            type="button"
-            id={`decision-btn-reject-${issue.fingerprint}`}
-            onClick={() => handleSelectQuickDisposition('false_positive')}
-            disabled={saving}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border transition-all ${
-              disposition === 'false_positive'
-                ? 'bg-rose-700 text-white border-rose-700 shadow-2xs'
-                : 'bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50'
-            }`}
-          >
-            <Icon name="X" size={13} />
-            <span>Reject (False Positive)</span>
-          </button>
-
-          <button
-            type="button"
-            id={`decision-btn-needs_review-${issue.fingerprint}`}
-            onClick={() => handleSelectQuickDisposition('needs_review')}
-            disabled={saving}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border transition-all ${
-              disposition === 'needs_review'
-                ? 'bg-amber-700 text-white border-amber-700 shadow-2xs'
-                : 'bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50'
-            }`}
-          >
-            <Icon name="HelpCircle" size={13} />
-            <span>Needs Review</span>
-          </button>
-
-          <button
-            type="button"
-            id={`decision-btn-accepted_risk-${issue.fingerprint}`}
-            onClick={() => handleSelectQuickDisposition('accepted_risk')}
-            disabled={saving}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border transition-all ${
-              disposition === 'accepted_risk'
-                ? 'bg-indigo-700 text-white border-indigo-700 shadow-2xs'
-                : 'bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50'
-            }`}
-          >
-            <Icon name="ShieldAlert" size={13} />
-            <span>Accepted Risk</span>
-          </button>
-        </div>
-      )}
-
-      {fixedDisposition ? (
-        <p className="text-xs">Save as <strong>{REVIEW_DISPOSITION_LABELS[fixedDisposition]}</strong></p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+      <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+        {fixedDisposition ? (
+          <p className="self-center text-xs">Save as <strong>{REVIEW_DISPOSITION_LABELS[fixedDisposition]}</strong></p>
+        ) : (
           <div>
             <label className="block text-xs font-semibold text-zinc-700 mb-1" htmlFor={`${prefix}-status`}>
               Review status
             </label>
             <select
               id={`${prefix}-status`}
+              data-review-status
+              required
               value={disposition}
               disabled={saving}
               className="w-full min-h-9 rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-blue-600 focus:outline-none"
-              onChange={(e) => handleSelectQuickDisposition(e.target.value as ReviewDisposition)}
+              onChange={event => {
+                setDisposition(event.target.value as ReviewDisposition | '');
+                setSaved(false);
+                setError('');
+              }}
             >
+              <option value="" disabled>Select a review status</option>
               {Object.entries(REVIEW_DISPOSITION_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </div>
+        )}
 
-          <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1" htmlFor={`${prefix}-reviewer`}>
-              Reviewer / risk approver (self-reported)
-            </label>
-            <input
-              id={`${prefix}-reviewer`}
-              required
-              maxLength={120}
-              value={reviewer}
-              disabled={saving}
-              placeholder="e.g. Lead Designer"
-              className="w-full min-h-9 rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-blue-600 focus:outline-none"
-              onChange={(e) => { setReviewer(e.target.value); setSaved(false); }}
-            />
-          </div>
+        <div>
+          <label className="block text-xs font-semibold text-zinc-700 mb-1" htmlFor={`${prefix}-reviewer`}>
+            Reviewer / risk approver (self-reported)
+          </label>
+          <input
+            id={`${prefix}-reviewer`}
+            required
+            maxLength={120}
+            value={reviewer}
+            disabled={saving}
+            placeholder="e.g. Lead Designer"
+            className="w-full min-h-9 rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-blue-600 focus:outline-none"
+            onChange={(e) => { setReviewer(e.target.value); setSaved(false); setError(''); }}
+          />
         </div>
-      )}
+      </div>
 
       <div>
         <label className="block text-xs font-semibold text-zinc-700 mb-1" htmlFor={`reason-input-${issue.fingerprint}`}>
@@ -222,7 +163,7 @@ export function IssueReview({ issue, runId, onSaved, fixedDisposition }: {
           disabled={saving}
           placeholder="Document the review justification, visual inspection notes, or risk assessment..."
           className="w-full min-h-9 rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-blue-600 focus:outline-none"
-          onChange={(e) => { setReason(e.target.value); setSaved(false); }}
+          onChange={(e) => { setReason(e.target.value); setSaved(false); setError(''); }}
         />
       </div>
 
@@ -233,7 +174,7 @@ export function IssueReview({ issue, runId, onSaved, fixedDisposition }: {
           disabled={!canSave}
           className="min-h-9 rounded-md bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-zinc-800 disabled:opacity-50 transition-colors"
         >
-          {saving ? 'Saving review…' : fixedDisposition === 'accepted_risk' ? 'Save Accepted Risk' : 'Save issue review'}
+          {saving ? 'Saving review…' : fixedDisposition === 'accepted_risk' ? 'Save Accepted Risk' : 'Save review'}
         </button>
 
         {saved && (

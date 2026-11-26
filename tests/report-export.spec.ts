@@ -22,16 +22,16 @@ test.describe('Phase 6A: Report Export (JSON & Markdown)', () => {
     await expect(firstCard).toBeVisible();
 
     // 2. Record a designer decision on the first card
-    const acceptBtn = firstCard.locator('button', { hasText: 'Accept Issue' });
-    await expect(acceptBtn).toBeVisible();
-    await acceptBtn.click();
+    await firstCard.getByLabel('Review status', { exact: true }).selectOption('confirmed_issue');
+    await firstCard.getByLabel('Reviewer / risk approver (self-reported)').fill('Report reviewer');
+    await firstCard.getByLabel('Review rationale').fill('Confirmed after reviewing the measured target and its context.');
 
     const saveBtn = firstCard.locator('button[id^="save-decision-btn"]');
     await expect(saveBtn).toBeEnabled();
     await saveBtn.click();
 
     // Confirm acceptance badge
-    await expect(firstCard.locator('.decision-badge')).toHaveText('Decision: accept');
+    await expect(firstCard.getByText('Current review: Confirmed Issue', { exact: true })).toBeVisible();
 
     // 3. Request AI/fallback explanation
     const explainBtn = firstCard.locator('button[id^="explain-btn-"]');
@@ -65,7 +65,7 @@ test.describe('Phase 6A: Report Export (JSON & Markdown)', () => {
     expect(jsonRaw).not.toContain('C:\\');
 
     // Verify that the recorded decision and AI guidance are in the JSON
-    const acceptedGroup = jsonReport.groupedIssues.find((g: any) => g.designerDecision === 'accept');
+    const acceptedGroup = jsonReport.groupedIssues.find((g: any) => g.reviewDisposition === 'confirmed_issue');
     expect(acceptedGroup).toBeDefined();
     expect(acceptedGroup.aiExplanationResult).toBeDefined();
 
@@ -88,7 +88,7 @@ test.describe('Phase 6A: Report Export (JSON & Markdown)', () => {
     expect(mdContent).toContain(`Total Raw Occurrences | ${jsonReport.summary.rawFindingCount}`);
     expect(mdContent).toContain(`Unique Grouped Issues | ${jsonReport.summary.groupedIssueCount}`);
     expect(mdContent).toContain('## Designer Decisions');
-    expect(mdContent).toContain('`accept`');
+    expect(mdContent).toContain('**Review Status**: confirmed_issue');
     expect(mdContent).toContain('## AI / Fallback Provenance');
     expect(mdContent).toContain('## Known Limitations');
 

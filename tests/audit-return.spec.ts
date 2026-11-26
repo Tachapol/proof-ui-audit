@@ -87,7 +87,7 @@ test('passed checks stay out of the review queue and show read-only evidence in 
   await page.goto('/?runId=run-passed-checks');
   const card = page.locator('#issue-card-passed-contrast');
   await expect(page.getByRole('button', { name: 'Show all review items, 1' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByRole('button', { name: 'Accept Issue', exact: true })).toBeVisible();
+  await expect(page.getByRole('form', { name: 'Issue review' }).getByLabel('Review status', { exact: true })).toBeVisible();
   await expect(card).toBeHidden();
   await page.locator('summary', { hasText: /^Passed checks \(1\)$/ }).click();
   await expect(card).toBeVisible();
@@ -102,7 +102,7 @@ test('passed checks stay out of the review queue and show read-only evidence in 
   const inspector = canvas.getByRole('complementary', { name: 'Issue Inspector' });
   await expect(inspector.getByText('Viewport 1440×900')).toBeVisible();
   await expect(inspector.getByText('#passed-contrast', { exact: true })).toBeVisible();
-  await expect(inspector.getByRole('button', { name: /Confirm Issue|Dismiss|Leave for Review|Save Proposed Fix|Sandbox & Re-audit/ })).toHaveCount(0);
+  await expect(inspector.getByRole('button', { name: /Review finding|Save Proposed Fix|Sandbox & Re-audit/ })).toHaveCount(0);
 
   await page.goto('/?runId=run-only-passed');
   await expect(page.getByRole('heading', { name: 'No items to review in the measured results' })).toBeVisible();

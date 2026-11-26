@@ -135,7 +135,7 @@ export function groupUXIssues(issues: UXIssue[]): GroupedUXIssue[] {
   return grouped;
 }
 
-/** Rebuild legacy directional spacing groups when opening a saved run. Raw findings stay intact. */
+/** Normalize saved spacing groups and refresh their display labels without changing raw findings. */
 export function normalizeTouchTargetGroups(run: AuditRun): AuditRun {
   const spacingGroups = new Map<string, GroupedUXIssue[]>();
   for (const group of run.groupedIssues) {
@@ -145,14 +145,22 @@ export function normalizeTouchTargetGroups(run: AuditRun): AuditRun {
     sources.push(group);
     spacingGroups.set(key, sources);
   }
+  if (!spacingGroups.size) return run;
+  const occurrences = [...spacingGroups.values()].flatMap(groups => groups.flatMap(group => group.occurrences));
+  const actionLabels = collectTouchTargetLabels(occurrences);
   const legacy = [...spacingGroups].filter(([key, groups]) => groups.length > 1 || groups[0].fingerprint !== key);
-  if (!legacy.length) return run;
+  const replacements = new Map<string, GroupedUXIssue | undefined>();
+  for (const [key, [group]] of spacingGroups) {
+    if (group.fingerprint !== key) continue;
+    const title = labelTouchTargetPair(group.representative, actionLabels);
+    if (title && title !== group.representative.title) {
+      replacements.set(key, { ...group, representative: { ...group.representative, title } });
+    }
+  }
 
-  const rebuilt = new Map(groupUXIssues([...spacingGroups.values()].flatMap(groups => groups.flatMap(group => group.occurrences)))
-    .map(group => [group.fingerprint, group]));
+  const rebuilt = new Map((legacy.length ? groupUXIssues(occurrences) : []).map(group => [group.fingerprint, group]));
   const mostRecentDecision = (source: GroupedUXIssue) => source.reviewedAt ??
     source.decisionHistory.filter(record => ['review_disposition', 'accept', 'reject'].includes(record.action)).at(-1)?.timestamp ?? '';
-  const replacements = new Map<string, GroupedUXIssue | undefined>();
   for (const [key, groups] of legacy) {
     const group = rebuilt.get(key);
     if (!group) continue;
@@ -173,12 +181,13 @@ export function normalizeTouchTargetGroups(run: AuditRun): AuditRun {
     });
     for (const duplicate of groups.slice(1)) replacements.set(duplicate.fingerprint, undefined);
   }
+  if (!replacements.size) return run;
   const groupedIssues = run.groupedIssues.flatMap(group => {
     if (!replacements.has(group.fingerprint)) return [group];
     const replacement = replacements.get(group.fingerprint);
     return replacement ? [replacement] : [];
   });
-  return { ...run, groupedIssues, summary: calculateAuditSummary(run.rawIssues, groupedIssues) };
+  return { ...run, groupedIssues, summary: legacy.length ? calculateAuditSummary(run.rawIssues, groupedIssues) : run.summary };
 }
 
 export function calculateAuditSummary(rawIssues: UXIssue[], groupedIssues: GroupedUXIssue[]): AuditSummary {
