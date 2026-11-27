@@ -71,6 +71,7 @@ export interface AuditContextInput {
 export interface FeedbackIssue {
   id: string;
   metricId: string;
+  page_hint?: string;
   status: ChecklistStatus;
   priority: PriorityLevel;
   group: ChecklistGroup;
@@ -152,6 +153,32 @@ export interface AutoIterationResult {
   feedback?: FeedbackWorksheet;
   totalUsage?: IterationUsage;
   iterations: IterationSnapshot[];
+}
+
+export interface BatchPageAuditResult {
+  page: string;
+  result: AutoIterationResult;
+  summary: ChecklistSummary;
+  feedback: FeedbackWorksheet;
+  durationMs: number;
+  error?: string;
+}
+
+export interface BatchAuditReport {
+  projectName: string;
+  auditedAt: string;
+  totalPages: number;
+  completedPages: number;
+  aggregate: {
+    avgPassRate: number;
+    minPassRate: number;
+    worstPage: string | null;
+    totalPassed: number;
+    totalFailed: number;
+    totalNeedsReview: number;
+  };
+  pages: BatchPageAuditResult[];
+  feedback: FeedbackWorksheet;
 }
 
 export const CHECKLIST_PILLARS: Array<{ id: ChecklistPillarId; group: ChecklistGroup; label: string }> = [

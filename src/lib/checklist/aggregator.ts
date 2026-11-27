@@ -3,9 +3,13 @@ import { getDefaultRecommendation } from '@/lib/audit/recommendation';
 import {
   CHECKLIST_METRICS,
   CHECKLIST_PILLARS,
+  type AuditContextInput,
+  type BatchAuditReport,
+  type BatchPageAuditResult,
   type ChecklistItemResult,
   type ChecklistStatus,
   type ChecklistSummary,
+  type FeedbackIssue,
   type PriorityLevel,
 } from './types';
 
@@ -210,6 +214,80 @@ export function buildChecklistSummary(
     pillars,
     items,
     priorityList,
+  };
+}
+
+/**
+ * Aggregates multiple single-page read-only audits into a site-wide BatchAuditReport
+ * with per-page scores and a combined feedback worksheet containing `page_hint`.
+ */
+export function buildBatchAuditReport(
+  projectName: string,
+  pages: BatchPageAuditResult[],
+  context?: AuditContextInput
+): BatchAuditReport {
+  const completed = pages.filter((p) => !p.error);
+  const totalPages = pages.length;
+  const completedPages = completed.length;
+
+  const avgPassRate =
+    completedPages > 0
+      ? Math.round(completed.reduce((sum, p) => sum + p.summary.passRate, 0) / completedPages)
+      : 0;
+
+  let worstPage: string | null = null;
+  let minPassRate = completedPages > 0 ? 100 : 0;
+  let worstFailed = -1;
+
+  for (const p of completed) {
+    if (
+      worstPage === null ||
+      p.summary.passRate < minPassRate ||
+      (p.summary.passRate === minPassRate && p.summary.totalFailed > worstFailed)
+    ) {
+      worstPage = p.page;
+      minPassRate = p.summary.passRate;
+      worstFailed = p.summary.totalFailed;
+    }
+  }
+
+  const totalPassed = completed.reduce((sum, p) => sum + p.summary.totalPassed, 0);
+  const totalFailed = completed.reduce((sum, p) => sum + p.summary.totalFailed, 0);
+  const totalNeedsReview = completed.reduce((sum, p) => sum + p.summary.totalNeedsReview, 0);
+
+  const combinedIssues: FeedbackIssue[] = [];
+  let fbCounter = 1;
+  for (const p of completed) {
+    for (const issue of p.feedback.issues) {
+      combinedIssues.push({
+        ...issue,
+        id: `FB-${String(fbCounter++).padStart(2, '0')}`,
+        page_hint: issue.page_hint || p.page,
+      });
+    }
+  }
+
+  return {
+    projectName,
+    auditedAt: new Date().toISOString(),
+    totalPages,
+    completedPages,
+    aggregate: {
+      avgPassRate,
+      minPassRate,
+      worstPage,
+      totalPassed,
+      totalFailed,
+      totalNeedsReview,
+    },
+    pages,
+    feedback: {
+      summary: {
+        totalFailing: combinedIssues.length,
+        context,
+      },
+      issues: combinedIssues,
+    },
   };
 }
 

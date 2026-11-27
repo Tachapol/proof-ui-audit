@@ -218,7 +218,7 @@ $$C_{\text{out}} = \frac{C_{\text{src}} \times \alpha_{\text{src}} + C_{\text{ds
 |---|:---:|:---:|
 | **Traceability Requirements** | 131 / 131 ข้อ | **100% Verified** |
 | **Prohibited Features Scan** | 20 / 20 รายการ | **100% Absent** (ปลอดโค้ดตกแต่งที่ไม่จำเป็น) |
-| **Vitest Unit Tests** | 319 / 319 passed (37 suites) | **100% Pass** (Hermetic / ทำงานแบบออฟไลน์) |
+| **Vitest Unit Tests** | 320 / 320 passed (37 suites) | **100% Pass** (Hermetic / ทำงานแบบออฟไลน์) |
 | **Playwright E2E Tests** | 31 / 31 passed | **100% Pass** (ทดสอบทั้งกระบวนการใช้งาน) |
 | **Total Automated Tests** | **206 / 206 passed** | **100% Pass** |
 | **TypeScript Strict Check** | 0 errors | **Clean** |
@@ -246,9 +246,13 @@ $$C_{\text{out}} = \frac{C_{\text{src}} \times \alpha_{\text{src}} + C_{\text{ds
 
 ## 8. 36-Metric Self-Audit Checklist (`/checklist`)
 
-โหมด **Self-Audit (`/checklist`)** ขยายการตรวจจาก 5 กฎ WCAG ไปสู่ **36 เมตริกเชิงกำหนด (Deterministic Metrics)** แบ่งเป็น **18 UX + 18 UI** across **6 Pillars** (หมวดละ 6 ตัว) โดยผสานมาตรฐานจาก **WCAG 2.2**, **Nielsen's 10 Heuristics**, **Apple HIG**, และ **Material Design 3**
+โหมด **Self-Audit (`/checklist`)** ขยายการตรวจจาก 5 กฎ WCAG ไปสู่ **36 เมตริกเชิงกำหนด (Deterministic Metrics)** แบ่งเป็น **18 UX + 18 UI** across **6 Pillars** (หมวดละ 6 ตัว: `7 audit-rule` + `29 dom-check`) โดยผสานมาตรฐานจาก **WCAG 2.2**, **Nielsen's 10 Heuristics**, **Apple HIG**, และ **Material Design 3**
 
+- **สถานะ 4 แบบ**: `pass`, `fail`, `needsReview`, และ `notApplicable`
 - **การคำนวณคะแนน (`passRate`)**: เฉพาะรายการที่วัดได้จริง (`totalApplicable = totalMetrics - totalNotApplicable`) โดยไม่นำรายการที่เป็น `notApplicable` มาคิดเป็นตัวหาร
+- **3-Stage UI & Scoreboard**: แบ่งเป็น `1. Input & Context` → `2. Audit & Prioritize` → `3. Optimize & Approve` (ใช้ `FigmaReviewCanvas` เต็มจอ; Scoreboard แสดงตั้งแต่ Stage 2 เป็นต้นไป)
+- **Batch Audit & `page_hint`**: รองรับการตรวจทุกหน้า `.html` แบบ read-only เพื่อออก `report.json` และ `feedback.json` ที่มี `page_hint` แล้วเลือกเจาะจงทีละหน้าเข้าสู่ Single-Page Optimize
+- **Auto-Iteration Loop & LLM Chain**: ส่ง issue เข้า LLM สูงสุด **6 ข้อต่อรอบ** (HTML truncate ที่ `35,000` ตัวอักษร), รันสูงสุด **5 รอบ** (default **3**), หยุดเมื่อ pass ครบ หรือไม่ดีขึ้น **2 รอบติด**, accept เฉพาะเมื่อ `regressedIds === 0` และดีขึ้น ใช้โมเดล **`gpt-6-luna`** (CPE gateway, `temperature: 0.1`) → fallback **`gemini-2.5-flash`** (patch) / **`gemini-1.5-flash`** (explanation) → **`deterministic-fallback`**
 - **Designer-in-the-Loop**: รายการที่มีสถานะ `needsReview` จะไม่ถูกส่งไปแก้ไขอัตโนมัติ จนกว่า Designer จะกด **Confirm for fix** เพื่อยืนยันให้รวมไว้ในรอบ Auto-Iteration
 
 | Group | Pillar | Metric ID | Title | Criterion / Standard | Priority |
