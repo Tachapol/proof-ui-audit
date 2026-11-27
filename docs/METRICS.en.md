@@ -220,7 +220,7 @@ Documented in [`RELEASE_NOTES.md`](file:///Users/mysteriouz/Projects/proof-ui-au
 |---|:---:|:---:|
 | **Traceability Requirements** | 131 / 131 verified | **100% Conformance** |
 | **Prohibited Features Scan** | 20 / 20 absent | **100% Verified** (Zero decorative scope creep) |
-| **Vitest Unit Tests** | 319 / 319 passed (37 suites) | **100% Pass** (Hermetic, offline-capable) |
+| **Vitest Unit Tests** | 320 / 320 passed (37 suites) | **100% Pass** (Hermetic, offline-capable) |
 | **Playwright E2E Tests** | 31 / 31 passed | **100% Pass** (Full pipeline validation) |
 | **Total Automated Tests** | **206 / 206 passed** | **100% Pass Rate** |
 | **TypeScript Strict Check** | 0 errors | **Clean** |
@@ -248,9 +248,13 @@ Documented in [`RELEASE_NOTES.md`](file:///Users/mysteriouz/Projects/proof-ui-au
 
 ## 8. 36-Metric Self-Audit Checklist (`/checklist`)
 
-The **Self-Audit (`/checklist`)** workspace extends the 5 core WCAG rules to **36 deterministic metrics** (**18 UX + 18 UI** across **6 pillars**, 6 metrics per pillar), combining **WCAG 2.2**, **Nielsen's 10 Heuristics**, **Apple HIG**, and **Material Design 3**.
+The **Self-Audit (`/checklist`)** workspace extends the 5 core WCAG rules to **36 deterministic metrics** (**18 UX + 18 UI** across **6 pillars**, 6 metrics per pillar: `7 audit-rule` + `29 dom-check`), combining **WCAG 2.2**, **Nielsen's 10 Heuristics**, **Apple HIG**, and **Material Design 3**.
 
+- **Four Metric States**: `pass`, `fail`, `needsReview`, and `notApplicable`
 - **Pass Rate Calculation (`passRate`)**: Computed over applicable metrics (`totalApplicable = totalMetrics - totalNotApplicable`), excluding `notApplicable` items from the denominator.
+- **3-Stage UI & Scoreboard**: `1. Input & Context` → `2. Audit & Prioritize` → `3. Optimize & Approve` (full-screen `FigmaReviewCanvas`; the scoreboard is displayed from Stage 2 onward).
+- **Batch Audit & `page_hint`**: Supports read-only multi-page `.html` batch audits exporting `report.json` and `feedback.json` with `page_hint`, followed by single-page optimization.
+- **Auto-Iteration Loop & LLM Chain**: Caps LLM input at **6 issues/round** (HTML truncated at `35,000` chars), max **5 iterations** (default **3**), stops when all pass or after **2 consecutive non-improving rounds**, and accepts only when `regressedIds === 0` with measurable improvement. Uses **`gpt-6-luna`** (CPE gateway, `temperature: 0.1`) → **`gemini-2.5-flash`** (patch) / **`gemini-1.5-flash`** (explanation) → **`deterministic-fallback`**.
 - **Designer-in-the-Loop**: Metrics marked `needsReview` are excluded from automated remediation unless explicitly confirmed by the designer via **Confirm for fix**.
 
 | Group | Pillar | Metric ID | Title | Criterion / Standard | Priority |
