@@ -11,8 +11,10 @@ import {
   CheckCircle2,
   Code2,
   Copy,
+  Download,
   Eye,
   FolderUp,
+  Layers,
   Link2,
   Loader2,
   Maximize2,
@@ -23,10 +25,15 @@ import {
   X,
   XCircle,
 } from 'lucide-react';
+import { buildBatchAuditReport } from '@/lib/checklist/aggregator';
+import { FigmaReviewCanvas } from './FigmaReviewCanvas';
 import type {
   AutoIterationResult,
+  BatchAuditReport,
+  BatchPageAuditResult,
   ChecklistItemResult,
   ChecklistStatus,
+  IterationSnapshot,
   StopReason,
 } from '@/lib/checklist/types';
 
@@ -75,12 +82,14 @@ function ScaledIframePreview({
   viewport,
   zoom = 'fit',
   heightPx = 540,
+  iframeRef,
 }: {
   title: string;
   html: string;
-  viewport: 'desktop' | 'mobile320';
+  viewport: 'desktop' | 'tablet' | 'mobile375' | 'mobile320';
   zoom?: 'fit' | 'actual';
   heightPx?: number;
+  iframeRef?: React.RefObject<HTMLIFrameElement | null>;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number>(720);
@@ -97,36 +106,39 @@ function ScaledIframePreview({
     return () => obs.disconnect();
   }, []);
 
-  if (viewport === 'mobile320') {
+  if (viewport === 'mobile320' || viewport === 'mobile375') {
+    const mobileWidth = viewport === 'mobile320' ? 320 : 375;
     return (
       <div ref={containerRef} className="w-full flex justify-center bg-[#212121] overflow-auto">
         <iframe
+          ref={iframeRef}
           title={title}
           srcDoc={html}
           sandbox="allow-same-origin"
-          style={{ width: 320, height: heightPx }}
+          style={{ width: mobileWidth, height: heightPx }}
           className="bg-white border-0 shrink-0"
         />
       </div>
     );
   }
 
-  const desktopWidth = 1280;
+  const targetWidth = viewport === 'tablet' ? 768 : 1280;
   if (zoom === 'actual') {
     return (
       <div ref={containerRef} style={{ height: heightPx }} className="w-full overflow-auto bg-white">
         <iframe
+          ref={iframeRef}
           title={title}
           srcDoc={html}
           sandbox="allow-same-origin"
-          style={{ width: desktopWidth, height: heightPx }}
+          style={{ width: targetWidth, height: heightPx }}
           className="bg-white border-0 block"
         />
       </div>
     );
   }
 
-  const scale = Math.min(1, containerWidth / desktopWidth);
+  const scale = Math.min(1, containerWidth / targetWidth);
   const innerHeight = Math.round(heightPx / scale);
 
   return (
@@ -136,11 +148,12 @@ function ScaledIframePreview({
       className="w-full overflow-hidden bg-white relative"
     >
       <iframe
+        ref={iframeRef}
         title={title}
         srcDoc={html}
         sandbox="allow-same-origin"
         style={{
-          width: desktopWidth,
+          width: targetWidth,
           height: innerHeight,
           transform: `scale(${scale})`,
           transformOrigin: 'top left',
@@ -175,9 +188,6 @@ export function ChecklistWorkspace({
   const [productGoal, setProductGoal] = useState<string>('Hotel search & booking conversion');
   const [targetAudience, setTargetAudience] = useState<string>('Travelers on desktop & mobile');
   const [theme, setTheme] = useState<string>('Booking.com blue (#003580) & yellow (#ffb700)');
-  const [customPrompt, setCustomPrompt] = useState<string>(
-    'Preserve existing layout structure and brand palette while fixing accessibility & UI issues.'
-  );
 
   // Step 3: Designer Prioritization & Evidence Inspection
   const [priorityOrder, setPriorityOrder] = useState<string[]>([]);
@@ -187,13 +197,16 @@ export function ChecklistWorkspace({
 
   // Step 5 & 6: Loop & Approval
   const [maxIterations, setMaxIterations] = useState<number>(3);
-  const [loadingPhase, setLoadingPhase] = useState<'idle' | 'audit' | 'iterate'>('idle');
+  const [loadingPhase, setLoadingPhase] = useState<'idle' | 'audit' | 'batch' | 'iterate'>('idle');
   const [error, setError] = useState<string>('');
   const [result, setResult] = useState<AutoIterationResult | null>(null);
+  const [batchReport, setBatchReport] = useState<BatchAuditReport | null>(null);
+  const [batchProgress, setBatchProgress] = useState<{ current: number; total: number; currentPage: string } | null>(null);
   const [selectedIter, setSelectedIter] = useState<number>(0);
   const [previewCompare, setPreviewCompare] = useState<'active' | 'split'>('split');
-  const [previewViewport, setPreviewViewport] = useState<'desktop' | 'mobile320'>('desktop');
+  const [previewViewport, setPreviewViewport] = useState<'desktop' | 'tablet' | 'mobile375' | 'mobile320'>('desktop');
   const [previewZoom, setPreviewZoom] = useState<'fit' | 'actual'>('fit');
+  const [previewHeight, setPreviewHeight] = useState<520 | 720 | 960>(520);
   const [syncScroll, setSyncScroll] = useState<boolean>(true);
   const [fullScreenPreview, setFullScreenPreview] = useState<boolean>(false);
   const [approvedIter, setApprovedIter] = useState<number | null>(null);
@@ -275,6 +288,9 @@ export function ChecklistWorkspace({
     setLoadingPhase(mode);
     setError('');
     setApprovedIter(null);
+    if (mode === 'audit') {
+      setBatchReport(null);
+    }
     try {
       const orderedSelected = priorityOrder.filter((id) => selectedMetricIds.has(id));
       const res = await fetch('/api/checklist', {
@@ -284,8 +300,9 @@ export function ChecklistWorkspace({
           html: htmlInput,
           mode,
           maxIterations,
-          context: { productGoal, targetAudience, theme, customPrompt },
+          context: { productGoal, targetAudience, theme },
           prioritizedMetricIds: mode === 'iterate' && orderedSelected.length > 0 ? orderedSelected : undefined,
+          pageHint: selectedPage,
         }),
       });
       const data = await res.json();
@@ -318,6 +335,145 @@ export function ChecklistWorkspace({
       setError(err instanceof Error ? err.message : 'Request failed');
     } finally {
       setLoadingPhase('idle');
+    }
+  };
+
+  const downloadJsonFile = (filename: string, data: unknown) => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const loadPageHtml = async (page: string): Promise<string> => {
+    if (uploadedProject) {
+      return bundleUploadedHtml(page, uploadedProject.files);
+    }
+    const res = await fetch(`/api/checklist?page=${encodeURIComponent(page)}`);
+    const data = await res.json();
+    if (!res.ok || !data.success || typeof data.html !== 'string') {
+      throw new Error(data.error || `Failed to load ${page}`);
+    }
+    return data.html;
+  };
+
+  const applyAuditResultToWorkspace = (page: string, pageHtml: string, nextResult: AutoIterationResult) => {
+    setSelectedPage(page);
+    setHtmlInput(pageHtml);
+    setResult(nextResult);
+    setSelectedIter(nextResult.bestIteration ?? 0);
+    setApprovedIter(null);
+    const baselinePriority = nextResult.iterations[0]?.summary.priorityList || [];
+    setPriorityOrder(baselinePriority.map((i) => i.id));
+    setReviewedMetricIds(new Set());
+    setSelectedMetricIds(new Set(baselinePriority.filter((i) => i.status === 'fail').map((i) => i.id)));
+    const firstFail = baselinePriority[0];
+    if (firstFail) {
+      setInspectedMetricId(firstFail.id);
+      setPreviewViewport(firstFail.id === 'reflow' ? 'mobile320' : 'desktop');
+    }
+    setActiveStage('audit');
+    setAuditTab('priority');
+  };
+
+  const runBatchAudit = async () => {
+    if (activePages.length === 0) return;
+    setLoadingPhase('batch');
+    setError('');
+    setApprovedIter(null);
+    setBatchReport(null);
+    const pageResults: BatchPageAuditResult[] = [];
+
+    try {
+      for (let i = 0; i < activePages.length; i++) {
+        const page = activePages[i];
+        setBatchProgress({ current: i + 1, total: activePages.length, currentPage: page });
+        const startedAt = performance.now();
+        try {
+          const pageHtml = await loadPageHtml(page);
+          const res = await fetch('/api/checklist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              html: pageHtml,
+              mode: 'audit',
+              maxIterations: 1,
+              context: { productGoal, targetAudience, theme },
+              pageHint: page,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            throw new Error(data.error || `Audit failed for ${page}`);
+          }
+          const pageAudit: AutoIterationResult = data.result;
+          const baseline = pageAudit.iterations[0];
+          pageResults.push({
+            page,
+            result: pageAudit,
+            summary: baseline.summary,
+            feedback: pageAudit.feedback || { summary: { totalFailing: 0 }, issues: [] },
+            durationMs: Math.round(performance.now() - startedAt),
+          });
+        } catch (err) {
+          const emptySummary = {
+            totalPassed: 0,
+            totalFailed: 0,
+            totalNeedsReview: 0,
+            totalNotApplicable: 0,
+            totalMetrics: 0,
+            passRate: 0,
+            ux: { passed: 0, total: 0 },
+            ui: { passed: 0, total: 0 },
+            pillars: [],
+            items: [],
+            priorityList: [],
+          };
+          pageResults.push({
+            page,
+            result: { bestIteration: 0, stopReason: 'audit_only', iterations: [] },
+            summary: emptySummary,
+            feedback: { summary: { totalFailing: 0 }, issues: [] },
+            durationMs: Math.round(performance.now() - startedAt),
+            error: err instanceof Error ? err.message : 'Batch page audit failed',
+          });
+        }
+      }
+
+      const report = buildBatchAuditReport(
+        uploadedProject ? uploadedProject.name : baselineDir || 'Baseline Site',
+        pageResults,
+        { productGoal, targetAudience, theme }
+      );
+      setBatchReport(report);
+
+      const focusPageName = report.aggregate.worstPage || pageResults.find((p) => !p.error)?.page;
+      const focusResult = pageResults.find((p) => p.page === focusPageName && !p.error);
+      if (focusResult) {
+        const focusHtml = focusResult.result.iterations[0]?.html || (await loadPageHtml(focusResult.page));
+        applyAuditResultToWorkspace(focusResult.page, focusHtml, focusResult.result);
+      } else {
+        setError('All pages in batch audit failed.');
+      }
+    } finally {
+      setBatchProgress(null);
+      setLoadingPhase('idle');
+    }
+  };
+
+  const selectBatchPageForOptimize = async (pageEntry: BatchPageAuditResult) => {
+    if (pageEntry.error) return;
+    setError('');
+    try {
+      const pageHtml = pageEntry.result.iterations[0]?.html || (await loadPageHtml(pageEntry.page));
+      applyAuditResultToWorkspace(pageEntry.page, pageHtml, pageEntry.result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Failed to load ${pageEntry.page}`);
     }
   };
 
@@ -474,6 +630,33 @@ export function ChecklistWorkspace({
     await navigator.clipboard.writeText(activeSnapshot?.html || htmlInput);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  };
+
+  const handleApproveSnapshot = async (snapshot: IterationSnapshot) => {
+    setApprovedIter(snapshot.iteration);
+    try {
+      const res = await fetch('/api/checklist', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          page: selectedPage,
+          iteration: snapshot.iteration,
+          label: snapshot.label,
+          score: `${snapshot.summary.totalPassed}/${snapshot.summary.totalMetrics}`,
+          html: snapshot.html,
+        }),
+      });
+      const d = await res.json();
+      if (d.success && d.approval) {
+        setSavedApprovalInfo({
+          label: d.approval.label,
+          score: d.approval.score,
+          approvedAt: d.approval.approvedAt,
+        });
+      }
+    } catch {
+      // Keep UI approval state
+    }
   };
 
   const renderPillarCard = (pillar: NonNullable<typeof activeSnapshot>['summary']['pillars'][number]) => {
@@ -666,6 +849,23 @@ export function ChecklistWorkspace({
                   {loadingPhase === 'audit' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
                   {loadingPhase === 'audit' ? 'Auditing...' : 'Run Audit'}
                 </button>
+                {activePages.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => void runBatchAudit()}
+                    disabled={loadingPhase !== 'idle'}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#10a37f] text-white font-medium text-xs hover:bg-[#0d8f70] disabled:opacity-50"
+                  >
+                    {loadingPhase === 'batch' ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Layers className="w-3.5 h-3.5" />
+                    )}
+                    {batchProgress
+                      ? `Batch ${batchProgress.current}/${batchProgress.total}: ${batchProgress.currentPage}`
+                      : `Batch Audit All (${activePages.length})`}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -863,6 +1063,129 @@ export function ChecklistWorkspace({
             {/* Stage 2: Audit & Prioritize */}
             {activeStage === 'audit' && baselineSnapshot && (
               <>
+                {batchReport && (
+                  <section className="rounded-xl bg-[#171717] border border-[#10a37f]/35 p-4 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Layers className="w-4 h-4 text-[#10a37f]" />
+                          <h2 className="text-sm font-semibold text-white">
+                            Site-Wide Batch Audit ({batchReport.completedPages}/{batchReport.totalPages} pages)
+                          </h2>
+                          <span className="text-[11px] px-2 py-0.5 rounded bg-[#10a37f]/15 text-[#10a37f]">
+                            Read-only
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#9b9b9b] mt-0.5">
+                          Avg pass rate <strong className="text-white">{batchReport.aggregate.avgPassRate}%</strong>
+                          {batchReport.aggregate.worstPage && (
+                            <>
+                              {' '}
+                              &middot; Worst page:{' '}
+                              <strong className="text-rose-300">{batchReport.aggregate.worstPage}</strong> (
+                              {batchReport.aggregate.minPassRate}%)
+                            </>
+                          )}{' '}
+                          &middot; Total issues: <strong className="text-rose-300">{batchReport.aggregate.totalFailed} failed</strong>,{' '}
+                          <strong className="text-amber-300">{batchReport.aggregate.totalNeedsReview} review</strong>. Pick any page below for single-page optimization.
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => downloadJsonFile('report.json', batchReport)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          report.json
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => downloadJsonFile('feedback.json', batchReport.feedback)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          feedback.json (page_hint)
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto rounded-lg border border-white/[0.08]">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-[#212121] text-[#9b9b9b]">
+                          <tr>
+                            <th className="px-3 py-2 font-medium">Page</th>
+                            <th className="px-3 py-2 font-medium">Pass Rate</th>
+                            <th className="px-3 py-2 font-medium">UX</th>
+                            <th className="px-3 py-2 font-medium">UI</th>
+                            <th className="px-3 py-2 font-medium">Failed</th>
+                            <th className="px-3 py-2 font-medium">Review</th>
+                            <th className="px-3 py-2 font-medium text-right">Single-Page Optimize</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/[0.06]">
+                          {batchReport.pages.map((p) => {
+                            const isCurrent = p.page === selectedPage;
+                            const isWorst = p.page === batchReport.aggregate.worstPage;
+                            return (
+                              <tr
+                                key={p.page}
+                                className={isCurrent ? 'bg-[#10a37f]/10' : 'hover:bg-white/[0.02]'}
+                              >
+                                <td className="px-3 py-2 font-mono text-[#ececec]">
+                                  <span>{p.page}</span>
+                                  {isWorst && (
+                                    <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-sans">
+                                      Worst
+                                    </span>
+                                  )}
+                                  {isCurrent && (
+                                    <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-[#10a37f]/20 text-[#10a37f] font-sans">
+                                      Active
+                                    </span>
+                                  )}
+                                </td>
+                                {p.error ? (
+                                  <td colSpan={5} className="px-3 py-2 text-rose-400">
+                                    {p.error}
+                                  </td>
+                                ) : (
+                                  <>
+                                    <td className="px-3 py-2 font-semibold text-white">{p.summary.passRate}%</td>
+                                    <td className="px-3 py-2 text-[#d4d4d4]">
+                                      {p.summary.ux.passed}/{p.summary.ux.total}
+                                    </td>
+                                    <td className="px-3 py-2 text-[#d4d4d4]">
+                                      {p.summary.ui.passed}/{p.summary.ui.total}
+                                    </td>
+                                    <td className="px-3 py-2 text-rose-400">{p.summary.totalFailed}</td>
+                                    <td className="px-3 py-2 text-amber-400">{p.summary.totalNeedsReview}</td>
+                                  </>
+                                )}
+                                <td className="px-3 py-2 text-right">
+                                  <button
+                                    type="button"
+                                    disabled={Boolean(p.error)}
+                                    onClick={() => void selectBatchPageForOptimize(p)}
+                                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium disabled:opacity-40 ${
+                                      isCurrent
+                                        ? 'bg-[#10a37f] text-white'
+                                        : 'bg-[#2f2f2f] hover:bg-[#383838] text-[#ececec]'
+                                    }`}
+                                  >
+                                    {isCurrent ? 'Selected for Optimize' : 'Optimize This Page →'}
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                )}
+
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#171717] p-0.5">
                     <button
@@ -1035,19 +1358,6 @@ export function ChecklistWorkspace({
                         );
                       })}
                     </div>
-
-                    <div className="space-y-1 pt-1">
-                      <label htmlFor="ctx-guidelines" className="block text-[11px] font-medium text-[#9b9b9b]">
-                        Brand &amp; Designer Guidelines (sent to LLM)
-                      </label>
-                      <input
-                        id="ctx-guidelines"
-                        value={customPrompt}
-                        onChange={(e) => setCustomPrompt(e.target.value)}
-                        placeholder="Custom Designer Guidelines / Prompt..."
-                        className="w-full px-3 py-1.5 rounded-lg bg-[#212121] border border-white/[0.1] text-xs"
-                      />
-                    </div>
                   </div>
 
                   {/* Right: Single Contextual Preview (before optimization) or Evidence Panel */}
@@ -1056,7 +1366,17 @@ export function ChecklistWorkspace({
                       <div className="rounded-lg border border-white/[0.1] overflow-hidden bg-[#212121] flex flex-col items-center">
                         <div className="w-full px-3 py-1.5 bg-[#212121] border-b border-white/[0.08] text-xs flex flex-wrap items-center justify-between gap-2">
                           <span className="text-[#ececec] truncate">
-                            {inspectedItem ? `${inspectedItem.title} (${previewViewport === 'mobile320' ? '320px' : '1280px'})` : 'Baseline Preview'}
+                            {inspectedItem
+                              ? `${inspectedItem.title} (${
+                                  previewViewport === 'mobile320'
+                                    ? '320px'
+                                    : previewViewport === 'mobile375'
+                                      ? '375px'
+                                      : previewViewport === 'tablet'
+                                        ? '768px'
+                                        : '1280px'
+                                })`
+                              : 'Baseline Preview'}
                           </span>
                           <div className="flex items-center gap-1.5 shrink-0">
                             <div className="inline-flex rounded border border-white/[0.1] bg-[#171717] p-0.5">
@@ -1219,267 +1539,20 @@ export function ChecklistWorkspace({
                 </div>
 
                 {optimizeTab === 'compare' && (
-              <section className="rounded-xl bg-[#171717] border border-white/[0.08] p-4 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h2 className="font-medium text-white flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#10a37f]" />
-                    Optimization Progress &amp; Approval
-                  </h2>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#212121] p-0.5">
-                      <button
-                        type="button"
-                        onClick={() => setPreviewCompare('split')}
-                        className={`px-2.5 py-1 rounded-md text-xs ${
-                          previewCompare === 'split' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
-                        }`}
-                      >
-                        Before / After
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPreviewCompare('active')}
-                        className={`px-2.5 py-1 rounded-md text-xs ${
-                          previewCompare === 'active' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
-                        }`}
-                      >
-                        Selected Only
-                      </button>
-                    </div>
-                    <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#212121] p-0.5">
-                      <button
-                        type="button"
-                        onClick={() => setPreviewViewport('desktop')}
-                        className={`px-2.5 py-1 rounded-md text-xs ${
-                          previewViewport === 'desktop' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
-                        }`}
-                      >
-                        Desktop
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPreviewViewport('mobile320')}
-                        className={`px-2.5 py-1 rounded-md text-xs ${
-                          previewViewport === 'mobile320' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
-                        }`}
-                      >
-                        Mobile 320px
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setSyncScroll((v) => !v)}
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border ${
-                        syncScroll
-                          ? 'bg-[#2f2f2f] border-[#10a37f] text-white'
-                          : 'bg-[#212121] border-white/[0.1] text-[#9b9b9b]'
-                      }`}
-                    >
-                      <Link2 className="w-3.5 h-3.5" />
-                      Sync Scroll
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFullScreenPreview(true)}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
-                    >
-                      <Maximize2 className="w-3.5 h-3.5" />
-                      Full Page
-                    </button>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        setApprovedIter(activeSnapshot.iteration);
-                        try {
-                          const res = await fetch('/api/checklist', {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              page: selectedPage,
-                              iteration: activeSnapshot.iteration,
-                              label: activeSnapshot.label,
-                              score: `${activeSnapshot.summary.totalPassed}/${activeSnapshot.summary.totalMetrics}`,
-                              html: activeSnapshot.html,
-                            }),
-                          });
-                          const d = await res.json();
-                          if (d.success && d.approval) {
-                            setSavedApprovalInfo({
-                              label: d.approval.label,
-                              score: d.approval.score,
-                              approvedAt: d.approval.approvedAt,
-                            });
-                          }
-                        } catch {
-                          // Keep UI approval state
-                        }
-                      }}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium ${
-                        approvedIter === activeSnapshot.iteration
-                          ? 'bg-[#10a37f] text-white'
-                          : 'bg-[#2f2f2f] hover:bg-[#383838] text-[#ececec]'
-                      }`}
-                    >
-                      <Check className="w-3.5 h-3.5" />
-                      {approvedIter === activeSnapshot.iteration ? 'Approved' : 'Approve Version'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCopyHtml}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#ececec] text-[#171717] font-medium text-xs"
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                      {copied ? 'Copied' : 'Copy HTML'}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                  {result.iterations.map((it) => {
-                    const isSelected = selectedIter === it.iteration;
-                    const isBest = result.bestIteration === it.iteration;
-                    return (
-                      <button
-                        key={it.iteration}
-                        type="button"
-                        onClick={() => setSelectedIter(it.iteration)}
-                        className={`text-left p-3 rounded-lg border transition-colors ${
-                          isSelected
-                            ? 'bg-[#2f2f2f] border-[#10a37f]'
-                            : 'bg-[#212121] border-white/[0.08] hover:bg-[#2a2a2a]'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-white">{it.label}</span>
-                          <div className="flex items-center gap-1">
-                            {approvedIter === it.iteration && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#10a37f] text-white">
-                                Approved
-                              </span>
-                            )}
-                            {isBest && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#10a37f]/20 text-[#10a37f]">
-                                Best
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-sm font-mono text-[#ececec] mt-1">
-                          {it.summary.totalPassed}/{it.summary.totalMetrics}
-                          {it.iteration > 0 && (
-                            <span
-                              className={`ml-2 text-xs ${
-                                it.deltaFromBase > 0
-                                  ? 'text-[#10a37f]'
-                                  : it.deltaFromBase < 0
-                                    ? 'text-rose-400'
-                                    : 'text-[#9b9b9b]'
-                              }`}
-                            >
-                              {it.deltaFromBase > 0 ? `+${it.deltaFromBase}` : it.deltaFromBase} vs Iter{' '}
-                              {it.branchedFromIteration ?? 0}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-[#9b9b9b] mt-1 truncate">{it.notes}</div>
-                        {it.resolvedIds.length > 0 && (
-                          <div className="text-[11px] text-[#10a37f] mt-1 truncate">
-                            Fixed: {it.resolvedIds.join(', ')}
-                          </div>
-                        )}
-                        {it.regressedIds.length > 0 && (
-                          <div className="text-[11px] text-rose-400 mt-0.5 truncate">
-                            Regressed: {it.regressedIds.join(', ')}
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {activeSnapshot.iteration > 0 && (
-                  <div className="rounded-lg bg-[#212121] border border-white/[0.08] p-3 space-y-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs font-medium text-white">
-                        Changes in {activeSnapshot.label}
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {activeSnapshot.resolvedIds.map((id) => (
-                          <span key={id} className="text-[11px] px-2 py-0.5 rounded-full bg-[#10a37f]/20 text-[#10a37f]">
-                            ✓ {id}
-                          </span>
-                        ))}
-                        {activeSnapshot.regressedIds.map((id) => (
-                          <span key={id} className="text-[11px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400">
-                            ✗ {id}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    {savedApprovalInfo && (
-                      <div className="text-[11px] text-[#10a37f]">
-                        Saved approval for {selectedPage}: {savedApprovalInfo.label} ({savedApprovalInfo.score})
-                      </div>
-                    )}
-                    {activeSnapshot.appliedPatch && (
-                      <details>
-                        <summary className="cursor-pointer text-[11px] text-[#10a37f]">
-                          View exact JSON Patch applied (
-                          {activeSnapshot.appliedPatch.operationLogs
-                            ? `${activeSnapshot.appliedPatch.operationLogs.filter((o) => o.status === 'applied').length} applied, ${activeSnapshot.appliedPatch.operationLogs.filter((o) => o.status === 'rejected').length} rejected`
-                            : `${activeSnapshot.appliedPatch.cssAdditions.length} CSS rules, ${activeSnapshot.appliedPatch.attributePatches.length} attribute updates`}
-                          )
-                        </summary>
-                        <pre className="mt-2 p-2.5 rounded bg-[#171717] border border-white/[0.08] text-[11px] text-[#d4d4d4] overflow-x-auto max-h-[200px] whitespace-pre-wrap">
-                          {JSON.stringify(activeSnapshot.appliedPatch, null, 2)}
-                        </pre>
-                      </details>
-                    )}
-                  </div>
-                )}
-
-                <div
-                  className={`grid gap-3 pt-2 ${
-                    previewCompare === 'split' && baselineSnapshot && activeSnapshot.iteration !== 0
-                      ? 'grid-cols-1 lg:grid-cols-2'
-                      : 'grid-cols-1'
-                  }`}
-                >
-                  {previewCompare === 'split' && baselineSnapshot && activeSnapshot.iteration !== 0 && (
-                    <div className="rounded-lg border border-white/[0.1] overflow-hidden bg-[#212121] flex flex-col items-center">
-                      <div className="w-full px-3 py-1.5 bg-[#212121] border-b border-white/[0.08] text-xs text-[#9b9b9b] flex justify-between">
-                        <span>Baseline (Before)</span>
-                        <span className="font-mono">
-                          {baselineSnapshot.summary.totalPassed}/{baselineSnapshot.summary.totalMetrics}
-                        </span>
-                      </div>
-                      <iframe
-                        ref={leftFrameRef}
-                        title="Baseline Preview"
-                        srcDoc={baselineSnapshot.html}
-                        sandbox="allow-same-origin"
-                        className={`h-[520px] bg-white border-0 ${previewViewport === 'mobile320' ? 'w-[320px]' : 'w-full'}`}
-                      />
-                    </div>
-                  )}
-
-                  <div className="rounded-lg border border-[#10a37f]/40 overflow-hidden bg-[#212121] flex flex-col items-center">
-                    <div className="w-full px-3 py-1.5 bg-[#212121] border-b border-white/[0.08] text-xs text-white flex justify-between">
-                      <span>{activeSnapshot.label} (Preview)</span>
-                      <span className="font-mono text-[#10a37f]">
-                        {activeSnapshot.summary.totalPassed}/{activeSnapshot.summary.totalMetrics}
-                      </span>
-                    </div>
-                    <iframe
-                      ref={rightFrameRef}
-                      title="Iteration Preview"
-                      srcDoc={activeSnapshot.html}
-                      sandbox="allow-same-origin"
-                      className={`h-[520px] bg-white border-0 ${previewViewport === 'mobile320' ? 'w-[320px]' : 'w-full'}`}
-                    />
-                  </div>
-                </div>
-              </section>
+                  <FigmaReviewCanvas
+                    selectedPage={selectedPage}
+                    result={result}
+                    selectedIter={selectedIter}
+                    onSelectIter={setSelectedIter}
+                    approvedIter={approvedIter}
+                    savedApprovalInfo={savedApprovalInfo}
+                    onApprove={handleApproveSnapshot}
+                    onCopyHtml={handleCopyHtml}
+                    copied={copied}
+                    onBackToPriorities={() => setActiveStage('audit')}
+                    onOpenChecklistTab={() => setOptimizeTab('checklist')}
+                    injectHighlightCss={injectHighlightCss}
+                  />
                 )}
 
                 {optimizeTab === 'checklist' && (

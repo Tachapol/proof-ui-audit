@@ -191,6 +191,11 @@ button[data-testid^="explain-btn-"]:focus-visible {
   min-height: 0 !important;
 }
 
+#app-root .figma-toolbar button {
+  min-height: 0 !important;
+  min-width: 0 !important;
+}
+
 .safe-wrap {
   min-width: 0;
   overflow-wrap: anywhere;

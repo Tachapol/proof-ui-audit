@@ -43,6 +43,7 @@ const ChecklistRequestSchema = z.object({
     })
     .optional(),
   prioritizedMetricIds: z.array(z.string()).optional(),
+  pageHint: z.string().max(300).optional(),
 });
 
 const ApproveSchema = z.object({
@@ -93,6 +94,7 @@ export async function POST(req: Request) {
       maxIterations: parsed.data.maxIterations,
       context: parsed.data.context,
       prioritizedMetricIds: parsed.data.prioritizedMetricIds,
+      pageHint: parsed.data.pageHint,
     });
 
     return NextResponse.json({ success: true, result });

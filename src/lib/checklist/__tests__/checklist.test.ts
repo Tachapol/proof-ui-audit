@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { buildChecklistSummary } from '../aggregator';
+import { buildBatchAuditReport, buildChecklistSummary } from '../aggregator';
 import {
   applyDeterministicChecklistFixes,
   applyJsonPatchToHtml,
   buildFeedbackWorksheet,
 } from '../auto-iterate';
 import type { UXIssue } from '@/lib/schema/ux-issue';
-import type { ChecklistJsonPatch } from '../types';
+import type { BatchPageAuditResult, ChecklistJsonPatch } from '../types';
 
 describe('36-Metric UX/UI Checklist Aggregator & Patching', () => {
   it('groups metrics into 6 pillars (18 UX + 18 UI) and orders priorityList P0 -> P3', () => {
@@ -166,5 +166,56 @@ describe('36-Metric UX/UI Checklist Aggregator & Patching', () => {
     expect(fixed).toContain('<title>ProofUI Audited Page</title>');
     expect(fixed).not.toContain('alt="Illustration"');
     expect(fixed).toContain('min-width: 24px; min-height: 24px;');
+  });
+
+  it('aggregates multi-page batch audits with worstPage and page_hint in feedback', () => {
+    const homeSummary = buildChecklistSummary([], {});
+    const checkoutSummary = buildChecklistSummary([], {
+      'image-alt': {
+        id: 'image-alt',
+        status: 'fail',
+        measuredSummary: '1 missing alt',
+        affectedCount: 1,
+        samples: ['img.card-logo'],
+        recommendation: 'Add alt text',
+      },
+      'interactive-label': {
+        id: 'interactive-label',
+        status: 'fail',
+        measuredSummary: '1 unlabeled button',
+        affectedCount: 1,
+        samples: ['button.submit'],
+        recommendation: 'Add aria-label',
+      },
+    });
+
+    const homeFb = buildFeedbackWorksheet(homeSummary.priorityList, undefined, undefined, 'index.html').worksheet;
+    const checkoutFb = buildFeedbackWorksheet(checkoutSummary.priorityList, undefined, undefined, 'checkout.html').worksheet;
+
+    const pages: BatchPageAuditResult[] = [
+      {
+        page: 'index.html',
+        result: { bestIteration: 0, stopReason: 'audit_only', iterations: [] },
+        summary: homeSummary,
+        feedback: homeFb,
+        durationMs: 120,
+      },
+      {
+        page: 'checkout.html',
+        result: { bestIteration: 0, stopReason: 'audit_only', iterations: [] },
+        summary: checkoutSummary,
+        feedback: checkoutFb,
+        durationMs: 180,
+      },
+    ];
+
+    const report = buildBatchAuditReport('Booking Site', pages, { productGoal: 'Hotel booking' });
+    expect(report.totalPages).toBe(2);
+    expect(report.completedPages).toBe(2);
+    expect(report.aggregate.worstPage).toBe('checkout.html');
+    expect(report.aggregate.minPassRate).toBe(checkoutSummary.passRate);
+    expect(report.aggregate.totalFailed).toBe(2);
+    expect(report.feedback.issues).toHaveLength(2);
+    expect(report.feedback.issues.every((i) => i.page_hint === 'checkout.html')).toBe(true);
   });
 });

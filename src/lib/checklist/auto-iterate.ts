@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as cheerio from 'cheerio';
 import { z } from 'zod';
 import { runFullChecklistAudit } from './dom-evaluators';
+export { buildBatchAuditReport } from './aggregator';
 import type {
   AuditContextInput,
   AutoIterationResult,
@@ -74,7 +75,8 @@ function prepareHtmlForPrompt(html: string): string {
 export function buildFeedbackWorksheet(
   priorityList: ChecklistItemResult[],
   context?: AuditContextInput,
-  prioritizedMetricIds?: string[]
+  prioritizedMetricIds?: string[],
+  pageHint?: string
 ): { worksheet: FeedbackWorksheet; orderedItems: ChecklistItemResult[] } {
   let orderedItems = [...priorityList];
   if (prioritizedMetricIds && prioritizedMetricIds.length > 0) {
@@ -87,6 +89,7 @@ export function buildFeedbackWorksheet(
   const issues: FeedbackIssue[] = orderedItems.map((item, idx) => ({
     id: `FB-${String(idx + 1).padStart(2, '0')}`,
     metricId: item.id,
+    ...(pageHint ? { page_hint: pageHint } : {}),
     status: item.status,
     priority: item.priority,
     group: item.group,
@@ -115,12 +118,14 @@ export function buildFeedbackWorksheet(
 export function buildConstructionPlan(
   priorityList: ChecklistItemResult[],
   context?: AuditContextInput,
-  prioritizedMetricIds?: string[]
+  prioritizedMetricIds?: string[],
+  pageHint?: string
 ): { planText: string; orderedItems: ChecklistItemResult[]; worksheet: FeedbackWorksheet } {
   const { worksheet, orderedItems } = buildFeedbackWorksheet(
     priorityList,
     context,
-    prioritizedMetricIds
+    prioritizedMetricIds,
+    pageHint
   );
 
   const contextLines = [
@@ -578,6 +583,7 @@ export async function runAutoIterationLoop(input: {
   maxIterations: number;
   context?: AuditContextInput;
   prioritizedMetricIds?: string[];
+  pageHint?: string;
 }): Promise<AutoIterationResult> {
   const maxIterations = Math.min(Math.max(input.maxIterations || 3, 1), 5);
   const baseline = await runFullChecklistAudit({
@@ -589,7 +595,8 @@ export async function runAutoIterationLoop(input: {
   const { planText, worksheet } = buildConstructionPlan(
     baseline.summary.priorityList,
     input.context,
-    input.prioritizedMetricIds
+    input.prioritizedMetricIds,
+    input.pageHint
   );
 
   const iterations: IterationSnapshot[] = [
