@@ -122,6 +122,17 @@ export interface IterationUsage {
   costUsd?: number;
 }
 
+export interface VlmReviewSummary {
+  verdict: 'approve' | 'warn' | 'reject' | 'unavailable';
+  guardPassed: boolean;
+  visualScore?: number;
+  semanticPass?: boolean;
+  viewportEvaluated?: '1280x800' | '320x640';
+  critique: string;
+  provider: 'gemini-vision' | 'openai-vision' | 'deterministic-guard';
+  model?: string;
+}
+
 export interface IterationSnapshot {
   iteration: number;
   label: string;
@@ -135,6 +146,7 @@ export interface IterationSnapshot {
   fixerMode: 'baseline' | 'llm-api' | 'gemini-llm' | 'deterministic-fallback';
   notes: string;
   appliedPatch?: ChecklistJsonPatch;
+  vlmReview?: VlmReviewSummary;
   usage?: IterationUsage;
 }
 

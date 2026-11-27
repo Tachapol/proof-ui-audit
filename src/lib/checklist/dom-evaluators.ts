@@ -31,7 +31,9 @@ export async function evaluateDomChecklistMetrics(
 ): Promise<{
   findings: Record<string, DomCheckFinding>;
   pageHtml: string;
-  reflow320: { docScrollW: number; overflowing: string[] };
+  reflow320: { docScrollW: number; overflowing: string[]; navAccessibleAt320: boolean };
+  desktopScreenshotBase64?: string;
+  mobile320ScreenshotBase64?: string;
 }> {
   const parsed = new URL(targetUrl);
   const localOriginUrl = new URL(localOrigin);
@@ -574,10 +576,28 @@ export async function evaluateDomChecklistMetrics(
       // 25. input-border-contrast (Material Design 3: Input Affordance)
       const borderlessInputs = inputs.filter((el) => {
         const s = window.getComputedStyle(el);
-        const hasBorder = s.borderStyle !== 'none' && parseFloat(s.borderWidth) > 0;
-        const parentBg = el.parentElement ? window.getComputedStyle(el.parentElement).backgroundColor : '';
-        const diffBg = s.backgroundColor !== 'rgba(0, 0, 0, 0)' && s.backgroundColor !== parentBg;
-        return !hasBorder && !diffBg;
+        const hasSelfBorder = s.borderStyle !== 'none' && parseFloat(s.borderWidth) > 0;
+        const hasSelfShadow = s.boxShadow !== 'none' && s.boxShadow.trim() !== '';
+        const parent = el.parentElement;
+        const parentStyle = parent ? window.getComputedStyle(parent) : null;
+        const parentBg = parentStyle?.backgroundColor || '';
+        const diffSelfBg = s.backgroundColor !== 'rgba(0, 0, 0, 0)' && s.backgroundColor !== parentBg;
+        if (hasSelfBorder || hasSelfShadow || diffSelfBg) return false;
+
+        // Check composite input wrappers (e.g., pill search bar or chat composer container)
+        let wrapper: HTMLElement | null = parent;
+        for (let depth = 0; depth < 2 && wrapper && wrapper !== document.body; depth++) {
+          const ws = window.getComputedStyle(wrapper);
+          const wrapperBorder = ws.borderStyle !== 'none' && parseFloat(ws.borderWidth) > 0;
+          const wrapperShadow = ws.boxShadow !== 'none' && ws.boxShadow.trim() !== '';
+          const outerBg = wrapper.parentElement
+            ? window.getComputedStyle(wrapper.parentElement).backgroundColor
+            : bodyBg;
+          const wrapperDiffBg = ws.backgroundColor !== 'rgba(0, 0, 0, 0)' && ws.backgroundColor !== outerBg;
+          if (wrapperBorder || wrapperShadow || wrapperDiffBg) return false;
+          wrapper = wrapper.parentElement;
+        }
+        return true;
       });
       result['input-border-contrast'] = {
         id: 'input-border-contrast',
@@ -654,7 +674,16 @@ export async function evaluateDomChecklistMetrics(
       // 29. container-padding-breathing (Material Design 3: Surface & Spacing)
       const paddedContainers = cards.filter((c) => {
         const s = window.getComputedStyle(c);
-        return Math.min(parseFloat(s.paddingTop), parseFloat(s.paddingLeft), parseFloat(s.paddingRight)) < 8;
+        const selfPadded =
+          Math.min(parseFloat(s.paddingTop), parseFloat(s.paddingLeft), parseFloat(s.paddingRight)) >= 8;
+        if (selfPadded) return false;
+
+        // Allow cards with edge-to-edge media when inner text/body container has >= 8px padding
+        const hasPaddedInnerChild = Array.from(c.children).some((child) => {
+          const cs = window.getComputedStyle(child);
+          return Math.min(parseFloat(cs.paddingLeft), parseFloat(cs.paddingRight)) >= 8;
+        });
+        return !hasPaddedInnerChild;
       });
       result['container-padding-breathing'] = {
         id: 'container-padding-breathing',
@@ -680,11 +709,17 @@ export async function evaluateDomChecklistMetrics(
       const activeCheck = await page.evaluate(() => {
         const el = document.activeElement;
         if (!el || el === document.body || el === document.documentElement) return null;
-        const s = window.getComputedStyle(el);
-        const outlineOk = s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0;
-        const shadowOk = s.boxShadow !== 'none' && s.boxShadow.trim() !== '';
+        const hasFocusStyle = (node: Element | null) => {
+          if (!node) return false;
+          const s = window.getComputedStyle(node);
+          const outlineOk = s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0;
+          const shadowOk = s.boxShadow !== 'none' && s.boxShadow.trim() !== '';
+          return outlineOk || shadowOk;
+        };
+        const parentHasFocus =
+          (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && hasFocusStyle(el.parentElement);
         const selector = el.id ? `#${el.id}` : el.tagName.toLowerCase();
-        return { selector, hasIndicator: outlineOk || shadowOk };
+        return { selector, hasIndicator: hasFocusStyle(el) || parentHasFocus };
       });
       if (activeCheck) tabSamples.push(activeCheck);
     }
@@ -717,9 +752,60 @@ export async function evaluateDomChecklistMetrics(
       }
     }
 
-    // Collect exact 320px overflowing selectors so reflow feedback is actionable for the LLM
+    // Capture 1280x800 desktop nav labels & screenshot before resizing to 320px
+    const desktopNavLabels = await page.evaluate(() => {
+      const labels: string[] = [];
+      for (const el of Array.from(
+        document.querySelectorAll('nav a, nav button, [role="navigation"] a, [role="navigation"] button')
+      )) {
+        const s = window.getComputedStyle(el);
+        if (s.display === 'none' || s.visibility === 'hidden' || Number(s.opacity) === 0) continue;
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) continue;
+        const label = (el.textContent || el.getAttribute('aria-label') || '').trim().toLowerCase();
+        if (label && !labels.includes(label)) labels.push(label);
+      }
+      return labels;
+    });
+
+    let desktopScreenshotBase64: string | undefined;
+    try {
+      const buf = await page.screenshot({ type: 'jpeg', quality: 75, fullPage: false });
+      desktopScreenshotBase64 = buf.toString('base64');
+    } catch {
+      desktopScreenshotBase64 = undefined;
+    }
+
+    // Collect exact 320px overflowing selectors & capture resting 320px screenshot
     await page.setViewportSize({ width: 320, height: 640 });
-    const reflow320 = await page.evaluate(() => {
+
+    let mobile320ScreenshotBase64: string | undefined;
+    try {
+      const mobBuf = await page.screenshot({ type: 'jpeg', quality: 75, fullPage: false });
+      mobile320ScreenshotBase64 = mobBuf.toString('base64');
+    } catch {
+      mobile320ScreenshotBase64 = undefined;
+    }
+
+    const collectVisible320NavLabels = () =>
+      page.evaluate(() => {
+        const visible: string[] = [];
+        for (const el of Array.from(
+          document.querySelectorAll(
+            'nav a, nav button, [role="navigation"] a, [role="navigation"] button, header a, header button'
+          )
+        )) {
+          const s = window.getComputedStyle(el);
+          if (s.display === 'none' || s.visibility === 'hidden' || Number(s.opacity) === 0) continue;
+          const r = el.getBoundingClientRect();
+          if (r.width <= 0 || r.height <= 0 || r.right > 325) continue;
+          const label = (el.textContent || el.getAttribute('aria-label') || '').trim().toLowerCase();
+          if (label && !visible.includes(label)) visible.push(label);
+        }
+        return visible;
+      });
+
+    const reflow320Base = await page.evaluate(() => {
       const docScrollW = document.documentElement.scrollWidth;
       const overflowing: string[] = [];
       for (const el of Array.from(document.querySelectorAll('header, nav, section, div, form, table, ul'))) {
@@ -739,20 +825,60 @@ export async function evaluateDomChecklistMetrics(
       return { docScrollW, overflowing };
     });
 
-    return { findings, pageHtml, reflow320 };
+    // Verify all desktop nav items remain accessible at 320px (directly or after clicking a menu toggle)
+    let navAccessibleAt320 = true;
+    if (desktopNavLabels.length > 0) {
+      let visibleLabels = await collectVisible320NavLabels();
+      let allReachable = desktopNavLabels.every((lbl) => visibleLabels.includes(lbl));
+      if (!allReachable) {
+        const toggleSelector =
+          'header button[aria-expanded], header button[aria-controls], header .menu-toggle, header .hamburger, nav button[aria-expanded], button[aria-label*="menu" i], button[aria-label*="nav" i]';
+        const toggle = page.locator(toggleSelector).first();
+        if ((await toggle.count()) > 0 && (await toggle.isVisible())) {
+          try {
+            await toggle.click({ timeout: 1500 });
+            await page.waitForTimeout(100);
+            visibleLabels = await collectVisible320NavLabels();
+            allReachable = desktopNavLabels.every((lbl) => visibleLabels.includes(lbl));
+          } catch {
+            allReachable = false;
+          }
+        }
+      }
+      navAccessibleAt320 = allReachable;
+    }
+
+    const reflow320 = {
+      ...reflow320Base,
+      navAccessibleAt320,
+    };
+
+    return {
+      findings,
+      pageHtml,
+      reflow320,
+      desktopScreenshotBase64,
+      mobile320ScreenshotBase64,
+    };
   } finally {
     await browser.close();
   }
 }
 
 /**
- * Runs the full 24-metric UX/UI checklist audit on either raw HTML or a URL.
+ * Runs the full 36-metric UX/UI checklist audit on either raw HTML or a URL.
  */
 export async function runFullChecklistAudit(input: {
   html?: string;
   url?: string;
   localOrigin: string;
-}): Promise<{ summary: ChecklistSummary; html: string }> {
+}): Promise<{
+  summary: ChecklistSummary;
+  html: string;
+  screenshotBase64?: string;
+  mobile320ScreenshotBase64?: string;
+  navAccessibleAt320: boolean;
+}> {
   const { targetUrl, html } = resolveTarget(input);
 
   const [auditRes, domRes] = await Promise.all([
@@ -780,5 +906,11 @@ export async function runFullChecklistAudit(input: {
     ];
     reflowItem.rawSelectors = domRes.reflow320.overflowing.map((s) => s.split(' (')[0]);
   }
-  return { summary, html: html || domRes.pageHtml };
+  return {
+    summary,
+    html: html || domRes.pageHtml,
+    screenshotBase64: domRes.desktopScreenshotBase64,
+    mobile320ScreenshotBase64: domRes.mobile320ScreenshotBase64,
+    navAccessibleAt320: domRes.reflow320.navAccessibleAt320,
+  };
 }

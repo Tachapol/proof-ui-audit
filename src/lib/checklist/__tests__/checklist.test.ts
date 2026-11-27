@@ -5,6 +5,7 @@ import {
   applyJsonPatchToHtml,
   buildFeedbackWorksheet,
 } from '../auto-iterate';
+import { runDeterministicPatchAntiGamingGuard, runVlmJudge } from '../vlm-judge';
 import type { UXIssue } from '@/lib/schema/ux-issue';
 import type { BatchPageAuditResult, ChecklistJsonPatch } from '../types';
 
@@ -217,5 +218,41 @@ describe('36-Metric UX/UI Checklist Aggregator & Patching', () => {
     expect(report.aggregate.totalFailed).toBe(2);
     expect(report.feedback.issues).toHaveLength(2);
     expect(report.feedback.issues.every((i) => i.page_hint === 'checkout.html')).toBe(true);
+  });
+
+  it('rejects rule-gaming patches, allows @media nav rules, and reports unavailable when VLM is absent', async () => {
+    const hiddenCssGuard = runDeterministicPatchAntiGamingGuard({
+      cssAdditions: ['.overflow-banner { display: none; }'],
+      attributePatches: [],
+    });
+    expect(hiddenCssGuard.passed).toBe(false);
+
+    const mediaNavGuard = runDeterministicPatchAntiGamingGuard({
+      cssAdditions: ['@media (max-width: 768px) { .desktop-nav { display: none; } .mobile-menu-btn { display: inline-flex; } }'],
+      attributePatches: [],
+    });
+    expect(mediaNavGuard.passed).toBe(true);
+
+    const genericAltVerdict = await runVlmJudge({
+      appliedPatch: {
+        cssAdditions: [],
+        attributePatches: [{ metricId: 'image-alt', selector: 'img.hero', setAttributes: { alt: 'image' } }],
+      },
+    });
+    expect(genericAltVerdict.verdict).toBe('reject');
+    expect(genericAltVerdict.guardPassed).toBe(false);
+    expect(genericAltVerdict.visualScore).toBeUndefined();
+    expect(genericAltVerdict.provider).toBe('deterministic-guard');
+
+    const unavailableVerdict = await runVlmJudge({
+      appliedPatch: {
+        cssAdditions: ['button { min-height: 24px; }'],
+        attributePatches: [{ metricId: 'image-alt', selector: 'img.hero', setAttributes: { alt: 'Tokyo skyline at sunset' } }],
+      },
+    });
+    expect(unavailableVerdict.verdict).toBe('unavailable');
+    expect(unavailableVerdict.guardPassed).toBe(true);
+    expect(unavailableVerdict.visualScore).toBeUndefined();
+    expect(unavailableVerdict.semanticPass).toBeUndefined();
   });
 });

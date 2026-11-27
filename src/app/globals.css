@@ -191,7 +191,7 @@ button[data-testid^="explain-btn-"]:focus-visible {
   min-height: 0 !important;
 }
 
-#app-root .figma-toolbar button {
+#app-root .figma-workspace button {
   min-height: 0 !important;
   min-width: 0 !important;
 }

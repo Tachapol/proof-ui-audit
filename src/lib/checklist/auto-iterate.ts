@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as cheerio from 'cheerio';
 import { z } from 'zod';
 import { runFullChecklistAudit } from './dom-evaluators';
+import { runVlmJudge } from './vlm-judge';
 export { buildBatchAuditReport } from './aggregator';
 import type {
   AuditContextInput,
@@ -640,6 +641,8 @@ export async function runAutoIterationLoop(input: {
   }
 
   let bestIdx = 0;
+  let bestScreenshotBase64 = baseline.screenshotBase64;
+  let bestMobile320ScreenshotBase64 = baseline.mobile320ScreenshotBase64;
   let staleCount = 0;
   let stopReason: StopReason = 'max_iterations';
   let lastFailedAttempt:
@@ -678,6 +681,38 @@ export async function runAutoIterationLoop(input: {
     const deltaFromBase = evaluated.summary.totalPassed - base.summary.totalPassed;
     const deltaFromBaseline = evaluated.summary.totalPassed - baseline.summary.totalPassed;
 
+    const bestStats = countTargetStatus(base.summary);
+    const evalStats = countTargetStatus(evaluated.summary);
+
+    // Gate 1 (Hard Gate):
+    // - Zero previously passing checks regressed
+    // - All desktop navigation items remain accessible at 320px
+    // - Require actual target PASS increase (Fail -> Needs review alone does not pass Gate 1)
+    const targetImproved = evalStats.targetPassed > bestStats.targetPassed;
+    const overallImproved = evaluated.summary.totalPassed > base.summary.totalPassed;
+    const objectiveMet = bestStats.targetTotal > 0 ? targetImproved : overallImproved;
+    const gate1Accepted =
+      regressedIds.length === 0 && evaluated.navAccessibleAt320 && objectiveMet;
+
+    // Gate 2 (VLM + Anti-Gaming Judge): send 320px screenshots when mobile reflow is targeted/resolved
+    const useMobile320Evidence =
+      (resolvedIds.includes('reflow') || Boolean(input.prioritizedMetricIds?.includes('reflow'))) &&
+      Boolean(bestMobile320ScreenshotBase64 && evaluated.mobile320ScreenshotBase64);
+
+    const vlmReview = gate1Accepted
+      ? await runVlmJudge({
+          beforeScreenshotBase64: useMobile320Evidence
+            ? bestMobile320ScreenshotBase64
+            : bestScreenshotBase64,
+          afterScreenshotBase64: useMobile320Evidence
+            ? evaluated.mobile320ScreenshotBase64
+            : evaluated.screenshotBase64,
+          viewportEvaluated: useMobile320Evidence ? '320x640' : '1280x800',
+          appliedPatch: fixed.patch,
+          context: input.context,
+        })
+      : undefined;
+
     iterations.push({
       iteration: step,
       label: `Iteration ${step}`,
@@ -691,27 +726,29 @@ export async function runAutoIterationLoop(input: {
       fixerMode: fixed.mode,
       notes: fixed.notes,
       appliedPatch: fixed.patch,
+      vlmReview,
       usage: fixed.usage,
     });
 
-    const bestStats = countTargetStatus(base.summary);
-    const evalStats = countTargetStatus(evaluated.summary);
-
-    // Accept only when zero previously passing checks regressed and targets/overall improved
-    const targetImproved =
-      evalStats.targetPassed > bestStats.targetPassed ||
-      (evalStats.targetPassed === bestStats.targetPassed && evalStats.targetFailed < bestStats.targetFailed);
-    const overallImproved = evaluated.summary.totalPassed > base.summary.totalPassed;
-    const accepted = regressedIds.length === 0 && (targetImproved || overallImproved);
+    const accepted = gate1Accepted && vlmReview?.verdict !== 'reject';
 
     if (accepted) {
       bestIdx = step;
+      bestScreenshotBase64 = evaluated.screenshotBase64;
+      bestMobile320ScreenshotBase64 = evaluated.mobile320ScreenshotBase64;
       staleCount = 0;
       lastFailedAttempt = undefined;
     } else {
       staleCount++;
+      const failureNotes = !evaluated.navAccessibleAt320
+        ? 'Gate 1 rejected: navigation became inaccessible at 320px viewport.'
+        : vlmReview?.verdict === 'reject'
+          ? `Gate 2 rejected: ${vlmReview.critique}`
+          : !objectiveMet
+            ? 'Gate 1 rejected: selected target metrics did not improve.'
+            : fixed.notes;
       lastFailedAttempt = {
-        notes: fixed.notes,
+        notes: failureNotes,
         patch: fixed.patch,
         regressedIds,
       };

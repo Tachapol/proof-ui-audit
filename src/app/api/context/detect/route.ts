@@ -1,7 +1,202 @@
 import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { z } from 'zod';
 import { validateAndNormalizeAuditUrl } from '@/lib/audit/url-validator';
 import { ProductContext, EMPTY_PRODUCT_CONTEXT } from '@/lib/schema/product-context';
 import { FIXTURES } from '@/fixtures/fixture-registry';
+
+export interface DetectedThemeColor {
+  hex: string;
+  role: string;
+}
+
+const AiDetectedContextSchema = z.object({
+  productGoal: z.string().min(1).max(1000),
+  brandKeywords: z.string().min(1).max(300),
+  themeColors: z
+    .array(
+      z.object({
+        hex: z.string().regex(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i),
+        role: z.string().min(1).max(40),
+      })
+    )
+    .min(1)
+    .max(5),
+  targetAudience: z.string().min(1).max(500),
+  additionalContext: z.string().min(1).max(1000),
+});
+
+function normalizeHex6(raw: string): string | null {
+  const cleaned = raw.trim().replace(/^0x/i, '#');
+  if (!/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(cleaned)) return null;
+  if (cleaned.length === 4) {
+    const r = cleaned[1];
+    const g = cleaned[2];
+    const b = cleaned[3];
+    return `#${r}${r}${g}${g}${b}${b}`.toUpperCase();
+  }
+  return cleaned.toUpperCase();
+}
+
+function isNearNeutralHex(hex: string): boolean {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  // Skip pure white, pure black, and low-saturation grays
+  return max - min < 18 || max < 22 || min > 238;
+}
+
+function extractPaletteFromHtml(html: string, metaThemeColor?: string): DetectedThemeColor[] {
+  const counts = new Map<string, number>();
+  const metaNorm = metaThemeColor ? normalizeHex6(metaThemeColor) : null;
+  if (metaNorm) counts.set(metaNorm, (counts.get(metaNorm) || 0) + 10);
+
+  const hexMatches = html.match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi) || [];
+  for (const raw of hexMatches) {
+    const norm = normalizeHex6(raw);
+    if (!norm || isNearNeutralHex(norm)) continue;
+    counts.set(norm, (counts.get(norm) || 0) + 1);
+  }
+
+  const roles = ['Primary', 'Secondary', 'Accent', 'Highlight'];
+  const sorted = Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([hex], idx) => ({ hex, role: roles[idx] || 'Accent' }));
+
+  if (sorted.length === 0) {
+    return [{ hex: '#2563EB', role: 'Primary' }];
+  }
+  return sorted;
+}
+
+function extractJsonObject(raw: string): unknown {
+  const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = (fenced ? fenced[1] : raw).trim();
+  const start = candidate.indexOf('{');
+  const end = candidate.lastIndexOf('}');
+  if (start === -1 || end === -1 || end <= start) return null;
+  try {
+    return JSON.parse(candidate.slice(start, end + 1));
+  } catch {
+    return null;
+  }
+}
+
+async function detectContextWithAi(
+  html: string,
+  fallback: ProductContext & { themeColors: DetectedThemeColor[] }
+): Promise<(ProductContext & { themeColors: DetectedThemeColor[] }) | null> {
+  const compactHtml = html
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 8000);
+
+  const prompt = [
+    'Analyze this web page HTML/CSS and extract its Product Context for UX/UI design auditing.',
+    'Return ONLY valid JSON with these exact keys:',
+    '{',
+    '  "productGoal": "concise 1-sentence primary goal of this page/product",',
+    '  "brandKeywords": "3-4 comma-separated adjectives describing brand tone & visual style",',
+    '  "themeColors": [{"hex": "#RRGGBB", "role": "Primary|Secondary|Accent|Highlight"}],',
+    '  "targetAudience": "specific intended users & devices",',
+    '  "additionalContext": "key user task, primary language, and notable layout/design constraints"',
+    '}',
+    'Rules:',
+    '- Pick 1 to 4 actual brand/UI colors used in the HTML/CSS (exclude pure white/black/gray unless monochrome).',
+    '- Be concrete and specific to the page content, never generic.',
+    '',
+    'HTML:',
+    compactHtml,
+  ].join('\n');
+
+  const geminiKey = process.env.GEMINI_API_KEY?.trim();
+  if (geminiKey) {
+    try {
+      const genAI = new GoogleGenerativeAI(geminiKey);
+      const modelName = process.env.GEMINI_VLM_MODEL?.trim() || 'gemini-2.5-flash';
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const res = await model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.1,
+          responseMimeType: 'application/json',
+          maxOutputTokens: 800,
+        },
+      });
+      const parsed = AiDetectedContextSchema.safeParse(extractJsonObject(res.response.text()));
+      if (parsed.success) {
+        const colors = parsed.data.themeColors.map((c) => ({
+          hex: normalizeHex6(c.hex) || c.hex.toUpperCase(),
+          role: c.role,
+        }));
+        return {
+          productGoal: parsed.data.productGoal,
+          brandKeywords: parsed.data.brandKeywords,
+          themeColor: colors[0]?.hex || fallback.themeColor,
+          themeColors: colors,
+          targetAudience: parsed.data.targetAudience,
+          additionalContext: parsed.data.additionalContext,
+        };
+      }
+    } catch {
+      // Fall through to OpenAI-compatible or heuristic
+    }
+  }
+
+  const cpeKey = (process.env.LLM_API_KEY || process.env.CPE_API_KEY)?.trim();
+  const cpeBase = (process.env.LLM_BASE_URL || process.env.CPE_API_BASE_URL)?.trim();
+  const modelId = (process.env.CPE_MODEL || process.env.VLM_MODEL)?.trim();
+  if (cpeKey && cpeBase && modelId) {
+    try {
+      const endpoint = cpeBase.endsWith('/chat/completions')
+        ? cpeBase
+        : `${cpeBase.replace(/\/$/, '')}/chat/completions`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${cpeKey}`,
+        },
+        body: JSON.stringify({
+          model: modelId,
+          temperature: 0.1,
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (response.ok) {
+        const json = await response.json();
+        const rawText = json?.choices?.[0]?.message?.content;
+        if (typeof rawText === 'string') {
+          const parsed = AiDetectedContextSchema.safeParse(extractJsonObject(rawText));
+          if (parsed.success) {
+            const colors = parsed.data.themeColors.map((c) => ({
+              hex: normalizeHex6(c.hex) || c.hex.toUpperCase(),
+              role: c.role,
+            }));
+            return {
+              productGoal: parsed.data.productGoal,
+              brandKeywords: parsed.data.brandKeywords,
+              themeColor: colors[0]?.hex || fallback.themeColor,
+              themeColors: colors,
+              targetAudience: parsed.data.targetAudience,
+              additionalContext: parsed.data.additionalContext,
+            };
+          }
+        }
+      }
+    } catch {
+      // Fall back to heuristic
+    }
+  }
+
+  return null;
+}
 
 const FIXTURE_CONTEXTS: Record<string, Partial<ProductContext>> = {
   'mvp-contrast-demo': {
@@ -41,7 +236,7 @@ export async function POST(req: Request) {
     const rawHtml = (body.html || '').trim();
 
     // Helper: Parse context from HTML string
-    const extractContextFromHtml = (html: string): ProductContext => {
+    const extractContextFromHtml = (html: string): ProductContext & { themeColors: DetectedThemeColor[] } => {
       const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i) || html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
       const title = titleMatch ? titleMatch[1].trim() : '';
 
@@ -61,10 +256,9 @@ export async function POST(req: Request) {
 
       const siteName = extractMeta('og:site_name') || extractMeta('application-name');
       const keywords = extractMeta('keywords');
-      const themeColor = extractMeta('theme-color') || extractMeta('msapplication-TileColor');
-
-      const colorHexMatch = html.match(/(?:#|0x)([0-9a-f]{6}|[0-9a-f]{3})\b/i);
-      const extractedColor = themeColor || (colorHexMatch ? `#${colorHexMatch[1]}` : '#2563EB');
+      const metaThemeColor = extractMeta('theme-color') || extractMeta('msapplication-TileColor');
+      const themeColors = extractPaletteFromHtml(html, metaThemeColor);
+      const primaryColor = themeColors[0]?.hex || '#2563EB';
 
       const productGoal = description
         ? (title ? `${title}: ${description}` : description).slice(0, 1000)
@@ -75,17 +269,21 @@ export async function POST(req: Request) {
       return {
         productGoal,
         brandKeywords,
-        themeColor: /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(extractedColor) ? extractedColor : '#2563EB',
+        themeColor: primaryColor,
+        themeColors,
         targetAudience: 'General web audience and mobile users',
         additionalContext: 'Auto-detected from component markup.',
       };
     };
 
-    // 1. Direct HTML snippet provided
+    // 1. Direct HTML snippet provided (AI first, heuristic fallback)
     if (rawHtml) {
+      const heuristic = extractContextFromHtml(rawHtml);
+      const aiContext = await detectContextWithAi(rawHtml, heuristic);
       return NextResponse.json({
         success: true,
-        context: extractContextFromHtml(rawHtml),
+        source: aiContext ? 'ai' : 'heuristic',
+        context: aiContext || heuristic,
       });
     }
 

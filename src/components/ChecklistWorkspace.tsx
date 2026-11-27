@@ -9,6 +9,7 @@ import {
   ArrowUp,
   Check,
   CheckCircle2,
+  ChevronDown,
   Code2,
   Copy,
   Download,
@@ -26,7 +27,11 @@ import {
   XCircle,
 } from 'lucide-react';
 import { buildBatchAuditReport } from '@/lib/checklist/aggregator';
-import { FigmaReviewCanvas } from './FigmaReviewCanvas';
+import {
+  FigmaReviewCanvas,
+  type CanvasCompareMode,
+  type CanvasViewportPreset,
+} from './FigmaReviewCanvas';
 import type {
   AutoIterationResult,
   BatchAuditReport,
@@ -169,25 +174,59 @@ export function ChecklistWorkspace({
   baselinePages = [],
   baselineDir = '',
 }: ChecklistWorkspaceProps) {
-  const [selectedPage, setSelectedPage] = useState<string>(baselinePages[0] || 'index.html');
-  const [htmlInput, setHtmlInput] = useState<string>(initialHtml);
+  const [selectedPage, setSelectedPage] = useState<string>('untitled.html');
+  const [htmlInput, setHtmlInput] = useState<string>('');
+  const [usingExample, setUsingExample] = useState<boolean>(false);
+  const [isDetectingContext, setIsDetectingContext] = useState<boolean>(false);
   const [uploadedProject, setUploadedProject] = useState<{
     name: string;
     files: Record<string, string>;
     htmlPages: string[];
   } | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [pageMenuOpen, setPageMenuOpen] = useState<boolean>(false);
+  const pageMenuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!pageMenuOpen) return;
+    const onPointerDown = (e: MouseEvent) => {
+      if (pageMenuRef.current && !pageMenuRef.current.contains(e.target as Node)) {
+        setPageMenuOpen(false);
+      }
+    };
+    window.addEventListener('mousedown', onPointerDown);
+    return () => window.removeEventListener('mousedown', onPointerDown);
+  }, [pageMenuOpen]);
   const [baselineViewMode, setBaselineViewMode] = useState<'preview' | 'code'>('preview');
+  const [auditScope, setAuditScope] = useState<'current' | 'all'>('current');
   const [activeStage, setActiveStage] = useState<'input' | 'audit' | 'optimize'>('input');
   const [auditTab, setAuditTab] = useState<'priority' | 'checklist'>('priority');
   const [optimizeTab, setOptimizeTab] = useState<'compare' | 'checklist'>('compare');
+  const [canvasViewport, setCanvasViewport] = useState<CanvasViewportPreset>('desktop');
+  const [canvasCompareMode, setCanvasCompareMode] = useState<CanvasCompareMode>('split');
 
   // Step 1: Context & Requirements
-  const [productGoal, setProductGoal] = useState<string>('Hotel search & booking conversion');
-  const [targetAudience, setTargetAudience] = useState<string>('Travelers on desktop & mobile');
-  const [theme, setTheme] = useState<string>('Booking.com blue (#003580) & yellow (#ffb700)');
+  const [productGoal, setProductGoal] = useState<string>('');
+  const [brandKeywords, setBrandKeywords] = useState<string>('');
+  const [themeColors, setThemeColors] = useState<Array<{ hex: string; role: string }>>([]);
+  const [targetAudience, setTargetAudience] = useState<string>('');
+  const [additionalContext, setAdditionalContext] = useState<string>('');
+
+  const buildAuditContext = () => {
+    const paletteStr = themeColors
+      .filter((c) => c.hex.trim())
+      .map((c) => `${c.role} ${c.hex.trim()}`)
+      .join(', ');
+    const composedTheme = [paletteStr, brandKeywords.trim()].filter(Boolean).join(' · ');
+    return {
+      productGoal: productGoal.trim() || undefined,
+      targetAudience: targetAudience.trim() || undefined,
+      theme: composedTheme || undefined,
+      customPrompt: additionalContext.trim() || undefined,
+    };
+  };
 
   // Step 3: Designer Prioritization & Evidence Inspection
   const [priorityOrder, setPriorityOrder] = useState<string[]>([]);
@@ -233,17 +272,17 @@ export function ChecklistWorkspace({
           setSavedApprovalInfo(null);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [selectedPage]);
 
   const attachSyncListeners = (
     leftEl: HTMLIFrameElement | null,
     rightEl: HTMLIFrameElement | null
   ) => {
-    if (!syncScroll || !leftEl || !rightEl) return () => {};
+    if (!syncScroll || !leftEl || !rightEl) return () => { };
     const leftWin = leftEl.contentWindow;
     const rightWin = rightEl.contentWindow;
-    if (!leftWin || !rightWin) return () => {};
+    if (!leftWin || !rightWin) return () => { };
 
     const syncTo = (source: Window, target: Window) => {
       if (syncingRef.current) return;
@@ -293,15 +332,74 @@ export function ChecklistWorkspace({
     }
     try {
       const orderedSelected = priorityOrder.filter((id) => selectedMetricIds.has(id));
+
+      if (mode === 'iterate') {
+        const focusMetrics = orderedSelected
+          .map((id) => priorityItemMap.get(id))
+          .filter((item): item is ChecklistItemResult => Boolean(item))
+          .map((item) => ({
+            id: item.id,
+            title: item.title,
+            priority: item.priority,
+            measuredSummary: item.measuredSummary,
+            recommendation: item.recommendation,
+            samples: item.samples,
+          }));
+
+        const res = await fetch('/api/ai-redesign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            html: htmlInput,
+            context: buildAuditContext(),
+            focusMetrics,
+            maxIterations,
+            startIterationNumber: 1,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success || !Array.isArray(data.iterations)) {
+          throw new Error(data.error || 'Optimization failed');
+        }
+
+        const baseSnapshot: IterationSnapshot = result?.iterations[0] || {
+          iteration: 0,
+          label: 'Baseline',
+          summary: data.baselineSummary,
+          html: htmlInput,
+          deltaFromBase: 0,
+          deltaFromBaseline: 0,
+          resolvedIds: [],
+          regressedIds: [],
+          fixerMode: 'baseline',
+          notes: 'Initial audited snapshot',
+        };
+        const generated: IterationSnapshot[] = data.iterations;
+        const bestIdx = 1 + (typeof data.bestIterationIndex === 'number' ? data.bestIterationIndex : 0);
+        const bestSnap = generated[bestIdx - 1] || generated[generated.length - 1];
+        const nextResult: AutoIterationResult = {
+          bestIteration: bestIdx,
+          stopReason:
+            data.stopReason ||
+            (bestSnap?.summary.totalFailed === 0 ? 'all_passed' : 'max_iterations'),
+          iterations: [baseSnapshot, ...generated],
+          feedback: result?.feedback,
+        };
+        setResult(nextResult);
+        setSelectedIter(bestIdx);
+        setActiveStage('optimize');
+        setOptimizeTab('compare');
+        return;
+      }
+
       const res = await fetch('/api/checklist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           html: htmlInput,
-          mode,
+          mode: 'audit',
           maxIterations,
-          context: { productGoal, targetAudience, theme },
-          prioritizedMetricIds: mode === 'iterate' && orderedSelected.length > 0 ? orderedSelected : undefined,
+          context: buildAuditContext(),
           pageHint: selectedPage,
         }),
       });
@@ -313,24 +411,19 @@ export function ChecklistWorkspace({
       setResult(nextResult);
       setSelectedIter(nextResult.bestIteration ?? 0);
 
-      if (mode === 'audit') {
-        const baselinePriority = nextResult.iterations[0]?.summary.priorityList || [];
-        const ids = baselinePriority.map((i) => i.id);
-        setPriorityOrder(ids);
-        setReviewedMetricIds(new Set());
-        // Auto-select only fail items by default; needsReview requires human evidence review first
-        setSelectedMetricIds(new Set(baselinePriority.filter((i) => i.status === 'fail').map((i) => i.id)));
-        const firstFail = baselinePriority[0];
-        if (firstFail) {
-          setInspectedMetricId(firstFail.id);
-          setPreviewViewport(firstFail.id === 'reflow' ? 'mobile320' : 'desktop');
-        }
-        setActiveStage('audit');
-        setAuditTab('priority');
-      } else {
-        setActiveStage('optimize');
-        setOptimizeTab('compare');
+      const baselinePriority = nextResult.iterations[0]?.summary.priorityList || [];
+      const ids = baselinePriority.map((i) => i.id);
+      setPriorityOrder(ids);
+      setReviewedMetricIds(new Set());
+      // Auto-select only fail items by default; needsReview requires human evidence review first
+      setSelectedMetricIds(new Set(baselinePriority.filter((i) => i.status === 'fail').map((i) => i.id)));
+      const firstFail = baselinePriority[0];
+      if (firstFail) {
+        setInspectedMetricId(firstFail.id);
+        setPreviewViewport(firstFail.id === 'reflow' ? 'mobile320' : 'desktop');
       }
+      setActiveStage('optimize');
+      setOptimizeTab('compare');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed');
     } finally {
@@ -362,7 +455,12 @@ export function ChecklistWorkspace({
     return data.html;
   };
 
-  const applyAuditResultToWorkspace = (page: string, pageHtml: string, nextResult: AutoIterationResult) => {
+  const applyAuditResultToWorkspace = (
+    page: string,
+    pageHtml: string,
+    nextResult: AutoIterationResult,
+    openStudio = true
+  ) => {
     setSelectedPage(page);
     setHtmlInput(pageHtml);
     setResult(nextResult);
@@ -377,8 +475,10 @@ export function ChecklistWorkspace({
       setInspectedMetricId(firstFail.id);
       setPreviewViewport(firstFail.id === 'reflow' ? 'mobile320' : 'desktop');
     }
-    setActiveStage('audit');
-    setAuditTab('priority');
+    if (openStudio) {
+      setActiveStage('optimize');
+      setOptimizeTab('compare');
+    }
   };
 
   const runBatchAudit = async () => {
@@ -403,7 +503,7 @@ export function ChecklistWorkspace({
               html: pageHtml,
               mode: 'audit',
               maxIterations: 1,
-              context: { productGoal, targetAudience, theme },
+              context: buildAuditContext(),
               pageHint: page,
             }),
           });
@@ -448,7 +548,7 @@ export function ChecklistWorkspace({
       const report = buildBatchAuditReport(
         uploadedProject ? uploadedProject.name : baselineDir || 'Baseline Site',
         pageResults,
-        { productGoal, targetAudience, theme }
+        buildAuditContext()
       );
       setBatchReport(report);
 
@@ -456,7 +556,7 @@ export function ChecklistWorkspace({
       const focusResult = pageResults.find((p) => p.page === focusPageName && !p.error);
       if (focusResult) {
         const focusHtml = focusResult.result.iterations[0]?.html || (await loadPageHtml(focusResult.page));
-        applyAuditResultToWorkspace(focusResult.page, focusHtml, focusResult.result);
+        applyAuditResultToWorkspace(focusResult.page, focusHtml, focusResult.result, false);
       } else {
         setError('All pages in batch audit failed.');
       }
@@ -558,22 +658,42 @@ export function ChecklistWorkspace({
     }
 
     const firstPage = htmlPages[0];
+    const bundled = bundleUploadedHtml(firstPage, files);
+    setUsingExample(false);
     setUploadedProject({ name: rootFolderName, files, htmlPages });
     setSelectedPage(firstPage);
-    setHtmlInput(bundleUploadedHtml(firstPage, files));
+    setHtmlInput(bundled);
     setResult(null);
     setPriorityOrder([]);
     setReviewedMetricIds(new Set());
     setError('');
+    if (!productGoal.trim()) {
+      void handleAutoGenerateContext(bundled);
+    }
   };
 
-  const resetToBaseline = async () => {
+  const loadBookingExample = async () => {
     setUploadedProject(null);
+    setUsingExample(true);
     const defaultPage = baselinePages[0] || 'index.html';
     setSelectedPage(defaultPage);
     setResult(null);
+    setBatchReport(null);
     setPriorityOrder([]);
     setReviewedMetricIds(new Set());
+    setError('');
+    setProductGoal('Hotel search & booking conversion');
+    setBrandKeywords('Trustworthy, clear, conversion-focused');
+    setThemeColors([
+      { hex: '#003580', role: 'Primary' },
+      { hex: '#FFB700', role: 'Accent' },
+    ]);
+    setTargetAudience('Travelers on desktop & mobile');
+    setAdditionalContext('Booking.com blue (#003580) & yellow (#ffb700); preserve search bar & card hierarchy');
+    if (initialHtml && defaultPage === (baselinePages[0] || 'index.html')) {
+      setHtmlInput(initialHtml);
+      return;
+    }
     try {
       const res = await fetch(`/api/checklist?page=${encodeURIComponent(defaultPage)}`);
       const data = await res.json();
@@ -583,7 +703,56 @@ export function ChecklistWorkspace({
     }
   };
 
-  const activePages = uploadedProject ? uploadedProject.htmlPages : baselinePages;
+  const clearWorkspaceInput = () => {
+    setUploadedProject(null);
+    setUsingExample(false);
+    setSelectedPage('untitled.html');
+    setHtmlInput('');
+    setResult(null);
+    setBatchReport(null);
+    setPriorityOrder([]);
+    setReviewedMetricIds(new Set());
+    setProductGoal('');
+    setBrandKeywords('');
+    setThemeColors([]);
+    setTargetAudience('');
+    setAdditionalContext('');
+    setError('');
+  };
+
+  const handleAutoGenerateContext = async (overrideHtml?: string) => {
+    const sourceHtml = (overrideHtml ?? htmlInput).trim();
+    if (!sourceHtml || isDetectingContext) return;
+    setIsDetectingContext(true);
+    setError('');
+    try {
+      const res = await fetch('/api/context/detect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: sourceHtml }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success || !data.context) {
+        throw new Error(data.error || 'Failed to detect context');
+      }
+      const ctx = data.context;
+      if (ctx.productGoal) setProductGoal(ctx.productGoal);
+      if (ctx.brandKeywords) setBrandKeywords(ctx.brandKeywords);
+      if (Array.isArray(ctx.themeColors) && ctx.themeColors.length > 0) {
+        setThemeColors(ctx.themeColors);
+      } else if (ctx.themeColor) {
+        setThemeColors([{ hex: ctx.themeColor, role: 'Primary' }]);
+      }
+      if (ctx.targetAudience) setTargetAudience(ctx.targetAudience);
+      if (ctx.additionalContext) setAdditionalContext(ctx.additionalContext);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Context detection failed');
+    } finally {
+      setIsDetectingContext(false);
+    }
+  };
+
+  const activePages = uploadedProject ? uploadedProject.htmlPages : usingExample ? baselinePages : [];
 
   const confirmNeedsReview = (id: string) => {
     setReviewedMetricIds((prev) => new Set(prev).add(id));
@@ -632,6 +801,21 @@ export function ChecklistWorkspace({
     setTimeout(() => setCopied(false), 1500);
   };
 
+  const handleDownloadHtml = () => {
+    const content = activeSnapshot?.html || htmlInput;
+    const baseName = selectedPage.replace(/\.html?$/i, '') || 'page';
+    const suffix = activeSnapshot && activeSnapshot.iteration > 0 ? `-iter-${activeSnapshot.iteration}` : '-audited';
+    const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${baseName}${suffix}.html`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const handleApproveSnapshot = async (snapshot: IterationSnapshot) => {
     setApprovedIter(snapshot.iteration);
     try {
@@ -676,9 +860,8 @@ export function ChecklistWorkspace({
           {pillar.items.map((item: ChecklistItemResult) => (
             <div
               key={item.id}
-              className={`flex items-start gap-2.5 p-2 rounded-lg bg-[#212121] border border-white/[0.05] ${
-                item.status === 'notApplicable' ? 'opacity-60' : ''
-              }`}
+              className={`flex items-start gap-2.5 p-2 rounded-lg bg-[#212121] border border-white/[0.05] ${item.status === 'notApplicable' ? 'opacity-60' : ''
+                }`}
             >
               <StatusIcon status={item.status} />
               <div className="min-w-0 flex-1">
@@ -714,64 +897,31 @@ export function ChecklistWorkspace({
 
   return (
     <div className="min-h-screen bg-[#212121] text-[#ececec] text-[13px]">
-      <header className="px-6 py-3.5 bg-[#171717] border-b border-white/[0.08] flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-[#9b9b9b] hover:text-white">
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Audit
-          </Link>
-          <span className="text-white/20">/</span>
-          <h1 className="font-semibold text-white">UX/UI Optimization Pipeline (36-Metric Self-Audit)</h1>
-        </div>
-        <Link href="/knowledge" className="text-xs text-[#10a37f] hover:underline">
-          Knowledge Wiki
-        </Link>
-      </header>
-
       <main className="max-w-7xl mx-auto p-6 space-y-5">
-        {/* 3-Stage Stateful Stepper Bar */}
-        <nav className="rounded-xl bg-[#171717] border border-white/[0.08] px-3 py-2 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-1.5">
+        {/* 2-Zone Stepper Bar: Input & Batch Overview -> Figma Review Studio */}
+        <nav className="rounded-xl bg-[#2c2c2c] border border-white/[0.1] px-3 py-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="inline-flex flex-wrap items-center rounded-full bg-[#1e1e1e] p-0.5 border border-white/[0.08] gap-0.5">
             <button
               type="button"
               onClick={() => setActiveStage('input')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                activeStage === 'input'
-                  ? 'bg-[#2f2f2f] text-white border border-[#10a37f]'
-                  : 'text-[#d4d4d4] hover:bg-[#262626]'
-              }`}
+              className={`inline-flex items-center h-7 px-3.5 rounded-full text-xs transition-colors ${activeStage === 'input'
+                ? 'bg-[#3f3f3f] text-white font-medium shadow-sm'
+                : 'text-[#9b9b9b] hover:text-white'
+                }`}
             >
-              1. Input &amp; Context
+              1. Input &amp; Batch Overview
             </button>
-            <span className="text-white/20 text-xs">&rarr;</span>
             <button
               type="button"
               disabled={!result}
-              onClick={() => result && setActiveStage('audit')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                activeStage === 'audit'
-                  ? 'bg-[#2f2f2f] text-white border border-[#10a37f]'
-                  : 'text-[#d4d4d4] hover:bg-[#262626]'
-              }`}
+              onClick={() => result && setActiveStage('optimize')}
+              className={`inline-flex items-center h-7 px-3.5 rounded-full text-xs transition-colors disabled:text-[#737373] disabled:cursor-not-allowed ${activeStage === 'optimize'
+                ? 'bg-[#3f3f3f] text-white font-medium shadow-sm'
+                : 'text-[#9b9b9b] hover:text-white'
+                }`}
             >
-              2. Audit &amp; Prioritize
+              2. Figma Review Studio
             </button>
-            <span className="text-white/20 text-xs">&rarr;</span>
-            <button
-              type="button"
-              disabled={!hasOptimizationRuns}
-              onClick={() => hasOptimizationRuns && setActiveStage('optimize')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                activeStage === 'optimize'
-                  ? 'bg-[#2f2f2f] text-white border border-[#10a37f]'
-                  : 'text-[#d4d4d4] hover:bg-[#262626]'
-              }`}
-            >
-              3. Optimize &amp; Approve
-            </button>
-          </div>
-          <div className="text-xs text-[#9b9b9b] px-2">
-            {uploadedProject ? uploadedProject.name : 'Booking'} &middot; {selectedPage}
           </div>
         </nav>
 
@@ -780,892 +930,608 @@ export function ChecklistWorkspace({
           <section className="rounded-xl bg-[#171717] border border-white/[0.08] p-4 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold text-white">1. Input &amp; Context</span>
-                {activePages.length > 0 && (
-                  <select
-                    title={uploadedProject ? uploadedProject.name : baselineDir}
-                    value={selectedPage}
-                    onChange={async (e) => {
-                      const page = e.target.value;
-                      setSelectedPage(page);
-                      setError('');
-                      setResult(null);
-                      setPriorityOrder([]);
-                      setReviewedMetricIds(new Set());
-                      if (uploadedProject) {
-                        setHtmlInput(bundleUploadedHtml(page, uploadedProject.files));
-                        return;
-                      }
-                      try {
-                        const res = await fetch(`/api/checklist?page=${encodeURIComponent(page)}`);
-                        const data = await res.json();
-                        if (res.ok && data.success) {
-                          setHtmlInput(data.html);
-                        } else {
-                          setError(data.error || 'Failed to load page');
-                        }
-                      } catch {
-                        setError('Failed to load baseline page');
-                      }
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-[#2f2f2f] border border-white/[0.12] text-xs"
+                <span className="text-xs font-semibold text-white">Input &amp; Context</span>
+                {baselinePages.length > 0 && !usingExample && !uploadedProject && !htmlInput.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => void loadBookingExample()}
+                    className="!min-h-0 !min-w-0 inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-[#1e1e1e] border border-white/[0.08] hover:bg-[#383838] text-[11px] text-[#b4b4b4] hover:text-white transition-colors"
+                    title="Load sample Booking pages"
                   >
-                    {activePages.map((p) => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
+                    <Sparkles className="w-3 h-3 text-[#10a37f]" />
+                    Example: Booking
+                  </button>
+                )}
+                {(uploadedProject || usingExample || htmlInput.trim().length > 0) && (
+                  <button
+                    type="button"
+                    onClick={clearWorkspaceInput}
+                    className="!min-h-0 !min-w-0 inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-[#1e1e1e] border border-white/[0.08] hover:bg-[#383838] hover:text-white text-[11px] text-[#9b9b9b] transition-colors"
+                    title="Clear uploaded source and start over"
+                  >
+                    <X className="w-3 h-3" />
+                    Clear
+                  </button>
                 )}
               </div>
+            </div>
 
-              <div className="flex items-center gap-2">
-                <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#212121] p-0.5">
+            {/* Upload Source Code Section (hidden once files/example/HTML are loaded) */}
+            {!uploadedProject && !usingExample && !htmlInput.trim() && (
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  void handleUploadedFileList(e.dataTransfer.files);
+                }}
+                className={`rounded-lg border border-dashed px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-3 transition-colors ${isDragging
+                  ? 'border-[#10a37f] bg-[#10a37f]/10'
+                  : 'border-white/[0.15] bg-[#212121]'
+                  }`}
+              >
+                <div className="flex items-center gap-2.5 text-xs">
+                  <Upload className="w-4 h-4 text-[#10a37f] shrink-0" />
+                  <span className="text-[#9b9b9b]">
+                    Drop a <strong className="text-[#ececec]">website folder</strong> or <strong className="text-[#ececec]">HTML/CSS/JS files</strong> here
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    ref={folderInputRef}
+                    type="file"
+                    // @ts-expect-error webkitdirectory is standard in Chromium/Safari for folder upload
+                    webkitdirectory=""
+                    directory=""
+                    className="hidden"
+                    onChange={(e) => {
+                      void handleUploadedFileList(e.target.files);
+                      e.target.value = '';
+                    }}
+                  />
                   <button
                     type="button"
-                    onClick={() => setBaselineViewMode('preview')}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs ${
-                      baselineViewMode === 'preview' ? 'bg-[#2f2f2f] text-white font-medium' : 'text-[#9b9b9b]'
-                    }`}
+                    onClick={() => folderInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-[#383838] hover:bg-[#444] text-xs font-medium text-[#ececec] transition-colors"
                   >
-                    <Eye className="w-3.5 h-3.5" />
-                    Preview
+                    <FolderUp className="w-3.5 h-3.5" />
+                    Upload Folder
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setBaselineViewMode('code')}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs ${
-                      baselineViewMode === 'code' ? 'bg-[#2f2f2f] text-white font-medium' : 'text-[#9b9b9b]'
-                    }`}
-                  >
-                    <Code2 className="w-3.5 h-3.5" />
-                    Source Code
-                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-3 pt-1">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <div className="text-xs font-medium text-[#ececec]">Product Context</div>
+                  <p className="text-[11px] text-[#9b9b9b] mt-0.5">
+                    Provide design goals, branding, or audience to guide context-aware AI critiques.
+                  </p>
                 </div>
                 <button
                   type="button"
-                  onClick={() => runPipeline('audit')}
-                  disabled={loadingPhase !== 'idle' || !htmlInput.trim()}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#ececec] text-[#171717] font-medium text-xs hover:bg-white disabled:opacity-50"
+                  onClick={() => void handleAutoGenerateContext()}
+                  disabled={!htmlInput.trim() || isDetectingContext}
+                  className="!min-h-0 !min-w-0 inline-flex items-center gap-1 h-6 px-2.5 rounded-full bg-[#383838] hover:bg-[#444] disabled:opacity-40 disabled:cursor-not-allowed text-[11px] font-medium text-[#ececec] transition-colors shrink-0"
+                  title="Analyze HTML with AI to detect Product Goal, Brand Keywords, Theme Colors, Target Audience, and Additional Context"
                 >
-                  {loadingPhase === 'audit' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-                  {loadingPhase === 'audit' ? 'Auditing...' : 'Run Audit'}
+                  {isDetectingContext ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3 h-3 text-[#10a37f]" />
+                  )}
+                  {isDetectingContext ? 'Analyzing with AI...' : 'Auto-generate context'}
                 </button>
-                {activePages.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => void runBatchAudit()}
-                    disabled={loadingPhase !== 'idle'}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#10a37f] text-white font-medium text-xs hover:bg-[#0d8f70] disabled:opacity-50"
-                  >
-                    {loadingPhase === 'batch' ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Layers className="w-3.5 h-3.5" />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label htmlFor="ctx-product-goal" className="block text-[11px] font-medium text-[#9b9b9b]">
+                    Product Goal
+                  </label>
+                  <textarea
+                    id="ctx-product-goal"
+                    rows={2}
+                    value={productGoal}
+                    onChange={(e) => setProductGoal(e.target.value)}
+                    placeholder="Help students find and register for courses easily."
+                    className="w-full px-3 py-1.5 rounded-lg bg-[#212121] border border-white/[0.1] text-xs leading-relaxed resize-y"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label htmlFor="ctx-audience" className="block text-[11px] font-medium text-[#9b9b9b]">
+                    Target Audience
+                  </label>
+                  <textarea
+                    id="ctx-audience"
+                    rows={2}
+                    value={targetAudience}
+                    onChange={(e) => setTargetAudience(e.target.value)}
+                    placeholder="University students using mobile devices"
+                    className="w-full px-3 py-1.5 rounded-lg bg-[#212121] border border-white/[0.1] text-xs leading-relaxed resize-y"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label htmlFor="ctx-brand-keywords" className="block text-[11px] font-medium text-[#9b9b9b]">
+                    Brand Keywords
+                  </label>
+                  <input
+                    id="ctx-brand-keywords"
+                    value={brandKeywords}
+                    onChange={(e) => setBrandKeywords(e.target.value)}
+                    placeholder="Friendly, trustworthy, clear"
+                    className="w-full h-8 px-3 rounded-lg bg-[#212121] border border-white/[0.1] text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <span className="block text-[11px] font-medium text-[#9b9b9b]">
+                    Theme Colors
+                  </span>
+                  <div className="flex flex-wrap items-center justify-between gap-1.5 min-h-[32px] px-2 py-[3px] rounded-lg bg-[#212121] border border-white/[0.1]">
+                    <div className="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">
+                      {themeColors.length === 0 && (
+                        <span className="text-xs text-[#6b7280] px-1">
+                          Add brand colors (e.g. Primary, Accent)
+                        </span>
+                      )}
+                      {themeColors.map((c, idx) => {
+                        const safeHex = /^#[0-9a-f]{6}$/i.test(c.hex.trim())
+                          ? c.hex.trim()
+                          : '#2563EB';
+                        return (
+                          <div
+                            key={`${c.hex}-${idx}`}
+                            className="inline-flex items-center gap-1.5 h-6 pl-1.5 pr-1 rounded-full bg-[#2c2c2c] border border-white/[0.1] text-[11px]"
+                          >
+                            <label
+                              title="Pick color"
+                              style={{ backgroundColor: safeHex }}
+                              className="relative w-3.5 h-3.5 rounded-full ring-1 ring-white/25 cursor-pointer shrink-0 overflow-hidden"
+                            >
+                              <input
+                                type="color"
+                                aria-label={`Color ${idx + 1}`}
+                                value={safeHex}
+                                onChange={(e) => {
+                                  const nextHex = e.target.value.toUpperCase();
+                                  setThemeColors((prev) =>
+                                    prev.map((item, i) => (i === idx ? { ...item, hex: nextHex } : item))
+                                  );
+                                }}
+                                className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                              />
+                            </label>
+                            <input
+                              value={c.hex}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setThemeColors((prev) =>
+                                  prev.map((item, i) => (i === idx ? { ...item, hex: val } : item))
+                                );
+                              }}
+                              className="w-[62px] bg-transparent font-mono text-[11px] uppercase text-[#ececec] focus:outline-none"
+                              placeholder="#2563EB"
+                            />
+                            <select
+                              aria-label={`Color ${idx + 1} role`}
+                              value={c.role}
+                              onChange={(e) => {
+                                const role = e.target.value;
+                                setThemeColors((prev) =>
+                                  prev.map((item, i) => (i === idx ? { ...item, role } : item))
+                                );
+                              }}
+                              className="bg-transparent text-[10px] text-[#9b9b9b] focus:outline-none cursor-pointer"
+                            >
+                              <option value="Primary">Primary</option>
+                              <option value="Secondary">Secondary</option>
+                              <option value="Accent">Accent</option>
+                              <option value="Highlight">Highlight</option>
+                            </select>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setThemeColors((prev) => prev.filter((_, i) => i !== idx))
+                              }
+                              className="!min-h-0 !min-w-0 p-0.5 rounded-full hover:bg-[#383838] text-[#9b9b9b] hover:text-white"
+                              title="Remove color"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {themeColors.length < 6 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const defaultRoles = ['Primary', 'Secondary', 'Accent', 'Highlight'];
+                          const nextRole = defaultRoles[themeColors.length] || 'Accent';
+                          setThemeColors((prev) => [...prev, { hex: '#2563EB', role: nextRole }]);
+                        }}
+                        className="!min-h-0 !min-w-0 inline-flex items-center gap-1 h-6 px-2.5 rounded-full bg-[#383838] hover:bg-[#444] text-[10px] font-medium text-[#ececec] transition-colors shrink-0"
+                      >
+                        + Add color
+                      </button>
                     )}
-                    {batchProgress
-                      ? `Batch ${batchProgress.current}/${batchProgress.total}: ${batchProgress.currentPage}`
-                      : `Batch Audit All (${activePages.length})`}
-                  </button>
-                )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="ctx-additional" className="block text-[11px] font-medium text-[#9b9b9b]">
+                  Others / Additional Context
+                </label>
+                <textarea
+                  id="ctx-additional"
+                  rows={2}
+                  value={additionalContext}
+                  onChange={(e) => setAdditionalContext(e.target.value)}
+                  placeholder="Key task, platform, language, design constraints or evaluation focus"
+                  className="w-full px-3 py-1.5 rounded-lg bg-[#212121] border border-white/[0.1] text-xs resize-y"
+                />
               </div>
             </div>
 
-            {/* Upload Source Code Section */}
-            <div
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDragging(true);
-              }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setIsDragging(false);
-                void handleUploadedFileList(e.dataTransfer.files);
-              }}
-              className={`rounded-lg border border-dashed px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-3 transition-colors ${
-                isDragging
-                  ? 'border-[#10a37f] bg-[#10a37f]/10'
-                  : 'border-white/[0.15] bg-[#212121]'
-              }`}
-            >
-              <div className="flex items-center gap-2.5 text-xs">
-                <Upload className="w-4 h-4 text-[#10a37f] shrink-0" />
-                {uploadedProject ? (
-                  <span>
-                    Loaded <strong className="text-white">{uploadedProject.name}</strong> ({uploadedProject.htmlPages.length} HTML{' '}
-                    {uploadedProject.htmlPages.length === 1 ? 'page' : 'pages'})
-                  </span>
+            {(htmlInput.trim() || baselineViewMode === 'code') ? (
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-medium text-[#9b9b9b]">
+                      {baselineViewMode === 'preview' ? 'Live Preview' : 'HTML Source'}
+                    </span>
+                    {activePages.length > 0 && (
+                      <div ref={pageMenuRef} className="relative">
+                        <button
+                          type="button"
+                          title={uploadedProject ? uploadedProject.name : baselineDir}
+                          onClick={() => setPageMenuOpen((v) => !v)}
+                          className="!min-h-0 !min-w-0 inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-[#1e1e1e] border border-white/[0.08] hover:bg-[#2c2c2c] hover:border-white/20 text-[11px] font-mono text-[#ececec] transition-colors"
+                        >
+                          <span className="truncate max-w-[180px]">{selectedPage}</span>
+                          <ChevronDown
+                            className={`w-3 h-3 text-[#9b9b9b] transition-transform duration-150 ${pageMenuOpen ? 'rotate-180' : ''
+                              }`}
+                          />
+                        </button>
+                        {pageMenuOpen && (
+                          <div className="absolute left-0 top-full mt-1.5 z-40 min-w-[200px] max-w-[280px] max-h-[260px] overflow-y-auto rounded-xl bg-[#2c2c2c] border border-white/[0.1] shadow-2xl p-1 space-y-0.5">
+                            {activePages.map((p) => {
+                              const isSelected = p === selectedPage;
+                              return (
+                                <button
+                                  key={p}
+                                  type="button"
+                                  onClick={async () => {
+                                    setPageMenuOpen(false);
+                                    setSelectedPage(p);
+                                    setError('');
+                                    setResult(null);
+                                    setPriorityOrder([]);
+                                    setReviewedMetricIds(new Set());
+                                    if (uploadedProject) {
+                                      setHtmlInput(bundleUploadedHtml(p, uploadedProject.files));
+                                      return;
+                                    }
+                                    try {
+                                      const res = await fetch(`/api/checklist?page=${encodeURIComponent(p)}`);
+                                      const data = await res.json();
+                                      if (res.ok && data.success) {
+                                        setHtmlInput(data.html);
+                                      } else {
+                                        setError(data.error || 'Failed to load page');
+                                      }
+                                    } catch {
+                                      setError('Failed to load baseline page');
+                                    }
+                                  }}
+                                  className={`!min-h-0 !min-w-0 w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg text-left text-[11px] font-mono transition-colors ${isSelected
+                                    ? 'bg-[#3f3f3f] text-white font-medium'
+                                    : 'text-[#d4d4d4] hover:bg-[#383838] hover:text-white'
+                                    }`}
+                                >
+                                  <span className="truncate">{p}</span>
+                                  {isSelected && <Check className="w-3 h-3 text-[#10a37f] shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {activePages.length > 1 && (
+                      <div
+                        className="inline-flex items-center rounded-full bg-[#1e1e1e] p-0.5 border border-white/[0.08] gap-0.5"
+                        title="Choose audit scope"
+                      >
+                        <button
+                          type="button"
+                          disabled={loadingPhase !== 'idle'}
+                          onClick={() => setAuditScope('current')}
+                          className={`!min-h-0 !min-w-0 inline-flex items-center h-6 px-2.5 rounded-full text-[11px] transition-colors disabled:opacity-50 ${
+                            auditScope === 'current'
+                              ? 'bg-[#3f3f3f] text-white font-medium shadow-sm'
+                              : 'text-[#9b9b9b] hover:text-white'
+                          }`}
+                        >
+                          Current Page
+                        </button>
+                        <button
+                          type="button"
+                          disabled={loadingPhase !== 'idle'}
+                          onClick={() => setAuditScope('all')}
+                          className={`!min-h-0 !min-w-0 inline-flex items-center h-6 px-2.5 rounded-full text-[11px] transition-colors disabled:opacity-50 ${
+                            auditScope === 'all'
+                              ? 'bg-[#3f3f3f] text-white font-medium shadow-sm'
+                              : 'text-[#9b9b9b] hover:text-white'
+                          }`}
+                        >
+                          All Pages ({activePages.length})
+                        </button>
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activePages.length > 1 && auditScope === 'all') {
+                          void runBatchAudit();
+                        } else {
+                          void runPipeline('audit');
+                        }
+                      }}
+                      disabled={
+                        loadingPhase !== 'idle' ||
+                        (!(activePages.length > 1 && auditScope === 'all') && !htmlInput.trim())
+                      }
+                      className="!min-h-0 !min-w-0 inline-flex items-center gap-1.5 h-7 px-3.5 rounded-full bg-[#ececec] text-[#171717] font-medium text-xs hover:bg-white transition-colors disabled:opacity-50"
+                    >
+                      {loadingPhase === 'audit' || loadingPhase === 'batch' ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Play className="w-3 h-3" />
+                      )}
+                      {batchProgress
+                        ? `Auditing ${batchProgress.current}/${batchProgress.total}: ${batchProgress.currentPage}`
+                        : loadingPhase === 'audit' || loadingPhase === 'batch'
+                          ? 'Auditing...'
+                          : 'Run Audit'}
+                    </button>
+                  </div>
+                </div>
+                {baselineViewMode === 'preview' ? (
+                  <div className="rounded-lg border border-white/[0.1] bg-white overflow-hidden">
+                    <iframe
+                      title="Baseline Input Preview"
+                      srcDoc={htmlInput}
+                      sandbox="allow-same-origin"
+                      className="w-full h-[460px] bg-white border-0"
+                    />
+                  </div>
                 ) : (
-                  <span className="text-[#9b9b9b]">
-                    Upload <strong className="text-[#ececec]">HTML/CSS/JS files</strong> or a <strong className="text-[#ececec]">website folder</strong> (or drag &amp; drop here)
-                  </span>
+                  <textarea
+                    value={htmlInput}
+                    onChange={(e) => setHtmlInput(e.target.value)}
+                    rows={18}
+                    placeholder="Paste HTML source..."
+                    className="w-full p-3 rounded-lg bg-[#212121] border border-white/[0.1] font-mono text-xs text-[#ececec] focus:outline-none focus:border-white/30"
+                  />
                 )}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept=".html,.htm,.css,.js"
-                  className="hidden"
-                  onChange={(e) => {
-                    void handleUploadedFileList(e.target.files);
-                    e.target.value = '';
-                  }}
-                />
-                <input
-                  ref={folderInputRef}
-                  type="file"
-                  // @ts-expect-error webkitdirectory is standard in Chromium/Safari for folder upload
-                  webkitdirectory=""
-                  directory=""
-                  className="hidden"
-                  onChange={(e) => {
-                    void handleUploadedFileList(e.target.files);
-                    e.target.value = '';
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                  Upload Files
-                </button>
-                <button
-                  type="button"
-                  onClick={() => folderInputRef.current?.click()}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
-                >
-                  <FolderUp className="w-3.5 h-3.5" />
-                  Upload Folder
-                </button>
-                {uploadedProject && (
-                  <button
-                    type="button"
-                    onClick={() => void resetToBaseline()}
-                    className="px-2.5 py-1 rounded-md border border-white/[0.12] hover:bg-[#2f2f2f] text-xs text-[#9b9b9b]"
-                  >
-                    Use Default Baseline
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="space-y-1">
-                <label htmlFor="ctx-product-goal" className="block text-[11px] font-medium text-[#9b9b9b]">
-                  Product Goal
-                </label>
-                <input
-                  id="ctx-product-goal"
-                  value={productGoal}
-                  onChange={(e) => setProductGoal(e.target.value)}
-                  placeholder="e.g. Hotel search & booking conversion"
-                  className="w-full px-3 py-1.5 rounded-lg bg-[#212121] border border-white/[0.1] text-xs"
-                />
-              </div>
-              <div className="space-y-1">
-                <label htmlFor="ctx-audience" className="block text-[11px] font-medium text-[#9b9b9b]">
-                  Target Audience
-                </label>
-                <input
-                  id="ctx-audience"
-                  value={targetAudience}
-                  onChange={(e) => setTargetAudience(e.target.value)}
-                  placeholder="e.g. Travelers on desktop & mobile"
-                  className="w-full px-3 py-1.5 rounded-lg bg-[#212121] border border-white/[0.1] text-xs"
-                />
-              </div>
-              <div className="space-y-1">
-                <label htmlFor="ctx-theme" className="block text-[11px] font-medium text-[#9b9b9b]">
-                  Theme &amp; Brand Colors
-                </label>
-                <input
-                  id="ctx-theme"
-                  value={theme}
-                  onChange={(e) => setTheme(e.target.value)}
-                  placeholder="e.g. Booking.com blue (#003580) & yellow (#ffb700)"
-                  className="w-full px-3 py-1.5 rounded-lg bg-[#212121] border border-white/[0.1] text-xs"
-                />
-              </div>
-            </div>
-
-            {baselineViewMode === 'preview' ? (
-              <div className="rounded-lg border border-white/[0.1] bg-white overflow-hidden">
-                <iframe
-                  title="Baseline Input Preview"
-                  srcDoc={htmlInput}
-                  sandbox="allow-same-origin"
-                  className="w-full h-[460px] bg-white border-0"
-                />
+                <div className="flex justify-end">
+                  <div className="inline-flex items-center rounded-full bg-[#1e1e1e] p-0.5 border border-white/[0.08] gap-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setBaselineViewMode('preview')}
+                      title="Preview"
+                      aria-label="Preview"
+                      className={`!min-h-0 !min-w-0 inline-flex items-center justify-center h-6 px-2 rounded-full transition-colors ${
+                        baselineViewMode === 'preview'
+                          ? 'bg-[#3f3f3f] text-white shadow-sm'
+                          : 'text-[#9b9b9b] hover:text-white'
+                      }`}
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBaselineViewMode('code')}
+                      title="Source Code"
+                      aria-label="Source Code"
+                      className={`!min-h-0 !min-w-0 inline-flex items-center justify-center h-6 px-2 rounded-full transition-colors ${
+                        baselineViewMode === 'code'
+                          ? 'bg-[#3f3f3f] text-white shadow-sm'
+                          : 'text-[#9b9b9b] hover:text-white'
+                      }`}
+                    >
+                      <Code2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
-              <textarea
-                value={htmlInput}
-                onChange={(e) => setHtmlInput(e.target.value)}
-                rows={20}
-                placeholder="Paste HTML source..."
-                className="w-full p-3 rounded-lg bg-[#212121] border border-white/[0.1] font-mono text-xs text-[#ececec] focus:outline-none focus:border-white/30"
-              />
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setBaselineViewMode('code')}
+                  className="!min-h-0 !min-w-0 inline-flex items-center gap-1 h-6 px-2.5 rounded-full bg-[#1e1e1e] border border-white/[0.08] hover:bg-[#383838] text-[11px] text-[#9b9b9b] hover:text-white transition-colors"
+                >
+                  <Code2 className="w-3 h-3" />
+                  Paste HTML in Source Code
+                </button>
+              </div>
             )}
 
             {error && <div className="text-xs text-rose-400">{error}</div>}
           </section>
         )}
 
-        {/* Stage 2 & 3 Shared Scoreboard */}
-        {activeStage !== 'input' && result && activeSnapshot && (
-          <>
-            {/* Scoreboard */}
-            <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="p-3.5 rounded-xl bg-[#171717] border border-white/[0.08]">
-                <div className="text-xs text-[#9b9b9b]">Passed (Applicable)</div>
-                <div className="text-2xl font-semibold text-[#10a37f] mt-1">
-                  {activeSnapshot.summary.totalPassed}{' '}
-                  <span className="text-sm text-[#8e8e8e]">/ {activeSnapshot.summary.totalMetrics}</span>
-                </div>
-                <div className="text-[11px] text-[#9b9b9b] mt-1 space-y-0.5">
-                  <div>{activeSnapshot.summary.passRate}% passed</div>
-                  <div>UX {activeSnapshot.summary.ux.passed}/{activeSnapshot.summary.ux.total}</div>
-                  <div>UI {activeSnapshot.summary.ui.passed}/{activeSnapshot.summary.ui.total}</div>
-                </div>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#171717] border border-white/[0.08]">
-                <div className="text-xs text-[#9b9b9b]">Failed</div>
-                <div className="text-2xl font-semibold text-rose-400 mt-1">
-                  {activeSnapshot.summary.totalFailed}
-                </div>
-                <div className="text-[11px] text-[#9b9b9b] mt-0.5">Eligible for optimization</div>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#171717] border border-white/[0.08]">
-                <div className="text-xs text-[#9b9b9b]">Needs review</div>
-                <div className="text-2xl font-semibold text-amber-400 mt-1">
-                  {activeSnapshot.summary.totalNeedsReview}
-                </div>
-                <div className="text-[11px] text-[#9b9b9b] mt-0.5">Manual evidence check</div>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#171717] border border-white/[0.08]">
-                <div className="text-xs text-[#9b9b9b]">Status</div>
-                <div className="text-sm font-medium text-white mt-1.5">
-                  {formatStopReason(result.stopReason)}
-                </div>
-                {!hasOptimizationRuns && (
-                  <div className="text-[11px] text-[#9b9b9b] mt-1">Ready for prioritization</div>
-                )}
-              </div>
-            </section>
-
-            {/* Stage 2: Audit & Prioritize */}
-            {activeStage === 'audit' && baselineSnapshot && (
-              <>
-                {batchReport && (
-                  <section className="rounded-xl bg-[#171717] border border-[#10a37f]/35 p-4 space-y-3">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <Layers className="w-4 h-4 text-[#10a37f]" />
-                          <h2 className="text-sm font-semibold text-white">
-                            Site-Wide Batch Audit ({batchReport.completedPages}/{batchReport.totalPages} pages)
-                          </h2>
-                          <span className="text-[11px] px-2 py-0.5 rounded bg-[#10a37f]/15 text-[#10a37f]">
-                            Read-only
-                          </span>
-                        </div>
-                        <p className="text-xs text-[#9b9b9b] mt-0.5">
-                          Avg pass rate <strong className="text-white">{batchReport.aggregate.avgPassRate}%</strong>
-                          {batchReport.aggregate.worstPage && (
-                            <>
-                              {' '}
-                              &middot; Worst page:{' '}
-                              <strong className="text-rose-300">{batchReport.aggregate.worstPage}</strong> (
-                              {batchReport.aggregate.minPassRate}%)
-                            </>
-                          )}{' '}
-                          &middot; Total issues: <strong className="text-rose-300">{batchReport.aggregate.totalFailed} failed</strong>,{' '}
-                          <strong className="text-amber-300">{batchReport.aggregate.totalNeedsReview} review</strong>. Pick any page below for single-page optimization.
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => downloadJsonFile('report.json', batchReport)}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          report.json
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => downloadJsonFile('feedback.json', batchReport.feedback)}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#ececec]"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          feedback.json (page_hint)
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="overflow-x-auto rounded-lg border border-white/[0.08]">
-                      <table className="w-full text-left text-xs">
-                        <thead className="bg-[#212121] text-[#9b9b9b]">
-                          <tr>
-                            <th className="px-3 py-2 font-medium">Page</th>
-                            <th className="px-3 py-2 font-medium">Pass Rate</th>
-                            <th className="px-3 py-2 font-medium">UX</th>
-                            <th className="px-3 py-2 font-medium">UI</th>
-                            <th className="px-3 py-2 font-medium">Failed</th>
-                            <th className="px-3 py-2 font-medium">Review</th>
-                            <th className="px-3 py-2 font-medium text-right">Single-Page Optimize</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/[0.06]">
-                          {batchReport.pages.map((p) => {
-                            const isCurrent = p.page === selectedPage;
-                            const isWorst = p.page === batchReport.aggregate.worstPage;
-                            return (
-                              <tr
-                                key={p.page}
-                                className={isCurrent ? 'bg-[#10a37f]/10' : 'hover:bg-white/[0.02]'}
-                              >
-                                <td className="px-3 py-2 font-mono text-[#ececec]">
-                                  <span>{p.page}</span>
-                                  {isWorst && (
-                                    <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-sans">
-                                      Worst
-                                    </span>
-                                  )}
-                                  {isCurrent && (
-                                    <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-[#10a37f]/20 text-[#10a37f] font-sans">
-                                      Active
-                                    </span>
-                                  )}
-                                </td>
-                                {p.error ? (
-                                  <td colSpan={5} className="px-3 py-2 text-rose-400">
-                                    {p.error}
-                                  </td>
-                                ) : (
-                                  <>
-                                    <td className="px-3 py-2 font-semibold text-white">{p.summary.passRate}%</td>
-                                    <td className="px-3 py-2 text-[#d4d4d4]">
-                                      {p.summary.ux.passed}/{p.summary.ux.total}
-                                    </td>
-                                    <td className="px-3 py-2 text-[#d4d4d4]">
-                                      {p.summary.ui.passed}/{p.summary.ui.total}
-                                    </td>
-                                    <td className="px-3 py-2 text-rose-400">{p.summary.totalFailed}</td>
-                                    <td className="px-3 py-2 text-amber-400">{p.summary.totalNeedsReview}</td>
-                                  </>
-                                )}
-                                <td className="px-3 py-2 text-right">
-                                  <button
-                                    type="button"
-                                    disabled={Boolean(p.error)}
-                                    onClick={() => void selectBatchPageForOptimize(p)}
-                                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium disabled:opacity-40 ${
-                                      isCurrent
-                                        ? 'bg-[#10a37f] text-white'
-                                        : 'bg-[#2f2f2f] hover:bg-[#383838] text-[#ececec]'
-                                    }`}
-                                  >
-                                    {isCurrent ? 'Selected for Optimize' : 'Optimize This Page →'}
-                                  </button>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </section>
-                )}
-
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#171717] p-0.5">
-                    <button
-                      type="button"
-                      onClick={() => setAuditTab('priority')}
-                      className={`px-3 py-1 rounded-md text-xs font-medium ${
-                        auditTab === 'priority' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b] hover:text-white'
-                      }`}
-                    >
-                      Priority &amp; Preview ({priorityOrder.length})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAuditTab('checklist')}
-                      className={`px-3 py-1 rounded-md text-xs font-medium ${
-                        auditTab === 'checklist' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b] hover:text-white'
-                      }`}
-                    >
-                      Full Checklist ({baselineSnapshot.summary.totalMetrics})
-                    </button>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveStage('input')}
-                    className="px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#d4d4d4]"
-                  >
-                    &larr; Edit Input
-                  </button>
-                </div>
-
-                {auditTab === 'priority' && priorityOrder.length > 0 && (
-              <section className="rounded-xl bg-[#171717] border border-white/[0.08] p-4 space-y-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <h2 className="text-sm font-semibold text-white">
-                      Baseline results &amp; Priority selection
-                    </h2>
-                    <p className="text-xs text-[#9b9b9b]">
-                      Select issues to fix, reorder priority, or click an item to inspect its preview.
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <select
-                      value={maxIterations}
-                      onChange={(e) => setMaxIterations(Number(e.target.value))}
-                      className="px-2.5 py-1.5 rounded-lg bg-[#2f2f2f] border border-white/[0.12] text-xs"
-                    >
-                      <option value={2}>Max 2 iterations</option>
-                      <option value={3}>Max 3 iterations</option>
-                      <option value={5}>Max 5 iterations</option>
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => runPipeline('iterate')}
-                      disabled={loadingPhase !== 'idle' || selectedReadyCount === 0}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#10a37f] text-white font-medium text-xs hover:opacity-90 disabled:opacity-50"
-                    >
-                      {loadingPhase === 'iterate' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                      {loadingPhase === 'iterate'
-                        ? 'Optimizing...'
-                        : `Run optimization (${selectedReadyCount} ${selectedReadyCount === 1 ? 'issue' : 'issues'})`}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                  {/* Left: Priority Issues List */}
-                  <div className="lg:col-span-5 space-y-2">
-                    <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
-                      {priorityOrder.map((id, idx) => {
-                        const item = priorityItemMap.get(id);
-                        if (!item) return null;
-                        const checked = selectedMetricIds.has(id);
-                        const isInspected = inspectedMetricId === id;
-                        const isNeedsReview = item.status === 'needsReview';
-                        const isConfirmed = !isNeedsReview || reviewedMetricIds.has(id);
-                        return (
-                          <div
-                            key={id}
-                            onClick={() => inspectMetric(item)}
-                            className={`p-2.5 rounded-lg border cursor-pointer transition-colors ${
-                              isInspected
-                                ? 'bg-[#2a2a2a] border-[#10a37f]'
-                                : 'bg-[#212121] border-white/[0.06] hover:bg-[#262626]'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <label
-                                className={`flex items-center gap-2 min-w-0 flex-1 ${
-                                  !isConfirmed ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
-                                }`}
-                                onClick={(e) => e.stopPropagation()}
-                                title={!isConfirmed ? 'Click "Review evidence" and "Confirm for fix" to enable' : undefined}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={isConfirmed && checked}
-                                  disabled={!isConfirmed}
-                                  onChange={() => isConfirmed && toggleMetric(id)}
-                                  className="accent-[#10a37f] disabled:opacity-40"
-                                />
-                                <span className="text-[11px] font-mono text-[#8e8e8e]">#{idx + 1}</span>
-                                <span className="text-xs font-medium text-white truncate">{item.title}</span>
-                              </label>
-
-                              <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-                                <span
-                                  className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                                    isNeedsReview
-                                      ? 'bg-amber-500/20 text-amber-300'
-                                      : 'bg-rose-500/20 text-rose-300'
-                                  }`}
-                                >
-                                  {isNeedsReview ? 'Needs review' : 'Fail'}
-                                </span>
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#2f2f2f] text-[#9b9b9b]">
-                                  {item.id === 'reflow' ? '320px' : item.viewport}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => movePriority(id, -1)}
-                                  disabled={idx === 0}
-                                  className="p-1 rounded hover:bg-[#2f2f2f] disabled:opacity-30"
-                                >
-                                  <ArrowUp className="w-3 h-3" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => movePriority(id, 1)}
-                                  disabled={idx === priorityOrder.length - 1}
-                                  className="p-1 rounded hover:bg-[#2f2f2f] disabled:opacity-30"
-                                >
-                                  <ArrowDown className="w-3 h-3" />
-                                </button>
-                              </div>
-                            </div>
-
-                            <div className="mt-1 pl-6 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#9b9b9b]">
-                              <span className="truncate">
-                                {isNeedsReview && !isConfirmed
-                                  ? 'Review the highlighted text before optimizing.'
-                                  : item.measuredSummary}
-                              </span>
-                              <div className="flex items-center gap-2 shrink-0">
-                                {isNeedsReview && !isConfirmed && (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      confirmNeedsReview(id);
-                                    }}
-                                    className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-[11px]"
-                                  >
-                                    Confirm for fix
-                                  </button>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    inspectMetric(item);
-                                  }}
-                                  className="text-[11px] text-[#10a37f] hover:underline"
-                                >
-                                  {isNeedsReview ? 'Review evidence' : item.id === 'reflow' ? 'Preview 320px' : 'Inspect'}
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Right: Single Contextual Preview (before optimization) or Evidence Panel */}
-                  <div className="lg:col-span-7 space-y-2">
-                    {!hasOptimizationRuns ? (
-                      <div className="rounded-lg border border-white/[0.1] overflow-hidden bg-[#212121] flex flex-col items-center">
-                        <div className="w-full px-3 py-1.5 bg-[#212121] border-b border-white/[0.08] text-xs flex flex-wrap items-center justify-between gap-2">
-                          <span className="text-[#ececec] truncate">
-                            {inspectedItem
-                              ? `${inspectedItem.title} (${
-                                  previewViewport === 'mobile320'
-                                    ? '320px'
-                                    : previewViewport === 'mobile375'
-                                      ? '375px'
-                                      : previewViewport === 'tablet'
-                                        ? '768px'
-                                        : '1280px'
-                                })`
-                              : 'Baseline Preview'}
-                          </span>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <div className="inline-flex rounded border border-white/[0.1] bg-[#171717] p-0.5">
-                              <button
-                                type="button"
-                                onClick={() => setPreviewViewport('desktop')}
-                                className={`px-2 py-0.5 rounded text-[11px] ${
-                                  previewViewport === 'desktop' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
-                                }`}
-                              >
-                                Desktop
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setPreviewViewport('mobile320')}
-                                className={`px-2 py-0.5 rounded text-[11px] ${
-                                  previewViewport === 'mobile320' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
-                                }`}
-                              >
-                                320px
-                              </button>
-                            </div>
-                            {previewViewport === 'desktop' && (
-                              <div className="inline-flex rounded border border-white/[0.1] bg-[#171717] p-0.5">
-                                <button
-                                  type="button"
-                                  onClick={() => setPreviewZoom('fit')}
-                                  className={`px-2 py-0.5 rounded text-[11px] ${
-                                    previewZoom === 'fit' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
-                                  }`}
-                                >
-                                  Fit
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setPreviewZoom('actual')}
-                                  className={`px-2 py-0.5 rounded text-[11px] ${
-                                    previewZoom === 'actual' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b]'
-                                  }`}
-                                >
-                                  100%
-                                </button>
-                              </div>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => setFullScreenPreview(true)}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#2f2f2f] hover:bg-[#383838] text-[11px] text-[#ececec]"
-                            >
-                              <Maximize2 className="w-3 h-3" />
-                              Full Page
-                            </button>
-                          </div>
-                        </div>
-                        <ScaledIframePreview
-                          title="Contextual Baseline Preview"
-                          html={injectHighlightCss(
-                            baselineSnapshot.html,
-                            inspectedItem?.rawSelectors || []
-                          )}
-                          viewport={previewViewport}
-                          zoom={previewZoom}
-                          heightPx={540}
-                        />
-                        {inspectedItem && (
-                          <div className="w-full px-3 py-2 bg-[#171717] border-t border-white/[0.08] space-y-1">
-                            <div className="text-xs text-[#ececec]">
-                              {inspectedItem.measuredSummary}
-                            </div>
-                            {(inspectedItem.rawSelectors?.length || inspectedItem.samples.length) ? (
-                              <details>
-                                <summary className="cursor-pointer text-[11px] text-[#10a37f]">
-                                  Details &amp; technical measurements ({inspectedItem.rawSelectors?.length || inspectedItem.samples.length})
-                                </summary>
-                                <div className="mt-1 text-[11px] font-mono text-[#9b9b9b] whitespace-pre-wrap">
-                                  {inspectedItem.samples.join('\n')}
-                                </div>
-                              </details>
-                            ) : null}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="rounded-lg border border-white/[0.08] bg-[#212121] p-3.5 space-y-2 h-full">
-                        <div className="text-xs font-medium text-white">
-                          {inspectedItem ? `Evidence: ${inspectedItem.title}` : 'Select an issue to inspect evidence'}
-                        </div>
-                        {inspectedItem && (
-                          <>
-                            <div className="text-xs text-[#d4d4d4]">{inspectedItem.measuredSummary}</div>
-                            <div className="text-xs text-[#9b9b9b]">{inspectedItem.recommendation}</div>
-                            {inspectedItem.samples.length > 0 && (
-                              <pre className="p-2.5 rounded bg-[#171717] border border-white/[0.08] text-[11px] text-[#b4b4b4] whitespace-pre-wrap">
-                                {inspectedItem.samples.join('\n')}
-                              </pre>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </section>
-                )}
-
-                {auditTab === 'checklist' && (
-                  <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <h2 className="text-sm font-semibold text-white px-1">
-                        UX Checklist ({baselineSnapshot.summary.ux.passed}/{baselineSnapshot.summary.ux.total})
-                      </h2>
-                      {baselineSnapshot.summary.pillars
-                        .filter((p) => p.group === 'ux')
-                        .map(renderPillarCard)}
-                    </div>
-                    <div className="space-y-3">
-                      <h2 className="text-sm font-semibold text-white px-1">
-                        UI Checklist ({baselineSnapshot.summary.ui.passed}/{baselineSnapshot.summary.ui.total})
-                      </h2>
-                      {baselineSnapshot.summary.pillars
-                        .filter((p) => p.group === 'ui')
-                        .map(renderPillarCard)}
-                    </div>
-                  </section>
-                )}
-              </>
-            )}
-
-            {/* Stage 3: Optimize & Approve */}
-            {activeStage === 'optimize' && hasOptimizationRuns && (
-              <>
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="inline-flex rounded-lg border border-white/[0.1] bg-[#171717] p-0.5">
-                    <button
-                      type="button"
-                      onClick={() => setOptimizeTab('compare')}
-                      className={`px-3 py-1 rounded-md text-xs font-medium ${
-                        optimizeTab === 'compare' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b] hover:text-white'
-                      }`}
-                    >
-                      Compare &amp; Progress
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setOptimizeTab('checklist')}
-                      className={`px-3 py-1 rounded-md text-xs font-medium ${
-                        optimizeTab === 'checklist' ? 'bg-[#2f2f2f] text-white' : 'text-[#9b9b9b] hover:text-white'
-                      }`}
-                    >
-                      Updated Checklist ({activeSnapshot.summary.totalPassed}/{activeSnapshot.summary.totalMetrics})
-                    </button>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveStage('audit')}
-                    className="px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-[#d4d4d4]"
-                  >
-                    &larr; Back to Priorities
-                  </button>
-                </div>
-
-                {optimizeTab === 'compare' && (
-                  <FigmaReviewCanvas
-                    selectedPage={selectedPage}
-                    result={result}
-                    selectedIter={selectedIter}
-                    onSelectIter={setSelectedIter}
-                    approvedIter={approvedIter}
-                    savedApprovalInfo={savedApprovalInfo}
-                    onApprove={handleApproveSnapshot}
-                    onCopyHtml={handleCopyHtml}
-                    copied={copied}
-                    onBackToPriorities={() => setActiveStage('audit')}
-                    onOpenChecklistTab={() => setOptimizeTab('checklist')}
-                    injectHighlightCss={injectHighlightCss}
-                  />
-                )}
-
-                {optimizeTab === 'checklist' && (
-                  <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <h2 className="text-sm font-semibold text-white px-1">
-                        UX Checklist ({activeSnapshot.summary.ux.passed}/{activeSnapshot.summary.ux.total})
-                      </h2>
-                      {activeSnapshot.summary.pillars
-                        .filter((p) => p.group === 'ux')
-                        .map(renderPillarCard)}
-                    </div>
-                    <div className="space-y-3">
-                      <h2 className="text-sm font-semibold text-white px-1">
-                        UI Checklist ({activeSnapshot.summary.ui.passed}/{activeSnapshot.summary.ui.total})
-                      </h2>
-                      {activeSnapshot.summary.pillars
-                        .filter((p) => p.group === 'ui')
-                        .map(renderPillarCard)}
-                    </div>
-                  </section>
-                )}
-              </>
-            )}
-          </>
-        )}
-      </main>
-
-      {/* Full-Page Side-by-Side Synced Comparison Modal */}
-      {fullScreenPreview && result && activeSnapshot && (
-        <div className="fixed inset-0 z-50 bg-[#171717] flex flex-col">
-          <div className="px-4 py-2.5 border-b border-white/[0.08] flex flex-wrap items-center justify-between gap-2 bg-[#171717]">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-white">Full-Page Comparison</span>
-              <select
-                value={selectedIter}
-                onChange={(e) => setSelectedIter(Number(e.target.value))}
-                className="px-2.5 py-1 rounded-md bg-[#2f2f2f] border border-white/[0.12] text-xs text-white"
-              >
-                {result.iterations.map((it) => (
-                  <option key={it.iteration} value={it.iteration}>
-                    {it.label} ({it.summary.totalPassed}/{it.summary.totalMetrics})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setSyncScroll((v) => !v)}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border ${
-                  syncScroll
-                    ? 'bg-[#2f2f2f] border-[#10a37f] text-white'
-                    : 'bg-[#212121] border-white/[0.1] text-[#9b9b9b]'
-                }`}
-              >
-                <Link2 className="w-3.5 h-3.5" />
-                Sync Scroll
-              </button>
-              <button
-                type="button"
-                onClick={() => setFullScreenPreview(false)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#2f2f2f] hover:bg-[#383838] text-xs text-white"
-              >
-                <X className="w-3.5 h-3.5" />
-                Close
-              </button>
-            </div>
-          </div>
-
-          <div
-            className={`flex-1 min-h-0 grid ${
-              baselineSnapshot && activeSnapshot.iteration !== 0
-                ? 'grid-cols-1 lg:grid-cols-2'
-                : 'grid-cols-1'
-            }`}
-          >
-            {baselineSnapshot && activeSnapshot.iteration !== 0 && (
-              <div className="flex flex-col border-r border-white/[0.08] bg-white min-h-0">
-                <div className="px-3 py-1.5 bg-[#212121] border-b border-white/[0.08] text-xs text-[#9b9b9b] flex justify-between shrink-0">
-                  <span>Baseline (Before)</span>
-                  <span className="font-mono">
-                    {baselineSnapshot.summary.totalPassed}/{baselineSnapshot.summary.totalMetrics}
+        {/* Batch Audit Overview (shown on Input page after Batch Audit All) */}
+        {activeStage === 'input' && batchReport && (
+          <section className="rounded-xl bg-[#171717] border border-[#10a37f]/35 p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-[#10a37f]" />
+                  <h2 className="text-sm font-semibold text-white">
+                    Site-Wide Batch Audit ({batchReport.completedPages}/{batchReport.totalPages} pages)
+                  </h2>
+                  <span className="text-[11px] px-2 py-0.5 rounded bg-[#10a37f]/15 text-[#10a37f]">
+                    Read-only
                   </span>
                 </div>
-                <iframe
-                  ref={modalLeftRef}
-                  title="Full Page Baseline Preview"
-                  srcDoc={baselineSnapshot.html}
-                  sandbox="allow-same-origin"
-                  className="w-full flex-1 bg-white border-0"
-                />
+                <p className="text-xs text-[#9b9b9b] mt-0.5">
+                  Avg pass rate <strong className="text-white">{batchReport.aggregate.avgPassRate}%</strong>
+                  {batchReport.aggregate.worstPage && (
+                    <>
+                      {' '}
+                      &middot; Worst page:{' '}
+                      <strong className="text-rose-300">{batchReport.aggregate.worstPage}</strong> (
+                      {batchReport.aggregate.minPassRate}%)
+                    </>
+                  )}{' '}
+                  &middot; Total issues: <strong className="text-rose-300">{batchReport.aggregate.totalFailed} failed</strong>,{' '}
+                  <strong className="text-amber-300">{batchReport.aggregate.totalNeedsReview} review</strong>. Pick any page below to open in Figma Review Studio.
+                </p>
               </div>
-            )}
 
-            <div className="flex flex-col bg-white min-h-0">
-              <div className="px-3 py-1.5 bg-[#212121] border-b border-white/[0.08] text-xs text-white flex justify-between shrink-0">
-                <span>{activeSnapshot.label} (After)</span>
-                <span className="font-mono text-[#10a37f]">
-                  {activeSnapshot.summary.totalPassed}/{activeSnapshot.summary.totalMetrics}
-                </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => downloadJsonFile('report.json', batchReport)}
+                  className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-[#383838] hover:bg-[#444] text-xs font-medium text-[#ececec] transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  report.json
+                </button>
+                <button
+                  type="button"
+                  onClick={() => downloadJsonFile('feedback.json', batchReport.feedback)}
+                  className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-[#383838] hover:bg-[#444] text-xs font-medium text-[#ececec] transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  feedback.json (page_hint)
+                </button>
               </div>
-              <iframe
-                ref={modalRightRef}
-                title="Full Page Iteration Preview"
-                srcDoc={activeSnapshot.html}
-                sandbox="allow-same-origin"
-                className="w-full flex-1 bg-white border-0"
-              />
             </div>
-          </div>
-        </div>
-      )}
+
+            <div className="overflow-x-auto rounded-lg border border-white/[0.08]">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#212121] text-[#9b9b9b]">
+                  <tr>
+                    <th className="px-3 py-2 font-medium">Page</th>
+                    <th className="px-3 py-2 font-medium">Pass Rate</th>
+                    <th className="px-3 py-2 font-medium">UX</th>
+                    <th className="px-3 py-2 font-medium">UI</th>
+                    <th className="px-3 py-2 font-medium">Failed</th>
+                    <th className="px-3 py-2 font-medium">Review</th>
+                    <th className="px-3 py-2 font-medium text-right">Figma Review Studio</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.06]">
+                  {batchReport.pages.map((p) => {
+                    const isCurrent = p.page === selectedPage;
+                    const isWorst = p.page === batchReport.aggregate.worstPage;
+                    return (
+                      <tr
+                        key={p.page}
+                        className={isCurrent ? 'bg-[#10a37f]/10' : 'hover:bg-white/[0.02]'}
+                      >
+                        <td className="px-3 py-2 font-mono text-[#ececec]">
+                          <span>{p.page}</span>
+                          {isWorst && (
+                            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-sans">
+                              Worst
+                            </span>
+                          )}
+                          {isCurrent && (
+                            <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-[#10a37f]/20 text-[#10a37f] font-sans">
+                              Active
+                            </span>
+                          )}
+                        </td>
+                        {p.error ? (
+                          <td colSpan={5} className="px-3 py-2 text-rose-400">
+                            {p.error}
+                          </td>
+                        ) : (
+                          <>
+                            <td className="px-3 py-2 font-semibold text-white">{p.summary.passRate}%</td>
+                            <td className="px-3 py-2 text-[#d4d4d4]">
+                              {p.summary.ux.passed}/{p.summary.ux.total}
+                            </td>
+                            <td className="px-3 py-2 text-[#d4d4d4]">
+                              {p.summary.ui.passed}/{p.summary.ui.total}
+                            </td>
+                            <td className="px-3 py-2 text-rose-400">{p.summary.totalFailed}</td>
+                            <td className="px-3 py-2 text-amber-400">{p.summary.totalNeedsReview}</td>
+                          </>
+                        )}
+                        <td className="px-3 py-2 text-right">
+                          <button
+                            type="button"
+                            disabled={Boolean(p.error)}
+                            onClick={() => void selectBatchPageForOptimize(p)}
+                            className={`inline-flex items-center h-7 px-3 rounded-full text-[11px] font-medium transition-colors disabled:opacity-40 ${isCurrent
+                              ? 'bg-[#10a37f] hover:bg-[#0d8c6d] text-white'
+                              : 'bg-[#383838] hover:bg-[#444] text-[#ececec]'
+                              }`}
+                          >
+                            Open in Studio &rarr;
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* Unified Full-Screen Figma Review Studio (Priorities + Canvas + Checklist + Inspector + Export) */}
+        {activeStage === 'optimize' && result && (
+          <FigmaReviewCanvas
+            selectedPage={selectedPage}
+            result={result}
+            selectedIter={selectedIter}
+            onSelectIter={setSelectedIter}
+            activeTab={optimizeTab === 'checklist' ? 'checklist' : 'canvas'}
+            onTabChange={(tab) => setOptimizeTab(tab === 'checklist' ? 'checklist' : 'compare')}
+            viewportPreset={canvasViewport}
+            onViewportPresetChange={setCanvasViewport}
+            compareMode={canvasCompareMode}
+            onCompareModeChange={setCanvasCompareMode}
+            approvedIter={approvedIter}
+            savedApprovalInfo={savedApprovalInfo}
+            onApprove={handleApproveSnapshot}
+            onCopyHtml={handleCopyHtml}
+            copied={copied}
+            onDownloadHtml={handleDownloadHtml}
+            onBackToInput={() => setActiveStage('input')}
+            onOpenChecklistTab={() => setOptimizeTab('checklist')}
+            injectHighlightCss={injectHighlightCss}
+            priorityOrder={priorityOrder}
+            selectedMetricIds={selectedMetricIds}
+            reviewedMetricIds={reviewedMetricIds}
+            onToggleMetric={toggleMetric}
+            onMovePriority={movePriority}
+            onConfirmNeedsReview={confirmNeedsReview}
+            maxIterations={maxIterations}
+            onMaxIterationsChange={setMaxIterations}
+            isOptimizing={loadingPhase === 'iterate'}
+            onRunOptimization={() => void runPipeline('iterate')}
+          />
+        )}
+      </main>
     </div>
   );
 }
